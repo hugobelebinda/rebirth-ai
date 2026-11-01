@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-10-31 (Phase 1 in progress + context-refresh rule).  
+> Last updated: 2026-10-31 (Phase 2 complete).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---
@@ -115,9 +115,9 @@ rebirth-ai/
 | Agent logic | Python 3.11+, Typer CLI |
 | Orchestration | LangGraph / LangChain (Phase 4) |
 | Parsing | Tree-sitter JS/TS |
-| Embeddings | SentenceTransformers (`microsoft/unixcoder-base` candidate) |
-| Vectors | SQLite (+ sqlite-vec or numpy cosine MVP) |
-| Classifier | `TfidfVectorizer` + `RandomForestClassifier` |
+| Embeddings | SentenceTransformers (`st-codesearch-distilroberta-base`; hash embedder for tests) |
+| Vectors | SQLite BLOBs + numpy cosine |
+| Classifier | `TfidfVectorizer` + `LogisticRegression` (held-out acc ≈ 0.95) |
 | LLM | Ollama (`qwen2.5-coder:14b-instruct-q6_K`) + PEFT LoRA |
 | Sandbox | Docker Python SDK |
 | Hosting / PRs | GitHub API (`gh` / PyGithub) |
@@ -160,7 +160,7 @@ rebirth doctor
 |-------|-----|--------|-------------------------|
 | 0 Setup | [PHASE_0_SETUP.md](phases/PHASE_0_SETUP.md) | **Complete** | Public repo live; scaffold + docs; doctor CLI; prereqs documented |
 | 1 Sandbox + AST | [PHASE_1_SANDBOX_AST.md](phases/PHASE_1_SANDBOX_AST.md) | **Complete** | Sandbox pass/fail + AST chunks verified |
-| 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | Planned | Retrieval demo + classifier on synthetic logs |
+| 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | **Complete** | SQLite RAG + classifier acc 0.947; CLI index/query/classify |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | Planned | Train path + Ollama draft generation |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | Planned | Single-file fail→classify→rewrite→pass |
 | 5 Repo scale | [PHASE_5_REPO_SCALE.md](phases/PHASE_5_REPO_SCALE.md) | Planned | Multi-file + open PR |
@@ -181,6 +181,7 @@ rebirth doctor
 | 2026-10-31 | Upgrade LLM | `qwen2.5-coder:14b-instruct-q6_K` — higher fidelity, still fully on VRAM |
 | 2026-10-31 | Docs @ 90% context | Always re-read/update every project `.md` (`.cursor/rules/docs-context-refresh.mdc`) |
 | 2026-10-31 | Sandbox overlay safety | Never `put_archive` onto bind-mounted project; copytree to tempdir first |
+| 2026-10-31 | Phase 2 complete | Hash/ST RAG in SQLite; LogisticRegression error classifier (~95% held-out) |
 
 ---
 

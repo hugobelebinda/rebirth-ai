@@ -28,6 +28,9 @@ data/embeddings.db
 data/embeddings.db-*
 data/models/**
 !data/models/.gitkeep
+!data/models/error_classifier/
+!data/models/error_classifier/*.json
+data/models/error_classifier/*.joblib
 data/datasets/*.bin
 *.pt
 *.pth

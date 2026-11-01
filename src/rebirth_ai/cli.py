@@ -142,5 +142,106 @@ def sandbox_run(
     raise typer.Exit(code=0 if result.ok else 1)
 
 
+@app.command("index")
+def index_project(
+    project: Path = typer.Argument(
+        ...,
+        exists=True,
+        file_okay=False,
+        help="Project root to index into the vector DB",
+    ),
+    db: Path = typer.Option(
+        Path("data/embeddings.db"),
+        "--db",
+        help="SQLite vector DB path",
+    ),
+) -> None:
+    """AST-chunk + embed a project into SQLite for RAG."""
+    from rebirth_ai.rag.retrieve import Retriever
+
+    retriever = Retriever(db_path=db)
+    stats = retriever.index_project(project)
+    print(
+        f"[green]indexed[/green] files={stats.files} chunks={stats.chunks} db={stats.db_path}"
+    )
+
+
+@app.command("query")
+def query_index(
+    text: str = typer.Argument(..., help="Free-text retrieval query"),
+    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    top_k: int = typer.Option(5, "--top-k", "-k"),
+) -> None:
+    """Query the vector index for relevant code chunks."""
+    from rebirth_ai.rag.retrieve import Retriever
+
+    retriever = Retriever(db_path=db)
+    hits = retriever.query(text, top_k=top_k)
+    table = Table(title="RAG hits")
+    table.add_column("score")
+    table.add_column("kind")
+    table.add_column("name")
+    table.add_column("file")
+    for h in hits:
+        table.add_row(f"{h.score:.3f}", h.kind, h.name, h.file_path)
+    print(table)
+
+
+@app.command("train-classifier")
+def train_classifier(
+    dataset: Path = typer.Option(
+        Path("data/datasets/error_logs.jsonl"),
+        "--dataset",
+        exists=True,
+        dir_okay=False,
+    ),
+    model_dir: Path = typer.Option(
+        Path("data/models/error_classifier"),
+        "--model-dir",
+    ),
+) -> None:
+    """Train the TF-IDF + RandomForest error classifier."""
+    from rebirth_ai.classify.model import ErrorClassifier
+
+    _, report = ErrorClassifier.train_from_jsonl(dataset, model_dir=model_dir)
+    print(f"[green]trained[/green] accuracy={report.accuracy:.3f} → {report.model_dir}")
+    print(report.report)
+
+
+@app.command("classify")
+def classify_log(
+    log_file: Path | None = typer.Option(
+        None,
+        "--file",
+        "-f",
+        exists=True,
+        dir_okay=False,
+        help="Path to a log file (otherwise read stdin text arg)",
+    ),
+    text: str | None = typer.Argument(None, help="Raw log text if --file not set"),
+    model_dir: Path = typer.Option(
+        Path("data/models/error_classifier"),
+        "--model-dir",
+    ),
+) -> None:
+    """Classify a test/CI failure log into a discrete error class."""
+    from rebirth_ai.classify.model import ErrorClassifier
+
+    if log_file is not None:
+        payload = log_file.read_text(encoding="utf-8")
+    elif text:
+        payload = text
+    else:
+        raise typer.BadParameter("Provide TEXT or --file")
+
+    clf = ErrorClassifier.load(model_dir)
+    label = clf.predict(payload)
+    probs = clf.predict_proba(payload)
+    print(f"[bold]{label}[/bold]")
+    for cls_name, p in sorted(probs.items(), key=lambda kv: kv[1], reverse=True):
+        print(f"  {cls_name}: {p:.3f}")
+
+
 if __name__ == "__main__":
     app()
+

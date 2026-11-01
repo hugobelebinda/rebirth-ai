@@ -1,0 +1,74 @@
+{"label": "SyntaxError", "text": "file:///workspace/src/math.js:3\nexport function add(a, b) {\n^^^^^^^^\nSyntaxError: Unexpected token 'export'\n    at compileSourceTextModule (node:internal/modules/esm/utils:346:16)"}
+{"label": "SyntaxError", "text": "/workspace/src/app.ts:12:5 - error TS1005: ',' expected.\n12   foo bar\n         ~~~\nFound 1 error."}
+{"label": "SyntaxError", "text": "SyntaxError: missing ) after argument list\n    at Module._compile (internal/modules/cjs/loader.js:892)\n    at Object (/workspace/src/legacy.js:41:18)"}
+{"label": "SyntaxError", "text": "ERROR: Unexpected identifier 'const'\n  --> src/util.js:8:1\n   |\n 8 | constx = 1;\nParse failed with SyntaxError"}
+{"label": "SyntaxError", "text": "esbuild error: Expected \";\" but found \"}\"\n    at failureErrorWithLog (/node_modules/esbuild/lib/main.js)\n    at /workspace/src/component.jsx:55:2"}
+{"label": "SyntaxError", "text": "SyntaxError: Invalid or unexpected token\n    at wrapSafe (node:internal/modules/cjs/loader:1464:18)\n    at Module._compile (node:internal/modules/cjs/loader:1489:20)\n    at Object..js (/workspace/src/broken.js:1:1)"}
+{"label": "SyntaxError", "text": "[typescript] TS1128: Declaration or statement expected.\nsrc/index.ts(90,1): error TS1128: Declaration or statement expected."}
+{"label": "SyntaxError", "text": "Babel: Unexpected token, expected \",\" (14:10)\n  12 | function map(items) {\n  13 |   return items.map(x =>\n> 14 |     x.id;;\nSyntaxError in transform"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'lodash'\nRequire stack:\n- /workspace/src/math.js\n- /workspace/test/math.test.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'zod' imported from /workspace/src/schema.ts"}
+{"label": "DependencyMissing", "text": "npm ERR! code ELIFECYCLE\nnpm ERR! errno 1\nError: Cannot find module '@babel/runtime/helpers/interopRequireDefault'"}
+{"label": "DependencyMissing", "text": "Module not found: Error: Can't resolve 'react-dom/client' in '/workspace/src'\nBREAKING CHANGE: webpack need to install peer dependency"}
+{"label": "DependencyMissing", "text": "FAIL  test/api.test.js\n  \u25cf Test suite failed to run\n    Cannot find module 'supertest' from 'test/api.test.js'"}
+{"label": "DependencyMissing", "text": "error TS2307: Cannot find module 'express' or its corresponding type declarations.\nsrc/server.ts(1,24): error TS2307: Cannot find module 'express'"}
+{"label": "DependencyMissing", "text": "Error: No such file or directory, open '/workspace/node_modules/uuid/package.json'\nnpm warn missing peer uuid@^9"}
+{"label": "DependencyMissing", "text": "ImportError equivalent in node: Cannot find package 'chalk' imported from /workspace/src/cli.js\nDid you mean to install chalk?"}
+{"label": "TypeMismatch", "text": "TypeError: add is not a function\n    at TestContext.<anonymous> (file:///workspace/test/math.test.js:7:12)\n    at Test.runInAsyncScope (node:async_hooks:214:14)"}
+{"label": "TypeMismatch", "text": "TypeError: Cannot read properties of undefined (reading 'map')\n    at summarize (/workspace/src/math.js:18:24)"}
+{"label": "TypeMismatch", "text": "error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\nsrc/math.ts(10,14): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'."}
+{"label": "TypeMismatch", "text": "TypeError: calc.add(...).multiply is not a function\n    at Object (/workspace/test/math.test.js:21:5)"}
+{"label": "TypeMismatch", "text": "error TS2322: Type 'null' is not assignable to type 'Person'.\nsrc/greeter.ts(12,3): error TS2322"}
+{"label": "TypeMismatch", "text": "TypeError: X.prototype.y called on incompatible type\n    at formatResult (/workspace/src/format.js:4:18)\nExpected number, got object"}
+{"label": "TypeMismatch", "text": "error TS2339: Property 'age' does not exist on type 'Person'.\nsrc/greeter.ts(8,18): error TS2339"}
+{"label": "TypeMismatch", "text": "TypeError: Cannot convert undefined or null to object\n    at Function.assign (<anonymous>)\n    at mergeConfig (/workspace/src/config.js:22:17)"}
+{"label": "TestLogicFailure", "text": "not ok 1 - expects the wrong sum on purpose\n  ---\n  error: |-\n    Expected values to be strictly equal:\n    5 !== 999\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 999\n  actual: 5"}
+{"label": "TestLogicFailure", "text": "FAIL test/math.test.js\n  \u25cf math \u203a adds numbers\n    expect(received).toBe(expected)\n    Expected: 5\n    Received: 6"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n+ 'sum=3'\n- 'sum=4'\n    at TestContext.<anonymous> (test/math.test.js:15:12)"}
+{"label": "TestLogicFailure", "text": "1) Calculator accumulates\n     AssertionError: expected 30 to equal 40\n      at Context.<anonymous> (test/math.test.js:22:28)"}
+{"label": "TestLogicFailure", "text": "FAIL  src/greeter.test.ts\n  \u25cf Greeter \u203a say\n    expect(received).toEqual(expected)\n    Expected: \"Hi, Ada\"\n    Received: \"Hello, Ada\""}
+{"label": "TestLogicFailure", "text": "TAP version 13\n# Subtest: formatList joins\nnot ok 1 - formatList joins\n  error: 'Expected \"a, b\" but got \"a,b\"'\n  name: 'AssertionError'"}
+{"label": "TestLogicFailure", "text": "Assertion failed: summarize(2,2) should equal 'sum=4' but was 'sum=5'\nTestLogic mismatch in business assertion"}
+{"label": "TestLogicFailure", "text": "\u25cf TestLogicFailure example\n    Expected: true\n    Received: false\n    at Object.toBe (test/flags.test.js:9:20)\nSnapshot or value assertion failed"}
+{"label": "SyntaxError", "text": "src/file0.js:1\nSyntaxError: Unexpected token\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file1.js:2\nSyntaxError: missing ) after argument list\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file2.js:3\nSyntaxError: Invalid or unexpected token\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file3.js:4\nSyntaxError: ',' expected\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file4.js:5\nSyntaxError: Declaration or statement expected\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file5.js:6\nSyntaxError: Expected \";\" but found\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file6.js:7\nSyntaxError: Parse failed\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "SyntaxError", "text": "src/file7.js:8\nSyntaxError: Unexpected identifier\n    at Module._compile (node:internal/modules/cjs/loader)"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'lodash'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'lodash' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'zod'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'zod' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'express'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'react'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'react' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'chalk'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'chalk' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'uuid'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'uuid' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'axios'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'axios' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'dayjs'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'dayjs' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'commander'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'commander' imported from /workspace/src/main.ts"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'yargs'\nRequire stack:\n- /workspace/src/app.js\nCODE: MODULE_NOT_FOUND"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'yargs' imported from /workspace/src/main.ts"}
+{"label": "TypeMismatch", "text": "TypeError: foo is not a function\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "TypeError: Cannot read properties of undefined (reading 'x')\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "error TS2322: Type 'null' is not assignable to type 'Person'\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "error TS2339: Property 'age' does not exist on type 'Person'\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "TypeError: Cannot convert undefined or null to object\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "TypeError: X.prototype.y called on incompatible type\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TypeMismatch", "text": "error TS2304: Cannot find name 'Foo'\n    at run (/workspace/src/app.ts:10:5)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n5 !== 999\nExpected: 999\nReceived: 5\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n6 !== 5\nExpected: 5\nReceived: 6\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n'sum=3' !== 'sum=4'\nExpected: 'sum=4'\nReceived: 'sum=3'\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n30 !== 40\nExpected: 40\nReceived: 30\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\"Hi, Ada\" !== \"Hello, Ada\"\nExpected: \"Hello, Ada\"\nReceived: \"Hi, Ada\"\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\nTrue !== False\nExpected: False\nReceived: True\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}

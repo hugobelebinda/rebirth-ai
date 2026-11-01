@@ -1,0 +1,6 @@
+[
+  "SyntaxError",
+  "DependencyMissing",
+  "TypeMismatch",
+  "TestLogicFailure"
+]
