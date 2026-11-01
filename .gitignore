@@ -1,0 +1,61 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+credentials.json
+secrets/
+
+# ML / data artifacts (keep structure via .gitkeep)
+data/embeddings.db
+data/embeddings.db-*
+data/models/**
+!data/models/.gitkeep
+data/datasets/*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+wandb/
+runs/
+outputs/
+checkpoints/
+
+# Node (fixtures)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+fixtures/**/coverage/
+fixtures/**/dist/
+
+# Docker
+*.tar
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local logs
+*.log
+logs/
+/tmp/
