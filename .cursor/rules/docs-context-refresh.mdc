@@ -1,0 +1,21 @@
+---
+description: When context nears capacity, refresh every project markdown doc from live state
+alwaysApply: true
+---
+
+# Docs refresh at high context usage
+
+Whenever the conversation context window is at or above ~90% capacity (or the session is about to compact / lose history), **before continuing other work**:
+
+1. **Read every project `.md` file** under this repo (at minimum):
+   - `README.md`
+   - `docs/GLOBAL.md`
+   - `docs/OLLAMA_AMD_GPU.md`
+   - `docs/phases/PHASE_0_SETUP.md` through `PHASE_5_REPO_SCALE.md`
+   - any other `**/*.md` that documents status (fixture READMEs, etc.)
+2. **Update them** so they match reality: phase status, decisions, commands, sample outputs, known gaps, model/GPU defaults, and what shipped vs planned.
+3. Prefer evidence (paths, exit codes, verified commands) over summaries.
+4. Keep the dual-doc protocol: sync **`docs/GLOBAL.md`** and the **active phase** file; touch other phase files only when their status/handoff text changed.
+5. Do this even if the user did not explicitly ask for a docs pass — the docs are the durable memory for this project.
+
+This rule complements (does not replace) the normal “update GLOBAL + phase `.md` after each phase completes” workflow.

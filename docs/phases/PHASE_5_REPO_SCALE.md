@@ -1,7 +1,8 @@
 # Phase 5 — Repository Scale & GitHub Automation
 
 > Status: **PLANNED**  
-> Depends on: Phase 4 single-file loop stable
+> Depends on: Phase 4 single-file loop stable  
+> Last docs refresh: 2026-10-31
 
 ---
 

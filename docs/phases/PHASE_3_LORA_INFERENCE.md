@@ -24,10 +24,12 @@
 | `src/rebirth_ai/generate/ollama_client.py` | HTTP generate API |
 | `src/rebirth_ai/generate/prompts.py` | Migration prompt templates |
 
-### Machine notes (from Phase 0)
+### Machine notes (updated 2026-10-31)
 
-- Ollama already has `qwen2.5-coder:14b` and `deepseek-coder:6.7b`.  
-- No NVIDIA GPU required for MVP; keep LoRA rank small; optional HF Jobs if local train is too slow.
+- Default inference: `qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm (RX 7800 XT, 16GB, 100% VRAM).  
+- Also available: `qwen2.5-coder:14b` (Q4 fallback), `deepseek-coder:6.7b`.  
+- No NVIDIA GPU required for MVP; keep LoRA rank small; optional HF Jobs if local train is too slow.  
+- See `docs/OLLAMA_AMD_GPU.md`.
 
 ---
 

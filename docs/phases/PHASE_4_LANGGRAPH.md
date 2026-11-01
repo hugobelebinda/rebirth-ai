@@ -1,7 +1,8 @@
 # Phase 4 — LangGraph Integration (The Brain)
 
 > Status: **PLANNED**  
-> Depends on: Phases 1–3 modules callable from Python
+> Depends on: Phases 1–3 modules callable from Python  
+> Last docs refresh: 2026-10-31
 
 ---
 

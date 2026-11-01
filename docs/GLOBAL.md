@@ -1,6 +1,7 @@
 # Rebirth AI — Global System Bible
 
-> Living document. **Update after every phase.** Last updated: Phase 0 complete (2026-10-31).  
+> Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
+> Last updated: 2026-10-31 (Phase 1 in progress + context-refresh rule).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---
@@ -158,7 +159,7 @@ rebirth doctor
 | Phase | Doc | Status | Exit criteria (summary) |
 |-------|-----|--------|-------------------------|
 | 0 Setup | [PHASE_0_SETUP.md](phases/PHASE_0_SETUP.md) | **Complete** | Public repo live; scaffold + docs; doctor CLI; prereqs documented |
-| 1 Sandbox + AST | [PHASE_1_SANDBOX_AST.md](phases/PHASE_1_SANDBOX_AST.md) | Planned | Sandbox round-trip + AST chunks for ≥3 fixtures |
+| 1 Sandbox + AST | [PHASE_1_SANDBOX_AST.md](phases/PHASE_1_SANDBOX_AST.md) | **In progress** | Image built; runner/AST/adapter/CLI landed; re-verify after fixture restore |
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | Planned | Retrieval demo + classifier on synthetic logs |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | Planned | Train path + Ollama draft generation |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | Planned | Single-file fail→classify→rewrite→pass |
@@ -178,6 +179,8 @@ rebirth doctor
 | 2026-10-31 | AMD ROCm for Ollama | Service drop-in prefers `rocm_v7_2`; discrete RX 7800 XT (`gfx1101`) selected; iGPU dropped |
 | 2026-10-31 | Default LLM | `qwen2.5-coder:14b` Q4 — initial fit for 16GB VRAM |
 | 2026-10-31 | Upgrade LLM | `qwen2.5-coder:14b-instruct-q6_K` — higher fidelity, still fully on VRAM |
+| 2026-10-31 | Docs @ 90% context | Always re-read/update every project `.md` (`.cursor/rules/docs-context-refresh.mdc`) |
+| 2026-10-31 | Sandbox overlay safety | Never `put_archive` onto bind-mounted project; copytree to tempdir first |
 
 ---
 
@@ -190,6 +193,8 @@ After **each** phase completes:
 3. Bump README status table.  
 4. Prefer evidence (commands + paths) over summaries.
 
+**Also** whenever chat context is ≈90% full (or about to compact): re-read **all** project `.md` files and update them to match live reality — rule file: `.cursor/rules/docs-context-refresh.mdc`.
+
 ---
 
 ## 10. Open risks / watch list
@@ -197,4 +202,5 @@ After **each** phase completes:
 - Docker socket may be invisible inside restricted sandboxes — run Docker-dependent work with full host permissions.  
 - LoRA training on CPU will be slow — keep dataset small for MVP; consider HF Jobs if needed.  
 - `unixcoder-base` may be heavy on CPU — benchmark; fall back to lighter code embedding if needed.  
-- Nested repo under parent `Personal Project` git tree: always operate git commands from `Rebirth AI/` with its own `.git`.
+- Nested repo under parent `Personal Project` git tree: always operate git commands from `Rebirth AI/` with its own `.git`.  
+- Bind-mount + container writes can change host file ownership (`nobody`) — sandbox runner must isolate via temp copies (fixed in Phase 1 runner).

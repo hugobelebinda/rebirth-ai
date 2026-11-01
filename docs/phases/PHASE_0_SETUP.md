@@ -32,8 +32,8 @@
 | `docs/GLOBAL.md` | System bible |
 | `docs/phases/PHASE_*.md` | Per-phase ultra-detailed logs |
 | `data/**/.gitkeep` | Placeholder dirs for datasets/models |
-| `fixtures/js_ts_sample/.gitkeep` | Reserved for Phase 1 sample app |
-| `docker/.gitkeep` | Reserved for sandbox Dockerfiles |
+| `fixtures/js_ts_sample/` | Now a real Node fixture (Phase 1) |
+| `docker/js_ts_sandbox/` | Sandbox Dockerfile (Phase 1) |
 | `training/.gitkeep` | Reserved for LoRA scripts |
 | `tests/test_smoke.py` | Import / version smoke test |
 

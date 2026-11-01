@@ -1,6 +1,7 @@
 # Ollama on AMD RX 7800 XT (ROCm / Vulkan)
 
-Last verified: 2026-10-31 on this machine.
+Last verified: 2026-10-31 on this machine.  
+Docs refresh: included in the ~90% context full-`.md` update pass.
 
 ## Hardware
 

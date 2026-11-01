@@ -14,7 +14,7 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | Phase | Name | Status |
 |-------|------|--------|
 | 0 | Environment, repo, docs baseline | **Complete** |
-| 1 | Docker sandbox + AST | Planned |
+| 1 | Docker sandbox + AST | **In progress** |
 | 2 | RAG + error classifier | Planned |
 | 3 | LoRA training + Ollama inference | Planned |
 | 4 | LangGraph closed loop | Planned |
@@ -22,7 +22,7 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 
 Living docs: [`docs/GLOBAL.md`](docs/GLOBAL.md) · phase notes under [`docs/phases/`](docs/phases/).
 
-## Quick start (after Phase 0)
+## Quick start
 
 ```bash
 python3 -m venv .venv
@@ -31,8 +31,14 @@ pip install -e ".[dev]"
 
 # Verify tooling (Docker daemon + Ollama must be running)
 docker version
-ollama list   # expect qwen2.5-coder and/or deepseek-coder
+ollama list   # expect qwen2.5-coder:14b-instruct-q6_K
+docker build -t rebirth-ai/js-ts-sandbox:latest docker/js_ts_sandbox
+rebirth doctor
+rebirth parse fixtures/js_ts_sample/src/math.js
+rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
 ```
+
+Docs refresh: when chat context is ~90% full, agents re-read/update all project `.md` files (see `.cursor/rules/docs-context-refresh.mdc`).
 
 ## Design defaults
 

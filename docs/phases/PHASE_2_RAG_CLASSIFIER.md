@@ -1,7 +1,8 @@
 # Phase 2 — RAG & Classification (Data Layers)
 
-> Status: **PLANNED**  
-> Depends on: Phase 1 (AST chunks feed the indexer)
+> Status: **PLANNED** (blocked on Phase 1 exit criteria green)  
+> Depends on: Phase 1 (AST chunks feed the indexer)  
+> Last docs refresh: 2026-10-31
 
 ---
 

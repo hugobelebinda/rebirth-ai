@@ -1,0 +1,10 @@
+{
+  "name": "rebirth-js-ts-sample",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tiny fixture for Phase 1 sandbox + AST (legacy util style → modern).",
+  "scripts": {
+    "test": "node --test test/math.test.js"
+  }
+}
