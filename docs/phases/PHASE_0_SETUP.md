@@ -1,7 +1,8 @@
 # Phase 0 — Environment, Repo & Documentation Baseline
 
-> Ultra-detailed phase log. Status: **COMPLETE** (pending final git push verification in this session).  
-> Date: 2026-10-31
+> Ultra-detailed phase log. Status: **COMPLETE**  
+> Date: 2026-10-31  
+> Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---
 
@@ -131,21 +132,35 @@ gh repo create rebirth-ai --public --source=. --remote=origin --push
 
 ---
 
-## 5. Sample outputs (expected)
+## 5. Sample outputs (captured 2026-10-31)
 
 ```text
 $ rebirth version
 rebirth-ai 0.1.0
 
 $ rebirth doctor
-Python: 3.12.x
+Python: 3.12.3
 docker: ok
 ollama: ok
 node: ok
 Docker daemon: ok
-Ollama: ok (N models)
+Ollama: ok (6 models)
   - qwen2.5-coder:14b
-  - ...
+  - deepseek-coder:6.7b
+  - llama3:latest
+  - qwen-scripture:latest
+  - deepseek-r1:32b
+  - gemma4:latest
+
+$ pytest -q
+1 passed
+
+$ docker run --rm hello-world
+# Hello from Docker! (success)
+
+$ ollama list
+qwen2.5-coder:14b   ...
+deepseek-coder:6.7b ...
 ```
 
 ---
@@ -175,7 +190,7 @@ Ollama: ok (N models)
 ## 8. Exit criteria checklist
 
 - [x] Independent `git init` in `Rebirth AI/`  
-- [x] Public GitHub repo created and initial push completed  
+- [x] Public GitHub repo created and initial push completed (`https://github.com/hugobelebinda/rebirth-ai`)  
 - [x] Python package scaffold with CLI stub  
 - [x] `.gitignore` excludes secrets, venvs, heavy ML artifacts  
 - [x] `docs/GLOBAL.md` written  

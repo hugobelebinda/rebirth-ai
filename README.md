@@ -13,7 +13,7 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Environment, repo, docs baseline | **In progress** |
+| 0 | Environment, repo, docs baseline | **Complete** |
 | 1 | Docker sandbox + AST | Planned |
 | 2 | RAG + error classifier | Planned |
 | 3 | LoRA training + Ollama inference | Planned |

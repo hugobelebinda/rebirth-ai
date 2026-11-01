@@ -1,6 +1,7 @@
 # Rebirth AI — Global System Bible
 
-> Living document. **Update after every phase.** Last updated: Phase 0 (2026-10-31).
+> Living document. **Update after every phase.** Last updated: Phase 0 complete (2026-10-31).  
+> Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---
 
@@ -156,7 +157,7 @@ rebirth doctor
 
 | Phase | Doc | Status | Exit criteria (summary) |
 |-------|-----|--------|-------------------------|
-| 0 Setup | [PHASE_0_SETUP.md](phases/PHASE_0_SETUP.md) | **Active** | Public repo live; scaffold + docs; doctor CLI; prereqs documented |
+| 0 Setup | [PHASE_0_SETUP.md](phases/PHASE_0_SETUP.md) | **Complete** | Public repo live; scaffold + docs; doctor CLI; prereqs documented |
 | 1 Sandbox + AST | [PHASE_1_SANDBOX_AST.md](phases/PHASE_1_SANDBOX_AST.md) | Planned | Sandbox round-trip + AST chunks for ≥3 fixtures |
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | Planned | Retrieval demo + classifier on synthetic logs |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | Planned | Train path + Ollama draft generation |
@@ -173,6 +174,7 @@ rebirth doctor
 | 2026-10-31 | Pluggable languages; JS/TS first vertical | User: not locked to one language forever |
 | 2026-10-31 | Local-first (Ollama + Docker + SQLite) | No AWS for Phases 1–4 |
 | 2026-10-31 | Nested git root under `Rebirth AI/` | Parent `Personal Project` has multi-project `.git`; this repo is independent |
+| 2026-10-31 | Phase 0 complete | Public repo pushed; `rebirth doctor` + smoke test green; Ollama/Docker/Node verified |
 
 ---
 
