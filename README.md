@@ -37,7 +37,7 @@ ollama list   # expect qwen2.5-coder and/or deepseek-coder
 ## Design defaults
 
 - **First adapter:** JavaScript / TypeScript (pluggable; Python and others later)  
-- **Inference:** Ollama local (`qwen2.5-coder:14b` available on this machine)  
+- **Inference:** Ollama + AMD ROCm (`qwen2.5-coder:14b-instruct-q6_K` on RX 7800 XT)  
 - **Vectors:** SQLite first (Supabase/pgvector optional later)  
 - **No AWS required** for Phases 1–4  
 

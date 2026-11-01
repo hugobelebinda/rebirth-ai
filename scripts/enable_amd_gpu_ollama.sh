@@ -62,8 +62,8 @@ systemctl --no-pager --full status ollama | head -25 || true
 echo
 echo "Verify GPU (as your user, new shell after group change):"
 echo "  newgrp render"
-echo "  ollama run qwen2.5-coder:14b 'Say GPU_OK'"
+echo "  ollama run qwen2.5-coder:14b-instruct-q6_K 'Say GPU_OK'"
 echo "  ollama ps   # expect PROCESSOR 100% GPU"
 echo
-echo "Default model for Rebirth AI: qwen2.5-coder:14b (fits 16GB VRAM fully)."
+echo "Default model for Rebirth AI: qwen2.5-coder:14b-instruct-q6_K (~12GB, fits 16GB VRAM)."
 echo "Do NOT use qwen2.5-coder:32b / qwen3-coder:30b as default — ~19–20GB > 16GB VRAM."

@@ -24,25 +24,26 @@ inference compute library=ROCm compute=gfx1101 name=ROCm0 description="AMD Radeo
   type=discrete total="16.0 GiB" available="15.8 GiB"
 ```
 
-- Live model check:
+- Live model check (Q6_K default):
 
 ```text
-qwen2.5-coder:14b    9.7 GB    100% GPU    (size_vram == size → fully on VRAM)
+qwen2.5-coder:14b-instruct-q6_K    12 GB    100% GPU    quantization Q6_K
 ```
 
 ## Chosen model
 
-**Default: `qwen2.5-coder:14b` (Q4_K_M)**
+**Default: `qwen2.5-coder:14b-instruct-q6_K`**
 
 | Candidate | Disk / weights | Fits 16 GB? | Role |
 |-----------|----------------|-------------|------|
-| `qwen2.5-coder:14b` | ~9 GB | **Yes, fully** | **Primary for Rebirth AI** |
+| `qwen2.5-coder:14b-instruct-q6_K` | ~12 GB | **Yes, fully** | **Primary for Rebirth AI** |
+| `qwen2.5-coder:14b` (Q4_K_M) | ~9 GB | Yes | Faster fallback / more context headroom |
+| `qwen2.5-coder:14b-instruct-q5_K_M` | ~11 GB | Yes | Mid quant option |
 | `qwen2.5-coder:32b` | ~20 GB | No (spill to RAM) | Optional hard cases only |
 | `qwen3-coder:30b` | ~19 GB | No (spill) | Optional experiment |
 | `deepseek-r1:32b` | ~20 GB | No | Reasoning, not migration loops |
-| `deepseek-coder:6.7b` | ~4 GB | Yes | Smoke tests only |
 
-Why 14B: code-specialized, tools/insert capable, leaves VRAM headroom for longer context during Plan→Execute→Verify loops, and stays 100% on the 7800 XT.
+Why this tag: same 14B coder as before, higher-fidelity Q6_K quant (~12GB), still leaves ~4GB for KV cache on the 7800 XT.
 
 ## One-time hardening (needs your password)
 
@@ -89,5 +90,6 @@ See `.env.example`:
 
 ```bash
 OLLAMA_HOST=http://127.0.0.1:11434
-OLLAMA_MODEL=qwen2.5-coder:14b
+OLLAMA_MODEL=qwen2.5-coder:14b-instruct-q6_K
 ```
+
