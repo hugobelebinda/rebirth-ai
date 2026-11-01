@@ -1,0 +1,7 @@
+{
+  "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "examples": 4,
+  "smoke": true,
+  "lora_r": 8,
+  "lora_alpha": 16
+}

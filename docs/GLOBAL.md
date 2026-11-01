@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-10-31 (Phase 2 complete).  
+> Last updated: 2026-10-31 (Phase 3 complete).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---
@@ -161,7 +161,7 @@ rebirth doctor
 | 0 Setup | [PHASE_0_SETUP.md](phases/PHASE_0_SETUP.md) | **Complete** | Public repo live; scaffold + docs; doctor CLI; prereqs documented |
 | 1 Sandbox + AST | [PHASE_1_SANDBOX_AST.md](phases/PHASE_1_SANDBOX_AST.md) | **Complete** | Sandbox pass/fail + AST chunks verified |
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | **Complete** | SQLite RAG + classifier acc 0.947; CLI index/query/classify |
-| 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | Planned | Train path + Ollama draft generation |
+| 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | **Complete** | Ollama generate + 59-pair dataset + LoRA smoke train |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | Planned | Single-file fail→classify→rewrite→pass |
 | 5 Repo scale | [PHASE_5_REPO_SCALE.md](phases/PHASE_5_REPO_SCALE.md) | Planned | Multi-file + open PR |
 
@@ -182,6 +182,7 @@ rebirth doctor
 | 2026-10-31 | Docs @ 90% context | Always re-read/update every project `.md` (`.cursor/rules/docs-context-refresh.mdc`) |
 | 2026-10-31 | Sandbox overlay safety | Never `put_archive` onto bind-mounted project; copytree to tempdir first |
 | 2026-10-31 | Phase 2 complete | Hash/ST RAG in SQLite; LogisticRegression error classifier (~95% held-out) |
+| 2026-10-31 | Phase 3 complete | Ollama migrate client on Q6_K; LoRA smoke on 0.5B; 59 migration pairs |
 
 ---
 

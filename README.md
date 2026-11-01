@@ -16,7 +16,7 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | 0 | Environment, repo, docs baseline | **Complete** |
 | 1 | Docker sandbox + AST | **Complete** |
 | 2 | RAG + error classifier | **Complete** |
-| 3 | LoRA training + Ollama inference | Planned |
+| 3 | LoRA training + Ollama inference | **Complete** |
 | 4 | LangGraph closed loop | Planned |
 | 5 | Repo-scale + GitHub PRs | Planned |
 

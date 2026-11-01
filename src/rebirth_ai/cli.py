@@ -208,6 +208,48 @@ def train_classifier(
     print(report.report)
 
 
+@app.command("generate")
+def generate_migration(
+    path: Path = typer.Argument(..., exists=True, dir_okay=False, readable=True),
+    objective: str = typer.Option(
+        "Modernize legacy JavaScript/TypeScript to current idioms while preserving behavior",
+        "--objective",
+        "-o",
+    ),
+    use_rag: bool = typer.Option(True, "--rag/--no-rag", help="Attach retrieved context"),
+    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    out: Path | None = typer.Option(None, "--out", help="Write draft code to this path"),
+) -> None:
+    """Generate a modernized draft via local Ollama (optional RAG context)."""
+    from rebirth_ai.adapters.js_ts import JsTsAdapter
+    from rebirth_ai.generate.ollama_client import OllamaClient
+
+    adapter = JsTsAdapter()
+    source = path.read_text(encoding="utf-8")
+    language = "typescript" if path.suffix.lower() in {".ts", ".tsx"} else "javascript"
+    context: list[str] = []
+    if use_rag and db.exists():
+        from rebirth_ai.rag.retrieve import Retriever
+
+        retriever = Retriever(db_path=db)
+        hits = retriever.query_for_file(path, top_k=4)
+        context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
+
+    client = OllamaClient()
+    result = client.migrate(
+        objective=objective,
+        legacy_code=source,
+        file_path=str(path),
+        language=language,
+        retrieved_context=context or None,
+    )
+    print(f"[dim]model={result.model} prompt_chars={result.prompt_chars}[/dim]")
+    print(result.code)
+    if out is not None:
+        out.write_text(result.code, encoding="utf-8")
+        print(f"[green]wrote[/green] {out}")
+
+
 @app.command("classify")
 def classify_log(
     log_file: Path | None = typer.Option(
