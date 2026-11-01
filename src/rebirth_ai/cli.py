@@ -50,6 +50,21 @@ def doctor() -> None:
                 print(f"  - {name}")
         else:
             print(f"[bold]Ollama[/bold]: HTTP {resp.status_code}")
+
+        ps = httpx.get("http://127.0.0.1:11434/api/ps", timeout=5.0)
+        if ps.status_code == 200:
+            loaded = ps.json().get("models", [])
+            if not loaded:
+                print("[bold]Ollama loaded[/bold]: (none)")
+            for m in loaded:
+                size = m.get("size") or 0
+                vram = m.get("size_vram") or 0
+                pct = (100.0 * vram / size) if size else 0.0
+                where = "GPU" if vram and pct >= 99 else ("mixed" if vram else "CPU")
+                print(
+                    f"[bold]Ollama loaded[/bold]: {m.get('name')} "
+                    f"{vram/1e9:.1f}/{size/1e9:.1f}GB → {where} ({pct:.0f}% VRAM)"
+                )
     except Exception as exc:  # noqa: BLE001
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
 

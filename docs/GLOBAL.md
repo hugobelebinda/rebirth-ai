@@ -24,7 +24,7 @@ Build an autonomous, closed-loop AI agent that migrates legacy codebases (framew
 | Repo host | Public GitHub `hugobelebinda/rebirth-ai` | User choice (1A) |
 | First language adapter | JavaScript / TypeScript | Concrete E2E path; core stays pluggable |
 | Multi-language | Yes — adapters, not a rewrite | User does **not** want “only one forever” |
-| Inference (MVP) | Ollama local | Already installed; `qwen2.5-coder:14b` present |
+| Inference (MVP) | Ollama + **AMD ROCm** on RX 7800 XT | `qwen2.5-coder:14b` fully on 16GB VRAM (`gfx1101`); see `docs/OLLAMA_AMD_GPU.md` |
 | Vector store (MVP) | SQLite (local) | No AWS/Supabase required for Phases 1–4 |
 | Cloud GPU / AWS | Deferred | 30GB RAM machine; train small LoRA or use HF Jobs later |
 | Max fix iterations | 5 then human review | Avoid infinite LLM loops |
@@ -129,7 +129,7 @@ rebirth-ai/
 |------|---------------|-------------------------------------|
 | GitHub + `gh` auth | Yes | Logged in as `hugobelebinda` (keyring); scopes gist, read:org, repo, workflow |
 | Docker Engine | Yes | Daemon reachable with host permissions; user in `docker` group |
-| Ollama + coder model | Phase 3+ | Running; models include `qwen2.5-coder:14b`, `deepseek-coder:6.7b` |
+| Ollama + coder model | Phase 3+ | **ROCm enabled** on RX 7800 XT; default `qwen2.5-coder:14b` (100% GPU / 9.7GB VRAM) |
 | Node.js 20+ | Yes (JS/TS) | Node `v22.22.2` via nvm |
 | Python 3.11+ | Yes | Python `3.12.3` |
 | Hugging Face account | Recommended | Optional until LoRA train / Hub push |
@@ -175,6 +175,8 @@ rebirth doctor
 | 2026-10-31 | Local-first (Ollama + Docker + SQLite) | No AWS for Phases 1–4 |
 | 2026-10-31 | Nested git root under `Rebirth AI/` | Parent `Personal Project` has multi-project `.git`; this repo is independent |
 | 2026-10-31 | Phase 0 complete | Public repo pushed; `rebirth doctor` + smoke test green; Ollama/Docker/Node verified |
+| 2026-10-31 | AMD ROCm for Ollama | Service drop-in prefers `rocm_v7_2`; discrete RX 7800 XT (`gfx1101`) selected; iGPU dropped |
+| 2026-10-31 | Default LLM | `qwen2.5-coder:14b` — best fit for 16GB VRAM + agent loops (not 32B) |
 
 ---
 
