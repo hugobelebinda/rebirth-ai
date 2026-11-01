@@ -95,7 +95,8 @@ class CodeChunker:
     ) -> None:
         kind = self._classify(node)
         if kind is not None:
-            name = self._name_for(node, kind, source_bytes)
+            decl = self._declaration_node(node)
+            name = self._name_for(decl, kind, source_bytes)
             chunks.append(
                 CodeChunk(
                     kind=kind,
@@ -109,50 +110,56 @@ class CodeChunker:
             # Do not descend into function/class bodies for nested extraction in v1
             # except we still want methods on classes — handle separately.
             if kind == "class":
-                body = node.child_by_field_name("body")
-                members = body.children if body is not None else node.children
-                for member in members:
-                    member_kind = self._classify_member(member)
-                    if member_kind is None:
-                        # class_body wrapper
-                        if member.type == "class_body":
-                            for nested in member.children:
-                                nested_kind = self._classify_member(nested)
-                                if nested_kind is None:
-                                    continue
-                                chunks.append(
-                                    CodeChunk(
-                                        kind=nested_kind,
-                                        name=self._name_for(
-                                            nested, nested_kind, source_bytes
-                                        ),
-                                        start_line=_line_of(nested.start_byte, source_bytes),
-                                        end_line=_line_of(
-                                            max(nested.end_byte - 1, nested.start_byte),
-                                            source_bytes,
-                                        ),
-                                        text=_node_text(nested, source_bytes),
-                                        file_path=file_path,
-                                    )
-                                )
-                        continue
-                    chunks.append(
-                        CodeChunk(
-                            kind=member_kind,
-                            name=self._name_for(member, member_kind, source_bytes),
-                            start_line=_line_of(member.start_byte, source_bytes),
-                            end_line=_line_of(
-                                max(member.end_byte - 1, member.start_byte),
-                                source_bytes,
-                            ),
-                            text=_node_text(member, source_bytes),
-                            file_path=file_path,
-                        )
-                    )
+                self._emit_class_members(decl, source_bytes, file_path, chunks)
             return
 
         for child in node.children:
             self._walk(child, source_bytes, file_path, chunks)
+
+    def _declaration_node(self, node: Node) -> Node:
+        """Unwrap export_statement to the inner declaration when present."""
+        if node.type != "export_statement":
+            return node
+        for child in node.children:
+            if child.type in {
+                "function_declaration",
+                "generator_function_declaration",
+                "class_declaration",
+                "lexical_declaration",
+            }:
+                return child
+        return node
+
+    def _emit_class_members(
+        self,
+        class_node: Node,
+        source_bytes: bytes,
+        file_path: str,
+        chunks: list[CodeChunk],
+    ) -> None:
+        body = class_node.child_by_field_name("body")
+        if body is None:
+            # Fallback: find a class_body child
+            for child in class_node.children:
+                if child.type == "class_body":
+                    body = child
+                    break
+        if body is None:
+            return
+        for member in body.children:
+            member_kind = self._classify_member(member)
+            if member_kind is None:
+                continue
+            chunks.append(
+                CodeChunk(
+                    kind=member_kind,
+                    name=self._name_for(member, member_kind, source_bytes),
+                    start_line=_line_of(member.start_byte, source_bytes),
+                    end_line=_line_of(max(member.end_byte - 1, member.start_byte), source_bytes),
+                    text=_node_text(member, source_bytes),
+                    file_path=file_path,
+                )
+            )
 
     def _classify(self, node: Node) -> str | None:
         t = node.type

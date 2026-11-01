@@ -1,6 +1,6 @@
 # Phase 1 — Environment & Sandbox Baseline (AST + Docker)
 
-> Status: **IN PROGRESS** (implementation largely landed; verification/docs pass in flight)  
+> Status: **COMPLETE**  
 > Depends on: Phase 0 complete  
 > Last docs refresh: 2026-10-31 (context-window refresh rule)
 
@@ -34,8 +34,8 @@
 
 - [x] `docker build` produces sandbox image  
 - [x] Python API returns logs + exit code for a deliberate failing test (observed via CLI)  
-- [ ] Same API returns exit 0 for a passing file (**blocked briefly** when overlay corrupted host `math.js`; runner now uses temp copy — **re-verify**)  
-- [ ] AST returns structured chunks for ≥3 fixture files (**re-verify** after restoring `math.js`)  
+- [x] Same API returns exit 0 for a passing file (verified after tempdir isolation)  
+- [x] AST returns structured chunks for ≥3 fixture files (imports/functions/class/methods)  
 - [x] Adapter interface importable and used by sandbox runner  
 - [x] This doc + `GLOBAL.md` updated with current status  
 
@@ -86,8 +86,6 @@ FAIL exit=1  cmd: node --test test/math.failing.test.js
 
 ## 5. Known gaps / open work
 
-- Finish verification after restoring corrupted `math.js` (ownership was `nobody` from Docker overlay).  
-- Confirm AST extracts import + methods on restored fixture.  
 - Multi-language sandboxes deferred.  
 - Network-install inside sandbox deferred to Phase 4.  
 - `npm test` glob fixed to `test/math.test.js` only (failing suite is opt-in via `-t`).
