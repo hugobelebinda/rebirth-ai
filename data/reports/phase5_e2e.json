@@ -1,0 +1,46 @@
+{
+  "project_dir": "/tmp/rebirth_phase5_fixture",
+  "objective": "Fix files so project tests pass; modernize idioms without changing public API",
+  "summary": {
+    "total": 2,
+    "success": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "relative_file": "src/math.js",
+      "relative_test": "test/math.test.js",
+      "status": "success",
+      "iterations": 1,
+      "error_class": null,
+      "trace": [
+        "retrieve_context: 4 chunk(s)",
+        "execute_tests: FAIL exit=1 in 0.35s",
+        "classify_error: TestLogicFailure",
+        "generate_code: iteration=1 model=qwen2.5-coder:14b-instruct-q6_K chars=615",
+        "execute_tests: PASS exit=0 in 0.28s",
+        "success: tests passed"
+      ],
+      "wrote": true,
+      "message": ""
+    },
+    {
+      "relative_file": "src/format.js",
+      "relative_test": "test/format.test.js",
+      "status": "success",
+      "iterations": 1,
+      "error_class": null,
+      "trace": [
+        "retrieve_context: 4 chunk(s)",
+        "execute_tests: FAIL exit=1 in 0.17s",
+        "classify_error: TestLogicFailure",
+        "generate_code: iteration=1 model=qwen2.5-coder:14b-instruct-q6_K chars=213",
+        "execute_tests: PASS exit=0 in 0.17s",
+        "success: tests passed"
+      ],
+      "wrote": true,
+      "message": ""
+    }
+  ]
+}
