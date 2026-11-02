@@ -1,7 +1,7 @@
 # Phase 0 — Environment, Repo & Documentation Baseline
 
 > Ultra-detailed phase log. Status: **COMPLETE**  
-> Date: 2026-10-31  
+> Date: 2026-10-31 · Docs refresh: 2026-11-01  
 > Repo: https://github.com/hugobelebinda/rebirth-ai
 
 ---

@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Tiny fixture for Phase 1 sandbox + AST (legacy util style → modern).",
   "scripts": {
-    "test": "node --test test/math.test.js"
+    "test": "node --test test/math.test.js test/format.test.js"
   }
 }

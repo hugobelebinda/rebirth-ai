@@ -2,7 +2,7 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phase 1 (AST chunks feed the indexer)  
-> Completed: 2026-10-31
+> Completed: 2026-10-31 · Docs refresh: 2026-11-01 (status unchanged — complete)
 
 ---
 
