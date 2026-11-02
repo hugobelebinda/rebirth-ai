@@ -1,9 +1,10 @@
 # JS/TS sample fixture
 
-Tiny Node project used by Phase 1 for:
+Tiny Node project used by Phases 1–4 for:
 
 - Tree-sitter AST chunking (`src/math.js`, `src/format.js`, `src/greeter.ts`)
 - Docker sandbox pass/fail verification
+- LangGraph closed-loop migrate (with seed under `fixtures/migration_seeds/`)
 
 ```bash
 npm test                                 # runs test/math.test.js only
@@ -16,6 +17,10 @@ Via Rebirth CLI (preferred):
 rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
 rebirth sandbox fixtures/js_ts_sample -t test/math.failing.test.js
 rebirth parse fixtures/js_ts_sample/src/math.js
+
+# Phase 4 closed loop (Ollama 14B default)
+rebirth migrate fixtures/js_ts_sample \
+  --seed-draft fixtures/migration_seeds/math.broken.js --no-write
 ```
 
 **Note:** The sandbox runner copies this tree into a tempdir before mounting. Do not rely on in-container writes to update this fixture.

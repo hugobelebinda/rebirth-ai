@@ -1,8 +1,8 @@
 # Phase 3 — Code Generation & LoRA Training
 
-> Status: **COMPLETE**  
+> Status: **COMPLETE** (data/PEFT interlude continues in `docs/DATASET.md`)  
 > Depends on: Phase 2 (RAG context available for prompts)  
-> Completed: 2026-10-31
+> Completed: 2026-10-31 · Docs refresh: 2026-11-01
 
 ---
 
@@ -19,17 +19,24 @@
 
 | Path | Responsibility | Status |
 |------|----------------|--------|
-| `data/datasets/js_ts_migration.jsonl` | 59 synthetic pairs | Shipped |
-| `training/train_lora.py` | PEFT training (`--smoke` supported) | Shipped |
+| `data/datasets/js_ts_migration.jsonl` | **1339** pairs (59 synthetic + CommitPackFT) | Shipped + mined |
+| `training/mine_migration_pairs.py` | Hub miner + filters | Shipped |
+| `docs/DATASET.md` | Dataset bible | Shipped |
+| `training/train_lora.py` | PEFT training (CPU/GPU, checkpointing, save-steps) | Shipped |
+| `training/eval_peft_smoke.py` | 8-pair exact/overlap smoke | Shipped |
 | `training/export_for_ollama.md` | Merge / Modelfile notes | Shipped |
+| `scripts/verify_rocm_torch.sh` / `train_lora_gpu.sh` | ROCm health + GPU train wrapper | Shipped |
 | `src/rebirth_ai/generate/ollama_client.py` | HTTP generate API | Shipped |
+| `src/rebirth_ai/generate/peft_client.py` | In-process LoRA (+ stop/decode) | Shipped |
+| `src/rebirth_ai/generate/factory.py` | `ollama` \| `peft` backend select | Shipped |
 | `src/rebirth_ai/generate/prompts.py` | Migration prompts + fence strip | Shipped |
-| CLI `rebirth generate` | File → Ollama draft (+ optional RAG) | Shipped |
+| CLI `rebirth generate` / `--backend` | File → Ollama or PEFT draft | Shipped |
 
 ### Runtime model (this machine)
 
-- Default: `qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm (RX 7800 XT)  
-- LoRA smoke base: `Qwen/Qwen2.5-Coder-0.5B-Instruct` (local PEFT train; not the Ollama runtime)
+- Default agent: `qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm (RX 7800 XT)  
+- PEFT 0.5B: `data/models/lora_js_ts` — pipeline proof only  
+- PEFT **7B** (preferred local adapter): `data/models/lora_js_ts_7b` — 1-epoch bf16 seq 128 on ROCm
 
 ---
 
@@ -97,14 +104,16 @@ Saved LoRA adapter → data/models/lora_js_ts/adapter
 
 ---
 
-## 5. Known gaps
+## 5. Known gaps / post-phase status (2026-11-01)
 
-- Full 14B LoRA matching the Ollama runtime needs CUDA/HF Jobs (see `export_for_ollama.md`).  
-- Adapter artifacts under `data/models/` are largely gitignored (re-run `--smoke` locally).  
-- No automatic PEFT inference path in the CLI yet — Phase 4 uses Ollama client.
+- Full **14B** LoRA matching Ollama still needs CUDA/HF Jobs (`export_for_ollama.md`).  
+- Adapters under `data/models/` are gitignored — re-train or keep local.  
+- PEFT CLI path **exists** (`--backend peft`); default migrate still Ollama.  
+- Local multi-epoch / larger-r 7B train **hung GPU** — do not retry casually.  
+- Exact-match eval understates 7B (see `docs/DATASET.md`).
 
 ---
 
-## 6. Handoff to Phase 4
+## 6. Handoff
 
-Wire `Retriever` + `OllamaClient` + `SandboxRunner` + `ErrorClassifier` into a LangGraph loop on one fixture file.
+Phase 4 closed the LangGraph loop on Ollama. Ongoing: prefer 7B PEFT when specializing; Phase 5 for repo-scale PRs.

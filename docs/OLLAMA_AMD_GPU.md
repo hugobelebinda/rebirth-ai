@@ -1,7 +1,7 @@
 # Ollama on AMD RX 7800 XT (ROCm / Vulkan)
 
-Last verified: 2026-10-31 on this machine.  
-Docs refresh: included in the ~90% context full-`.md` update pass.
+Last verified: 2026-10-31 (Ollama ROCm inference).  
+Docs refresh: 2026-11-01 — also covers PyTorch ROCm **training** conflict notes below.
 
 ## Hardware
 
@@ -93,4 +93,14 @@ See `.env.example`:
 OLLAMA_HOST=http://127.0.0.1:11434
 OLLAMA_MODEL=qwen2.5-coder:14b-instruct-q6_K
 ```
+
+## Relation to PyTorch LoRA training (2026-11-01)
+
+Ollama inference on the 7800 XT is stable. **Separately**, system ROCm 6.4.4 + torch `2.9.1+rocm6.4` can train a **7B bf16 LoRA** (seq 128, 1 epoch — PASS).
+
+Caveats when display is on the dGPU:
+
+- Longer / heavier trains (e.g. 2-epoch, `lora_r=16`) can **GPU Hang** and abort the session.
+- Do not confuse Ollama’s ROCm stack with PyTorch HIP — verify train stack via `bash scripts/verify_rocm_torch.sh`.
+- Full PEFT / dataset notes: `docs/DATASET.md`.
 

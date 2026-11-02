@@ -219,12 +219,16 @@ def generate_migration(
     use_rag: bool = typer.Option(True, "--rag/--no-rag", help="Attach retrieved context"),
     db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
     out: Path | None = typer.Option(None, "--out", help="Write draft code to this path"),
+    backend: str = typer.Option(
+        "ollama",
+        "--backend",
+        "-b",
+        help="Generator backend: ollama | peft",
+    ),
 ) -> None:
-    """Generate a modernized draft via local Ollama (optional RAG context)."""
-    from rebirth_ai.adapters.js_ts import JsTsAdapter
-    from rebirth_ai.generate.ollama_client import OllamaClient
+    """Generate a modernized draft via Ollama or local PEFT LoRA (optional RAG)."""
+    from rebirth_ai.generate.factory import get_generator
 
-    adapter = JsTsAdapter()
     source = path.read_text(encoding="utf-8")
     language = "typescript" if path.suffix.lower() in {".ts", ".tsx"} else "javascript"
     context: list[str] = []
@@ -235,7 +239,7 @@ def generate_migration(
         hits = retriever.query_for_file(path, top_k=4)
         context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
 
-    client = OllamaClient()
+    client = get_generator(backend)
     result = client.migrate(
         objective=objective,
         legacy_code=source,
@@ -248,6 +252,226 @@ def generate_migration(
     if out is not None:
         out.write_text(result.code, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
+
+
+@app.command("mine-dataset")
+def mine_dataset(
+    max_pairs: int = typer.Option(1500, "--max-pairs"),
+    require_parse: bool = typer.Option(
+        False,
+        "--require-parse/--no-require-parse",
+        help="Drop pairs that fail Tree-sitter parse",
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+) -> None:
+    """Mine JS/TS migration pairs from CommitPackFT and merge with synthetic data."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    # src/rebirth_ai/cli.py → repo root is parents[2]
+    script = Path(__file__).resolve().parents[2] / "training" / "mine_migration_pairs.py"
+    cmd = [sys.executable, str(script), "--max-pairs", str(max_pairs)]
+    if require_parse:
+        cmd.append("--require-parse")
+    if dry_run:
+        cmd.append("--dry-run")
+    raise typer.Exit(subprocess.call(cmd))
+
+
+@app.command("migrate")
+def migrate_file(
+    project: Path = typer.Argument(
+        ...,
+        exists=True,
+        file_okay=False,
+        help="Project root (sandbox + relative paths)",
+    ),
+    file: str = typer.Option(
+        "src/math.js",
+        "--file",
+        "-f",
+        help="Project-relative source file to migrate",
+    ),
+    test: str = typer.Option(
+        "test/math.test.js",
+        "--test",
+        "-t",
+        help="Project-relative test file",
+    ),
+    objective: str = typer.Option(
+        "Fix the file so project tests pass; modernize idioms without changing public API",
+        "--objective",
+        "-o",
+    ),
+    seed_draft: Path | None = typer.Option(
+        None,
+        "--seed-draft",
+        exists=True,
+        dir_okay=False,
+        help="Broken draft to start from (enables --test-first)",
+    ),
+    test_first: bool = typer.Option(
+        False,
+        "--test-first/--generate-first",
+        help="Run tests on current draft before first generate",
+    ),
+    write: bool = typer.Option(
+        False,
+        "--write/--no-write",
+        help="Write successful draft back onto the project file",
+    ),
+    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    max_iterations: int = typer.Option(5, "--max-iterations"),
+    out: Path | None = typer.Option(None, "--out", help="Also write final draft here"),
+    backend: str = typer.Option(
+        "ollama",
+        "--backend",
+        "-b",
+        help="Generator backend: ollama | peft",
+    ),
+) -> None:
+    """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route."""
+    import os
+
+    from rebirth_ai.graph.app import build_migration_graph, initial_state
+
+    os.environ["REBIRTH_GENERATOR"] = backend
+    seed_text = seed_draft.read_text(encoding="utf-8") if seed_draft else None
+    use_test_first = test_first or seed_draft is not None
+    state = initial_state(
+        project_dir=project,
+        relative_file=file,
+        relative_test=test,
+        objective=objective,
+        seed_draft=seed_text,
+        test_first=use_test_first,
+        db_path=db,
+        max_iterations=max_iterations,
+    )
+    graph = build_migration_graph()
+    print("[dim]running migration graph…[/dim]")
+    final = graph.invoke(state)
+
+    status = final.get("status", "unknown")
+    color = {
+        "success": "green",
+        "human_review": "yellow",
+        "failed": "red",
+    }.get(status, "white")
+    print(f"[{color}]status={status}[/{color}] iterations={final.get('iteration_count')}")
+    print(f"[dim]error_class={final.get('error_class')}[/dim]")
+    for step in final.get("trace") or []:
+        print(f"  • {step}")
+
+    draft = final.get("current_draft") or ""
+    if out is not None:
+        out.write_text(draft, encoding="utf-8")
+        print(f"[green]wrote[/green] {out}")
+    if write and status == "success":
+        target = Path(final["file_path"])
+        target.write_text(draft, encoding="utf-8")
+        print(f"[green]wrote[/green] {target}")
+
+    raise typer.Exit(code=0 if status == "success" else 1)
+
+
+@app.command("migrate-repo")
+def migrate_repo(
+    project: Path = typer.Argument(
+        ...,
+        exists=True,
+        file_okay=False,
+        help="Project root to walk and migrate",
+    ),
+    objective: str = typer.Option(
+        "Fix files so project tests pass; modernize idioms without changing public API",
+        "--objective",
+        "-o",
+    ),
+    under: str = typer.Option("src", "--under", help="Subdirectory to discover sources"),
+    file: list[str] = typer.Option(
+        [],
+        "--file",
+        "-f",
+        help="Limit to these project-relative files (repeatable)",
+    ),
+    seed: list[str] = typer.Option(
+        [],
+        "--seed",
+        help="Broken draft map: relative/file.js=path/to/seed.js (repeatable)",
+    ),
+    write: bool = typer.Option(
+        False,
+        "--write/--no-write",
+        help="Write successful drafts back onto project files",
+    ),
+    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    max_iterations: int = typer.Option(5, "--max-iterations"),
+    backend: str = typer.Option("ollama", "--backend", "-b", help="ollama | peft"),
+    report: Path = typer.Option(
+        Path("data/reports/migrate_repo.json"),
+        "--report",
+        help="Write JSON batch report here",
+    ),
+    open_pr: bool = typer.Option(
+        False,
+        "--open-pr/--no-open-pr",
+        help="After migrate, branch/commit/push and open a GitHub PR",
+    ),
+    pr_branch: str = typer.Option("rebirth/migrate", "--pr-branch"),
+    pr_base: str = typer.Option("main", "--pr-base"),
+    push: bool = typer.Option(
+        True,
+        "--push/--no-push",
+        help="When --open-pr, push the branch before creating the PR",
+    ),
+) -> None:
+    """Phase 5: migrate many files; continue on failures; optional GitHub PR."""
+    import os
+
+    from rebirth_ai.github import GitHubError, open_migration_pr
+    from rebirth_ai.graph.batch import migrate_repository, render_pr_body
+
+    os.environ["REBIRTH_GENERATOR"] = backend
+    print(f"[dim]migrate-repo under={under!r} backend={backend} write={write}[/dim]")
+
+    batch = migrate_repository(
+        project,
+        objective=objective,
+        files=list(file) or None,
+        under=under,
+        seeds=list(seed) or None,
+        write=write,
+        db_path=db,
+        max_iterations=max_iterations,
+        on_file=lambda p: print(f"[cyan]→[/cyan] {p}"),
+    )
+    batch.write_json(report)
+    print(render_pr_body(batch))
+    print(f"[green]report[/green] {report}")
+
+    if open_pr:
+        try:
+            # Report lives in-repo when under data/ — stage it with successes
+            result = open_migration_pr(
+                Path.cwd(),
+                batch,
+                branch=pr_branch,
+                base=pr_base,
+                push=push,
+                create_pr=True,
+                report_path=report if report.exists() else None,
+            )
+            print(f"[green]{result.message}[/green]")
+            if result.url:
+                print(result.url)
+        except GitHubError as exc:
+            print(f"[red]PR failed:[/red] {exc}")
+            raise typer.Exit(code=2) from exc
+
+    # Exit 0 if at least one success and no hard failures, else 1 when any failed
+    raise typer.Exit(code=0 if batch.succeeded and not batch.failed else 1)
 
 
 @app.command("classify")
