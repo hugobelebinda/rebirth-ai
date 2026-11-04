@@ -1,0 +1,45 @@
+{
+  "backend": "ollama",
+  "suites": {
+    "sandbox": {
+      "suite": "sandbox",
+      "backend": "ollama",
+      "n": 2,
+      "sandbox_pass": 2,
+      "sandbox_pass_rate": 1.0,
+      "seed_fails_baseline": 2,
+      "results": [
+        {
+          "id": "math_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.638
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 607,
+          "pred_preview": "/**\n * Math operations and utilities.\n */\n\nimport { formatResult } from './format.js';\n\nexport function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  // Fixed to correctly multiply\n  return a * b;\n}\n\nexport function summ"
+        },
+        {
+          "id": "format_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.349
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 566,
+          "pred_preview": "/**\n * Formats a result as \"label=value\".\n * @param {string} label - The label of the result.\n * @param {*} value - The value to be formatted.\n * @returns {string} - The formatted string in \"label=value\" format.\n */\nexport function formatRe"
+        }
+      ]
+    }
+  }
+}

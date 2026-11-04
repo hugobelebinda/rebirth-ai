@@ -87,6 +87,45 @@ def current_branch(repo: Path) -> str:
     return proc.stdout.strip()
 
 
+def detect_default_branch(repo: Path, *, remote: str = "origin") -> str:
+    """Detect repo default branch (``main`` / ``master`` / remote HEAD)."""
+    # origin/HEAD → origin/main
+    sym = _run(
+        ["git", "symbolic-ref", f"refs/remotes/{remote}/HEAD"],
+        cwd=repo,
+        check=False,
+    )
+    if sym.returncode == 0:
+        ref = sym.stdout.strip()  # refs/remotes/origin/main
+        prefix = f"refs/remotes/{remote}/"
+        if ref.startswith(prefix):
+            return ref[len(prefix) :]
+
+    # gh metadata when authenticated
+    try:
+        ensure_gh()
+        proc = _run(
+            ["gh", "repo", "view", "--json", "defaultBranchRef", "--jq", ".defaultBranchRef.name"],
+            cwd=repo,
+            check=False,
+        )
+        name = (proc.stdout or "").strip()
+        if proc.returncode == 0 and name:
+            return name
+    except GitHubError:
+        pass
+
+    for candidate in ("main", "master"):
+        probe = _run(
+            ["git", "rev-parse", "--verify", f"{remote}/{candidate}"],
+            cwd=repo,
+            check=False,
+        )
+        if probe.returncode == 0:
+            return candidate
+    return "main"
+
+
 def create_branch(repo: Path, name: str, *, from_ref: str | None = None) -> None:
     args = ["git", "checkout", "-B", name]
     if from_ref:
@@ -133,6 +172,7 @@ def create_pull_request(
     body: str,
     head: str,
     base: str = "main",
+    draft: bool = False,
 ) -> str:
     """Open a PR with ``gh``; returns the PR URL."""
     require_auth()
@@ -145,22 +185,22 @@ def create_pull_request(
         fh.write(body)
         body_file = fh.name
     try:
-        proc = _run(
-            [
-                "gh",
-                "pr",
-                "create",
-                "--title",
-                title,
-                "--body-file",
-                body_file,
-                "--base",
-                base,
-                "--head",
-                head,
-            ],
-            cwd=repo,
-        )
+        args = [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            title,
+            "--body-file",
+            body_file,
+            "--base",
+            base,
+            "--head",
+            head,
+        ]
+        if draft:
+            args.append("--draft")
+        proc = _run(args, cwd=repo)
     finally:
         Path(body_file).unlink(missing_ok=True)
 

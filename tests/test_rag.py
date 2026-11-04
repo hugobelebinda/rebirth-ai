@@ -32,3 +32,14 @@ def test_query_for_math_prefers_format_module(tmp_path: Path) -> None:
     assert hits
     # Should surface format.js utilities rather than only math itself
     assert any("format" in h.file_path or h.name.startswith("format") for h in hits)
+
+
+def test_query_refuses_embedder_dim_mismatch(tmp_path: Path) -> None:
+    db = tmp_path / "emb.db"
+    Retriever(db_path=db, embedder=HashEmbedder(dim=64)).index_project(FIXTURE)
+    mismatched = Retriever(db_path=db, embedder=HashEmbedder(dim=128))
+    try:
+        mismatched.query("formatResult")
+        raise AssertionError("expected ValueError for dim mismatch")
+    except ValueError as exc:
+        assert "dim mismatch" in str(exc).lower()

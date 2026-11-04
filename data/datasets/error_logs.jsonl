@@ -10,7 +10,7 @@
 {"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'zod' imported from /workspace/src/schema.ts"}
 {"label": "DependencyMissing", "text": "npm ERR! code ELIFECYCLE\nnpm ERR! errno 1\nError: Cannot find module '@babel/runtime/helpers/interopRequireDefault'"}
 {"label": "DependencyMissing", "text": "Module not found: Error: Can't resolve 'react-dom/client' in '/workspace/src'\nBREAKING CHANGE: webpack need to install peer dependency"}
-{"label": "DependencyMissing", "text": "FAIL  test/api.test.js\n  \u25cf Test suite failed to run\n    Cannot find module 'supertest' from 'test/api.test.js'"}
+{"label": "DependencyMissing", "text": "FAIL  test/api.test.js\n  ● Test suite failed to run\n    Cannot find module 'supertest' from 'test/api.test.js'"}
 {"label": "DependencyMissing", "text": "error TS2307: Cannot find module 'express' or its corresponding type declarations.\nsrc/server.ts(1,24): error TS2307: Cannot find module 'express'"}
 {"label": "DependencyMissing", "text": "Error: No such file or directory, open '/workspace/node_modules/uuid/package.json'\nnpm warn missing peer uuid@^9"}
 {"label": "DependencyMissing", "text": "ImportError equivalent in node: Cannot find package 'chalk' imported from /workspace/src/cli.js\nDid you mean to install chalk?"}
@@ -23,13 +23,13 @@
 {"label": "TypeMismatch", "text": "error TS2339: Property 'age' does not exist on type 'Person'.\nsrc/greeter.ts(8,18): error TS2339"}
 {"label": "TypeMismatch", "text": "TypeError: Cannot convert undefined or null to object\n    at Function.assign (<anonymous>)\n    at mergeConfig (/workspace/src/config.js:22:17)"}
 {"label": "TestLogicFailure", "text": "not ok 1 - expects the wrong sum on purpose\n  ---\n  error: |-\n    Expected values to be strictly equal:\n    5 !== 999\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 999\n  actual: 5"}
-{"label": "TestLogicFailure", "text": "FAIL test/math.test.js\n  \u25cf math \u203a adds numbers\n    expect(received).toBe(expected)\n    Expected: 5\n    Received: 6"}
+{"label": "TestLogicFailure", "text": "FAIL test/math.test.js\n  ● math › adds numbers\n    expect(received).toBe(expected)\n    Expected: 5\n    Received: 6"}
 {"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n+ 'sum=3'\n- 'sum=4'\n    at TestContext.<anonymous> (test/math.test.js:15:12)"}
 {"label": "TestLogicFailure", "text": "1) Calculator accumulates\n     AssertionError: expected 30 to equal 40\n      at Context.<anonymous> (test/math.test.js:22:28)"}
-{"label": "TestLogicFailure", "text": "FAIL  src/greeter.test.ts\n  \u25cf Greeter \u203a say\n    expect(received).toEqual(expected)\n    Expected: \"Hi, Ada\"\n    Received: \"Hello, Ada\""}
+{"label": "TestLogicFailure", "text": "FAIL  src/greeter.test.ts\n  ● Greeter › say\n    expect(received).toEqual(expected)\n    Expected: \"Hi, Ada\"\n    Received: \"Hello, Ada\""}
 {"label": "TestLogicFailure", "text": "TAP version 13\n# Subtest: formatList joins\nnot ok 1 - formatList joins\n  error: 'Expected \"a, b\" but got \"a,b\"'\n  name: 'AssertionError'"}
 {"label": "TestLogicFailure", "text": "Assertion failed: summarize(2,2) should equal 'sum=4' but was 'sum=5'\nTestLogic mismatch in business assertion"}
-{"label": "TestLogicFailure", "text": "\u25cf TestLogicFailure example\n    Expected: true\n    Received: false\n    at Object.toBe (test/flags.test.js:9:20)\nSnapshot or value assertion failed"}
+{"label": "TestLogicFailure", "text": "● TestLogicFailure example\n    Expected: true\n    Received: false\n    at Object.toBe (test/flags.test.js:9:20)\nSnapshot or value assertion failed"}
 {"label": "SyntaxError", "text": "src/file0.js:1\nSyntaxError: Unexpected token\n    at Module._compile (node:internal/modules/cjs/loader)"}
 {"label": "SyntaxError", "text": "src/file1.js:2\nSyntaxError: missing ) after argument list\n    at Module._compile (node:internal/modules/cjs/loader)"}
 {"label": "SyntaxError", "text": "src/file2.js:3\nSyntaxError: Invalid or unexpected token\n    at Module._compile (node:internal/modules/cjs/loader)"}
@@ -72,3 +72,34 @@
 {"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n30 !== 40\nExpected: 40\nReceived: 30\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
 {"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\"Hi, Ada\" !== \"Hello, Ada\"\nExpected: \"Hello, Ada\"\nReceived: \"Hi, Ada\"\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
 {"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\nTrue !== False\nExpected: False\nReceived: True\n    at TestContext.<anonymous> (test/math.test.js:7:12)"}
+{"label": "SyntaxError", "text": "file:///workspace/src/index.js:1\nimport x from 'y'\n^^^^^^\n\nSyntaxError: Cannot use import statement outside a module\n    at Object.compileSourceTextModule"}
+{"label": "SyntaxError", "text": "/workspace/src/util.ts:8:1 - error TS1005: '}' expected.\n8 function broken(\n  ~\nFound 1 error in src/util.ts:8"}
+{"label": "SyntaxError", "text": "ERROR in ./src/app.js\nModule parse failed: Unexpected token (12:2)\nYou may need an appropriate loader to handle this file type."}
+{"label": "SyntaxError", "text": "[eslint] Parsing error: Unexpected token <  src/Button.jsx:14:4"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'lodash'\nRequire stack:\n- /workspace/src/helpers.js\n- /workspace/test/helpers.test.js"}
+{"label": "DependencyMissing", "text": "Module not found: Error: Can't resolve 'react-dom/client' in '/workspace/src'"}
+{"label": "DependencyMissing", "text": "npm ERR! code ELIFECYCLE\nnpm ERR! errno 1\nError: Cannot find module '@babel/core'"}
+{"label": "DependencyMissing", "text": "TS2307: Cannot find module 'express' or its corresponding type declarations."}
+{"label": "TypeMismatch", "text": "src/user.ts:22:5 - error TS2322: Type 'string' is not assignable to type 'number'.\n22     age = name;\n       ~~"}
+{"label": "TypeMismatch", "text": "TypeError: Cannot read properties of undefined (reading 'map')\n    at renderList (/workspace/src/list.js:10:18)"}
+{"label": "TypeMismatch", "text": "error TS2345: Argument of type 'null' is not assignable to parameter of type 'string'."}
+{"label": "TypeMismatch", "text": "TypeError: foo is not a function\n    at Object.<anonymous> (/workspace/test/math.test.js:12:12)"}
+{"label": "TestLogicFailure", "text": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n+ 9\n- 20\n    at TestContext.<anonymous> (test/math.test.js:11:12)"}
+{"label": "TestLogicFailure", "text": "FAIL test/greeter.test.js\n  ● greets by name\n    expect(received).toBe(expected)\n    Expected: \"Hello, Ada\"\n    Received: \"Hello, undefined\""}
+{"label": "TestLogicFailure", "text": "1) Calculator accumulates\n     AssertionError: expected 25 to equal 30\n      at Context.<anonymous> (test/math.test.js:21:12)"}
+{"label": "TestLogicFailure", "text": "not ok 2 - multiplies numbers\n  ---\n  error: |-\n    Expected 20 but got 9\n  ..."}
+{"label": "SyntaxError", "text": "ERROR: Failed to compile.\n./src/App.tsx\nError: Expression expected. ts(1109)"}
+{"label": "SyntaxError", "text": "acorn: Unexpected token (15:8)\n    at pp.raise (/workspace/node_modules/acorn/dist/acorn.js)"}
+{"label": "DependencyMissing", "text": "Error: Cannot find module 'fastify'\nRequire stack:\n- /workspace/src/server.js"}
+{"label": "DependencyMissing", "text": "Unable to resolve \"@tanstack/react-query\" from \"src/hooks/useQuery.ts\""}
+{"label": "DependencyMissing", "text": "go: module github.com/example/lib: not found"}
+{"label": "TypeMismatch", "text": "error TS2339: Property 'foo' does not exist on type 'Bar'."}
+{"label": "TypeMismatch", "text": "TypeError: Cannot convert undefined or null to object\n    at Object.assign (<anonymous>)"}
+{"label": "TestLogicFailure", "text": "AssertionError: expected 'bench-mixed' to equal 'wrong-name'\n    at Context.<anonymous> (test/config.test.js:8:12)"}
+{"label": "TestLogicFailure", "text": "FAIL src/numbers.test.js\n  ● sums\n    expect(received).toBe(expected)\n    Expected: 6\n    Received: 6  // wrong message path — actually Received: 0"}
+{"label": "TestLogicFailure", "text": "× clamp (1 ms)\n  → expected 0 to deeply equal 10"}
+{"label": "DependencyMissing", "text": "Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'ms' imported from /workspace/src/duration.js"}
+{"label": "DependencyMissing", "text": "npm ERR! 404 Not Found - GET https://registry.npmjs.org/left-pad-typo - Not found"}
+{"label": "SyntaxError", "text": "vite v5.4.0 building for production...\n✓ transforming...\n✗ Build failed in 120ms\nerror during build:\n[vite:esbuild] Transform failed with 1 error:\nsrc/main.ts:12:8: ERROR: Expected \";\" but found \"function\""}
+{"label": "TypeMismatch", "text": "src/index.ts:41:14 - error TS2304: Cannot find name 'window'.\n41   return window.localStorage.getItem(key);\n                ~~~~~~"}
+{"label": "TestLogicFailure", "text": "FAIL packages/a/test/hello.test.js\n  ● greets\n    expect(received).toBe(expected)\n    Expected: \"hello, Ada\"\n    Received: \"hi, Ada\""}

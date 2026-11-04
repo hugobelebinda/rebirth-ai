@@ -70,7 +70,9 @@ class Retriever:
 
         if clear:
             self.store.clear()
+        embedder_name = getattr(self.embedder, "model_name", None) or type(self.embedder).__name__
         self.store.set_meta("embedder_dim", str(self.embedder.dim))
+        self.store.set_meta("embedder_name", str(embedder_name))
         self.store.set_meta("project_dir", str(project_dir))
 
         if not chunks:
@@ -89,6 +91,36 @@ class Retriever:
         )
         return IndexStats(files=files, chunks=len(chunks), db_path=str(self.db_path))
 
+    def _assert_embedder_compatible(self) -> None:
+        """Refuse mismatched embedder dims (Phase 6) — clear error, not silent skip."""
+        stored = self.store.get_meta("embedder_dim")
+        if stored is None:
+            return
+        try:
+            stored_dim = int(stored)
+        except ValueError as exc:
+            raise ValueError(
+                f"Corrupt embeddings DB meta embedder_dim={stored!r} at {self.db_path}"
+            ) from exc
+        if stored_dim != int(self.embedder.dim):
+            raise ValueError(
+                f"Embedder dim mismatch for {self.db_path}: "
+                f"db={stored_dim} current={self.embedder.dim}. "
+                "Re-index with `rebirth index` using the same REBIRTH_EMBEDDER."
+            )
+        stored_name = self.store.get_meta("embedder_name")
+        current_name = getattr(self.embedder, "model_name", None) or type(self.embedder).__name__
+        if stored_name and stored_name != current_name and stored_name not in {
+            "HashEmbedder",
+            type(self.embedder).__name__,
+        }:
+            # Soft signal via meta only when dims already match; still refuse hash↔ST flips
+            if ("Hash" in stored_name) != ("Hash" in current_name):
+                raise ValueError(
+                    f"Embedder family mismatch for {self.db_path}: "
+                    f"db={stored_name} current={current_name}. Re-index required."
+                )
+
     def query(
         self,
         text: str,
@@ -96,6 +128,7 @@ class Retriever:
         top_k: int = 5,
         exclude_file: str | None = None,
     ) -> list[StoredChunk]:
+        self._assert_embedder_compatible()
         vec = self.embedder.embed([text])[0]
         return self.store.search(vec, top_k=top_k, exclude_file=exclude_file)
 

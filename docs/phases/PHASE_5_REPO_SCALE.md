@@ -29,7 +29,8 @@
 
 ### Optional (deferred)
 
-- Second language adapter (Python)  
+- Remaining v1.0 language adapters (Python → Go/Java/C#/Rust → C++/Swift) + ≥15K corpus  
+ 
 - Supabase / vLLM / AWS sandboxes  
 
 ---
@@ -84,6 +85,11 @@ Artifacts: `data/reports/phase5_e2e.json`, `data/reports/phase5_migrated/`.
 - [x] Agent opens a real PR with ≥1 migrated file (PR #1 + migrated snapshots)  
 - [x] Failed files listed in PR body / report without aborting whole run  
 - [x] Docs updated; `GLOBAL.md` marks Phase 5 complete  
+
+### Handoff → production path
+
+Next: **[Phase 6 — Repo hardening](PHASE_6_REPO_HARDENING.md)** · full plan  
+**[PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md)** (Phases 6–11, 8 languages, ≥15K pairs, optional cloud).
 
 ---
 

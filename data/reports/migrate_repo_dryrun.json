@@ -1,0 +1,55 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/js_ts_sample",
+  "objective": "Fix files so project tests pass; modernize idioms without changing public API",
+  "dry_run": true,
+  "migrate_order": [
+    "src/format.js",
+    "src/greeter.ts",
+    "src/math.js"
+  ],
+  "summary": {
+    "total": 3,
+    "success": 0,
+    "failed": 0,
+    "skipped": 1,
+    "planned": 2
+  },
+  "results": [
+    {
+      "relative_file": "src/format.js",
+      "relative_test": "test/format.test.js",
+      "status": "planned",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "dry-run plan; deps=[]",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "src/greeter.ts",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "src/math.js",
+      "relative_test": "test/math.test.js",
+      "status": "planned",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "dry-run plan; deps=['src/format.js']",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    }
+  ]
+}

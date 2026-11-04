@@ -1,0 +1,10 @@
+{
+  "name": "rebirth-eval-suite",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 7 held-out JS/TS behavioral eval suite (10+ broken seeds)",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

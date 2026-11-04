@@ -1,0 +1,81 @@
+{
+  "n": 8,
+  "exact_match": 1,
+  "exact_rate": 0.125,
+  "mean_token_overlap": 0.5226588299376487,
+  "model": "peft:Qwen/Qwen2.5-Coder-0.5B-Instruct@adapter",
+  "results": [
+    {
+      "i": 1,
+      "objective": "Arrow callback",
+      "exact": false,
+      "overlap": 0.938,
+      "legacy_chars": 44,
+      "pred_preview": "[1,2,3].map(n => n + 1);\n```\n",
+      "gold_preview": "[1, 2, 3].map((n) => n + 1);\n"
+    },
+    {
+      "i": 2,
+      "objective": "Prefer Number.isNaN",
+      "exact": false,
+      "overlap": 0.462,
+      "legacy_chars": 39,
+      "pred_preview": "function bad(n) {\n  return Number.isNaN(n);\n}\n###import { bad } from './bad';\n\nexport default bad; // eslint-disable-line no-unused-vars\nexport { bad }; // eslint-disable-line no-unused-vars\nexport default bad; // eslint-disable-line no-unu",
+      "gold_preview": "function bad(n) {\n  return Number.isNaN(n);\n}\n"
+    },
+    {
+      "i": 3,
+      "objective": "Shorthand properties",
+      "exact": false,
+      "overlap": 0.183,
+      "legacy_chars": 49,
+      "pred_preview": "function pair(a, b) {\n  return { a, b };\n}\n```\n\n## [1.0.0] - 2015-09-17\n\n### Features\n* Added `pair` function to make it easier to create pairs of values.\n\n### Bug Fixes\n* Fixed bug where `pair` function was not returning an object.\n\n### Ot",
+      "gold_preview": "function pair(a, b) {\n  return { a, b };\n}\n"
+    },
+    {
+      "i": 4,
+      "objective": "Replace substr with slice",
+      "exact": false,
+      "overlap": 0.378,
+      "legacy_chars": 48,
+      "pred_preview": "function first3(s) {\n  return s.slice(0, 3);\n}\n###import { first3 } from './first3';\n\ndescribe('first3', () => {\n  it('should return the first three characters of a string', () => {\n    expect(first3('hello')).toBe('hel');\n  });\n});\nconst {",
+      "gold_preview": "function first3(s) {\n  return s.slice(0, 3);\n}\n"
+    },
+    {
+      "i": 5,
+      "objective": "Boolean cast cleanup",
+      "exact": false,
+      "overlap": 0.357,
+      "legacy_chars": 52,
+      "pred_preview": "function on(flag) {\n  return Boolean(flag);\n}\n###import {on} from './utils';\n\nexport default on; // eslint-disable-line no-unused-vars\nexport const on = on; // eslint-disable-line no-unused-vars\nexport const on = on; // eslint-disable-line ",
+      "gold_preview": "function on(flag) {\n  return Boolean(flag);\n}\n"
+    },
+    {
+      "i": 6,
+      "objective": "var to const sample 0",
+      "exact": false,
+      "overlap": 0.452,
+      "legacy_chars": 48,
+      "pred_preview": "function f0(x) {\n  const y = x + 0;\n  return y;\n}\n###import { strict as assert } from 'assert';\n\nfunction test() {\n  assert.equal(f0(1), 1);\n  assert.equal(f0(0), 0);\n  assert.equal(f0(-1), -1);\n  assert.equal(f0(-2), -2);\n  assert.equal(f0",
+      "gold_preview": "function f0(x) {\n  const y = x + 0;\n  return y;\n}\n"
+    },
+    {
+      "i": 7,
+      "objective": "var to const sample 1",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 48,
+      "pred_preview": "function f1(x) {\n  const y = x + 1;\n  return y;\n}\n",
+      "gold_preview": "function f1(x) {\n  const y = x + 1;\n  return y;\n}\n"
+    },
+    {
+      "i": 8,
+      "objective": "var to const sample 2",
+      "exact": false,
+      "overlap": 0.412,
+      "legacy_chars": 48,
+      "pred_preview": "function f2(x) {\n  const y = x + 2;\n  return y;\n}\n###import { strict as assert } from 'assert';\n\nfunction test() {\n  assert.equal(f2(1), 3);\n  assert.equal(f2(2), 4);\n  assert.equal(f2(3), 5);\n  assert.equal(f2(4), 6);\n  assert.equal(f2(5),",
+      "gold_preview": "function f2(x) {\n  const y = x + 2;\n  return y;\n}\n"
+    }
+  ]
+}

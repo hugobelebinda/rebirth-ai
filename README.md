@@ -13,15 +13,20 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Environment, repo, docs baseline | **Complete** |
-| 1 | Docker sandbox + AST | **Complete** |
-| 2 | RAG + error classifier | **Complete** |
-| 3 | LoRA training + Ollama inference | **Complete** |
-| 4 | LangGraph closed loop | **Complete** |
-| — | Dataset + PEFT (7B ROCm 1-epoch) | **Active** — see [`docs/DATASET.md`](docs/DATASET.md) |
-| 5 | Repo-scale + GitHub PRs | **Complete** — `rebirth migrate-repo` / [PR #1](https://github.com/hugobelebinda/rebirth-ai/pull/1) |
+| 0–5 | MVP (setup → LangGraph → multi-file PRs) | **Complete** |
+| Data | Dataset + PEFT 7B + behavioral eval (→ **15K+** multi-lang) | **Active** |
+| 6 | Repo hardening (JS/TS production path) | **Complete** |
+| 7 | Real-world JS/TS validation | **Complete** |
+| **8** | Adapter factory + Python | **Next** |
+| 9 | Language wave A — Go, Java, C#, Rust | Planned |
+| 10 | Wave B — C++, Swift + quality + ≥15K corpus | Planned |
+| 11 | Official **v1.0** launch | Planned |
+| Optional | Cloud 14B QLoRA | Optional (not required) |
 
-Living docs: [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md) · phase notes under [`docs/phases/`](docs/phases/).
+**Production roadmap (detailed):** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md)  
+Living docs: [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md) · [`docs/phases/`](docs/phases/)
+
+Today the **live vertical is JavaScript / TypeScript**. **v1.0** targets adapters for **JS/TS, Python, Go, Java, C++, C#, Rust, and Swift** with **≥15K** mined migration pairs. Cloud GPU is optional.
 
 ## Quick start
 
@@ -42,26 +47,39 @@ rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
 rebirth migrate fixtures/js_ts_sample \
   --seed-draft fixtures/migration_seeds/math.broken.js \
   --out /tmp/rebirth_math_fixed.js --no-write
+
+# Multi-file (Phase 5)
+rebirth migrate-repo fixtures/js_ts_sample \
+  --file src/math.js --file src/format.js \
+  --seed src/math.js=fixtures/migration_seeds/math.broken.js \
+  --seed src/format.js=fixtures/migration_seeds/format.broken.js \
+  --write --report data/reports/migrate_repo.json
 ```
 
-Optional PEFT (7B adapter after local ROCm train):
+Optional PEFT (defaults to 7B adapter when present):
 
 ```bash
 pip install -e ".[ml]"
-REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct \
-REBIRTH_PEFT_ADAPTER=data/models/lora_js_ts_7b/adapter \
-rebirth generate fixtures/js_ts_sample/src/math.js --backend peft --no-rag
+# Unload Ollama first if VRAM is tight: ollama stop qwen2.5-coder:14b-instruct-q6_K
+rebirth migrate fixtures/js_ts_sample \
+  --seed-draft fixtures/migration_seeds/math.broken.js --backend peft --no-write
 ```
 
-Docs refresh: when chat context is ~90% full, agents re-read/update all project `.md` files (see `.cursor/rules/docs-context-refresh.mdc`).
+Behavioral eval (sandbox-pass / AST — preferred over exact string):
+
+```bash
+python training/eval_behavioral.py --backend ollama --suite sandbox
+```
 
 ## Design defaults
 
-- **First adapter:** JavaScript / TypeScript (pluggable; Python and others later)  
-- **Inference:** Ollama + AMD ROCm (`qwen2.5-coder:14b-instruct-q6_K` on RX 7800 XT)  
-- **Local PEFT:** `Qwen2.5-Coder-7B-Instruct` LoRA at seq 128 (1-epoch proven); avoid multi-epoch GPU trains while display is on the dGPU  
-- **Vectors:** SQLite first (Supabase/pgvector optional later)  
-- **No AWS required** for Phases 1–4  
+- **Languages (v1.0):** JS/TS → Python → Go / Java / C# / Rust → C++ / Swift via `LanguageAdapter`  
+- **Corpus (v1.0):** ≥15K mined multi-language migration pairs  
+- **Inference:** Ollama + AMD ROCm (`qwen2.5-coder:14b-instruct-q6_K`)  
+- **Local PEFT:** 7B LoRA optional; never stack with Ollama+ST on one 16GB card  
+- **Vectors:** SQLite first  
+- **Cloud GPU:** Optional LoRA upgrade only — billing in HF browser settings, not the CLI  
+- **No AWS required** for MVP / Phases 6–11  
 
 ## License
 

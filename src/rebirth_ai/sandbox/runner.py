@@ -72,8 +72,10 @@ class SandboxRunner:
         *,
         relative_test: str | None = None,
         overlay_file: Path | None = None,
+        overlay_text: str | None = None,
         overlay_dest: str | None = None,
         command: str | None = None,
+        network_mode: str = "none",
     ) -> SandboxResult:
         project_dir = project_dir.resolve()
         if not project_dir.is_dir():
@@ -95,10 +97,23 @@ class SandboxRunner:
                 target = work / dest
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(overlay_file, target)
+            if overlay_text is not None:
+                if not overlay_dest:
+                    raise ValueError("overlay_dest is required when overlay_text is set")
+                target = work / overlay_dest
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(overlay_text, encoding="utf-8")
 
-            return self._run_mounted(work, shell_cmd, cmd)
+            return self._run_mounted(work, shell_cmd, cmd, network_mode=network_mode)
 
-    def _run_mounted(self, work: Path, shell_cmd: list[str], cmd: str) -> SandboxResult:
+    def _run_mounted(
+        self,
+        work: Path,
+        shell_cmd: list[str],
+        cmd: str,
+        *,
+        network_mode: str = "none",
+    ) -> SandboxResult:
         started = time.perf_counter()
         container: Container | None = None
         try:
@@ -113,7 +128,7 @@ class SandboxRunner:
                     }
                 },
                 environment=dict(self.spec.env),
-                network_mode="none",
+                network_mode=network_mode,
                 detach=True,
                 remove=False,
                 user="node",

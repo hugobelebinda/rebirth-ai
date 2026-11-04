@@ -1,7 +1,14 @@
 {
   "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
-  "examples": 4,
-  "smoke": true,
+  "examples": 1339,
+  "smoke": false,
   "lora_r": 8,
-  "lora_alpha": 16
+  "lora_alpha": 16,
+  "epochs": 1,
+  "max_length": 768,
+  "batch_size": 1,
+  "data": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/datasets/js_ts_migration.jsonl",
+  "device": "cpu",
+  "torch": "2.9.1+rocm6.4",
+  "dtype": "torch.float32"
 }

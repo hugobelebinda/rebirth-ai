@@ -1,0 +1,32 @@
+{
+  "frozen_at": "2026-11-04T03:06:43.966580+00:00",
+  "backend": "ollama",
+  "model": "qwen2.5-coder:14b-instruct-q6_K",
+  "suites": {
+    "heldout": {
+      "n": 12,
+      "sandbox_pass": 12,
+      "sandbox_pass_rate": 1.0,
+      "soft_exact_rate": null,
+      "mean_symbol_jaccard": null
+    },
+    "sandbox": {
+      "n": 2,
+      "sandbox_pass": 2,
+      "sandbox_pass_rate": 1.0
+    }
+  },
+  "source_report": "data/reports/eval_heldout_ollama.json",
+  "gate": "held-out / sandbox pass rate must stay within baseline - 5%",
+  "phase": "7-complete-100",
+  "benches": {
+    "bench_util": "success",
+    "bench_mixed": "success",
+    "bench_express": "success+install_ms",
+    "bench_monorepo": "success",
+    "bench_external_plain": "success",
+    "is-plain-obj": "dry-run-discovery"
+  },
+  "heldout_pass_rate": 1.0,
+  "classifier_heldout_accuracy": 0.9259259259259259
+}

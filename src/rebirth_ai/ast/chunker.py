@@ -79,6 +79,18 @@ class CodeChunker:
         text = source if source is not None else path.read_text(encoding="utf-8")
         return self.chunk_source(text, file_path=str(path))
 
+    def parses(self, source: str) -> bool:
+        """True if Tree-sitter builds a tree with no ERROR / missing nodes."""
+        source_bytes = source.encode("utf-8")
+        tree = self._parser.parse(source_bytes)
+
+        def bad(node: Node) -> bool:
+            if node.type == "ERROR" or node.is_missing:
+                return True
+            return any(bad(c) for c in node.children)
+
+        return not bad(tree.root_node)
+
     def chunk_source(self, source: str, file_path: str = "<memory>") -> list[CodeChunk]:
         source_bytes = source.encode("utf-8")
         tree = self._parser.parse(source_bytes)

@@ -1,0 +1,8 @@
+{
+  "name": "rebirth-bench-external-plain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "External-style util (is-plain-obj shaped) with node:test for Phase 7 full migrate",
+  "scripts": { "test": "node --test test/*.test.js" }
+}

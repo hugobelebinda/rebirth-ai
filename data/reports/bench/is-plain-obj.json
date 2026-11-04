@@ -1,0 +1,94 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/bench/is-plain-obj",
+  "objective": "Fix seeded files so project tests pass; modernize idioms without changing public API. Prefer installing missing packages when the classifier reports DependencyMissing.",
+  "dry_run": true,
+  "migrate_order": [
+    ".rebirth_seeds/index.broken.js",
+    "benchmark.js",
+    "index.d.ts",
+    "index.js",
+    "index.test-d.ts",
+    "test.js"
+  ],
+  "summary": {
+    "total": 6,
+    "success": 0,
+    "failed": 0,
+    "skipped": 6,
+    "planned": 0
+  },
+  "results": [
+    {
+      "relative_file": ".rebirth_seeds/index.broken.js",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "benchmark.js",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "index.d.ts",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "index.js",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "index.test-d.ts",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "test.js",
+      "relative_test": null,
+      "status": "skipped_no_test",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "No matching test file; would skip",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    }
+  ]
+}

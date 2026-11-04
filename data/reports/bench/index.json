@@ -1,0 +1,121 @@
+{
+  "phase": 7,
+  "backend": "ollama",
+  "results": [
+    {
+      "id": "bench_util",
+      "class": "tiny_util_lib",
+      "path": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_util",
+      "report": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/reports/bench/bench_util.json",
+      "summary": {
+        "total": 1,
+        "success": 1,
+        "failed": 0,
+        "skipped": 0,
+        "planned": 0
+      },
+      "okish_rate": 1.0,
+      "install_dependency_seen": false,
+      "migrate_order": [
+        "src/numbers.js"
+      ],
+      "dry_run": false,
+      "backend": "ollama",
+      "statuses": {
+        "src/numbers.js": "success"
+      }
+    },
+    {
+      "id": "bench_mixed",
+      "class": "mixed_js_ts",
+      "path": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_mixed",
+      "report": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/reports/bench/bench_mixed.json",
+      "summary": {
+        "total": 1,
+        "success": 1,
+        "failed": 0,
+        "skipped": 0,
+        "planned": 0
+      },
+      "okish_rate": 1.0,
+      "install_dependency_seen": false,
+      "migrate_order": [
+        "src/config.js"
+      ],
+      "dry_run": false,
+      "backend": "ollama",
+      "statuses": {
+        "src/config.js": "success"
+      }
+    },
+    {
+      "id": "bench_express",
+      "class": "app_with_deps",
+      "path": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_express",
+      "report": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/reports/bench/bench_express.json",
+      "summary": {
+        "total": 1,
+        "success": 1,
+        "failed": 0,
+        "skipped": 0,
+        "planned": 0
+      },
+      "okish_rate": 1.0,
+      "install_dependency_seen": true,
+      "migrate_order": [
+        "src/duration.js"
+      ],
+      "dry_run": false,
+      "backend": "ollama",
+      "statuses": {
+        "src/duration.js": "success"
+      }
+    },
+    {
+      "id": "bench_monorepo",
+      "class": "monorepo_lite",
+      "path": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_monorepo",
+      "report": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/reports/bench/bench_monorepo.json",
+      "summary": {
+        "total": 1,
+        "success": 1,
+        "failed": 0,
+        "skipped": 0,
+        "planned": 0
+      },
+      "okish_rate": 1.0,
+      "install_dependency_seen": false,
+      "migrate_order": [
+        "packages/a/src/hello.js"
+      ],
+      "dry_run": false,
+      "backend": "ollama",
+      "statuses": {
+        "packages/a/src/hello.js": "success"
+      }
+    },
+    {
+      "id": "bench_external_plain",
+      "class": "external_style_util",
+      "path": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_external_plain",
+      "report": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/reports/bench/bench_external_plain.json",
+      "summary": {
+        "total": 1,
+        "success": 1,
+        "failed": 0,
+        "skipped": 0,
+        "planned": 0
+      },
+      "okish_rate": 1.0,
+      "install_dependency_seen": false,
+      "migrate_order": [
+        "index.js"
+      ],
+      "dry_run": false,
+      "backend": "ollama",
+      "statuses": {
+        "index.js": "success"
+      }
+    }
+  ]
+}

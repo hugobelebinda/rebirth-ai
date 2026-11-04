@@ -1,0 +1,42 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_monorepo",
+  "objective": "Fix files so project tests pass; modernize idioms without changing public API",
+  "dry_run": true,
+  "migrate_order": [
+    "packages/a/src/hello.js",
+    "packages/b/src/world.js"
+  ],
+  "summary": {
+    "total": 2,
+    "success": 0,
+    "failed": 0,
+    "skipped": 0,
+    "planned": 2
+  },
+  "results": [
+    {
+      "relative_file": "packages/a/src/hello.js",
+      "relative_test": "packages/a/test/hello.test.js",
+      "status": "planned",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "dry-run plan; deps=[]",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    },
+    {
+      "relative_file": "packages/b/src/world.js",
+      "relative_test": "packages/b/test/world.test.js",
+      "status": "planned",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "dry-run plan; deps=[]",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    }
+  ]
+}

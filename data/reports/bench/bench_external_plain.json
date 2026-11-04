@@ -1,0 +1,36 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_external_plain",
+  "objective": "Fix seeded files so project tests pass; modernize idioms without changing public API. Prefer installing missing packages when the classifier reports DependencyMissing.",
+  "dry_run": false,
+  "migrate_order": [
+    "index.js"
+  ],
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0,
+    "skipped": 0,
+    "planned": 0
+  },
+  "results": [
+    {
+      "relative_file": "index.js",
+      "relative_test": "test/index.test.js",
+      "status": "success",
+      "iterations": 1,
+      "error_class": null,
+      "trace": [
+        "retrieve_context: skipped (Embedder dim mismatch for data/embeddings.db: db=768 current=64. Re-index with `rebirth index` using the same REBIRTH_EMBEDDER.)",
+        "execute_tests: FAIL exit=1 in 0.18s",
+        "classify_error: TestLogicFailure conf=0.52",
+        "generate_code: iteration=1 model=qwen2.5-coder:14b-instruct-q6_K chars=225",
+        "execute_tests: PASS exit=0 in 0.17s",
+        "success: tests passed"
+      ],
+      "wrote": false,
+      "message": "",
+      "test_logs_excerpt": "TAP version 13\n# Subtest: isPlainObject\n    # Subtest: accepts plain objects\n    ok 1 - accepts plain objects\n      ---\n      duration_ms: 0.342675\n      type: 'test'\n      ...\n    # Subtest: rejects non-plain\n    ok 2 - rejects non-plain\n      ---\n      duration_ms: 0.072299\n      type: 'test'\n      ...\n    1..2\nok 1 - isPlainObject\n  ---\n  duration_ms: 0.855398\n  type: 'suite'\n  ...\n1..1\n# tests 2\n# suites 1\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 30.296465",
+      "draft_preview": "--- a/index.js\n+++ b/index.js\n@@ -2,12 +2,6 @@\n   if (typeof value !== 'object' || value === null) {\n     return false;\n   }\n-  const prototype = Object.getPrototypeOf(value);\n-  return (\n-    (prototype === null ||\n-      prototype === Object.prototype ||\n-      Object.getPrototypeOf(prototype) === null) &&\n-    !(Symbol.toStringTag in value) &&\n-    !(Symbol.iterator in value)\n-  );\n+  const proto = Object.getPrototypeOf(value);\n+  return proto === Object.prototype || proto === null;\n }"
+    }
+  ]
+}

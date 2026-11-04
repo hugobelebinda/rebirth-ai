@@ -42,6 +42,17 @@ def build_migration_prompt(
     return "\n\n".join(parts)
 
 
+def build_sft_prompt(*, objective: str, legacy_code: str) -> str:
+    """Match ``training/train_lora.py`` example format for PEFT adapters."""
+    return (
+        "### Objective\n"
+        f"{objective}\n\n"
+        "### Legacy\n"
+        f"{legacy_code}\n"
+        "### Modern\n"
+    )
+
+
 def extract_code_block(text: str) -> str:
     """Strip optional markdown fences from model output."""
     stripped = text.strip()
