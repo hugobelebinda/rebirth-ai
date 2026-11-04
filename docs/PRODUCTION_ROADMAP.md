@@ -1,8 +1,9 @@
 # Rebirth AI — Production-Grade Roadmap
 
-> Last updated: 2026-11-03 (Phases 6–7 **100%** vs full task tables)  
+> Last updated: 2026-11-03 (Phases 6–7 **code 100%**; hygiene = **commit docs handoff → merge PR #2** then Phase 8)  
 > Scope: take the **local-first JS/TS MVP** (Phases 0–5 + data interlude) to a **production-grade, multi-language** migration product.  
-> Constraint: **cloud GPU is optional** — required only for optional 14B LoRA specialization. Everything else runs on this machine (Ollama 14B + Docker + local PEFT 7B).
+> Constraint: **cloud GPU is optional** — required only for optional 14B LoRA specialization. Everything else runs on this machine (Ollama 14B + Docker + local PEFT 7B).  
+> **New agent:** start at [SESSION_HANDOFF.md](SESSION_HANDOFF.md).
 
 ---
 
@@ -13,7 +14,9 @@
 | Single-file closed loop | Done | `rebirth migrate` + LangGraph |
 | Multi-file + GitHub PR | Done | `rebirth migrate-repo`, [PR #1](https://github.com/hugobelebinda/rebirth-ai/pull/1) |
 | Repo hardening | **Done (Phase 6)** | Topo-order, dry-run, VRAM doctor, draft PR |
-| Real-world JS/TS | **Done (Phase 7)** | Held-out 12/12; benches; baseline freeze |
+| Real-world JS/TS | **Done (Phase 7)** | Held-out 12/12; full golden matrix; baseline freeze |
+| Landing on `main` | **Pending** | [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) OPEN — commit docs handoff, then merge |
+| Tag | `v0.2.0-mvp` on origin | Points at closeout commit on feature branch |
 | Language vertical | **JS/TS only** | `JsTsAdapter`, Node sandbox |
 | Agent brain | Ollama `qwen2.5-coder:14b-instruct-q6_K` | Default generator |
 | Local specialization | PEFT 7B LoRA (1-epoch) | `data/models/lora_js_ts_7b` |
@@ -129,9 +132,10 @@ Estimated effort if focused (solo): **~6–10 weeks** calendar for Phases 6–11
 - [x] Doctor warns on VRAM stacking / PEFT+Ollama  
 - [x] Behavioral sandbox still 2/2 on Ollama  
 - [x] Test mapping matrix + gitignore `!` negation  
-- [x] Local WIP synced via closeout PR / tag `v0.2.0-mvp`  
+- [x] Closeout commit + PR #2 opened + tag `v0.2.0-mvp` pushed  
+- [ ] **PR #2 merged into `main`** ← current interrupted step ([SESSION_HANDOFF.md](SESSION_HANDOFF.md))  
 
-**Docs:** [phases/PHASE_6_REPO_HARDENING.md](phases/PHASE_6_REPO_HARDENING.md) — **COMPLETE (100%)**
+**Docs:** [phases/PHASE_6_REPO_HARDENING.md](phases/PHASE_6_REPO_HARDENING.md) — **COMPLETE (100%)** (merge pending)
 
 ---
 
@@ -436,7 +440,8 @@ Each new language repeats the Phase 8 playbook: adapter + Dockerfile + fixture +
 ## Suggested execution order (no cloud)
 
 ```
-Done         Phases 6–7 (hardening + real-world JS/TS + baselines)
+Done         Phases 6–7 code (hardening + real-world JS/TS + baselines)
+Now          Merge PR #2 → main (then Phase 8)
 Week 1–2     Phase 8 registry + Python (+ optional js-python preview tag)
 Week 3–6     Phase 9 Go / Java / C# / Rust (≈1 week each if smooth)
 Week 6–8     Phase 10 C++ / Swift + quality CLI + mine to ≥15K

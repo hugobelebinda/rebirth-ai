@@ -1,5 +1,7 @@
 # JS/TS test mapping matrix (Phase 6+)
 
+> Status: **shipped** with Phase 6 (2026-11-03). Project handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md).
+
 `infer_test_path(project_dir, relative_source)` tries candidates in order and returns the first existing file.
 
 | Pattern | Example source | Example test |

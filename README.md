@@ -15,16 +15,16 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 |-------|------|--------|
 | 0–5 | MVP (setup → LangGraph → multi-file PRs) | **Complete** |
 | Data | Dataset + PEFT 7B + behavioral eval (→ **15K+** multi-lang) | **Active** |
-| 6 | Repo hardening (JS/TS production path) | **Complete** |
-| 7 | Real-world JS/TS validation | **Complete** |
-| **8** | Adapter factory + Python | **Next** |
+| 6 | Repo hardening (JS/TS production path) | **Complete (100%)** |
+| 7 | Real-world JS/TS validation | **Complete (100%)** |
+| **8** | Adapter factory + Python | **Next** (after PR #2 merge) |
 | 9 | Language wave A — Go, Java, C#, Rust | Planned |
 | 10 | Wave B — C++, Swift + quality + ≥15K corpus | Planned |
 | 11 | Official **v1.0** launch | Planned |
 | Optional | Cloud 14B QLoRA | Optional (not required) |
 
-**Production roadmap (detailed):** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md)  
-Living docs: [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md) · [`docs/phases/`](docs/phases/)
+**Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — commit uncommitted docs handoff → merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) into `main` (`v0.2.0-mvp` already tagged on the feature branch) → Phase 8.  
+**Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md) · [`docs/phases/`](docs/phases/)
 
 Today the **live vertical is JavaScript / TypeScript**. **v1.0** targets adapters for **JS/TS, Python, Go, Java, C++, C#, Rust, and Swift** with **≥15K** mined migration pairs. Cloud GPU is optional.
 

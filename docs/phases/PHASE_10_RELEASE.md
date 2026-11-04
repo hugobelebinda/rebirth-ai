@@ -3,7 +3,9 @@
 > Status: **PLANNED**  
 > Depends on: Phase 9  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 10  
-> Last docs refresh: 2026-11-02  
+> Last docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; awaiting PR #2 merge then Phase 8+ — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)  
+
 > Note: Official packaging / `v1.0` tag moved to [PHASE_11_LAUNCH.md](PHASE_11_LAUNCH.md).
 
 ## Objectives

@@ -1,9 +1,10 @@
 # Phase 6 — Repo Hardening (JS/TS Production Path)
 
-> Status: **COMPLETE (100%)**  
+> Status: **COMPLETE (100%)** — code on `rebirth/phases-6-7-complete` / PR #2  
 > Depends on: Phase 5 complete (PR #1 merged 2026-11-02)  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 6  
-> Last docs refresh: 2026-11-03
+> Last docs refresh: 2026-11-03  
+> Landing: merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) so `main` includes this work ([SESSION_HANDOFF.md](../SESSION_HANDOFF.md))
 
 ## Objectives
 
@@ -44,8 +45,9 @@ rebirth migrate-repo fixtures/bench_monorepo --under packages/a,packages/b --dry
 - [x] Behavioral sandbox 2/2  
 - [x] Test mapping matrix documented  
 - [x] gitignore negation supported (basic `!`)  
-- [x] WIP synced via commit/PR (Phase 6–7 closeout)
+- [x] Closeout commit `ca1c34c` + PR #2 + tag `v0.2.0-mvp`  
+- [ ] PR #2 merged into `main` (interrupted — do this before Phase 8)
 
 ## Next
 
-**[Phase 7](PHASE_7_REAL_WORLD_JS.md)** — complete → **[Phase 8](PHASE_8_PYTHON.md)**
+**Merge PR #2** → [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) → then **[Phase 8](PHASE_8_PYTHON.md)** (Phase 7 already complete).

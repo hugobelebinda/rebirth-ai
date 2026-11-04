@@ -1,6 +1,6 @@
 # Migration datasets
 
-> Last updated: 2026-11-03 (Phase 7: classifier **100** logs / acc **0.96**; held-out eval suite live)
+> Last updated: 2026-11-03 (Phase 7 done; classifier **~105** logs / acc ≥0.90; held-out **12/12**; next = merge PR #2 then Phase 8 Python mine)
 
 ## Goal
 
@@ -15,7 +15,7 @@ Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-writ
 | `data/datasets/js_ts_migration.jsonl` | **1339** | LoRA SFT pairs (`objective`, `legacy`, `modern`, …) |
 | `data/datasets/js_ts_migration.synthetic.jsonl` | 59 | Original hand pairs (preserved) |
 | `data/datasets/js_ts_migration.stats.json` | — | Mine run stats |
-| `data/datasets/error_logs.jsonl` | **90** | Error classifier labels |
+| `data/datasets/error_logs.jsonl` | **~105** | Error classifier labels |
 
 ### Migration pair mix (current — JS/TS only)
 
@@ -176,8 +176,10 @@ A short 7B/14B QLoRA epoch on ~1.3k pairs is often **~$1–3** on T4/L4.
 - PEFT defaults → 7B — **done**; closed-loop math **PASS**.  
 - Behavioral eval — **done** (`eval_behavioral.py`).  
 - Phase 5 — **shipped**.  
+- Phase 6–7 — **shipped** (topo discovery, JS benches, held-out 12/12, classifier ~105 logs).  
 - **Do not** stack Ollama 14B + PEFT 7B + ST on the 7800 XT.  
 - Phase 7 held-out eval — **done** (`fixtures/eval_suite`, baseline frozen).  
+- **Immediate:** merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) — then Phase 8 Python ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
 - Next product work: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) Phases **8–11** (8 languages + **≥15K** pairs → **v1.0**).  
 - Per-language mines — Phase 8 (Python), 9 (Go/Java/C#/Rust), 10 (C++/Swift + top-up to 15K).  
 - Migration-kind tags / train-eval split — Phase 10.  

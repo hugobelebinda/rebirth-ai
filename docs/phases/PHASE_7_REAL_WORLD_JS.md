@@ -1,9 +1,10 @@
 # Phase 7 — Real-World JS/TS Validation
 
-> Status: **COMPLETE (100%)**  
+> Status: **COMPLETE (100%)** — code on `rebirth/phases-6-7-complete` / PR #2  
 > Depends on: Phase 6 complete  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 7  
-> Last docs refresh: 2026-11-03
+> Last docs refresh: 2026-11-03  
+> Landing: merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) ([SESSION_HANDOFF.md](../SESSION_HANDOFF.md))
 
 ## Objectives
 
@@ -60,4 +61,5 @@ rebirth eval --suite heldout --backend ollama \
 
 ## Next
 
-**[Phase 8 — Adapter factory + Python](PHASE_8_PYTHON.md)**
+1. **Merge PR #2** into `main` ([SESSION_HANDOFF.md](../SESSION_HANDOFF.md)).  
+2. **[Phase 8 — Adapter factory + Python](PHASE_8_PYTHON.md)**.

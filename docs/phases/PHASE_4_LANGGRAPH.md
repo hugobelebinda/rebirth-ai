@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phases 1–3 modules callable from Python  
-> Last docs refresh: 2026-11-01
+> Last docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; DependencyMissing install path proven in Phase 7 Express bench — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

@@ -1,5 +1,7 @@
 # Exporting a LoRA adapter for Ollama
 
+> Docs refresh: 2026-11-03 — Phases 0–7 complete; merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../docs/SESSION_HANDOFF.md).
+
 Phase 3+ inference for Rebirth AI uses **Ollama** (`qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm) as the default runtime.
 
 PEFT LoRA adapters trained with `training/train_lora.py` are **not** loaded by Ollama directly. Pick one path:

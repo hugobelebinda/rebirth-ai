@@ -1,9 +1,22 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-03 (Phases **6–7 100%**; next Phase 8; **v1.0** = 8 languages + ≥15K pairs).  
+> Last updated: 2026-11-03 (Phases **6–7 code 100%**; **PR #2 still OPEN** — merge before Phase 8).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai  
-> Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
+> Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
+> **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
+
+---
+
+## 0. Agent restart — current step
+
+**Phases 0–7 are implemented.** WIP is on branch `rebirth/phases-6-7-complete` (`ca1c34c`), pushed; tag `v0.2.0-mvp` is on origin.
+
+**Interrupted step:**  
+1. Commit + push the uncommitted **docs handoff** on `rebirth/phases-6-7-complete` (see [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
+2. Merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) into `main` (`gh pr merge 2 --merge`).  
+
+`main` is still at PR #1 (Phase 5). **Land PR #2 first**, then start **Phase 8** ([PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md)).
 
 ---
 
@@ -221,7 +234,8 @@ rebirth doctor
 | 2026-11-02 | v1.0 language + corpus lock | Target adapters: JS/TS, Python, Go, Java, C++, C#, Rust, Swift; corpus **≥15K** pairs; Phases **6–11**; optional `v0.3` after Python only |
 | 2026-11-03 | Phase 6 complete | Import topo-order; `--under` multi-root; gitignore/deny; `--dry-run`; embed dim guard; PEFT chat+hash for agent; doctor VRAM warn; PR `--draft` + auto base; Ollama sandbox **2/2** |
 | 2026-11-03 | Phase 7 complete | Bench util/mixed + external clone; held-out **12/12**; baselines frozen; safety module; classifier **0.96** / 100 logs |
-| 2026-11-03 | Phases 6–7 100% closeout | Express DependencyMissing→install `ms`; monorepo under; external-style migrate; classify override+telemetry; test matrix; WIP sync PR |
+| 2026-11-03 | Phases 6–7 100% closeout | Express DependencyMissing→install `ms`; monorepo under; external-style migrate; classify override+telemetry; test matrix; commit `ca1c34c` + PR #2 + tag `v0.2.0-mvp` |
+| 2026-11-03 | Session handoff | Docs refresh; **next action = merge PR #2**, then Phase 8 |
 
 ---
 
@@ -254,11 +268,13 @@ Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)**.
 
 | Now | Do this |
 |-----|---------|
-| Immediate | **Phase 8** — adapter registry + Python (optional js-python preview tag) |
-| Hygiene | Commit/PR Phases 6–7 + data-track WIP onto `main` |
+| **1 — blocked mid-flight** | Commit docs handoff → **merge PR #2** into `main` ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)) |
+| **2** | **Phase 8** — adapter registry + Python (optional `v0.3.0-js-python-preview`) |
 | Then | **Phase 9** — Go, Java, C#, Rust |
 | Then | **Phase 10** — C++, Swift + quality CLI + mine to **≥15K** pairs |
 | Then | **Phase 11** — bootstrap + docs + **v1.0.0** |
 | Optional | Cloud 14B QLoRA — card in HF **browser** billing; not blocking |
 
 Cloud GPU is **optional**. Official multi-language v1.0 does **not** require it.
+
+**Git note (2026-11-03):** Closeout commit is on `rebirth/phases-6-7-complete` / PR #2; `main` does not yet include Phases 6–7 until merge.

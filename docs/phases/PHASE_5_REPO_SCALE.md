@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phase 4 single-file loop — **stable** (`rebirth migrate` E2E green on Ollama 14B)  
-> Completed: 2026-11-01
+> Completed: 2026-11-01 · Docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 
@@ -88,8 +89,8 @@ Artifacts: `data/reports/phase5_e2e.json`, `data/reports/phase5_migrated/`.
 
 ### Handoff → production path
 
-Next: **[Phase 6 — Repo hardening](PHASE_6_REPO_HARDENING.md)** · full plan  
-**[PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md)** (Phases 6–11, 8 languages, ≥15K pairs, optional cloud).
+Phases **6–7 are complete** on branch/PR #2 — see [SESSION_HANDOFF.md](../SESSION_HANDOFF.md).  
+Next after merge: **[Phase 8 — Python](PHASE_8_PYTHON.md)** · [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md).
 
 ---
 

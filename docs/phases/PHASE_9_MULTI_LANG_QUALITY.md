@@ -3,7 +3,8 @@
 > Status: **PLANNED**  
 > Depends on: Phase 8 (adapter factory + Python playbook locked)  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 9  
-> Last docs refresh: 2026-11-02
+> Last docs refresh: 2026-11-03  
+> Blocked on: Phase 8 (after merge of [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2)) — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ## Objectives
 

@@ -1,9 +1,10 @@
 # Phase 8 — Adapter Factory + Python Vertical
 
-> Status: **PLANNED** (next)  
-> Depends on: Phase 7 **complete**  
+> Status: **PLANNED** (next **after PR #2 merge**)  
+> Depends on: Phase 7 **complete** + Phases 6–7 landed on `main`  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 8  
-> Last docs refresh: 2026-11-03
+> Last docs refresh: 2026-11-03  
+> **Handoff:** [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) — merge https://github.com/hugobelebinda/rebirth-ai/pull/2 first
 
 ## Objectives
 
