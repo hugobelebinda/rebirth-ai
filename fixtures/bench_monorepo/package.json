@@ -1,0 +1,10 @@
+{
+  "name": "rebirth-bench-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phase 7 monorepo lite — scoped --under packages/a,packages/b",
+  "workspaces": [
+    "packages/a",
+    "packages/b"
+  ]
+}

@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phase 1 (AST chunks feed the indexer)  
-> Completed: 2026-10-31 · Docs refresh: 2026-11-01 (status unchanged — complete)
+> Completed: 2026-10-31 · Docs refresh: 2026-11-03 (classifier now ~105 logs / ≥0.90 acc after Phase 7)  
+> Project now: Phases 0–7 done; next = merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

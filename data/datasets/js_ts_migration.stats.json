@@ -1,0 +1,37 @@
+{
+  "total": 1339,
+  "by_source": {
+    "synthetic": 59,
+    "commitpackft": 1280
+  },
+  "by_language": {
+    "javascript": 1188,
+    "typescript": 151
+  },
+  "mined_capped": 1280,
+  "synthetic": 59,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true
+  },
+  "commitpack_stats": {
+    "javascript": {
+      "scanned": 52989,
+      "keyword_skip": 49294,
+      "license_skip": 2472,
+      "kept": 1159,
+      "parse_skip": 51,
+      "quality_skip": 13
+    },
+    "typescript": {
+      "scanned": 5868,
+      "keyword_skip": 5362,
+      "license_skip": 324,
+      "kept": 151,
+      "parse_skip": 16,
+      "quality_skip": 15
+    }
+  }
+}

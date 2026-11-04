@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phase 4 single-file loop — **stable** (`rebirth migrate` E2E green on Ollama 14B)  
-> Completed: 2026-11-01
+> Completed: 2026-11-01 · Docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 
@@ -29,7 +30,8 @@
 
 ### Optional (deferred)
 
-- Second language adapter (Python)  
+- Remaining v1.0 language adapters (Python → Go/Java/C#/Rust → C++/Swift) + ≥15K corpus  
+ 
 - Supabase / vLLM / AWS sandboxes  
 
 ---
@@ -84,6 +86,11 @@ Artifacts: `data/reports/phase5_e2e.json`, `data/reports/phase5_migrated/`.
 - [x] Agent opens a real PR with ≥1 migrated file (PR #1 + migrated snapshots)  
 - [x] Failed files listed in PR body / report without aborting whole run  
 - [x] Docs updated; `GLOBAL.md` marks Phase 5 complete  
+
+### Handoff → production path
+
+Phases **6–7 are complete** on branch/PR #2 — see [SESSION_HANDOFF.md](../SESSION_HANDOFF.md).  
+Next after merge: **[Phase 8 — Python](PHASE_8_PYTHON.md)** · [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md).
 
 ---
 

@@ -1,0 +1,13 @@
+{
+  "name": "rebirth-bench-express",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 7: Express-style app; DependencyMissing installs missing pkg",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

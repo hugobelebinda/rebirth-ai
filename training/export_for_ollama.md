@@ -1,5 +1,7 @@
 # Exporting a LoRA adapter for Ollama
 
+> Docs refresh: 2026-11-03 — Phases 0–7 complete; merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../docs/SESSION_HANDOFF.md).
+
 Phase 3+ inference for Rebirth AI uses **Ollama** (`qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm) as the default runtime.
 
 PEFT LoRA adapters trained with `training/train_lora.py` are **not** loaded by Ollama directly. Pick one path:
@@ -56,13 +58,22 @@ SYSTEM You are Rebirth AI...
 ollama create rebirth-coder -f Modelfile
 ```
 
-## C. Larger production LoRA (14B matching Ollama)
+## C. Larger production LoRA (14B matching Ollama) — **optional**
 
 Local ROCm proved **7B bf16 LoRA** (seq 128, 1 epoch). Multi-epoch / larger-r hung the display GPU.
 
-For a **14B-class** adapter matching the Ollama runtime:
+This track is **not required** for production-grade multi-language (see `docs/PRODUCTION_ROADMAP.md`).  
+Do it only if you want a LoRA that matches the Ollama 14B brain.
 
-- Train on NVIDIA CUDA or Hugging Face Jobs with `bitsandbytes` 4-bit + PEFT (~$1–3 for a short run).
+### Billing (no card in the terminal)
+
+1. Browser: [HF payment settings](https://huggingface.co/settings/billing/payment) — add card (Stripe), keep positive credits.  
+2. Terminal: `hf auth login` (write token).  
+3. Submit a Job; billed per minute while Starting/Running. Push adapter to the Hub before the job ends.
+
+For a **14B-class** adapter:
+
+- Train on Hugging Face Jobs with QLoRA / PEFT (~$1–3 for a short run on T4/L4).
 - Keep the same `data/datasets/js_ts_migration.jsonl` format.
 - Merge/export as above, or keep PEFT inference in-process.
 

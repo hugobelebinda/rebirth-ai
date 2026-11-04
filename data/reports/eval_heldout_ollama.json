@@ -1,0 +1,195 @@
+{
+  "backend": "ollama",
+  "suites": {
+    "heldout": {
+      "suite": "heldout",
+      "backend": "ollama",
+      "n": 12,
+      "sandbox_pass": 12,
+      "sandbox_pass_rate": 1.0,
+      "seed_fails_baseline": 12,
+      "results": [
+        {
+          "id": "add_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 46,
+          "pred_preview": "export function add(a, b) {\n  return a + b;\n}\n"
+        },
+        {
+          "id": "mul_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 51,
+          "pred_preview": "export function multiply(a, b) {\n  return a * b;\n}\n"
+        },
+        {
+          "id": "clamp_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.778
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 117,
+          "pred_preview": "export function clamp(value, lowerBound, upperBound) {\n  return Math.min(Math.max(lowerBound, value), upperBound);\n}\n"
+        },
+        {
+          "id": "join_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.867
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 68,
+          "pred_preview": "export function join(parts, sep = '') {\n  return parts.join(sep);\n}\n"
+        },
+        {
+          "id": "truthy_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 61,
+          "pred_preview": "export function isTruthy(value) {\n  return Boolean(value);\n}\n"
+        },
+        {
+          "id": "reverse_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 62,
+          "pred_preview": "export function reverse(arr) {\n  return [...arr].reverse();\n}\n"
+        },
+        {
+          "id": "uniq_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.556
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 208,
+          "pred_preview": "export function uniq(arr) {\n  const seen = new Set();\n  const result = [];\n\n  for (const item of arr) {\n    if (!seen.has(item)) {\n      seen.add(item);\n      result.push(item);\n    }\n  }\n\n  return result;\n}\n"
+        },
+        {
+          "id": "pad_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.6
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 159,
+          "pred_preview": "export function padLeft(s, width) {\n  const str = String(s);\n  if (str.length >= width) {\n    return str;\n  }\n  return ' '.repeat(width - str.length) + str;\n}\n"
+        },
+        {
+          "id": "range_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 78,
+          "pred_preview": "export function range(n) {\n  return Array.from({ length: n }, (_, i) => i);\n}\n"
+        },
+        {
+          "id": "kv_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.722
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 69,
+          "pred_preview": "export function formatKv(key, value) {\n  return `${key}=${value}`;\n}\n"
+        },
+        {
+          "id": "neg_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 43,
+          "pred_preview": "export function negate(n) {\n  return -n;\n}\n"
+        },
+        {
+          "id": "ident_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "model": "qwen2.5-coder:14b-instruct-q6_K",
+          "pred_chars": 44,
+          "pred_preview": "export function identity(x) {\n  return x;\n}\n"
+        }
+      ]
+    }
+  }
+}

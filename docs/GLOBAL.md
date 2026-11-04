@@ -1,8 +1,22 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-01 (Phase 5 complete — migrate-repo + PR #1).  
-> Repo: https://github.com/hugobelebinda/rebirth-ai
+> Last updated: 2026-11-03 (Phases **6–7 code 100%**; **PR #2 still OPEN** — merge before Phase 8).  
+> Repo: https://github.com/hugobelebinda/rebirth-ai  
+> Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
+> **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
+
+---
+
+## 0. Agent restart — current step
+
+**Phases 0–7 are implemented.** WIP is on branch `rebirth/phases-6-7-complete` (`ca1c34c`), pushed; tag `v0.2.0-mvp` is on origin.
+
+**Interrupted step:**  
+1. Commit + push the uncommitted **docs handoff** on `rebirth/phases-6-7-complete` (see [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
+2. Merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) into `main` (`gh pr merge 2 --merge`).  
+
+`main` is still at PR #1 (Phase 5). **Land PR #2 first**, then start **Phase 8** ([PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md)).
 
 ---
 
@@ -25,9 +39,12 @@ Build an autonomous, closed-loop AI agent that migrates legacy codebases (framew
 | Repo host | Public GitHub `hugobelebinda/rebirth-ai` | User choice (1A) |
 | First language adapter | JavaScript / TypeScript | Concrete E2E path; core stays pluggable |
 | Multi-language | Yes — adapters, not a rewrite | User does **not** want “only one forever” |
+| **v1.0 language set** | JS/TS, Python, Go, Java, C++, C#, Rust, Swift | Locked 2026-11-02; see roadmap language board |
+| **v1.0 corpus target** | ≥15 000 mined migration pairs across those languages | ~1–2K+ filtered pairs per language; JS/TS already 1339 |
+| Fixture quality bar | ≥90% sandbox-verified success per language (held-out fixtures) | Launch gate in Phases 10–11 |
 | Inference (MVP) | Ollama + **AMD ROCm** on RX 7800 XT | `qwen2.5-coder:14b-instruct-q6_K` (~12GB) fully on 16GB VRAM; see `docs/OLLAMA_AMD_GPU.md` |
 | Vector store (MVP) | SQLite (local) | No AWS/Supabase required for Phases 1–4 |
-| Cloud GPU / AWS | Deferred for agent; optional for heavier LoRA | Local 7B bf16 LoRA works; multi-epoch hung dGPU — HF Jobs for 14B QLoRA |
+| Cloud GPU / AWS | **Optional** (Track C) | Not required for Phases 6–11; HF Jobs for optional 14B QLoRA only |
 | Max fix iterations | 5 then human review | Avoid infinite LLM loops |
 | Local PEFT default quality | Prefer **7B** adapter over 0.5B | 5/8 exact / ~0.96 overlap; exact understates quality |
 
@@ -46,8 +63,8 @@ Build an autonomous, closed-loop AI agent that migrates legacy codebases (framew
      embeddings)  or PEFT 7B   sandbox       error classes
           │           │            │              │
           └───────────┴────────────┴──────────────┘
-                        Language Adapter
-              (JS/TS first → Python later → …)
+                        Language Adapter registry
+         JS/TS → Python → Go → Java → C# → Rust → C++ → Swift
 ```
 
 ### State object (Phase 4 — live)
@@ -127,7 +144,7 @@ rebirth-ai/
 | Parsing | Tree-sitter JS/TS |
 | Embeddings | SentenceTransformers (`st-codesearch-distilroberta-base`; hash embedder for tests) |
 | Vectors | SQLite BLOBs + numpy cosine |
-| Classifier | `TfidfVectorizer` + `LogisticRegression` (held-out acc ≈ 0.95) |
+| Classifier | `TfidfVectorizer` + `LogisticRegression` (held-out acc **0.96**, 100 logs) |
 | LLM | Ollama (`qwen2.5-coder:14b-instruct-q6_K`) default; PEFT LoRA (`--backend peft`, 7B preferred) |
 | Train GPU | AMD ROCm 6.4.4 + torch `2.9.1+rocm6.4` on RX 7800 XT |
 | Sandbox | Docker Python SDK |
@@ -175,8 +192,15 @@ rebirth doctor
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | **Complete** | SQLite RAG + classifier acc 0.947; CLI index/query/classify |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | **Complete** | Ollama + PEFT path; dataset mined; 0.5B + **7B** adapters |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | **Complete** | Single-file fail→classify→rewrite→pass (1 iter E2E) |
-| Data (interlude) | [DATASET.md](DATASET.md) | **Active** | 1339 pairs; 7B 1-epoch PASS; stop/decode; no multi-epoch retry |
+| Data (interlude) | [DATASET.md](DATASET.md) | **Active** | 1339 pairs; 7B LoRA; behavioral eval; PEFT defaults |
 | 5 Repo scale | [PHASE_5_REPO_SCALE.md](phases/PHASE_5_REPO_SCALE.md) | **Complete** | `migrate-repo` + GitHub PR #1 (multi-file E2E) |
+| 6 Repo hardening | [PHASE_6_REPO_HARDENING.md](phases/PHASE_6_REPO_HARDENING.md) | **Complete (100%)** | Topo, dry-run, VRAM/PEFT doctor, test matrix, gitignore `!` |
+| 7 Real-world JS | [PHASE_7_REAL_WORLD_JS.md](phases/PHASE_7_REAL_WORLD_JS.md) | **Complete (100%)** | Full golden matrix + Express install path + held-out 12/12 |
+| 8 Adapter factory + Python | [PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md) | **Next** | Registry playbook + pytest sandbox; optional js-python preview |
+| 9 Language wave A | [PHASE_9_MULTI_LANG_QUALITY.md](phases/PHASE_9_MULTI_LANG_QUALITY.md) | Planned | Go, Java, C#, Rust |
+| 10 Wave B + quality + 15K | [PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | Planned | C++, Swift; eval gates; corpus ≥15K |
+| 11 Official launch | [PHASE_11_LAUNCH.md](phases/PHASE_11_LAUNCH.md) | Planned | Bootstrap + docs + **v1.0.0** |
+| Optional C | [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) §C | Optional | Cloud 14B QLoRA (browser billing; not required) |
 
 ---
 
@@ -204,6 +228,14 @@ rebirth doctor
 | 2026-11-01 | ROCm 7B 2-epoch hang | r=16 / 2 epochs hung GPU at step 0 (`GPU Hang`); aborted. Keep 1-epoch adapter; no immediate local retry |
 | 2026-11-01 | PEFT stop/decode | `stop_strings` + SFT token cap + leak strip in `peft_client.py`; unit tests pass; 7B eval still 5/8 (semantic misses) |
 | 2026-11-01 | Phase 5 complete | `rebirth migrate-repo` + `github/` PR helpers; fixture format tests; E2E 2/2; PR https://github.com/hugobelebinda/rebirth-ai/pull/1 |
+| 2026-11-01 | PEFT defaults → 7B | Auto-resolve 7B adapter; `--backend peft` closed-loop math **PASS** (1 iter). Avoid ST+7B VRAM stack (killed Cursor once). |
+| 2026-11-01 | Behavioral eval | `eval_behavioral.py`: sandbox-pass + AST/soft-exact. PEFT 7B sandbox **2/2**; synth soft-exact **6/8**. |
+| 2026-11-01 | Production roadmap | Phases 6–10 + optional cloud LoRA; multi-language via adapters; cloud GPU **not** required |
+| 2026-11-02 | v1.0 language + corpus lock | Target adapters: JS/TS, Python, Go, Java, C++, C#, Rust, Swift; corpus **≥15K** pairs; Phases **6–11**; optional `v0.3` after Python only |
+| 2026-11-03 | Phase 6 complete | Import topo-order; `--under` multi-root; gitignore/deny; `--dry-run`; embed dim guard; PEFT chat+hash for agent; doctor VRAM warn; PR `--draft` + auto base; Ollama sandbox **2/2** |
+| 2026-11-03 | Phase 7 complete | Bench util/mixed + external clone; held-out **12/12**; baselines frozen; safety module; classifier **0.96** / 100 logs |
+| 2026-11-03 | Phases 6–7 100% closeout | Express DependencyMissing→install `ms`; monorepo under; external-style migrate; classify override+telemetry; test matrix; commit `ca1c34c` + PR #2 + tag `v0.2.0-mvp` |
+| 2026-11-03 | Session handoff | Docs refresh; **next action = merge PR #2**, then Phase 8 |
 
 ---
 
@@ -230,10 +262,19 @@ After **each** phase completes:
 - Agent default is still **stock Ollama 14B** — 7B LoRA is PEFT-in-process only (not merged into Ollama).  
 - Exact-match PEFT smoke **understates** 7B quality (whitespace / rename / `!!` vs `Boolean`).
 
-## 11. Recommended next steps (post Phase 5)
+## 11. Next steps (production path — local-first)
 
-1. **Wire PEFT defaults to 7B** + closed-loop `--backend peft` smoke.  
-2. **Better eval** — sandbox-pass / AST metric (not exact string).  
-3. **Cloud 14B QLoRA** (~$1–3) matching Ollama runtime, then merge/export.  
-4. Optional: Python language adapter; harden `migrate-repo` dependency ordering.  
-5. Avoid local multi-epoch 7B until display moves off dGPU or stack is more stable.
+Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)**.
+
+| Now | Do this |
+|-----|---------|
+| **1 — blocked mid-flight** | Commit docs handoff → **merge PR #2** into `main` ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)) |
+| **2** | **Phase 8** — adapter registry + Python (optional `v0.3.0-js-python-preview`) |
+| Then | **Phase 9** — Go, Java, C#, Rust |
+| Then | **Phase 10** — C++, Swift + quality CLI + mine to **≥15K** pairs |
+| Then | **Phase 11** — bootstrap + docs + **v1.0.0** |
+| Optional | Cloud 14B QLoRA — card in HF **browser** billing; not blocking |
+
+Cloud GPU is **optional**. Official multi-language v1.0 does **not** require it.
+
+**Git note (2026-11-03):** Closeout commit is on `rebirth/phases-6-7-complete` / PR #2; `main` does not yet include Phases 6–7 until merge.

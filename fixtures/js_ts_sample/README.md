@@ -1,5 +1,7 @@
 # JS/TS sample fixture
 
+> Still used for smoke; Phase 6–7 primary benches live under `fixtures/js_benches/` and `fixtures/eval_suite/`. Handoff: [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
+
 Tiny Node project used by Phases 1–4 for:
 
 - Tree-sitter AST chunking (`src/math.js`, `src/format.js`, `src/greeter.ts`)

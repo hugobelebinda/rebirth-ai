@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phases 1–3 modules callable from Python  
-> Last docs refresh: 2026-11-01
+> Last docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; DependencyMissing install path proven in Phase 7 Express bench — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 
@@ -101,7 +102,7 @@ Model fixed `multiply` from `a + b` → `a * b` in one iteration (~12s wall incl
 - Install path re-downloads extras every test run (no host `node_modules` persistence).  
 - RAG during migrate loads SentenceTransformers if `data/embeddings.db` exists (cold start warning if no HF token).  
 - Phase 5 still needed for multi-file walk + GitHub PR open.  
-- `--backend peft` works via factory; 0.5B PEFT closed-loop was unreliable (file duplication). **7B PEFT closed-loop not yet E2E-proven** on the broken-math fixture.
+- `--backend peft` defaults to **7B** adapter when present. 0.5B closed-loop was unreliable (file duplication). **7B PEFT closed-loop proven** 2026-11-01 on broken-math (1 iter PASS); auto hash-RAG to avoid ST+7B VRAM stack.
 
 ---
 

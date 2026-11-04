@@ -74,14 +74,44 @@ def doctor() -> None:
             loaded = ps.json().get("models", [])
             if not loaded:
                 print("[bold]Ollama loaded[/bold]: (none)")
+            resident_vram = 0.0
             for m in loaded:
                 size = m.get("size") or 0
                 vram = m.get("size_vram") or 0
+                resident_vram += float(vram or 0)
                 pct = (100.0 * vram / size) if size else 0.0
                 where = "GPU" if vram and pct >= 99 else ("mixed" if vram else "CPU")
                 print(
                     f"[bold]Ollama loaded[/bold]: {m.get('name')} "
                     f"{vram/1e9:.1f}/{size/1e9:.1f}GB → {where} ({pct:.0f}% VRAM)"
+                )
+            # Phase 6: warn before stacking Ollama resident weights + PEFT 7B + ST
+            peft_requested = (
+                __import__("os").environ.get("REBIRTH_GENERATOR", "").strip().lower()
+                in {"peft", "lora", "local"}
+            )
+            if resident_vram >= 4e9 or (loaded and peft_requested):
+                why = (
+                    "REBIRTH_GENERATOR=peft while Ollama is loaded"
+                    if peft_requested and loaded
+                    else "Ollama has a large model resident"
+                )
+                print(
+                    f"[yellow]VRAM warning[/yellow]: {why}. "
+                    "Do not also run `--backend peft` (7B) or SentenceTransformers on the "
+                    "same GPU — unload first: "
+                    "`ollama stop qwen2.5-coder:14b-instruct-q6_K` "
+                    "(or set REBIRTH_EMBEDDER=hash / REBIRTH_PEFT_DEVICE=cpu)."
+                )
+            elif loaded:
+                print(
+                    "[dim]tip: unload Ollama before PEFT (`ollama stop <model>`) "
+                    "to avoid VRAM stacking[/dim]"
+                )
+            else:
+                print(
+                    "[dim]PEFT policy: use hash RAG (`REBIRTH_EMBEDDER=hash`); "
+                    "never stack Ollama 14B + PEFT 7B + SentenceTransformers[/dim]"
                 )
     except Exception as exc:  # noqa: BLE001
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
@@ -223,7 +253,7 @@ def generate_migration(
         "ollama",
         "--backend",
         "-b",
-        help="Generator backend: ollama | peft",
+        help="Generator: ollama (default) | peft (7B LoRA if present)",
     ),
 ) -> None:
     """Generate a modernized draft via Ollama or local PEFT LoRA (optional RAG)."""
@@ -328,7 +358,7 @@ def migrate_file(
         "ollama",
         "--backend",
         "-b",
-        help="Generator backend: ollama | peft",
+        help="Generator: ollama (default) | peft (7B LoRA if present)",
     ),
 ) -> None:
     """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route."""
@@ -337,6 +367,15 @@ def migrate_file(
     from rebirth_ai.graph.app import build_migration_graph, initial_state
 
     os.environ["REBIRTH_GENERATOR"] = backend
+    # PEFT 7B already fills ~14GB VRAM — do not also load SentenceTransformers on GPU
+    if backend.strip().lower() in {"peft", "lora", "local"}:
+        os.environ.setdefault("REBIRTH_EMBEDDER", "hash")
+        # Phase 6: agent/migrate path prefers chat (SFT truncates whole-file repairs)
+        os.environ.setdefault("REBIRTH_PEFT_PROMPT_STYLE", "chat")
+        print(
+            "[dim]peft backend: hash RAG + chat prompts "
+            "(avoids ST+7B VRAM stack / SFT truncation)[/dim]"
+        )
     seed_text = seed_draft.read_text(encoding="utf-8") if seed_draft else None
     use_test_first = test_first or seed_draft is not None
     state = initial_state(
@@ -389,7 +428,11 @@ def migrate_repo(
         "--objective",
         "-o",
     ),
-    under: str = typer.Option("src", "--under", help="Subdirectory to discover sources"),
+    under: str = typer.Option(
+        "src",
+        "--under",
+        help="Comma-separated roots to discover sources (e.g. src,lib,app)",
+    ),
     file: list[str] = typer.Option(
         [],
         "--file",
@@ -406,9 +449,19 @@ def migrate_repo(
         "--write/--no-write",
         help="Write successful drafts back onto project files",
     ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Plan only: discover + topo-order + test map; no LLM / writes",
+    ),
     db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
     max_iterations: int = typer.Option(5, "--max-iterations"),
-    backend: str = typer.Option("ollama", "--backend", "-b", help="ollama | peft"),
+    backend: str = typer.Option(
+        "ollama",
+        "--backend",
+        "-b",
+        help="ollama (default) | peft (7B LoRA if present)",
+    ),
     report: Path = typer.Option(
         Path("data/reports/migrate_repo.json"),
         "--report",
@@ -420,21 +473,40 @@ def migrate_repo(
         help="After migrate, branch/commit/push and open a GitHub PR",
     ),
     pr_branch: str = typer.Option("rebirth/migrate", "--pr-branch"),
-    pr_base: str = typer.Option("main", "--pr-base"),
+    pr_base: str | None = typer.Option(
+        None,
+        "--pr-base",
+        help="PR base branch (default: auto-detect main/master)",
+    ),
+    draft: bool = typer.Option(
+        False,
+        "--draft/--no-draft",
+        help="When --open-pr, create a draft PR",
+    ),
     push: bool = typer.Option(
         True,
         "--push/--no-push",
         help="When --open-pr, push the branch before creating the PR",
     ),
 ) -> None:
-    """Phase 5: migrate many files; continue on failures; optional GitHub PR."""
+    """Phase 5–6: migrate many files (topo-ordered); dry-run; optional GitHub PR."""
     import os
 
     from rebirth_ai.github import GitHubError, open_migration_pr
     from rebirth_ai.graph.batch import migrate_repository, render_pr_body
 
     os.environ["REBIRTH_GENERATOR"] = backend
-    print(f"[dim]migrate-repo under={under!r} backend={backend} write={write}[/dim]")
+    if backend.strip().lower() in {"peft", "lora", "local"}:
+        os.environ.setdefault("REBIRTH_EMBEDDER", "hash")
+        os.environ.setdefault("REBIRTH_PEFT_PROMPT_STYLE", "chat")
+        print(
+            "[dim]peft backend: hash RAG + chat prompts "
+            "(avoids ST+7B VRAM stack / SFT truncation)[/dim]"
+        )
+    mode = "dry-run" if dry_run else ("write" if write else "no-write")
+    print(
+        f"[dim]migrate-repo under={under!r} backend={backend} mode={mode}[/dim]"
+    )
 
     batch = migrate_repository(
         project,
@@ -442,18 +514,24 @@ def migrate_repo(
         files=list(file) or None,
         under=under,
         seeds=list(seed) or None,
-        write=write,
+        write=write and not dry_run,
+        dry_run=dry_run,
         db_path=db,
         max_iterations=max_iterations,
         on_file=lambda p: print(f"[cyan]→[/cyan] {p}"),
     )
     batch.write_json(report)
     print(render_pr_body(batch))
+    # Show patch previews when not writing
+    if not dry_run and not write:
+        for r in batch.results:
+            if r.draft_preview:
+                print(f"[bold]diff[/bold] {r.relative_file}")
+                print(r.draft_preview)
     print(f"[green]report[/green] {report}")
 
-    if open_pr:
+    if open_pr and not dry_run:
         try:
-            # Report lives in-repo when under data/ — stage it with successes
             result = open_migration_pr(
                 Path.cwd(),
                 batch,
@@ -461,6 +539,7 @@ def migrate_repo(
                 base=pr_base,
                 push=push,
                 create_pr=True,
+                draft=draft,
                 report_path=report if report.exists() else None,
             )
             print(f"[green]{result.message}[/green]")
@@ -469,9 +548,59 @@ def migrate_repo(
         except GitHubError as exc:
             print(f"[red]PR failed:[/red] {exc}")
             raise typer.Exit(code=2) from exc
+    elif open_pr and dry_run:
+        print("[yellow]skipping --open-pr during --dry-run[/yellow]")
+
+    if dry_run:
+        planned = sum(1 for r in batch.results if r.status == "planned")
+        raise typer.Exit(code=0 if planned or batch.results else 1)
 
     # Exit 0 if at least one success and no hard failures, else 1 when any failed
     raise typer.Exit(code=0 if batch.succeeded and not batch.failed else 1)
+
+
+@app.command("eval")
+def eval_cmd(
+    suite: str = typer.Option(
+        "heldout",
+        "--suite",
+        help="sandbox | heldout | synthetic | both | all",
+    ),
+    backend: str = typer.Option("ollama", "--backend", "-b"),
+    out: Path = typer.Option(
+        Path("data/reports/eval_behavioral.json"),
+        "--out",
+    ),
+    freeze_baseline: Path | None = typer.Option(
+        None,
+        "--freeze-baseline",
+        help="Write baseline snapshot (e.g. data/reports/baselines/ollama_js_ts.json)",
+    ),
+    manifest: Path = typer.Option(
+        Path("fixtures/eval_suite/manifest.json"),
+        "--manifest",
+    ),
+) -> None:
+    """Run behavioral / held-out eval suites (Phase 7 gate)."""
+    import subprocess
+    import sys
+
+    script = Path(__file__).resolve().parents[2] / "training" / "eval_behavioral.py"
+    cmd = [
+        sys.executable,
+        str(script),
+        "--backend",
+        backend,
+        "--suite",
+        suite,
+        "--out",
+        str(out),
+        "--manifest",
+        str(manifest),
+    ]
+    if freeze_baseline is not None:
+        cmd.extend(["--freeze-baseline", str(freeze_baseline)])
+    raise typer.Exit(subprocess.call(cmd))
 
 
 @app.command("classify")

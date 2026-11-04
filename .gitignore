@@ -34,6 +34,7 @@ data/models/error_classifier/*.joblib
 !data/models/lora_js_ts/
 !data/models/lora_js_ts/*.json
 data/datasets/*.bin
+data/cache/
 *.pt
 *.pth
 *.safetensors
@@ -64,3 +65,4 @@ Thumbs.db
 *.log
 logs/
 /tmp/
+data/bench/

@@ -1,0 +1,103 @@
+{
+  "name": "js_ts_heldout_v1",
+  "language": "js_ts",
+  "project": ".",
+  "cases": [
+    {
+      "id": "add_broken",
+      "relative_file": "src/add.js",
+      "relative_test": "test/add.test.js",
+      "seed": "seeds/add.broken.js",
+      "language": "javascript",
+      "objective": "Fix add so it returns a+b; keep export"
+    },
+    {
+      "id": "mul_broken",
+      "relative_file": "src/mul.js",
+      "relative_test": "test/mul.test.js",
+      "seed": "seeds/mul.broken.js",
+      "language": "javascript",
+      "objective": "Fix multiply to return a*b"
+    },
+    {
+      "id": "clamp_broken",
+      "relative_file": "src/clamp.js",
+      "relative_test": "test/clamp.test.js",
+      "seed": "seeds/clamp.broken.js",
+      "language": "javascript",
+      "objective": "Fix clamp(min,max) so values stay in range"
+    },
+    {
+      "id": "join_broken",
+      "relative_file": "src/join.js",
+      "relative_test": "test/join.test.js",
+      "seed": "seeds/join.broken.js",
+      "language": "javascript",
+      "objective": "Fix join to use the separator argument"
+    },
+    {
+      "id": "truthy_broken",
+      "relative_file": "src/truthy.js",
+      "relative_test": "test/truthy.test.js",
+      "seed": "seeds/truthy.broken.js",
+      "language": "javascript",
+      "objective": "Fix isTruthy to return Boolean(value)"
+    },
+    {
+      "id": "reverse_broken",
+      "relative_file": "src/reverse.js",
+      "relative_test": "test/reverse.test.js",
+      "seed": "seeds/reverse.broken.js",
+      "language": "javascript",
+      "objective": "Fix reverse to return a new reversed array"
+    },
+    {
+      "id": "uniq_broken",
+      "relative_file": "src/uniq.js",
+      "relative_test": "test/uniq.test.js",
+      "seed": "seeds/uniq.broken.js",
+      "language": "javascript",
+      "objective": "Fix uniq to drop duplicates while preserving order"
+    },
+    {
+      "id": "pad_broken",
+      "relative_file": "src/pad.js",
+      "relative_test": "test/pad.test.js",
+      "seed": "seeds/pad.broken.js",
+      "language": "javascript",
+      "objective": "Fix padLeft to pad with spaces to width"
+    },
+    {
+      "id": "range_broken",
+      "relative_file": "src/range.js",
+      "relative_test": "test/range.test.js",
+      "seed": "seeds/range.broken.js",
+      "language": "javascript",
+      "objective": "Fix range(n) to return [0..n-1]"
+    },
+    {
+      "id": "kv_broken",
+      "relative_file": "src/kv.js",
+      "relative_test": "test/kv.test.js",
+      "seed": "seeds/kv.broken.js",
+      "language": "javascript",
+      "objective": "Fix formatKv to return key=value"
+    },
+    {
+      "id": "neg_broken",
+      "relative_file": "src/neg.js",
+      "relative_test": "test/neg.test.js",
+      "seed": "seeds/neg.broken.js",
+      "language": "javascript",
+      "objective": "Fix negate to return -n"
+    },
+    {
+      "id": "ident_broken",
+      "relative_file": "src/ident.js",
+      "relative_test": "test/ident.test.js",
+      "seed": "seeds/ident.broken.js",
+      "language": "javascript",
+      "objective": "Fix identity to return its argument unchanged"
+    }
+  ]
+}

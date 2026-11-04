@@ -48,7 +48,13 @@ class OllamaClient:
             resp.raise_for_status()
             return [m.get("name", "") for m in resp.json().get("models", [])]
 
-    def generate_raw(self, prompt: str, *, system: str = SYSTEM_PROMPT) -> str:
+    def generate_raw(
+        self,
+        prompt: str,
+        *,
+        system: str = SYSTEM_PROMPT,
+        num_predict: int = 4096,
+    ) -> str:
         payload = {
             "model": self.model,
             "prompt": prompt,
@@ -56,7 +62,7 @@ class OllamaClient:
             "stream": False,
             "options": {
                 "temperature": 0.1,
-                "num_predict": 4096,
+                "num_predict": num_predict,
             },
         }
         with httpx.Client(timeout=self.timeout_sec) as client:
@@ -85,7 +91,10 @@ class OllamaClient:
             error_class=error_class,
             test_logs=test_logs,
         )
-        raw = self.generate_raw(prompt)
+        # Phase 6: scale decode budget with file size (floor 1k, ceiling 8k)
+        lines = legacy_code.count("\n") + 1
+        num_predict = max(1024, min(8192, max(lines * 16, len(legacy_code) // 2, 2048)))
+        raw = self.generate_raw(prompt, num_predict=num_predict)
         return GenerateResult(
             model=self.model,
             raw_text=raw,

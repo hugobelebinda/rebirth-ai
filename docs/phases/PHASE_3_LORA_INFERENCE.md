@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE** (data/PEFT interlude continues in `docs/DATASET.md`)  
 > Depends on: Phase 2 (RAG context available for prompts)  
-> Completed: 2026-10-31 · Docs refresh: 2026-11-01
+> Completed: 2026-10-31 · Docs refresh: 2026-11-03  
+> Project now: Phases 0–7 done; next = merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

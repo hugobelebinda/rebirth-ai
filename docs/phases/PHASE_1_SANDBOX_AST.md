@@ -2,7 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phase 0 complete  
-> Last docs refresh: 2026-11-01 (status unchanged — complete)
+> Last docs refresh: 2026-11-03 (status unchanged — complete)  
+> Project now: Phases 0–7 done; next = merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

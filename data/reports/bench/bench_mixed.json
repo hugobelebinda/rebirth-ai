@@ -1,0 +1,36 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/bench_mixed",
+  "objective": "Fix seeded files so project tests pass; modernize idioms without changing public API. Prefer installing missing packages when the classifier reports DependencyMissing.",
+  "dry_run": false,
+  "migrate_order": [
+    "src/config.js"
+  ],
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0,
+    "skipped": 0,
+    "planned": 0
+  },
+  "results": [
+    {
+      "relative_file": "src/config.js",
+      "relative_test": "test/config.test.js",
+      "status": "success",
+      "iterations": 1,
+      "error_class": null,
+      "trace": [
+        "retrieve_context: skipped (Embedder dim mismatch for data/embeddings.db: db=768 current=64. Re-index with `rebirth index` using the same REBIRTH_EMBEDDER.)",
+        "execute_tests: FAIL exit=1 in 0.18s",
+        "classify_error: TestLogicFailure conf=0.56",
+        "generate_code: iteration=1 model=qwen2.5-coder:14b-instruct-q6_K chars=268",
+        "execute_tests: PASS exit=0 in 0.17s",
+        "success: tests passed"
+      ],
+      "wrote": false,
+      "message": "",
+      "test_logs_excerpt": "TAP version 13\n# Subtest: config\n    # Subtest: exposes app name\n    ok 1 - exposes app name\n      ---\n      duration_ms: 0.341605\n      type: 'test'\n      ...\n    # Subtest: parses env flags\n    ok 2 - parses env flags\n      ---\n      duration_ms: 0.085938\n      type: 'test'\n      ...\n    1..2\nok 1 - config\n  ---\n  duration_ms: 0.867058\n  type: 'suite'\n  ...\n1..1\n# tests 2\n# suites 1\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 31.657405",
+      "draft_preview": "--- a/src/config.js\n+++ b/src/config.js\n@@ -1,9 +1,10 @@\n-/** Runtime config (JS). */\n+/** Runtime config (JS) */\n \n export const APP_NAME = 'bench-mixed';\n \n export function envFlag(name, fallback = false) {\n   const v = process.env[name];\n   if (v == null || v === '') return fallback;\n-  return v === '1' || v.toLowerCase() === 'true';\n+  // Convert to boolean correctly\n+  return v.toLowerCase() === 'true';\n }"
+    }
+  ]
+}

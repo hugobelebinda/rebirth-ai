@@ -1,8 +1,9 @@
 # Phase 0 — Environment, Repo & Documentation Baseline
 
 > Ultra-detailed phase log. Status: **COMPLETE**  
-> Date: 2026-10-31 · Docs refresh: 2026-11-01  
-> Repo: https://github.com/hugobelebinda/rebirth-ai
+> Date: 2026-10-31 · Docs refresh: 2026-11-03  
+> Repo: https://github.com/hugobelebinda/rebirth-ai  
+> Project now: Phases 0–7 done; merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) then Phase 8 — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

@@ -1,10 +1,12 @@
 # Migration datasets
 
-> Last updated: 2026-11-01 (7B LoRA 1-epoch + stop/decode + hang notes)
+> Last updated: 2026-11-03 (Phase 7 done; classifier **~105** logs / acc ≥0.90; held-out **12/12**; next = merge PR #2 then Phase 8 Python mine)
 
 ## Goal
 
 Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-written toy pairs — and **use** that adapter in the agent when desired.
+
+**v1.0 corpus target:** **≥15 000** mined migration pairs across **JS/TS, Python, Go, Java, C++, C#, Rust, Swift** (~1–2K+ filtered pairs per language). Current baseline is JS/TS-only (1339).
 
 ## What we train on
 
@@ -13,9 +15,9 @@ Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-writ
 | `data/datasets/js_ts_migration.jsonl` | **1339** | LoRA SFT pairs (`objective`, `legacy`, `modern`, …) |
 | `data/datasets/js_ts_migration.synthetic.jsonl` | 59 | Original hand pairs (preserved) |
 | `data/datasets/js_ts_migration.stats.json` | — | Mine run stats |
-| `data/datasets/error_logs.jsonl` | **90** | Error classifier labels |
+| `data/datasets/error_logs.jsonl` | **~105** | Error classifier labels |
 
-### Migration pair mix (current)
+### Migration pair mix (current — JS/TS only)
 
 | Source | Count |
 |--------|------:|
@@ -23,7 +25,23 @@ Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-writ
 | `commitpackft` (JS/TS, keyword + parse filtered) | 1280 |
 | **Total** | **1339** |
 
-Languages: ~1188 JavaScript, ~151 TypeScript.
+Languages today: ~1188 JavaScript, ~151 TypeScript.
+
+### Multi-language corpus plan (Phases 8–10)
+
+| Language | Dataset path (planned) | Phase | Target pairs (guide) |
+|----------|------------------------|-------|----------------------:|
+| JS / TS | `js_ts_migration.jsonl` | done / top-up | ≥1.3K (live) → ~2K |
+| Python | `python_migration.jsonl` | 8 | ≥1.5K |
+| Go | `go_migration.jsonl` | 9 | ≥1.5K |
+| Java | `java_migration.jsonl` | 9 | ≥2K |
+| C# | `csharp_migration.jsonl` | 9 | ≥1.5K |
+| Rust | `rust_migration.jsonl` | 9 | ≥1.5K |
+| C++ | `cpp_migration.jsonl` | 10 | ≥1.5K |
+| Swift | `swift_migration.jsonl` | 10 | ≥1K |
+| **Combined** | manifest / concat | **10 exit** | **≥15 000** |
+
+Mining: extend `training/mine_migration_pairs.py` (or per-lang filters) over CommitPackFT / language-appropriate Hub corpora with the same keyword + parse gates. Record running totals in `*.stats.json` and this file after each mine.
 
 ### Upstream corpus
 
@@ -58,55 +76,51 @@ bash scripts/verify_rocm_torch.sh
 Default agent path remains **Ollama 14B** (stronger general coder). To use local PEFT:
 
 ```bash
-# 0.5B adapter (default PEFT paths)
+# Defaults to 7B adapter when data/models/lora_js_ts_7b/adapter exists
 rebirth generate fixtures/js_ts_sample/src/math.js --backend peft --no-rag
 
-# 7B adapter (explicit env)
-REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct \
-REBIRTH_PEFT_ADAPTER=data/models/lora_js_ts_7b/adapter \
-rebirth generate fixtures/js_ts_sample/src/math.js --backend peft --no-rag
+# Closed loop (auto hash-RAG to avoid stacking ST + 7B on the display GPU)
+rebirth migrate fixtures/js_ts_sample \
+  --seed-draft fixtures/migration_seeds/math.broken.js \
+  --backend peft --no-write
 
-# Closed loop
-REBIRTH_GENERATOR=peft rebirth migrate fixtures/js_ts_sample \
-  --seed-draft fixtures/migration_seeds/math.broken.js --backend peft --no-write
+# Safer on a shared display GPU:
+# REBIRTH_PEFT_DEVICE=cpu rebirth migrate … --backend peft
 ```
 
 | Backend | Model | When |
 |---------|-------|------|
 | `ollama` (default) | `qwen2.5-coder:14b-instruct-q6_K` | Best agent quality / ROCm inference |
-| `peft` + 0.5B | `Qwen2.5-Coder-0.5B-Instruct` + `lora_js_ts` | Pipeline proof; weak on whole-file |
-| `peft` + 7B | `Qwen2.5-Coder-7B-Instruct` + `lora_js_ts_7b` | Stronger local specialization |
-
+| `peft` (default paths) | **7B** + `lora_js_ts_7b` if present, else 0.5B | Local specialization |
+| `peft` + 0.5B override | set `REBIRTH_PEFT_*` to 0.5B paths | Pipeline proof only |
 Implementation: `src/rebirth_ai/generate/factory.py`, `peft_client.py` (stop/decode hardened 2026-11-01).
 
-## PEFT eval results (same 8 short synthetic pairs)
+## Behavioral eval (preferred — 2026-11-01)
 
-| Adapter | Exact | Mean overlap | Notes |
-|---------|------:|-------------:|-------|
-| 0.5B CPU LoRA | 1/8 (12.5%) | 0.523 | Junk tails / whole-file fail |
-| **7B ROCm 1-epoch (r=8, seq 128)** | **5/8 (62%)** | **0.958** | Best local PEFT so far |
-| 7B + stop/decode (no retrain) | 5/8 (62%) | 0.958 | Decode helps junk; not semantic misses |
-
-**Exact-match understates 7B quality.** Remaining 3 “misses” are largely false negatives for migration usefulness:
-
-| Case | Why exact failed | Still good? |
-|------|------------------|-------------|
-| Arrow callback | `[1,2,3]` vs `[1, 2, 3]` | Yes — whitespace |
-| Number.isNaN | renamed `bad`→`good` | Yes for objective |
-| Boolean cast | `!!flag` vs `Boolean(flag)` | Soft style disagreement |
-
-Artifacts: `data/models/lora_js_ts/eval_smoke.json`, `data/models/lora_js_ts_7b/eval_smoke.json`.  
-Re-run:
+Script: `training/eval_behavioral.py` · helpers: `src/rebirth_ai/eval/metrics.py`  
+Primary metrics: **sandbox-pass**, AST parse, symbol Jaccard, **soft-exact** (whitespace-insensitive).
 
 ```bash
-python training/eval_peft_smoke.py --n 8 --cpu   # 0.5B defaults
-python training/eval_peft_smoke.py --n 8 \
-  --base-model Qwen/Qwen2.5-Coder-7B-Instruct \
-  --adapter data/models/lora_js_ts_7b/adapter \
-  --out data/models/lora_js_ts_7b/eval_smoke.json
+# Free VRAM if Ollama 14B is resident (~12GB)
+ollama stop qwen2.5-coder:14b-instruct-q6_K
+python training/eval_behavioral.py --backend peft --suite both --n-synth 8 \
+  --out data/reports/eval_behavioral.json
+python training/eval_behavioral.py --backend ollama --suite sandbox \
+  --out data/reports/eval_behavioral_ollama.json
 ```
 
-**Verdict:** Keep default generator **Ollama 14B**. Prefer **7B PEFT** over 0.5B when using `--backend peft`. Do not treat 0.5B as production.
+| Backend | Sandbox pass | Synth soft-exact | Parse | Mean symbol Jaccard |
+|---------|-------------:|-----------------:|------:|--------------------:|
+| **PEFT 7B** (chat one-shot) | **2/2 (100%)** | **6/8 (75%)** | 8/8 | 0.875 |
+| Ollama 14B | **2/2 (100%)** | — | — | — |
+
+Legacy strict exact-string smoke: 0.5B **1/8**, 7B **5/8** (arrow whitespace was a false fail).  
+Soft-exact remaining misses: rename `bad`→`good`, `!!` vs `Boolean`.  
+Note: SFT token caps can truncate whole-file repairs; sandbox suite uses **chat** style.
+
+Artifacts: `data/reports/eval_behavioral.json`, `eval_behavioral_peft7b_sandbox.json`, `eval_behavioral_ollama.json`.
+
+**Verdict:** Score with **sandbox-pass**, not exact string. Agent default stays **Ollama 14B**; PEFT 7B matches on fixture sandbox when chat-decoded.
 
 ## AMD GPU training (ROCm PyTorch)
 
@@ -159,8 +173,14 @@ A short 7B/14B QLoRA epoch on ~1.3k pairs is often **~$1–3** on T4/L4.
 
 ## Still open / next (data track)
 
-- Wire default PEFT paths to **7B** adapter (or document clearly in CLI help).
-- Semantic / AST eval (not only exact string match).
-- Held-out eval split; tag pairs by migration kind.
-- 14B QLoRA on cloud matching Ollama runtime → merge (`training/export_for_ollama.md`).
-- Phase 5 multi-file + GitHub PRs — **shipped** (`rebirth migrate-repo`, PR #1).
+- PEFT defaults → 7B — **done**; closed-loop math **PASS**.  
+- Behavioral eval — **done** (`eval_behavioral.py`).  
+- Phase 5 — **shipped**.  
+- Phase 6–7 — **shipped** (topo discovery, JS benches, held-out 12/12, classifier ~105 logs).  
+- **Do not** stack Ollama 14B + PEFT 7B + ST on the 7800 XT.  
+- Phase 7 held-out eval — **done** (`fixtures/eval_suite`, baseline frozen).  
+- **Immediate:** merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) — then Phase 8 Python ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
+- Next product work: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) Phases **8–11** (8 languages + **≥15K** pairs → **v1.0**).  
+- Per-language mines — Phase 8 (Python), 9 (Go/Java/C#/Rust), 10 (C++/Swift + top-up to 15K).  
+- Migration-kind tags / train-eval split — Phase 10.  
+- Optional cloud 14B QLoRA on full multi-lang corpus — Track C (browser billing; not required).  
