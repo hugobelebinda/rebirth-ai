@@ -21,6 +21,12 @@ class SandboxSpec:
     timeout_sec: int = 120
     # Extra env vars injected into the container.
     env: dict[str, str] = field(default_factory=dict)
+    # Docker user for exec (js_ts: node; python: rebirth).
+    user: str = "node"
+    # Hint for doctor / CLI: relative Dockerfile directory under repo root.
+    dockerfile_dir: str = "docker/js_ts_sandbox"
+    # Default Docker network for test runs (maven/nuget need bridge).
+    network_mode: str = "none"
 
 
 @runtime_checkable

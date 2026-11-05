@@ -1,6 +1,6 @@
 # Exporting a LoRA adapter for Ollama
 
-> Docs refresh: 2026-11-03 — Phases 0–7 complete; merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../docs/SESSION_HANDOFF.md).
+> Docs refresh: 2026-11-04 — Phases 0–10 complete; Phases 12–14 will add per-lang PEFT adapters — [PHASE_12_LORA_PER_LANGUAGE.md](../docs/phases/PHASE_12_LORA_PER_LANGUAGE.md).
 
 Phase 3+ inference for Rebirth AI uses **Ollama** (`qwen2.5-coder:14b-instruct-q6_K` on AMD ROCm) as the default runtime.
 

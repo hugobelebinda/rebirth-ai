@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from rebirth_ai.adapters.base import LanguageAdapter
-from rebirth_ai.adapters.js_ts import JsTsAdapter
+from rebirth_ai.adapters.registry import get_adapter_for_project
 from rebirth_ai.ast.chunker import CodeChunk
 from rebirth_ai.rag.embedder import Embedder, get_embedder
 from rebirth_ai.rag.store import StoredChunk, VectorStore
@@ -37,24 +37,30 @@ class Retriever:
     ) -> None:
         self.db_path = Path(db_path) if db_path else DEFAULT_DB
         self.embedder = embedder or get_embedder()
-        self.adapter = adapter or JsTsAdapter()
+        self.adapter = adapter
         self.store = VectorStore(self.db_path)
 
     def index_project(self, project_dir: Path, *, clear: bool = True) -> IndexStats:
         project_dir = project_dir.resolve()
+        adapter = self.adapter or get_adapter_for_project(project_dir)
         chunks: list[CodeChunk] = []
         files = 0
         for path in sorted(project_dir.rglob("*")):
             if not path.is_file():
                 continue
-            if not self.adapter.is_source_file(path):
+            if not adapter.is_source_file(path):
                 continue
             # Skip tests for retrieval corpus by default (keep src utilities)
             rel = path.relative_to(project_dir).as_posix()
-            if "/test/" in f"/{rel}" or rel.startswith("test/"):
+            if (
+                "/test/" in f"/{rel}"
+                or "/tests/" in f"/{rel}"
+                or rel.startswith("test/")
+                or rel.startswith("tests/")
+            ):
                 continue
             files += 1
-            parsed = self.adapter.parse(path)
+            parsed = adapter.parse(path)
             # Prefer relative paths in the index
             for c in parsed:
                 chunks.append(
@@ -134,7 +140,12 @@ class Retriever:
 
     def query_for_file(self, path: Path, *, top_k: int = 5) -> list[StoredChunk]:
         """Retrieve context for migrating `path` using its imports/symbols."""
-        chunks = self.adapter.parse(path)
+        from rebirth_ai.adapters.registry import get_adapter
+
+        adapter = self.adapter or get_adapter(
+            "python" if path.suffix.lower() == ".py" else "js_ts"
+        )
+        chunks = adapter.parse(path)
         import_names = [c.name for c in chunks if c.kind == "import"]
         symbol_names = [c.name for c in chunks if c.kind in {"function", "class", "method"}]
         query_bits = import_names + symbol_names

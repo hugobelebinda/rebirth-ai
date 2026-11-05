@@ -1,0 +1,32 @@
+{
+  "total": 5246,
+  "group": "python",
+  "mode": "corpus",
+  "by_source": {
+    "synthetic": 3,
+    "commitpackft": 1500,
+    "commitpackft_corpus": 3743
+  },
+  "by_language": {
+    "python": 5246
+  },
+  "mined_capped": 4000,
+  "existing_kept": 1500,
+  "synthetic": 3,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 4000,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "python": {
+      "scanned": 56025,
+      "kept": 38057,
+      "license_skip": 5345,
+      "parse_skip": 385,
+      "quality_skip": 12238
+    }
+  }
+}

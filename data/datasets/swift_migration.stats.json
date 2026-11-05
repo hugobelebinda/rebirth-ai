@@ -1,0 +1,31 @@
+{
+  "total": 1535,
+  "group": "swift",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 64,
+    "commitpackft_corpus": 1471
+  },
+  "by_language": {
+    "swift": 1535
+  },
+  "mined_capped": 1500,
+  "existing_kept": 64,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "swift": {
+      "scanned": 4849,
+      "kept": 3704,
+      "parse_skip": 239,
+      "quality_skip": 898,
+      "license_skip": 8
+    }
+  }
+}

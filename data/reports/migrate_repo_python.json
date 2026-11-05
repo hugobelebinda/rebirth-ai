@@ -1,0 +1,36 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/python_sample",
+  "objective": "Fix files so project tests pass; modernize idioms without changing public API",
+  "dry_run": false,
+  "migrate_order": [
+    "src/math_ops.py"
+  ],
+  "summary": {
+    "total": 1,
+    "success": 1,
+    "failed": 0,
+    "skipped": 0,
+    "planned": 0
+  },
+  "results": [
+    {
+      "relative_file": "src/math_ops.py",
+      "relative_test": "tests/test_math_ops.py",
+      "status": "success",
+      "iterations": 1,
+      "error_class": null,
+      "trace": [
+        "retrieve_context: skipped ('NoneType' object has no attribute 'parse')",
+        "execute_tests: FAIL exit=1 in 0.32s",
+        "classify_error: TestLogicFailure conf=0.30 (Unknown/low-confidence telemetry)",
+        "generate_code: iteration=1 model=qwen2.5-coder:14b-instruct-q6_K chars=604",
+        "execute_tests: PASS exit=0 in 0.27s",
+        "success: tests passed"
+      ],
+      "wrote": false,
+      "message": "",
+      "test_logs_excerpt": "....                                                                     [100%]\n4 passed in 0.00s",
+      "draft_preview": "--- a/src/math_ops.py\n+++ b/src/math_ops.py\n@@ -1,13 +1,10 @@\n-\"\"\"Legacy-style math helpers for Python migration demos.\"\"\"\n-\n-\n def add(a: int, b: int) -> int:\n     return a + b\n \n \n def multiply(a: int, b: int) -> int:\n-    product = a * b\n-    return product\n+    # Corrected to perform multiplication\n+    return a * b\n \n \n def summarize(a: int, b: int) -> str:"
+    }
+  ]
+}

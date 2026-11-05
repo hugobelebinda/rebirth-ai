@@ -77,18 +77,27 @@ def initial_state(
     test_first: bool = False,
     db_path: Path | str = "data/embeddings.db",
     max_iterations: int | None = None,
+    adapter_id: str | None = None,
+    language: str | None = None,
 ) -> MigrationState:
+    from rebirth_ai.adapters.registry import get_adapter_for_project, language_label_for_file
+
     project_dir = project_dir.resolve()
     file_path = project_dir / relative_file
     original = file_path.read_text(encoding="utf-8")
-    language = "typescript" if file_path.suffix.lower() in {".ts", ".tsx"} else "javascript"
+    adapter = get_adapter_for_project(project_dir, lang=adapter_id)
+    resolved_adapter_id = adapter.name
+    resolved_language = language or language_label_for_file(
+        file_path, adapter_id=resolved_adapter_id
+    )
     draft = seed_draft if seed_draft is not None else original
     return {
         "file_path": str(file_path),
         "project_dir": str(project_dir),
         "relative_file": relative_file,
         "relative_test": relative_test,
-        "language": language,
+        "language": resolved_language,
+        "adapter_id": resolved_adapter_id,
         "objective": objective,
         "original_code": original,
         "current_draft": draft,

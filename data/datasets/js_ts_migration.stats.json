@@ -1,37 +1,40 @@
 {
-  "total": 1339,
+  "total": 9105,
+  "group": "js_ts",
+  "mode": "corpus",
   "by_source": {
     "synthetic": 59,
-    "commitpackft": 1280
+    "commitpackft": 1280,
+    "commitpackft_corpus": 7766
   },
   "by_language": {
-    "javascript": 1188,
-    "typescript": 151
+    "javascript": 8369,
+    "typescript": 736
   },
-  "mined_capped": 1280,
+  "mined_capped": 8000,
+  "existing_kept": 1280,
   "synthetic": 59,
   "filters": {
     "min_chars": 40,
     "max_chars": 6000,
-    "max_pairs": 1500,
-    "require_parse": true
+    "max_pairs": 8000,
+    "require_parse": true,
+    "require_keyword": false
   },
   "commitpack_stats": {
     "javascript": {
       "scanned": 52989,
-      "keyword_skip": 49294,
+      "kept": 48165,
       "license_skip": 2472,
-      "kept": 1159,
-      "parse_skip": 51,
-      "quality_skip": 13
+      "parse_skip": 1543,
+      "quality_skip": 809
     },
     "typescript": {
       "scanned": 5868,
-      "keyword_skip": 5362,
+      "parse_skip": 931,
+      "kept": 4104,
       "license_skip": 324,
-      "kept": 151,
-      "parse_skip": 16,
-      "quality_skip": 15
+      "quality_skip": 509
     }
   }
 }

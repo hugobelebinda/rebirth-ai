@@ -14,19 +14,21 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | Phase | Name | Status |
 |-------|------|--------|
 | 0–5 | MVP (setup → LangGraph → multi-file PRs) | **Complete** |
-| Data | Dataset + PEFT 7B + behavioral eval (→ **15K+** multi-lang) | **Active** |
+| Data | Multi-lang corpus **24 640** (≥15K) + JS/TS PEFT 7B proof | **Complete** (corpus); LoRA waves next |
 | 6 | Repo hardening (JS/TS production path) | **Complete (100%)** |
 | 7 | Real-world JS/TS validation | **Complete (100%)** |
-| **8** | Adapter factory + Python | **Next** (after PR #2 merge) |
-| 9 | Language wave A — Go, Java, C#, Rust | Planned |
-| 10 | Wave B — C++, Swift + quality + ≥15K corpus | Planned |
-| 11 | Official **v1.0** launch | Planned |
+| 8 | Adapter factory + Python | **Complete** |
+| 9 | Full language wave — Go, Java, C#, Rust, C++, Swift | **Complete** |
+| 10 | Quality gates + ≥15K corpus | **Complete** (fixtures **8/8**) |
+| **12–14** | **Per-language LoRA** (Python → wave A → C++/Swift + routing) | **Next** |
+| 11 | Official **v1.0** launch | **Deferred** (after 12–14) |
 | Optional | Cloud 14B QLoRA | Optional (not required) |
 
-**Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — commit uncommitted docs handoff → merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) into `main` (`v0.2.0-mvp` already tagged on the feature branch) → Phase 8.  
-**Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md) · [`docs/phases/`](docs/phases/)
+**Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — Phases **0–10 complete** on `main` (8 langs + **24640** pairs + fixtures 8/8).  
+**Next:** [`docs/phases/PHASE_12_LORA_PER_LANGUAGE.md`](docs/phases/PHASE_12_LORA_PER_LANGUAGE.md) — train a LoRA per language. Do **not** start Phase 11 yet.  
+**Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md)
 
-Today the **live vertical is JavaScript / TypeScript**. **v1.0** targets adapters for **JS/TS, Python, Go, Java, C++, C#, Rust, and Swift** with **≥15K** mined migration pairs. Cloud GPU is optional.
+Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Default brain: Ollama 14B. Existing LoRA: JS/TS 7B only (to be refreshed + extended in Phases 12–14).
 
 ## Quick start
 
@@ -39,16 +41,24 @@ pip install -e ".[dev]"
 docker version
 ollama list   # expect qwen2.5-coder:14b-instruct-q6_K
 docker build -t rebirth-ai/js-ts-sandbox:latest docker/js_ts_sandbox
+docker build -t rebirth-ai/python-sandbox:latest docker/python_sandbox
 rebirth doctor
+rebirth adapters
 rebirth parse fixtures/js_ts_sample/src/math.js
 rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
+rebirth sandbox fixtures/python_sample -t tests/test_math_ops.py --lang python
 
-# Closed-loop single-file migrate (Phase 4 — default Ollama 14B)
+# Closed-loop single-file migrate (default Ollama 14B)
 rebirth migrate fixtures/js_ts_sample \
   --seed-draft fixtures/migration_seeds/math.broken.js \
   --out /tmp/rebirth_math_fixed.js --no-write
 
-# Multi-file (Phase 5)
+rebirth migrate fixtures/python_sample \
+  --file src/math_ops.py --test tests/test_math_ops.py \
+  --seed-draft fixtures/python_sample/seeds/math_ops.broken.py \
+  --lang python --no-write
+
+# Multi-file
 rebirth migrate-repo fixtures/js_ts_sample \
   --file src/math.js --file src/format.js \
   --seed src/math.js=fixtures/migration_seeds/math.broken.js \
@@ -73,13 +83,13 @@ python training/eval_behavioral.py --backend ollama --suite sandbox
 
 ## Design defaults
 
-- **Languages (v1.0):** JS/TS → Python → Go / Java / C# / Rust → C++ / Swift via `LanguageAdapter`  
-- **Corpus (v1.0):** ≥15K mined multi-language migration pairs  
+- **Languages (v1.0):** all 8 via `LanguageAdapter` (live)  
+- **Corpus (v1.0):** ≥15K mined pairs — **24 640** met  
 - **Inference:** Ollama + AMD ROCm (`qwen2.5-coder:14b-instruct-q6_K`)  
-- **Local PEFT:** 7B LoRA optional; never stack with Ollama+ST on one 16GB card  
+- **Local PEFT:** per-lang 7B LoRAs in Phases 12–14; never stack with Ollama+ST on one 16GB card  
 - **Vectors:** SQLite first  
-- **Cloud GPU:** Optional LoRA upgrade only — billing in HF browser settings, not the CLI  
-- **No AWS required** for MVP / Phases 6–11  
+- **Cloud GPU:** Optional 14B QLoRA — billing in HF browser settings, not the CLI  
+- **No AWS required** for MVP / Phases 6–14  
 
 ## License
 

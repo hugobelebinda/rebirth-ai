@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-03 (Phases **6–7 code 100%**; **PR #2 still OPEN** — merge before Phase 8).  
+> Last updated: 2026-11-04 (Phases **0–10 complete** on `main`; corpus **24 640**; next = Phases **12–14** LoRA).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai  
 > Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
 > **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
@@ -10,13 +10,10 @@
 
 ## 0. Agent restart — current step
 
-**Phases 0–7 are implemented.** WIP is on branch `rebirth/phases-6-7-complete` (`ca1c34c`), pushed; tag `v0.2.0-mvp` is on origin.
+**Phases 0–10 are complete on `main`.** All eight adapters live; corpus **24 640** (≥15K); fixture eval **8/8**; quality CLI (`report`, `eval --suite fixtures`, `data/runs/`) shipped.
 
-**Interrupted step:**  
-1. Commit + push the uncommitted **docs handoff** on `rebirth/phases-6-7-complete` (see [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
-2. Merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) into `main` (`gh pr merge 2 --merge`).  
-
-`main` is still at PR #1 (Phase 5). **Land PR #2 first**, then start **Phase 8** ([PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md)).
+**Next:** [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) — train **per-language LoRA** (Phases 12–14).  
+**Do not start Phase 11** (`v1.0.0`) until those waves finish or are explicitly skipped.
 
 ---
 
@@ -40,7 +37,7 @@ Build an autonomous, closed-loop AI agent that migrates legacy codebases (framew
 | First language adapter | JavaScript / TypeScript | Concrete E2E path; core stays pluggable |
 | Multi-language | Yes — adapters, not a rewrite | User does **not** want “only one forever” |
 | **v1.0 language set** | JS/TS, Python, Go, Java, C++, C#, Rust, Swift | Locked 2026-11-02; see roadmap language board |
-| **v1.0 corpus target** | ≥15 000 mined migration pairs across those languages | ~1–2K+ filtered pairs per language; JS/TS already 1339 |
+| **v1.0 corpus target** | ≥15 000 mined migration pairs across those languages | **Met: 24 640** (`corpus_manifest.json`) |
 | Fixture quality bar | ≥90% sandbox-verified success per language (held-out fixtures) | Launch gate in Phases 10–11 |
 | Inference (MVP) | Ollama + **AMD ROCm** on RX 7800 XT | `qwen2.5-coder:14b-instruct-q6_K` (~12GB) fully on 16GB VRAM; see `docs/OLLAMA_AMD_GPU.md` |
 | Vector store (MVP) | SQLite (local) | No AWS/Supabase required for Phases 1–4 |
@@ -64,7 +61,7 @@ Build an autonomous, closed-loop AI agent that migrates legacy codebases (framew
           │           │            │              │
           └───────────┴────────────┴──────────────┘
                         Language Adapter registry
-         JS/TS → Python → Go → Java → C# → Rust → C++ → Swift
+         JS/TS + Python + Go + Java + C# + Rust + C++ + Swift (all live)
 ```
 
 ### State object (Phase 4 — live)
@@ -141,7 +138,7 @@ rebirth-ai/
 |-------|------------|
 | Agent logic | Python 3.11+, Typer CLI |
 | Orchestration | LangGraph / LangChain (`rebirth migrate`) |
-| Parsing | Tree-sitter JS/TS |
+| Parsing | Tree-sitter for all 8 v1.0 languages |
 | Embeddings | SentenceTransformers (`st-codesearch-distilroberta-base`; hash embedder for tests) |
 | Vectors | SQLite BLOBs + numpy cosine |
 | Classifier | `TfidfVectorizer` + `LogisticRegression` (held-out acc **0.96**, 100 logs) |
@@ -192,14 +189,15 @@ rebirth doctor
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | **Complete** | SQLite RAG + classifier acc 0.947; CLI index/query/classify |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | **Complete** | Ollama + PEFT path; dataset mined; 0.5B + **7B** adapters |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | **Complete** | Single-file fail→classify→rewrite→pass (1 iter E2E) |
-| Data (interlude) | [DATASET.md](DATASET.md) | **Active** | 1339 pairs; 7B LoRA; behavioral eval; PEFT defaults |
+| Data (interlude) | [DATASET.md](DATASET.md) | **Complete (corpus)** | **24640** multi-lang; JS/TS 7B LoRA proof; more LoRAs in 12–14 |
 | 5 Repo scale | [PHASE_5_REPO_SCALE.md](phases/PHASE_5_REPO_SCALE.md) | **Complete** | `migrate-repo` + GitHub PR #1 (multi-file E2E) |
 | 6 Repo hardening | [PHASE_6_REPO_HARDENING.md](phases/PHASE_6_REPO_HARDENING.md) | **Complete (100%)** | Topo, dry-run, VRAM/PEFT doctor, test matrix, gitignore `!` |
 | 7 Real-world JS | [PHASE_7_REAL_WORLD_JS.md](phases/PHASE_7_REAL_WORLD_JS.md) | **Complete (100%)** | Full golden matrix + Express install path + held-out 12/12 |
-| 8 Adapter factory + Python | [PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md) | **Next** | Registry playbook + pytest sandbox; optional js-python preview |
-| 9 Language wave A | [PHASE_9_MULTI_LANG_QUALITY.md](phases/PHASE_9_MULTI_LANG_QUALITY.md) | Planned | Go, Java, C#, Rust |
-| 10 Wave B + quality + 15K | [PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | Planned | C++, Swift; eval gates; corpus ≥15K |
-| 11 Official launch | [PHASE_11_LAUNCH.md](phases/PHASE_11_LAUNCH.md) | Planned | Bootstrap + docs + **v1.0.0** |
+| 8 Adapter factory + Python | [PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md) | **Complete** | Registry + pytest sandbox; Python vertical + mine |
+| 9 Full language wave | [PHASE_9_MULTI_LANG_QUALITY.md](phases/PHASE_9_MULTI_LANG_QUALITY.md) | **Complete** | Go/Java/C#/Rust/**C++/Swift** adapters + fixtures + mines |
+| 10 Quality + 15K | [PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | **Complete** | Fixtures **8/8**; report+runs; corpus **24640** |
+| **12–14 Per-lang LoRA** | [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) | **Next** | Harness + Python → wave A → C++/Swift + PEFT routing |
+| 11 Official launch | [PHASE_11_LAUNCH.md](phases/PHASE_11_LAUNCH.md) | **Deferred** | Bootstrap + docs + **v1.0.0** (after 12–14) |
 | Optional C | [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) §C | Optional | Cloud 14B QLoRA (browser billing; not required) |
 
 ---
@@ -236,6 +234,11 @@ rebirth doctor
 | 2026-11-03 | Phase 7 complete | Bench util/mixed + external clone; held-out **12/12**; baselines frozen; safety module; classifier **0.96** / 100 logs |
 | 2026-11-03 | Phases 6–7 100% closeout | Express DependencyMissing→install `ms`; monorepo under; external-style migrate; classify override+telemetry; test matrix; commit `ca1c34c` + PR #2 + tag `v0.2.0-mvp` |
 | 2026-11-03 | Session handoff | Docs refresh; **next action = merge PR #2**, then Phase 8 |
+| 2026-11-03 | PR #2 merged | Phases 6–7 on `main` (`5f1540e`) |
+| 2026-11-03 | Phase 8 complete | Registry + PythonAdapter + sandbox; migrate 1 iter; **1503** Python pairs |
+| 2026-11-03 | Phase 9 complete | Folded C++/Swift into wave; **8** adapters live; corpus ≈**3244** |
+| 2026-11-04 | Phase 10 complete | `eval --suite fixtures` 8/8; `report` + `data/runs/`; corpus **24640** |
+| 2026-11-04 | LoRA before launch | Insert Phases **12–14** (per-lang LoRA); **defer Phase 11** until done |
 
 ---
 
@@ -264,17 +267,14 @@ After **each** phase completes:
 
 ## 11. Next steps (production path — local-first)
 
-Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)**.
+Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** · LoRA plan: **[PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md)**.
 
 | Now | Do this |
 |-----|---------|
-| **1 — blocked mid-flight** | Commit docs handoff → **merge PR #2** into `main` ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)) |
-| **2** | **Phase 8** — adapter registry + Python (optional `v0.3.0-js-python-preview`) |
-| Then | **Phase 9** — Go, Java, C#, Rust |
-| Then | **Phase 10** — C++, Swift + quality CLI + mine to **≥15K** pairs |
-| Then | **Phase 11** — bootstrap + docs + **v1.0.0** |
-| Optional | Cloud 14B QLoRA — card in HF **browser** billing; not blocking |
+| **1** | **Phase 12** — train harness + Python LoRA (+ optional JS/TS refresh on ~9K) |
+| **2** | **Phase 13** — Go / Java / C# / Rust LoRAs |
+| **3** | **Phase 14** — C++ / Swift LoRAs + PEFT language routing + eval |
+| **4** | **Phase 11** — bootstrap + docs + **v1.0.0** (deferred until 12–14) |
+| Optional | Cloud 14B QLoRA — card in HF **browser** billing; per-lang if local 7B insufficient |
 
-Cloud GPU is **optional**. Official multi-language v1.0 does **not** require it.
-
-**Git note (2026-11-03):** Closeout commit is on `rebirth/phases-6-7-complete` / PR #2; `main` does not yet include Phases 6–7 until merge.
+Cloud GPU is **optional**. Product verticals (adapters/sandboxes) already ship on Ollama 14B; Phases 12–14 add **specialized** PEFT adapters.

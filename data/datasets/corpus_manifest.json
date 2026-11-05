@@ -1,0 +1,30 @@
+{
+  "total": 24640,
+  "target": 15000,
+  "met_target": true,
+  "by_language": {
+    "js_ts": 9103,
+    "python": 5246,
+    "go": 1528,
+    "java": 2649,
+    "csharp": 1562,
+    "rust": 1505,
+    "cpp": 1512,
+    "swift": 1535
+  },
+  "by_source": {
+    "synthetic": 62,
+    "commitpackft": 3182,
+    "commitpackft_corpus": 21396
+  },
+  "files": {
+    "js_ts": "data/datasets/js_ts_migration.jsonl",
+    "python": "data/datasets/python_migration.jsonl",
+    "go": "data/datasets/go_migration.jsonl",
+    "java": "data/datasets/java_migration.jsonl",
+    "csharp": "data/datasets/csharp_migration.jsonl",
+    "rust": "data/datasets/rust_migration.jsonl",
+    "cpp": "data/datasets/cpp_migration.jsonl",
+    "swift": "data/datasets/swift_migration.jsonl"
+  }
+}

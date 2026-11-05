@@ -2,8 +2,8 @@
 
 > Status: **COMPLETE**  
 > Depends on: Phases 1–3 modules callable from Python  
-> Last docs refresh: 2026-11-03  
-> Project now: Phases 0–7 done; DependencyMissing install path proven in Phase 7 Express bench — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
+> Last docs refresh: 2026-11-04  
+> Project now: Phases **0–10 complete** on `main`; next = Phases **12–14** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

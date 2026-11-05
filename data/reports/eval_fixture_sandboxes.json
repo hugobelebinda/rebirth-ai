@@ -1,0 +1,86 @@
+{
+  "suite": "fixture_sandboxes",
+  "lang": "all",
+  "target": 0.9,
+  "summary": {
+    "passed": 8,
+    "total": 8,
+    "rate": 1.0
+  },
+  "cases": [
+    {
+      "id": "js_ts_fixture",
+      "lang": "js_ts",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 0.19699998397845775,
+      "command": "node --test test/math.test.js"
+    },
+    {
+      "id": "python_fixture",
+      "lang": "python",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 0.3432241369737312,
+      "command": "pytest -q tests/test_math_ops.py"
+    },
+    {
+      "id": "go_fixture",
+      "lang": "go",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 2.2415251109632663,
+      "command": "go test ./src"
+    },
+    {
+      "id": "java_fixture",
+      "lang": "java",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 7.364540759997908,
+      "command": "mvn -q test"
+    },
+    {
+      "id": "csharp_fixture",
+      "lang": "csharp",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 4.735498776019085,
+      "command": "if [ -f MathOps.Tests/MathOps.Tests.csproj ]; then dotnet test MathOps.Tests/MathOps.Tests.csproj --nologo -v q; else dotnet test --nologo -v q; fi"
+    },
+    {
+      "id": "rust_fixture",
+      "lang": "rust",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 0.5705141120124608,
+      "command": "cargo test --quiet"
+    },
+    {
+      "id": "cpp_fixture",
+      "lang": "cpp",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 0.8329667130019516,
+      "command": "cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure"
+    },
+    {
+      "id": "swift_fixture",
+      "lang": "swift",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 3.4848274779506028,
+      "command": "swift test"
+    }
+  ],
+  "adapters_registered": [
+    "cpp",
+    "csharp",
+    "go",
+    "java",
+    "js_ts",
+    "python",
+    "rust",
+    "swift"
+  ]
+}

@@ -1,8 +1,8 @@
 # Ollama on AMD RX 7800 XT (ROCm / Vulkan)
 
 Last verified: 2026-10-31 (Ollama ROCm inference).  
-Docs refresh: 2026-11-03 — PyTorch ROCm **training** notes below; project at Phases 0–7 complete (merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
-Phase 6 doctor warns if Ollama is resident when PEFT would stack VRAM.
+Docs refresh: 2026-11-04 — Phases **0–10 complete**; next = Phases **12–14** per-lang LoRA ([PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md); [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
+Doctor warns if Ollama is resident when PEFT would stack VRAM. **Unload Ollama before any Phase 12–14 GPU train.**
 
 ## Hardware
 

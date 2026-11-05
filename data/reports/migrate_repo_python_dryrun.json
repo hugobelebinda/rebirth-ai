@@ -1,0 +1,29 @@
+{
+  "project_dir": "/home/hugobele/Documents/Personal Project/Rebirth AI/fixtures/python_sample",
+  "objective": "Fix files so project tests pass; modernize idioms without changing public API",
+  "dry_run": true,
+  "migrate_order": [
+    "src/math_ops.py"
+  ],
+  "summary": {
+    "total": 1,
+    "success": 0,
+    "failed": 0,
+    "skipped": 0,
+    "planned": 1
+  },
+  "results": [
+    {
+      "relative_file": "src/math_ops.py",
+      "relative_test": "tests/test_math_ops.py",
+      "status": "planned",
+      "iterations": 0,
+      "error_class": null,
+      "trace": [],
+      "wrote": false,
+      "message": "dry-run plan; deps=[]",
+      "test_logs_excerpt": "",
+      "draft_preview": ""
+    }
+  ]
+}

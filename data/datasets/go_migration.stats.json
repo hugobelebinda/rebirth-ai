@@ -1,0 +1,31 @@
+{
+  "total": 1528,
+  "group": "go",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 41,
+    "commitpackft_corpus": 1487
+  },
+  "by_language": {
+    "go": 1528
+  },
+  "mined_capped": 1500,
+  "existing_kept": 41,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "go": {
+      "scanned": 5004,
+      "kept": 4782,
+      "license_skip": 159,
+      "quality_skip": 35,
+      "parse_skip": 28
+    }
+  }
+}

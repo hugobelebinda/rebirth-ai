@@ -7,7 +7,9 @@ import json
 import re
 from pathlib import Path
 
-from rebirth_ai.adapters.js_ts import JsTsAdapter, SOURCE_SUFFIXES
+from rebirth_ai.adapters.base import LanguageAdapter
+from rebirth_ai.adapters.js_ts import JsTsAdapter, SOURCE_SUFFIXES as JS_SOURCE_SUFFIXES
+from rebirth_ai.adapters.registry import get_adapter
 from rebirth_ai.safety import file_too_large, is_secret_path
 
 # Always skipped even if not in .gitignore
@@ -126,7 +128,7 @@ def is_ignored_path(
 def discover_source_files(
     project_dir: Path,
     *,
-    adapter: JsTsAdapter | None = None,
+    adapter: LanguageAdapter | None = None,
     under: str | list[str] = "src",
     honor_gitignore: bool = True,
 ) -> list[Path]:
@@ -138,6 +140,8 @@ def discover_source_files(
         patterns, negations = _load_gitignore_patterns(root)
     else:
         patterns, negations = [], []
+
+    owned_suffixes = set(getattr(adapter, "SOURCE_SUFFIXES", JS_SOURCE_SUFFIXES))
 
     seen: set[str] = set()
     out: list[Path] = []
@@ -161,7 +165,7 @@ def discover_source_files(
                 continue
             if is_secret_path(rel):
                 continue
-            if path.suffix.lower() not in SOURCE_SUFFIXES:
+            if path.suffix.lower() not in owned_suffixes:
                 continue
             if not adapter.is_source_file(path):
                 continue
@@ -173,6 +177,9 @@ def discover_source_files(
                 or name_l.endswith(".d.ts")
                 or name_l.endswith(".test-d.ts")
                 or name_l in {"test.js", "tests.js", "benchmark.js"}
+                or name_l.startswith("test_")
+                or name_l.endswith("_test.py")
+                or name_l == "conftest.py"
                 or path.parent.name in {"test", "tests", "__tests__"}
                 or any(
                     part in {"seeds", ".rebirth_seeds"} or part.endswith("_seeds")
@@ -191,7 +198,7 @@ def discover_source_files(
 
 
 def infer_test_path(project_dir: Path, relative_file: Path | str) -> str | None:
-    """Map a source file to a sibling/ co-located / package.json test when present."""
+    """Map a source file to a sibling/ co-located / package.json / pytest test when present."""
     rel = Path(relative_file)
     stem = rel.stem
     # strip trailing .test / .spec from stem if someone passes a test file
@@ -219,16 +226,74 @@ def infer_test_path(project_dir: Path, relative_file: Path | str) -> str | None:
         parent / f"{stem}.test.ts",
         parent / f"{stem}.spec.js",
         parent / f"{stem}.spec.ts",
+        # Python / pytest
+        Path("tests") / f"test_{stem}.py",
+        Path("test") / f"test_{stem}.py",
+        Path("tests") / f"{stem}_test.py",
+        Path("test") / f"{stem}_test.py",
+        parent / f"test_{stem}.py",
+        parent / f"{stem}_test.py",
+        parent / "tests" / f"test_{stem}.py",
+        parent / "test" / f"test_{stem}.py",
+        # Go
+        parent / f"{stem}_test.go",
+        # Java
+        parent / f"{stem}Test.java",
+        # C# / Swift / C++
+        Path("MathOps.Tests") / f"{stem}Tests.cs",
+        Path("MathOps.Tests") / "CalculatorTests.cs",
+        Path("Tests") / f"{stem}Tests" / f"{stem}Tests.swift",
+        Path("Tests") / "MathOpsTests" / "MathOpsTests.swift",
+        Path("tests") / f"{stem}_test.cpp",
+        Path("tests") / f"{stem}_test.cc",
+        Path("test") / f"{stem}_test.cpp",
     ]
+    if str(rel).replace("\\", "/").startswith("src/main/java/"):
+        try:
+            sub = rel.relative_to(Path("src/main/java"))
+            candidates.append(
+                Path("src/test/java") / sub.parent / f"{stem}Test.java"
+            )
+        except ValueError:
+            pass
     # packages/foo/src/bar.js → packages/foo/test/bar.test.js (monorepo lite)
     if parent.name == "src" and len(parent.parts) >= 1:
         pkg_root = parent.parent
         for folder in ("test", "tests", "__tests__"):
             for ext in (".test.js", ".test.ts", ".spec.js", ".spec.ts"):
                 candidates.append(pkg_root / folder / f"{stem}{ext}")
+            candidates.append(pkg_root / folder / f"test_{stem}.py")
+            candidates.append(pkg_root / folder / f"{stem}_test.py")
+            candidates.append(pkg_root / folder / f"{stem}_test.go")
+            candidates.append(pkg_root / folder / f"{stem}_test.cpp")
     for cand in candidates:
         if (project_dir / cand).is_file():
             return cand.as_posix()
+    # Rust: #[cfg(test)] often lives in the same crate file
+    if rel.suffix.lower() == ".rs" and (project_dir / "Cargo.toml").is_file():
+        return rel.as_posix()
+    # Package-level suite markers (when no dedicated test file was found)
+    suf = rel.suffix.lower()
+    marker_by_suffix = {
+        ".go": "go.mod",
+        ".java": "pom.xml",
+        ".rs": "Cargo.toml",
+        ".cpp": "CMakeLists.txt",
+        ".cc": "CMakeLists.txt",
+        ".cxx": "CMakeLists.txt",
+        ".hpp": "CMakeLists.txt",
+        ".h": "CMakeLists.txt",
+        ".swift": "Package.swift",
+        ".cs": None,
+    }
+    marker = marker_by_suffix.get(suf)
+    if marker and (project_dir / marker).is_file():
+        return marker
+    if suf == ".cs" and (
+        any(project_dir.glob("*.sln")) or any(project_dir.glob("*.csproj"))
+    ):
+        sln = next(iter(project_dir.glob("*.sln")), None)
+        return sln.name if sln else "dotnet"
 
     # package.json "test" script fallback: only if a listed path matches this stem
     pkg = project_dir / "package.json"
@@ -282,10 +347,11 @@ def resolve_local_import(
     if base.suffix:
         candidates.append(rel)
     else:
-        for ext in (".js", ".ts", ".tsx", ".jsx", ".mjs", ".cjs"):
+        for ext in (".js", ".ts", ".tsx", ".jsx", ".mjs", ".cjs", ".py"):
             candidates.append(rel.with_suffix(ext))
         candidates.append(rel / "index.js")
         candidates.append(rel / "index.ts")
+        candidates.append(rel / "__init__.py")
 
     for cand in candidates:
         if (project_dir / cand).is_file():
@@ -302,14 +368,25 @@ def extract_local_imports(project_dir: Path, relative_file: Path | str) -> list[
     # Prefer Tree-sitter import chunks when available
     specs: list[str] = []
     try:
-        adapter = JsTsAdapter()
+        if path.suffix.lower() == ".py":
+            adapter: LanguageAdapter = get_adapter("python")
+        else:
+            adapter = JsTsAdapter()
         for chunk in adapter.parse(path, source=text):
             if chunk.kind == "import" and chunk.name not in {"import", "<anonymous>"}:
                 specs.append(chunk.name)
     except Exception:  # noqa: BLE001
         pass
-    if not specs:
+    if not specs and path.suffix.lower() != ".py":
         for match in _IMPORT_SPEC.finditer(text):
+            specs.append(match.group(1) or match.group(2) or "")
+    if not specs and path.suffix.lower() == ".py":
+        # from .foo import / import foo as relative helpers
+        for match in re.finditer(
+            r"^(?:from\s+(\.\S+)\s+import|import\s+(\.\S+))",
+            text,
+            re.MULTILINE,
+        ):
             specs.append(match.group(1) or match.group(2) or "")
 
     resolved: list[str] = []

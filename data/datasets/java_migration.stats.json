@@ -1,0 +1,31 @@
+{
+  "total": 2649,
+  "group": "java",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 172,
+    "commitpackft_corpus": 2477
+  },
+  "by_language": {
+    "java": 2649
+  },
+  "mined_capped": 2500,
+  "existing_kept": 172,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 2500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "java": {
+      "scanned": 20635,
+      "kept": 12265,
+      "parse_skip": 100,
+      "license_skip": 1888,
+      "quality_skip": 6382
+    }
+  }
+}

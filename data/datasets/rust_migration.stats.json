@@ -1,0 +1,31 @@
+{
+  "total": 1505,
+  "group": "rust",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 24,
+    "commitpackft_corpus": 1481
+  },
+  "by_language": {
+    "rust": 1505
+  },
+  "mined_capped": 1500,
+  "existing_kept": 24,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "rust": {
+      "scanned": 2996,
+      "license_skip": 100,
+      "kept": 2017,
+      "parse_skip": 220,
+      "quality_skip": 659
+    }
+  }
+}

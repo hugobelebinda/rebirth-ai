@@ -12,6 +12,7 @@ class MigrationState(TypedDict, total=False):
     relative_file: str  # path inside project (overlay dest)
     relative_test: str
     language: str
+    adapter_id: str  # registry id: js_ts | python | …
     objective: str
     original_code: str
     current_draft: str
@@ -25,7 +26,7 @@ class MigrationState(TypedDict, total=False):
     status: str  # pending|running|success|human_review|failed
     trace: list[str]
     missing_package: str | None
-    extra_packages: list[str]  # packages to npm-install before each test run
+    extra_packages: list[str]  # packages to install before each test run
     test_first: bool  # if True and draft present, execute before first generate
     db_path: str
 

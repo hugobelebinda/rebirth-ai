@@ -1,0 +1,31 @@
+{
+  "total": 1562,
+  "group": "csharp",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 81,
+    "commitpackft_corpus": 1481
+  },
+  "by_language": {
+    "csharp": 1562
+  },
+  "mined_capped": 1500,
+  "existing_kept": 81,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "csharp": {
+      "scanned": 9346,
+      "kept": 7782,
+      "license_skip": 263,
+      "parse_skip": 445,
+      "quality_skip": 856
+    }
+  }
+}

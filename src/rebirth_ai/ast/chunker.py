@@ -73,6 +73,34 @@ class CodeChunker:
             import tree_sitter_typescript as tsts
 
             return Language(tsts.language_tsx())
+        if key in {"python", "py"}:
+            import tree_sitter_python as tspy
+
+            return Language(tspy.language())
+        if key in {"go"}:
+            import tree_sitter_go as tsgo
+
+            return Language(tsgo.language())
+        if key in {"java"}:
+            import tree_sitter_java as tsjava
+
+            return Language(tsjava.language())
+        if key in {"c_sharp", "csharp", "c#"}:
+            import tree_sitter_c_sharp as tscs
+
+            return Language(tscs.language())
+        if key in {"rust"}:
+            import tree_sitter_rust as tsrust
+
+            return Language(tsrust.language())
+        if key in {"cpp", "c++", "cxx"}:
+            import tree_sitter_cpp as tscpp
+
+            return Language(tscpp.language())
+        if key in {"swift"}:
+            import tree_sitter_swift as tsswift
+
+            return Language(tsswift.language())
         raise ValueError(f"Unsupported language for chunking: {language}")
 
     def chunk_file(self, path: Path, source: str | None = None) -> list[CodeChunk]:
@@ -151,9 +179,9 @@ class CodeChunker:
     ) -> None:
         body = class_node.child_by_field_name("body")
         if body is None:
-            # Fallback: find a class_body child
+            # Fallback: find a class_body child (JS/TS) or block (Python)
             for child in class_node.children:
-                if child.type == "class_body":
+                if child.type in {"class_body", "block"}:
                     body = child
                     break
         if body is None:
@@ -175,6 +203,20 @@ class CodeChunker:
 
     def _classify(self, node: Node) -> str | None:
         t = node.type
+        if self.language_name in {"python", "py"}:
+            return self._classify_python(node)
+        if self.language_name == "go":
+            return self._classify_go(node)
+        if self.language_name == "java":
+            return self._classify_java(node)
+        if self.language_name in {"c_sharp", "csharp", "c#"}:
+            return self._classify_csharp(node)
+        if self.language_name == "rust":
+            return self._classify_rust(node)
+        if self.language_name in {"cpp", "c++", "cxx"}:
+            return self._classify_cpp(node)
+        if self.language_name == "swift":
+            return self._classify_swift(node)
         if t in {
             "import_statement",
             "import_clause",
@@ -214,7 +256,97 @@ class CodeChunker:
                         return "function"
         return None
 
+    def _classify_python(self, node: Node) -> str | None:
+        t = node.type
+        if t in {"import_statement", "import_from_statement"}:
+            return "import"
+        if t in {"function_definition", "async_function_definition"}:
+            return "function"
+        if t == "class_definition":
+            return "class"
+        return None
+
+    def _classify_go(self, node: Node) -> str | None:
+        t = node.type
+        if t == "import_declaration":
+            return "import"
+        if t in {"function_declaration", "method_declaration"}:
+            return "function" if t == "function_declaration" else "method"
+        if t == "type_declaration":
+            return "class"
+        return None
+
+    def _classify_java(self, node: Node) -> str | None:
+        t = node.type
+        if t == "import_declaration":
+            return "import"
+        if t in {"method_declaration", "constructor_declaration"}:
+            return "method"
+        if t in {"class_declaration", "interface_declaration", "enum_declaration"}:
+            return "class"
+        return None
+
+    def _classify_csharp(self, node: Node) -> str | None:
+        t = node.type
+        if t in {"using_directive", "import_directive"}:
+            return "import"
+        if t in {"method_declaration", "constructor_declaration", "local_function_statement"}:
+            return "method"
+        if t in {"class_declaration", "struct_declaration", "interface_declaration", "record_declaration"}:
+            return "class"
+        return None
+
+    def _classify_rust(self, node: Node) -> str | None:
+        t = node.type
+        if t in {"use_declaration", "extern_crate_declaration"}:
+            return "import"
+        if t in {"function_item", "function_signature_item"}:
+            return "function"
+        if t in {"struct_item", "enum_item", "impl_item", "trait_item"}:
+            return "class"
+        return None
+
+    def _classify_cpp(self, node: Node) -> str | None:
+        t = node.type
+        if t in {"preproc_include", "using_declaration"}:
+            return "import"
+        if t in {"function_definition", "declaration"}:
+            # Only treat clear function_definition as function
+            if t == "function_definition":
+                return "function"
+        if t in {"class_specifier", "struct_specifier"}:
+            return "class"
+        return None
+
+    def _classify_swift(self, node: Node) -> str | None:
+        t = node.type
+        if t in {"import_declaration"}:
+            return "import"
+        if t in {"function_declaration", "init_declaration"}:
+            return "function"
+        if t in {"class_declaration", "struct_declaration", "enum_declaration", "protocol_declaration"}:
+            return "class"
+        return None
+
     def _classify_member(self, node: Node) -> str | None:
+        if self.language_name in {"python", "py"}:
+            if node.type in {"function_definition", "async_function_definition"}:
+                return "method"
+            return None
+        if self.language_name in {"java", "c_sharp", "csharp", "c#", "swift", "go"}:
+            if node.type in {
+                "method_declaration",
+                "constructor_declaration",
+                "function_declaration",
+                "init_declaration",
+                "local_function_statement",
+            }:
+                return "method"
+            return None
+        if self.language_name == "rust":
+            if node.type in {"function_item"}:
+                return "method"
+            return None
         if node.type in {
             "method_definition",
             "public_field_definition",
@@ -229,6 +361,12 @@ class CodeChunker:
 
     def _name_for(self, node: Node, kind: str, source_bytes: bytes) -> str:
         if kind == "import":
+            if self.language_name in {"python", "py"}:
+                # Prefer dotted_name / relative_import module path
+                for child in node.children:
+                    if child.type in {"dotted_name", "relative_import", "string"}:
+                        return _node_text(child, source_bytes).strip("'\"")
+                return "import"
             # Prefer the module specifier string
             for child in node.children:
                 if child.type == "string":

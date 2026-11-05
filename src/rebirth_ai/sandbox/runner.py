@@ -61,9 +61,10 @@ class SandboxRunner:
         try:
             self.client.images.get(self.spec.image)
         except ImageNotFound as exc:
+            build_hint = self.spec.dockerfile_dir or "docker/<lang>_sandbox"
             raise RuntimeError(
                 f"Sandbox image {self.spec.image!r} not found. "
-                f"Build it with: docker build -t {self.spec.image} docker/js_ts_sandbox"
+                f"Build it with: docker build -t {self.spec.image} {build_hint}"
             ) from exc
 
     def run_project(
@@ -75,7 +76,7 @@ class SandboxRunner:
         overlay_text: str | None = None,
         overlay_dest: str | None = None,
         command: str | None = None,
-        network_mode: str = "none",
+        network_mode: str | None = None,
     ) -> SandboxResult:
         project_dir = project_dir.resolve()
         if not project_dir.is_dir():
@@ -83,14 +84,28 @@ class SandboxRunner:
 
         self.ensure_image()
         cmd = command or self.adapter.test_command_for(relative_test)
-        shell_cmd = ["/bin/sh", "-lc", cmd]
+        # Use non-login shell so image ENV PATH (e.g. /usr/local/go/bin) is kept.
+        shell_cmd = ["/bin/sh", "-c", cmd]
+        net = network_mode if network_mode is not None else (self.spec.network_mode or "none")
 
         with tempfile.TemporaryDirectory(prefix="rebirth-sandbox-") as tmp:
             work = Path(tmp) / "project"
             shutil.copytree(
                 project_dir,
                 work,
-                ignore=shutil.ignore_patterns("node_modules", ".git", ".venv"),
+                ignore=shutil.ignore_patterns(
+                    "node_modules",
+                    ".git",
+                    ".venv",
+                    "venv",
+                    "__pycache__",
+                    ".pytest_cache",
+                    "target",
+                    "build",
+                    ".build",
+                    "bin",
+                    "obj",
+                ),
             )
             if overlay_file is not None:
                 dest = overlay_dest or overlay_file.name
@@ -104,7 +119,7 @@ class SandboxRunner:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(overlay_text, encoding="utf-8")
 
-            return self._run_mounted(work, shell_cmd, cmd, network_mode=network_mode)
+            return self._run_mounted(work, shell_cmd, cmd, network_mode=net)
 
     def _run_mounted(
         self,
@@ -117,6 +132,7 @@ class SandboxRunner:
         started = time.perf_counter()
         container: Container | None = None
         try:
+            run_user = self.spec.user or None
             container = self.client.containers.run(
                 image=self.spec.image,
                 command=["sleep", "infinity"],
@@ -131,13 +147,13 @@ class SandboxRunner:
                 network_mode=network_mode,
                 detach=True,
                 remove=False,
-                user="node",
+                user=run_user,
             )
             exec_result = container.exec_run(
                 cmd=shell_cmd,
                 workdir=self.spec.workdir,
                 demux=True,
-                user="node",
+                user=run_user,
             )
             exit_code = int(exec_result.exit_code)
             out_b, err_b = exec_result.output if exec_result.output else (b"", b"")

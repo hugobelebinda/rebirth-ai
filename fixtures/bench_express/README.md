@@ -1,6 +1,6 @@
 # Bench: Express-style + DependencyMissing (Phase 7)
 
-> Phase 7 **COMPLETE** (install-`ms` path proven). Next: merge PR #2 then Phase 8 — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
+> Phase 7 **COMPLETE** (install-`ms` path proven). Project: Phases 0–10 done; next = LoRA Phases 12–14 — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
 
 - `express` is declared in `package.json`.
 - Seed `seeds/duration.missing_dep.js` imports **`ms`** (undeclared) so the agent must hit `DependencyMissing` → `install_dependency`.

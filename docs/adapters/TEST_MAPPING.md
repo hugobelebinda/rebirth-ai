@@ -1,8 +1,12 @@
-# JS/TS test mapping matrix (Phase 6+)
+# Test mapping matrix (Phases 6–8)
 
-> Status: **shipped** with Phase 6 (2026-11-03). Project handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md).
+> Status: **shipped** for all 8 langs (JS/TS Phase 6; Python Phase 8; Go/Java/C#/Rust/C++/Swift Phase 9).  
+> Project: Phases 0–10 complete; next = LoRA waves — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md).  
+> Playbook: [ADDING_A_LANGUAGE.md](ADDING_A_LANGUAGE.md).
 
 `infer_test_path(project_dir, relative_source)` tries candidates in order and returns the first existing file.
+
+## JS / TS
 
 | Pattern | Example source | Example test |
 |---------|----------------|--------------|
@@ -14,5 +18,14 @@
 | Sibling `*.test.js` | `lib/x.js` | `lib/x.test.js` |
 | Package `src/` → `test/` | `packages/a/src/hello.js` | `packages/a/test/hello.test.js` |
 | `package.json` scripts.test | only if a listed path matches the **stem** | e.g. `node --test test/math.test.js` → maps `math` only |
+
+## Python
+
+| Pattern | Example source | Example test |
+|---------|----------------|--------------|
+| Root `tests/test_*.py` | `src/math_ops.py` | `tests/test_math_ops.py` |
+| Root `test/test_*.py` | `src/foo.py` | `test/test_foo.py` |
+| Root `*_test.py` | `src/bar.py` | `tests/bar_test.py` |
+| Sibling / package | `packages/a/src/x.py` | `packages/a/tests/test_x.py` |
 
 If nothing matches and `skip_without_tests=True`, the file is `skipped_no_test`.

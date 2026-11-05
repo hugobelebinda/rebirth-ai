@@ -16,6 +16,7 @@ class JsTsAdapter:
     """Adapter for Node.js / JS / TS projects."""
 
     name = "js_ts"
+    SOURCE_SUFFIXES = SOURCE_SUFFIXES
 
     def __init__(
         self,
@@ -40,7 +41,13 @@ class JsTsAdapter:
             test_command="npm test",
             timeout_sec=self._timeout_sec,
             env={"CI": "1", "NODE_ENV": "test"},
+            user="node",
+            dockerfile_dir="docker/js_ts_sandbox",
         )
+
+    def install_command(self, packages: list[str]) -> str:
+        pkgs = " ".join(packages)
+        return f"npm install --no-save --no-package-lock {pkgs}"
 
     def is_source_file(self, path: Path) -> bool:
         return path.suffix.lower() in SOURCE_SUFFIXES

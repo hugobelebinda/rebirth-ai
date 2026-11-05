@@ -1,23 +1,29 @@
 # Migration datasets
 
-> Last updated: 2026-11-03 (Phase 7 done; classifier **~105** logs / acc ≥0.90; held-out **12/12**; next = merge PR #2 then Phase 8 Python mine)
+> Last updated: 2026-11-04 (Phase 10 complete; corpus **24 640**; next = Phases 12–14 per-lang LoRA — [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md))
 
 ## Goal
 
 Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-written toy pairs — and **use** that adapter in the agent when desired.
 
-**v1.0 corpus target:** **≥15 000** mined migration pairs across **JS/TS, Python, Go, Java, C++, C#, Rust, Swift** (~1–2K+ filtered pairs per language). Current baseline is JS/TS-only (1339).
+**v1.0 corpus target:** **≥15 000** mined migration pairs across **JS/TS, Python, Go, Java, C++, C#, Rust, Swift**. **Met:** running total **24 640** (`corpus_manifest.json`).
 
 ## What we train on
 
 | Artifact | Rows | Role |
 |----------|------|------|
-| `data/datasets/js_ts_migration.jsonl` | **1339** | LoRA SFT pairs (`objective`, `legacy`, `modern`, …) |
-| `data/datasets/js_ts_migration.synthetic.jsonl` | 59 | Original hand pairs (preserved) |
-| `data/datasets/js_ts_migration.stats.json` | — | Mine run stats |
+| `data/datasets/corpus_manifest.json` | — | Combined totals (Phase 10) |
+| `data/datasets/js_ts_migration.jsonl` | **9103** | JS/TS (keyword + corpus fill) |
+| `data/datasets/python_migration.jsonl` | **5246** | Python |
+| `data/datasets/java_migration.jsonl` | **2649** | Java |
+| `data/datasets/csharp_migration.jsonl` | **1562** | C# |
+| `data/datasets/go_migration.jsonl` | **1528** | Go |
+| `data/datasets/swift_migration.jsonl` | **1535** | Swift |
+| `data/datasets/cpp_migration.jsonl` | **1512** | C++ |
+| `data/datasets/rust_migration.jsonl` | **1505** | Rust |
 | `data/datasets/error_logs.jsonl` | **~105** | Error classifier labels |
 
-### Migration pair mix (current — JS/TS only)
+### Migration pair mix — JS/TS
 
 | Source | Count |
 |--------|------:|
@@ -25,20 +31,30 @@ Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-writ
 | `commitpackft` (JS/TS, keyword + parse filtered) | 1280 |
 | **Total** | **1339** |
 
-Languages today: ~1188 JavaScript, ~151 TypeScript.
+Languages: ~1188 JavaScript, ~151 TypeScript.
+
+### Migration pair mix — Python (Phase 8)
+
+| Source | Count |
+|--------|------:|
+| `synthetic` | 3 |
+| `commitpackft` (python, keyword + parse filtered, capped) | 1500 |
+| **Total** | **1503** |
+
+Mine: scanned 56025 → kept 2459 → wrote capped 1500 + synthetic.
 
 ### Multi-language corpus plan (Phases 8–10)
 
 | Language | Dataset path (planned) | Phase | Target pairs (guide) |
 |----------|------------------------|-------|----------------------:|
-| JS / TS | `js_ts_migration.jsonl` | done / top-up | ≥1.3K (live) → ~2K |
-| Python | `python_migration.jsonl` | 8 | ≥1.5K |
-| Go | `go_migration.jsonl` | 9 | ≥1.5K |
-| Java | `java_migration.jsonl` | 9 | ≥2K |
-| C# | `csharp_migration.jsonl` | 9 | ≥1.5K |
-| Rust | `rust_migration.jsonl` | 9 | ≥1.5K |
-| C++ | `cpp_migration.jsonl` | 10 | ≥1.5K |
-| Swift | `swift_migration.jsonl` | 10 | ≥1K |
+| JS / TS | `js_ts_migration.jsonl` | **10 done** | **9103** |
+| Python | `python_migration.jsonl` | **10 done** | **5246** |
+| Go | `go_migration.jsonl` | **10 done** | **1528** |
+| Java | `java_migration.jsonl` | **10 done** | **2649** |
+| C# | `csharp_migration.jsonl` | **10 done** | **1562** |
+| Rust | `rust_migration.jsonl` | **10 done** | **1505** |
+| C++ | `cpp_migration.jsonl` | **10 done** | **1512** |
+| Swift | `swift_migration.jsonl` | **10 done** | **1535** |
 | **Combined** | manifest / concat | **10 exit** | **≥15 000** |
 
 Mining: extend `training/mine_migration_pairs.py` (or per-lang filters) over CommitPackFT / language-appropriate Hub corpora with the same keyword + parse gates. Record running totals in `*.stats.json` and this file after each mine.
@@ -58,8 +74,12 @@ source .venv/bin/activate
 python training/expand_error_logs.py
 rebirth train-classifier
 
-# Re-mine from Hub (downloads ~140MB JS+TS once into cache)
+# Re-mine from Hub (downloads CommitPackFT once into cache)
 rebirth mine-dataset --max-pairs 1500 --require-parse
+python training/mine_migration_pairs.py --langs python --max-pairs 1500 --require-parse
+# Phase 10 corpus fill (no keyword filter; still license+quality+parse):
+python training/mine_migration_pairs.py --langs go --mode corpus --max-pairs 1500 --require-parse
+python training/build_corpus_manifest.py --concat data/datasets/all_migration.jsonl
 
 # 0.5B CPU (safe; slow) — proof-of-pipeline only
 pip install -e ".[ml]"
@@ -173,14 +193,10 @@ A short 7B/14B QLoRA epoch on ~1.3k pairs is often **~$1–3** on T4/L4.
 
 ## Still open / next (data track)
 
-- PEFT defaults → 7B — **done**; closed-loop math **PASS**.  
-- Behavioral eval — **done** (`eval_behavioral.py`).  
-- Phase 5 — **shipped**.  
-- Phase 6–7 — **shipped** (topo discovery, JS benches, held-out 12/12, classifier ~105 logs).  
+- Multi-lang corpus **≥15K** — **done** (**24640**; Phase 10).  
+- PEFT defaults → 7B — **done** for JS/TS; closed-loop math **PASS**.  
+- Behavioral + fixture eval — **done** (JS sandbox; fixtures **8/8**).  
 - **Do not** stack Ollama 14B + PEFT 7B + ST on the 7800 XT.  
-- Phase 7 held-out eval — **done** (`fixtures/eval_suite`, baseline frozen).  
-- **Immediate:** merge [PR #2](https://github.com/hugobelebinda/rebirth-ai/pull/2) — then Phase 8 Python ([SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
-- Next product work: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) Phases **8–11** (8 languages + **≥15K** pairs → **v1.0**).  
-- Per-language mines — Phase 8 (Python), 9 (Go/Java/C#/Rust), 10 (C++/Swift + top-up to 15K).  
-- Migration-kind tags / train-eval split — Phase 10.  
-- Optional cloud 14B QLoRA on full multi-lang corpus — Track C (browser billing; not required).  
+- **Next:** [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) — train **per-language** 7B LoRAs (Phases 12–14); train/eval splits + adapter metadata.  
+- Phase 11 / `v1.0.0` — **deferred** until LoRA waves finish.  
+- Optional cloud 14B QLoRA — Track C (browser billing; per-lang fallback if local 7B insufficient).  

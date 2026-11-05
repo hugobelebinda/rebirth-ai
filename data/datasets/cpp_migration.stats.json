@@ -1,0 +1,31 @@
+{
+  "total": 1512,
+  "group": "cpp",
+  "mode": "corpus",
+  "by_source": {
+    "commitpackft": 20,
+    "commitpackft_corpus": 1492
+  },
+  "by_language": {
+    "cpp": 1512
+  },
+  "mined_capped": 1500,
+  "existing_kept": 20,
+  "synthetic": 0,
+  "filters": {
+    "min_chars": 40,
+    "max_chars": 6000,
+    "max_pairs": 1500,
+    "require_parse": true,
+    "require_keyword": false
+  },
+  "commitpack_stats": {
+    "cpp": {
+      "scanned": 4992,
+      "kept": 3145,
+      "parse_skip": 458,
+      "license_skip": 296,
+      "quality_skip": 1093
+    }
+  }
+}

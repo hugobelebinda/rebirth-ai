@@ -21,7 +21,7 @@ def version() -> None:
 
 @app.command()
 def doctor() -> None:
-    """Check local prerequisites (Docker, Ollama, sandbox image, Python)."""
+    """Check local prerequisites (Docker, Ollama, sandbox images, Python)."""
     import shutil
     import subprocess
     import sys
@@ -46,16 +46,20 @@ def doctor() -> None:
         import docker
         from docker.errors import ImageNotFound
 
-        from rebirth_ai.adapters.js_ts import DEFAULT_IMAGE
+        from rebirth_ai.adapters.registry import adapter_summaries
 
         client = docker.from_env()
-        try:
-            client.images.get(DEFAULT_IMAGE)
-            print(f"[bold]Sandbox image[/bold]: ok ({DEFAULT_IMAGE})")
-        except ImageNotFound:
-            print(f"[bold]Sandbox image[/bold]: MISSING ({DEFAULT_IMAGE})")
+        for row in adapter_summaries():
+            image = str(row["image"])
+            label = f"Sandbox ({row['id']})"
+            try:
+                client.images.get(image)
+                print(f"[bold]{label}[/bold]: ok ({image})")
+            except ImageNotFound:
+                hint = row.get("dockerfile_dir") or "docker/<lang>_sandbox"
+                print(f"[bold]{label}[/bold]: MISSING ({image}) — docker build -t {image} {hint}")
     except Exception as exc:  # noqa: BLE001
-        print(f"[bold]Sandbox image[/bold]: error ({exc})")
+        print(f"[bold]Sandbox images[/bold]: error ({exc})")
 
     try:
         import httpx
@@ -117,16 +121,45 @@ def doctor() -> None:
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
 
 
+@app.command("adapters")
+def list_adapters() -> None:
+    """List registered language adapters (id, extensions, sandbox image)."""
+    from rebirth_ai.adapters.registry import adapter_summaries
+
+    table = Table(title="Language adapters")
+    table.add_column("id")
+    table.add_column("extensions")
+    table.add_column("image")
+    table.add_column("test_command")
+    for row in adapter_summaries():
+        table.add_row(
+            str(row["id"]),
+            " ".join(row["extensions"]),  # type: ignore[arg-type]
+            str(row["image"]),
+            str(row["test_command"]),
+        )
+    print(table)
+
+
 @app.command("parse")
 def parse_file(
     path: Path = typer.Argument(..., exists=True, dir_okay=False, readable=True),
+    lang: str | None = typer.Option(
+        None,
+        "--lang",
+        "-l",
+        help="Adapter id override (js_ts | python); default = detect from suffix",
+    ),
 ) -> None:
-    """AST-chunk a JS/TS source file and print structured chunks."""
-    from rebirth_ai.adapters.js_ts import JsTsAdapter
+    """AST-chunk a source file and print structured chunks."""
+    from rebirth_ai.adapters.registry import get_adapter
 
-    adapter = JsTsAdapter()
-    if not adapter.is_source_file(path):
-        raise typer.BadParameter(f"Unsupported source suffix: {path.suffix}")
+    if lang:
+        adapter = get_adapter(lang)
+    else:
+        adapter = get_adapter("python" if path.suffix.lower() == ".py" else "js_ts")
+    if path.suffix.lower() not in set(getattr(adapter, "SOURCE_SUFFIXES", set())):
+        raise typer.BadParameter(f"Unsupported source suffix for {adapter.name}: {path.suffix}")
     chunks = adapter.parse(path)
     table = Table(title=f"Chunks: {path.name}")
     table.add_column("kind")
@@ -153,22 +186,30 @@ def sandbox_run(
         "-t",
         help="Container-relative test path (e.g. test/math.test.js)",
     ),
+    lang: str | None = typer.Option(
+        None,
+        "--lang",
+        "-l",
+        help="Adapter id override (js_ts | python); default = auto-detect",
+    ),
 ) -> None:
     """Run fixture/project tests inside the ephemeral Docker sandbox."""
-    from rebirth_ai.adapters.js_ts import JsTsAdapter
+    from rebirth_ai.adapters.registry import get_adapter_for_project
     from rebirth_ai.sandbox.runner import SandboxRunner
 
-    runner = SandboxRunner(JsTsAdapter())
+    adapter = get_adapter_for_project(project, lang=lang)
+    runner = SandboxRunner(adapter)
     result = runner.run_project(project, relative_test=test)
     status = "[green]PASS[/green]" if result.ok else "[red]FAIL[/red]"
-    print(f"{status} exit={result.exit_code} in {result.duration_sec:.2f}s")
+    print(f"{status} exit={result.exit_code} in {result.duration_sec:.2f}s adapter={adapter.name}")
     print(f"[dim]cmd:[/dim] {result.command}")
     if result.stdout:
         print("[bold]stdout[/bold]")
-        print(result.stdout)
+        # Escape Rich markup — test logs often contain [brackets]
+        print(result.stdout.replace("[", "\\["))
     if result.stderr:
         print("[bold]stderr[/bold]")
-        print(result.stderr)
+        print(result.stderr.replace("[", "\\["))
     raise typer.Exit(code=0 if result.ok else 1)
 
 
@@ -293,8 +334,13 @@ def mine_dataset(
         help="Drop pairs that fail Tree-sitter parse",
     ),
     dry_run: bool = typer.Option(False, "--dry-run"),
+    langs: list[str] = typer.Option(
+        [],
+        "--lang",
+        help="CommitPackFT language(s): javascript, typescript, python (repeatable)",
+    ),
 ) -> None:
-    """Mine JS/TS migration pairs from CommitPackFT and merge with synthetic data."""
+    """Mine migration pairs from CommitPackFT (JS/TS and/or Python)."""
     import subprocess
     import sys
     from pathlib import Path
@@ -306,6 +352,8 @@ def mine_dataset(
         cmd.append("--require-parse")
     if dry_run:
         cmd.append("--dry-run")
+    if langs:
+        cmd.extend(["--langs", *langs])
     raise typer.Exit(subprocess.call(cmd))
 
 
@@ -360,6 +408,12 @@ def migrate_file(
         "-b",
         help="Generator: ollama (default) | peft (7B LoRA if present)",
     ),
+    lang: str | None = typer.Option(
+        None,
+        "--lang",
+        "-l",
+        help="Adapter id override (js_ts | python); default = auto-detect",
+    ),
 ) -> None:
     """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route."""
     import os
@@ -387,7 +441,10 @@ def migrate_file(
         test_first=use_test_first,
         db_path=db,
         max_iterations=max_iterations,
+        adapter_id=lang,
     )
+    from rebirth_ai.runs import write_run_log
+
     graph = build_migration_graph()
     print("[dim]running migration graph…[/dim]")
     final = graph.invoke(state)
@@ -411,6 +468,24 @@ def migrate_file(
         target = Path(final["file_path"])
         target.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {target}")
+
+    run_path = write_run_log(
+        kind="migrate",
+        payload={
+            "project": str(project),
+            "file": file,
+            "test": test,
+            "lang": final.get("adapter_id") or lang,
+            "language": final.get("language"),
+            "backend": backend,
+            "status": status,
+            "iterations": final.get("iteration_count"),
+            "error_class": final.get("error_class"),
+            "trace": final.get("trace") or [],
+            "test_logs": (final.get("test_logs") or "")[:4000],
+        },
+    )
+    print(f"[dim]run log[/dim] {run_path}")
 
     raise typer.Exit(code=0 if status == "success" else 1)
 
@@ -488,6 +563,12 @@ def migrate_repo(
         "--push/--no-push",
         help="When --open-pr, push the branch before creating the PR",
     ),
+    lang: str | None = typer.Option(
+        None,
+        "--lang",
+        "-l",
+        help="Adapter id override (js_ts | python); default = auto-detect",
+    ),
 ) -> None:
     """Phase 5–6: migrate many files (topo-ordered); dry-run; optional GitHub PR."""
     import os
@@ -505,7 +586,7 @@ def migrate_repo(
         )
     mode = "dry-run" if dry_run else ("write" if write else "no-write")
     print(
-        f"[dim]migrate-repo under={under!r} backend={backend} mode={mode}[/dim]"
+        f"[dim]migrate-repo under={under!r} backend={backend} mode={mode} lang={lang or 'auto'}[/dim]"
     )
 
     batch = migrate_repository(
@@ -518,6 +599,7 @@ def migrate_repo(
         dry_run=dry_run,
         db_path=db,
         max_iterations=max_iterations,
+        lang=lang,
         on_file=lambda p: print(f"[cyan]→[/cyan] {p}"),
     )
     batch.write_json(report)
@@ -527,8 +609,32 @@ def migrate_repo(
         for r in batch.results:
             if r.draft_preview:
                 print(f"[bold]diff[/bold] {r.relative_file}")
-                print(r.draft_preview)
+                print(r.draft_preview.replace("[", "\\["))
     print(f"[green]report[/green] {report}")
+
+    from rebirth_ai.runs import write_run_log
+
+    run_path = write_run_log(
+        kind="migrate-repo",
+        payload={
+            "project": str(project),
+            "lang": lang,
+            "backend": backend,
+            "dry_run": dry_run,
+            "report": str(report),
+            "summary": batch.to_dict().get("summary"),
+            "results": [
+                {
+                    "file": r.relative_file,
+                    "status": r.status,
+                    "iterations": r.iterations,
+                    "error_class": r.error_class,
+                }
+                for r in batch.results
+            ],
+        },
+    )
+    print(f"[dim]run log[/dim] {run_path}")
 
     if open_pr and not dry_run:
         try:
@@ -564,9 +670,15 @@ def eval_cmd(
     suite: str = typer.Option(
         "heldout",
         "--suite",
-        help="sandbox | heldout | synthetic | both | all",
+        help="sandbox | heldout | synthetic | both | all | fixtures",
     ),
     backend: str = typer.Option("ollama", "--backend", "-b"),
+    lang: str = typer.Option(
+        "js_ts",
+        "--lang",
+        "-l",
+        help="Adapter id or 'all' (fixtures suite supports all 8 langs)",
+    ),
     out: Path = typer.Option(
         Path("data/reports/eval_behavioral.json"),
         "--out",
@@ -580,12 +692,28 @@ def eval_cmd(
         Path("fixtures/eval_suite/manifest.json"),
         "--manifest",
     ),
+    target: float = typer.Option(0.90, "--target", help="Pass-rate gate for fixtures suite"),
 ) -> None:
-    """Run behavioral / held-out eval suites (Phase 7 gate)."""
+    """Run behavioral / held-out / multi-lang fixture sandbox evals."""
     import subprocess
     import sys
 
-    script = Path(__file__).resolve().parents[2] / "training" / "eval_behavioral.py"
+    root = Path(__file__).resolve().parents[2]
+    if suite == "fixtures" or lang == "all":
+        script = root / "training" / "eval_fixture_sandboxes.py"
+        cmd = [
+            sys.executable,
+            str(script),
+            "--lang",
+            "all" if lang == "all" else lang,
+            "--target",
+            str(target),
+            "--out",
+            str(out if out != Path("data/reports/eval_behavioral.json") else Path("data/reports/eval_fixture_sandboxes.json")),
+        ]
+        raise typer.Exit(subprocess.call(cmd))
+
+    script = root / "training" / "eval_behavioral.py"
     cmd = [
         sys.executable,
         str(script),
@@ -601,6 +729,22 @@ def eval_cmd(
     if freeze_baseline is not None:
         cmd.extend(["--freeze-baseline", str(freeze_baseline)])
     raise typer.Exit(subprocess.call(cmd))
+
+
+@app.command("report")
+def report_cmd(
+    path: Path = typer.Argument(
+        ...,
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        help="Batch / eval / run summary JSON",
+    ),
+) -> None:
+    """Pretty-print a migrate-repo / eval / run JSON report (secrets redacted)."""
+    from rebirth_ai.report_view import load_report, render_report
+
+    render_report(load_report(path))
 
 
 @app.command("classify")

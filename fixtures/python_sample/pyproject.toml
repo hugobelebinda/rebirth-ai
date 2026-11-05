@@ -1,0 +1,9 @@
+[project]
+name = "rebirth-python-sample"
+version = "0.1.0"
+description = "Tiny fixture for Phase 8 Python adapter + pytest sandbox."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

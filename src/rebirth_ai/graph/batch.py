@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable
 
+from rebirth_ai.adapters.registry import get_adapter_for_project
 from rebirth_ai.graph.app import build_migration_graph, initial_state
 from rebirth_ai.graph.discovery import (
     DENY_DIR_NAMES,
@@ -64,7 +65,21 @@ class BatchReport:
 
     @property
     def failed(self) -> list[FileMigrationResult]:
-        return [r for r in self.results if r.status not in {"success", "skipped", "skipped_no_test", "planned"}]
+        return [
+            r
+            for r in self.results
+            if r.status
+            not in {
+                "success",
+                "skipped",
+                "skipped_no_test",
+                "skipped_wrong_language",
+                "skipped_secret",
+                "skipped_too_large",
+                "skipped_license",
+                "planned",
+            }
+        ]
 
     def to_dict(self) -> dict:
         return {
@@ -137,6 +152,7 @@ def migrate_repository(
     db_path: Path | str = "data/embeddings.db",
     max_iterations: int = 5,
     skip_without_tests: bool = True,
+    lang: str | None = None,
     on_file: Callable[[str], None] | None = None,
 ) -> BatchReport:
     """Run the single-file LangGraph loop across many sources; continue on failures.
@@ -145,11 +161,12 @@ def migrate_repository(
     invoking the LLM / sandbox or writing files.
     """
     project_dir = project_dir.resolve()
+    adapter = get_adapter_for_project(project_dir, lang=lang)
     seed_map = _parse_seed_map(seeds)
     if files:
         targets = [Path(f) for f in files]
     else:
-        targets = discover_source_files(project_dir, under=under)
+        targets = discover_source_files(project_dir, adapter=adapter, under=under)
 
     targets = topological_migrate_order(project_dir, targets)
     order = [t.as_posix() for t in targets]
@@ -163,6 +180,14 @@ def migrate_repository(
     def _precheck(rel: Path) -> FileMigrationResult | None:
         """Return a skip result, or None if the file may proceed."""
         rel_s = rel.as_posix()
+        abs_path = project_dir / rel_s
+        if not adapter.is_source_file(abs_path):
+            return FileMigrationResult(
+                relative_file=rel_s,
+                relative_test=None,
+                status="skipped_wrong_language",
+                message=f"Not owned by adapter {adapter.name}",
+            )
         if is_secret_path(rel):
             return FileMigrationResult(
                 relative_file=rel_s,
@@ -170,7 +195,6 @@ def migrate_repository(
                 status="skipped_secret",
                 message="Secret/credential path blocked",
             )
-        abs_path = project_dir / rel_s
         if file_too_large(abs_path):
             return FileMigrationResult(
                 relative_file=rel_s,
@@ -266,6 +290,7 @@ def migrate_repository(
             test_first=seed_text is not None,
             db_path=db_path,
             max_iterations=max_iterations,
+            adapter_id=adapter.name,
         )
 
         try:

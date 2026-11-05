@@ -30,6 +30,36 @@ SYNTHETIC_BACKUP = ROOT / "data" / "datasets" / "js_ts_migration.synthetic.jsonl
 DEFAULT_STATS = ROOT / "data" / "datasets" / "js_ts_migration.stats.json"
 CACHE_DIR = ROOT / "data" / "cache" / "commitpackft"
 
+LANG_GROUP = {
+    "javascript": "js_ts",
+    "typescript": "js_ts",
+    "python": "python",
+    "go": "go",
+    "java": "java",
+    "c-sharp": "csharp",
+    "csharp": "csharp",
+    "c#": "csharp",
+    "c_sharp": "csharp",
+    "rust": "rust",
+    "c++": "cpp",
+    "cpp": "cpp",
+    "swift": "swift",
+}
+OUT_FOR_GROUP = {
+    "js_ts": ROOT / "data" / "datasets" / "js_ts_migration.jsonl",
+    "python": ROOT / "data" / "datasets" / "python_migration.jsonl",
+    "go": ROOT / "data" / "datasets" / "go_migration.jsonl",
+    "java": ROOT / "data" / "datasets" / "java_migration.jsonl",
+    "csharp": ROOT / "data" / "datasets" / "csharp_migration.jsonl",
+    "rust": ROOT / "data" / "datasets" / "rust_migration.jsonl",
+    "cpp": ROOT / "data" / "datasets" / "cpp_migration.jsonl",
+    "swift": ROOT / "data" / "datasets" / "swift_migration.jsonl",
+}
+STATS_FOR_GROUP = {k: v.with_suffix(".stats.json") for k, v in OUT_FOR_GROUP.items()}
+SYNTHETIC_FOR_GROUP = {
+    k: v.with_name(v.stem + ".synthetic.jsonl") for k, v in OUT_FOR_GROUP.items()
+}
+
 MIGRATION_RE = re.compile(
     r"("
     r"\bmigrat(?:e|ion|ing|ed)\b|"
@@ -80,7 +110,44 @@ PERMISSIVE = {
     "mpl-2.0",
 }
 
-SOURCE_SUFFIXES = {".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx"}
+JS_SOURCE_SUFFIXES = {".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx"}
+PY_SOURCE_SUFFIXES = {".py"}
+GO_SOURCE_SUFFIXES = {".go"}
+JAVA_SOURCE_SUFFIXES = {".java"}
+CSHARP_SOURCE_SUFFIXES = {".cs"}
+RUST_SOURCE_SUFFIXES = {".rs"}
+CPP_SOURCE_SUFFIXES = {".cpp", ".cc", ".cxx", ".hpp", ".hh", ".h", ".c"}
+SWIFT_SOURCE_SUFFIXES = {".swift"}
+SOURCE_SUFFIXES = (
+    JS_SOURCE_SUFFIXES
+    | PY_SOURCE_SUFFIXES
+    | GO_SOURCE_SUFFIXES
+    | JAVA_SOURCE_SUFFIXES
+    | CSHARP_SOURCE_SUFFIXES
+    | RUST_SOURCE_SUFFIXES
+    | CPP_SOURCE_SUFFIXES
+    | SWIFT_SOURCE_SUFFIXES
+)
+
+PYTHON_MIGRATION_RE = re.compile(
+    r"("
+    r"\bmigrat(?:e|ion|ing|ed)\b|"
+    r"\bupgrad(?:e|ing|ed)\b|"
+    r"\bmoderniz(?:e|ing|ed|ation)\b|"
+    r"\bconvert(?:ed|ing)?\s+to\b|"
+    r"\brefactor(?:ed|ing)?\s+to\b|"
+    r"\bpython\s*3\b|\bpy2\b|\bpy3\b|"
+    r"\btype\s+hints?\b|\btyping\b|\bannotated\b|"
+    r"\basync(?:io)?\b|\bawait\b|"
+    r"\bpathlib\b|\bf-?string\b|"
+    r"\bdataclass(?:es)?\b|"
+    r"\bpydantic\b|\bfastapi\b|\bdjango\b|"
+    r"\bunittest\b.*\bpytest\b|\bpytest\b.*\bunittest\b|"
+    r"\bdeprecated\b|\blegacy\b|"
+    r"\bprint\s*\(.*\)\s*#?\s*py2"
+    r")",
+    re.IGNORECASE,
+)
 
 
 @dataclass
@@ -105,20 +172,65 @@ def _language_for(path: str, lang_field: str | None) -> str | None:
         return "typescript"
     if suf in {".js", ".jsx", ".mjs", ".cjs"}:
         return "javascript"
+    if suf == ".py":
+        return "python"
+    if suf == ".go":
+        return "go"
+    if suf == ".java":
+        return "java"
+    if suf == ".cs":
+        return "csharp"
+    if suf == ".rs":
+        return "rust"
+    if suf in CPP_SOURCE_SUFFIXES:
+        return "cpp"
+    if suf == ".swift":
+        return "swift"
     if lang_field:
-        low = lang_field.lower()
-        if "typescript" in low:
-            return "typescript"
-        if "javascript" in low:
-            return "javascript"
+        low = lang_field.lower().replace("#", "sharp")
+        for needle, label in (
+            ("typescript", "typescript"),
+            ("javascript", "javascript"),
+            ("python", "python"),
+            ("golang", "go"),
+            ("go", "go"),
+            ("java", "java"),
+            ("c_sharp", "csharp"),
+            ("csharp", "csharp"),
+            ("c-sharp", "csharp"),
+            ("rust", "rust"),
+            ("c++", "cpp"),
+            ("cpp", "cpp"),
+            ("swift", "swift"),
+        ):
+            if needle in low:
+                return label
     return None
 
 
-def _looks_like_migration(subject: str, message: str) -> bool:
+def _looks_like_migration(subject: str, message: str, *, language_hint: str) -> bool:
     text = f"{subject}\n{message}"
     if DENY_RE.search(text):
         return False
+    if language_hint == "python":
+        return bool(PYTHON_MIGRATION_RE.search(text) or MIGRATION_RE.search(text))
     return bool(MIGRATION_RE.search(text))
+
+
+def _suffixes_for_hint(language_hint: str) -> set[str]:
+    return {
+        "python": PY_SOURCE_SUFFIXES,
+        "go": GO_SOURCE_SUFFIXES,
+        "java": JAVA_SOURCE_SUFFIXES,
+        "csharp": CSHARP_SOURCE_SUFFIXES,
+        "c-sharp": CSHARP_SOURCE_SUFFIXES,
+        "rust": RUST_SOURCE_SUFFIXES,
+        "cpp": CPP_SOURCE_SUFFIXES,
+        "c++": CPP_SOURCE_SUFFIXES,
+        "swift": SWIFT_SOURCE_SUFFIXES,
+        "typescript": JS_SOURCE_SUFFIXES,
+        "javascript": JS_SOURCE_SUFFIXES,
+    }.get(language_hint, JS_SOURCE_SUFFIXES)
 
 
 def _quality_ok(legacy: str, modern: str, *, min_chars: int, max_chars: int) -> bool:
@@ -134,13 +246,43 @@ def _quality_ok(legacy: str, modern: str, *, min_chars: int, max_chars: int) -> 
 def _parseable(code: str, language: str) -> bool:
     try:
         from tree_sitter import Language, Parser
-        import tree_sitter_javascript as tsjs
-        import tree_sitter_typescript as tsts
 
         parser = Parser()
         if language == "typescript":
+            import tree_sitter_typescript as tsts
+
             parser.language = Language(tsts.language_typescript())
+        elif language == "python":
+            import tree_sitter_python as tspy
+
+            parser.language = Language(tspy.language())
+        elif language == "go":
+            import tree_sitter_go as tsgo
+
+            parser.language = Language(tsgo.language())
+        elif language == "java":
+            import tree_sitter_java as tsjava
+
+            parser.language = Language(tsjava.language())
+        elif language in {"csharp", "c-sharp"}:
+            import tree_sitter_c_sharp as tscs
+
+            parser.language = Language(tscs.language())
+        elif language == "rust":
+            import tree_sitter_rust as tsrust
+
+            parser.language = Language(tsrust.language())
+        elif language in {"cpp", "c++"}:
+            import tree_sitter_cpp as tscpp
+
+            parser.language = Language(tscpp.language())
+        elif language == "swift":
+            import tree_sitter_swift as tsswift
+
+            parser.language = Language(tsswift.language())
         else:
+            import tree_sitter_javascript as tsjs
+
             parser.language = Language(tsjs.language())
         tree = parser.parse(code.encode("utf-8"))
         return not tree.root_node.has_error
@@ -148,15 +290,27 @@ def _parseable(code: str, language: str) -> bool:
         return True
 
 
+def _commitpack_folder(lang: str) -> str:
+    """Map CLI/lang aliases to CommitPackFT folder names (e.g. csharp → c#)."""
+    return {
+        "csharp": "c#",
+        "c-sharp": "c#",
+        "c_sharp": "c#",
+        "cpp": "c++",
+        "c++": "c++",
+    }.get(lang, lang)
+
+
 def download_commitpack_lang(lang: str, cache_dir: Path) -> Path:
     from huggingface_hub import hf_hub_download
 
     cache_dir.mkdir(parents=True, exist_ok=True)
+    folder = _commitpack_folder(lang)
     return Path(
         hf_hub_download(
             repo_id="bigcode/commitpackft",
             repo_type="dataset",
-            filename=f"data/{lang}/data.jsonl",
+            filename=f"data/{folder}/data.jsonl",
             local_dir=str(cache_dir),
             local_dir_use_symlinks=False,
         )
@@ -171,6 +325,8 @@ def iter_commitpack_pairs(
     max_chars: int,
     require_parse: bool,
     scan_limit: int | None,
+    require_keyword: bool = True,
+    source_tag: str = "commitpackft",
 ) -> tuple[list[Pair], Counter]:
     kept: list[Pair] = []
     stats: Counter = Counter()
@@ -195,16 +351,34 @@ def iter_commitpack_pairs(
 
             old_file = row.get("old_file") or ""
             new_file = row.get("new_file") or old_file
-            if (
-                _suffix(old_file) not in SOURCE_SUFFIXES
-                and _suffix(new_file) not in SOURCE_SUFFIXES
-            ):
-                stats["suffix_skip"] += 1
-                continue
+            allowed = _suffixes_for_hint(language_hint)
+            old_suf = _suffix(old_file)
+            new_suf = _suffix(new_file)
+            # Some CommitPackFT rows omit paths but set lang= — accept when hint matches.
+            if old_suf not in allowed and new_suf not in allowed:
+                lang_row = (row.get("lang") or "").lower()
+                hint_aliases = {
+                    "go": {"go", "golang"},
+                    "java": {"java"},
+                    "csharp": {"c-sharp", "csharp", "c_sharp", "c#"},
+                    "c-sharp": {"c-sharp", "csharp", "c_sharp", "c#"},
+                    "rust": {"rust"},
+                    "cpp": {"c++", "cpp"},
+                    "c++": {"c++", "cpp"},
+                    "swift": {"swift"},
+                    "python": {"python"},
+                    "javascript": {"javascript"},
+                    "typescript": {"typescript"},
+                }.get(language_hint, set())
+                if not (lang_row and lang_row in hint_aliases):
+                    stats["suffix_skip"] += 1
+                    continue
 
             subject = row.get("subject") or ""
             message = row.get("message") or subject
-            if not _looks_like_migration(subject, message):
+            if require_keyword and not _looks_like_migration(
+                subject, message, language_hint=language_hint
+            ):
                 stats["keyword_skip"] += 1
                 continue
 
@@ -228,7 +402,7 @@ def iter_commitpack_pairs(
                     language=language,
                     legacy=legacy,
                     modern=modern,
-                    source="commitpackft",
+                    source=source_tag,
                     repo=row.get("repos"),
                     commit=row.get("commit"),
                     path=new_file or old_file,
@@ -295,10 +469,20 @@ def write_jsonl(path: Path, pairs: list[Pair]) -> None:
             fh.write(json.dumps(asdict(p), ensure_ascii=False) + "\n")
 
 
+def _group_for_langs(langs: list[str]) -> str:
+    groups = {LANG_GROUP.get(l, l) for l in langs}
+    if len(groups) != 1:
+        raise SystemExit(
+            f"--langs must stay within one dataset group (got {sorted(groups)}); "
+            "run JS/TS and Python mines separately"
+        )
+    return next(iter(groups))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    parser.add_argument("--stats", type=Path, default=DEFAULT_STATS)
+    parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument("--stats", type=Path, default=None)
     parser.add_argument("--cache-dir", type=Path, default=CACHE_DIR)
     parser.add_argument("--max-pairs", type=int, default=1500)
     parser.add_argument("--min-chars", type=int, default=40)
@@ -307,35 +491,85 @@ def main() -> int:
     parser.add_argument("--require-parse", action="store_true")
     parser.add_argument("--skip-download", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--mode",
+        choices=("migration", "corpus"),
+        default="migration",
+        help="migration=keyword filter; corpus=license+quality(+parse) fill toward 15K",
+    )
     parser.add_argument("--langs", nargs="+", default=["javascript", "typescript"])
     args = parser.parse_args()
 
     sys.path.insert(0, str(ROOT / "src"))
 
-    synthetic = ensure_synthetic_backup(args.out, SYNTHETIC_BACKUP)
+    group = _group_for_langs(args.langs)
+    out_path = args.out or OUT_FOR_GROUP.get(group, DEFAULT_OUT)
+    stats_path = args.stats or STATS_FOR_GROUP.get(group, DEFAULT_STATS)
+    synth_backup = SYNTHETIC_FOR_GROUP.get(group, SYNTHETIC_BACKUP)
+
+    synthetic = ensure_synthetic_backup(out_path, synth_backup)
+    existing: list[Pair] = []
+    if out_path.is_file():
+        for line in out_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("source") == "synthetic":
+                continue
+            existing.append(
+                Pair(
+                    objective=row.get("objective") or "Modernize legacy code",
+                    language=row.get("language") or "javascript",
+                    legacy=row["legacy"],
+                    modern=row["modern"],
+                    source=str(row.get("source") or "commitpackft"),
+                    repo=row.get("repo"),
+                    commit=row.get("commit"),
+                    path=row.get("path"),
+                )
+            )
     mined: list[Pair] = []
     per_lang: dict[str, dict] = {}
+    require_keyword = args.mode == "migration"
+    source_tag = "commitpackft" if require_keyword else "commitpackft_corpus"
 
     for lang in args.langs:
-        cache_file = args.cache_dir / "data" / lang / "data.jsonl"
+        folder = _commitpack_folder(lang)
+        cache_file = args.cache_dir / "data" / folder / "data.jsonl"
         if not args.skip_download or not cache_file.exists():
-            print(f"Downloading CommitPackFT/{lang}…")
+            print(f"Downloading CommitPackFT/{folder}…")
             try:
                 cache_file = download_commitpack_lang(lang, args.cache_dir)
             except Exception as exc:  # noqa: BLE001
-                print(f"ERROR downloading {lang}: {exc}", file=sys.stderr)
+                print(f"ERROR downloading {folder}: {exc}", file=sys.stderr)
                 return 1
         else:
             print(f"Using cache {cache_file}")
 
-        print(f"Scanning {cache_file}…")
+        print(f"Scanning {cache_file} (mode={args.mode})…")
+        hint = {
+            "python": "python",
+            "typescript": "typescript",
+            "javascript": "javascript",
+            "go": "go",
+            "java": "java",
+            "c-sharp": "csharp",
+            "csharp": "csharp",
+            "c#": "csharp",
+            "rust": "rust",
+            "c++": "cpp",
+            "cpp": "cpp",
+            "swift": "swift",
+        }.get(lang, "javascript")
         pairs, stats = iter_commitpack_pairs(
             cache_file,
-            language_hint="typescript" if lang == "typescript" else "javascript",
+            language_hint=hint,
             min_chars=args.min_chars,
             max_chars=args.max_chars,
             require_parse=args.require_parse,
             scan_limit=args.scan_limit,
+            require_keyword=require_keyword,
+            source_tag=source_tag,
         )
         per_lang[lang] = dict(stats)
         print(f"  {lang}: scanned={stats['scanned']} kept={stats['kept']}")
@@ -346,18 +580,22 @@ def main() -> int:
     if args.max_pairs and len(mined) > args.max_pairs:
         mined = mined[: args.max_pairs]
 
-    combined = dedupe(synthetic + mined)
+    combined = dedupe(synthetic + existing + mined)
     report = {
         "total": len(combined),
+        "group": group,
+        "mode": args.mode,
         "by_source": dict(Counter(p.source for p in combined)),
         "by_language": dict(Counter(p.language for p in combined)),
         "mined_capped": len(mined),
+        "existing_kept": len(existing),
         "synthetic": len(synthetic),
         "filters": {
             "min_chars": args.min_chars,
             "max_chars": args.max_chars,
             "max_pairs": args.max_pairs,
             "require_parse": args.require_parse,
+            "require_keyword": require_keyword,
         },
         "commitpack_stats": per_lang,
     }
@@ -367,10 +605,10 @@ def main() -> int:
         print("dry-run: not writing")
         return 0
 
-    write_jsonl(args.out, combined)
-    args.stats.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {len(combined)} pairs → {args.out}")
-    print(f"Stats → {args.stats}")
+    write_jsonl(out_path, combined)
+    stats_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(f"Wrote {len(combined)} pairs → {out_path}")
+    print(f"Stats → {stats_path}")
     return 0
 
 

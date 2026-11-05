@@ -5,7 +5,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from rebirth_ai.adapters.js_ts import JsTsAdapter
+from rebirth_ai.adapters.base import LanguageAdapter
+from rebirth_ai.adapters.registry import get_adapter
 from rebirth_ai.classify.model import ErrorClassifier
 from rebirth_ai.generate.factory import get_generator
 from rebirth_ai.graph.state import MigrationState
@@ -13,9 +14,28 @@ from rebirth_ai.rag.retrieve import Retriever
 from rebirth_ai.sandbox.runner import SandboxRunner
 
 _MISSING_PKG = re.compile(
-    r"Cannot find (?:module|package) ['\"]([^'\"]+)['\"]",
+    r"(?:Cannot find (?:module|package) ['\"]([^'\"]+)['\"]|"
+    r"ModuleNotFoundError:\s*No module named ['\"]([^'\"]+)['\"]|"
+    r"ImportError:\s*(?:No module named|cannot import name) ['\"]([^'\"]+)['\"])",
     re.IGNORECASE,
 )
+
+
+def _adapter_for_state(state: MigrationState) -> LanguageAdapter:
+    adapter_id = state.get("adapter_id")
+    if adapter_id:
+        return get_adapter(str(adapter_id))
+    language = (state.get("language") or "").lower()
+    if language in {"python", "py"}:
+        return get_adapter("python")
+    return get_adapter("js_ts")
+
+
+def _missing_package_name(logs: str) -> str | None:
+    match = _MISSING_PKG.search(logs)
+    if not match:
+        return None
+    return next((g for g in match.groups() if g), None)
 
 
 def _trace(state: MigrationState, message: str) -> list[str]:
@@ -77,14 +97,19 @@ def execute_tests(state: MigrationState) -> MigrationState:
     relative_file = state.get("relative_file") or Path(state["file_path"]).name
     draft = state.get("current_draft") or state["original_code"]
     packages = list(state.get("extra_packages") or [])
-    runner = SandboxRunner(JsTsAdapter())
+    adapter = _adapter_for_state(state)
+    runner = SandboxRunner(adapter)
 
-    # Temp sandbox copies discard node_modules — when extras are known, install+test
-    # in one networked container so the dep is available for the suite.
+    # Temp sandbox copies discard node_modules / venv — when extras are known,
+    # install+test in one networked container so the dep is available for the suite.
     if packages:
-        pkgs = " ".join(packages)
+        install = getattr(adapter, "install_command", None)
+        if callable(install):
+            install_cmd = install(packages)
+        else:
+            install_cmd = f"npm install --no-save --no-package-lock {' '.join(packages)}"
         test_cmd = runner.adapter.test_command_for(state.get("relative_test"))
-        combined = f"npm install --no-save --no-package-lock {pkgs} && {test_cmd}"
+        combined = f"{install_cmd} && {test_cmd}"
         result = runner.run_project(
             project,
             command=combined,
@@ -121,11 +146,18 @@ def _heuristic_error_class(logs: str) -> str | None:
         or "cannot find package" in low
         or "err_module_not_found" in low
         or "module not found" in low
+        or "modulenotfounderror" in low
+        or "no module named" in low
         or "can't resolve" in low
         or "could not resolve" in low
     ):
         return "DependencyMissing"
-    if "syntaxerror" in low or "unexpected token" in low or "error ts1005" in low:
+    if (
+        "syntaxerror" in low
+        or "unexpected token" in low
+        or "error ts1005" in low
+        or "indentationerror" in low
+    ):
         return "SyntaxError"
     if "typeerror" in low or "error ts23" in low or "is not assignable to" in low:
         return "TypeMismatch"
@@ -171,8 +203,7 @@ def classify_error(state: MigrationState) -> MigrationState:
 
 def install_dependency(state: MigrationState) -> MigrationState:
     logs = state.get("test_logs") or ""
-    match = _MISSING_PKG.search(logs)
-    pkg = match.group(1) if match else state.get("missing_package")
+    pkg = _missing_package_name(logs) or state.get("missing_package")
     if not pkg:
         return {
             **state,
