@@ -52,6 +52,12 @@ ml = [
 github = [
   "PyGithub>=2.3.0",
 ]
+mlops = [
+  "mlflow-skinny>=3.18,<4",
+  "SQLAlchemy>=2.0",
+  "alembic>=1.13",
+  "PyYAML>=6.0",
+]
 dev = [
   "pytest>=8.0.0",
   "pytest-cov>=5.0.0",

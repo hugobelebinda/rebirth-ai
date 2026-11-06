@@ -1,0 +1,380 @@
+{
+  "backend": "ollama",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:go",
+      "backend": "ollama",
+      "lang": "go",
+      "n": 24,
+      "soft_exact": 3,
+      "soft_exact_rate": 0.125,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.9583333333333334,
+      "mean_token_overlap": 0.7448333333333333,
+      "model": "qwen2.5-coder:14b-instruct-q6_K",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Rename Id field to ID",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package github\n\ntype User struct {\n\tID    int    `json:\"id\"`\n\tLogin string `json:\"login\"`\n}\n",
+          "gold_preview": "package github\n\ntype User struct {\n\tID    int    `json:\"id\"`\n\tLogin string `json:\"login\"`\n}\n",
+          "pred": "package github\n\ntype User struct {\n\tID    int    `json:\"id\"`\n\tLogin string `json:\"login\"`\n}\n",
+          "gold": "package github\n\ntype User struct {\n\tID    int    `json:\"id\"`\n\tLogin string `json:\"login\"`\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Add example plugin import as comment",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.684
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package plugins\n\n// Example plugin import\n// _ \"github.com/gengo/goship/plugins/helloworld\"\n",
+          "gold_preview": "package plugins\n\n// Import plugin packages here\nimport (\n//\t_ \"github.com/gengo/goship/plugins/helloworld\"\n)\n",
+          "pred": "package plugins\n\n// Example plugin import\n// _ \"github.com/gengo/goship/plugins/helloworld\"\n",
+          "gold": "package plugins\n\n// Import plugin packages here\nimport (\n//\t_ \"github.com/gengo/goship/plugins/helloworld\"\n)\n"
+        },
+        {
+          "i": 3,
+          "objective": "Increase e2e poll timeout to 10min",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.889
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package utils\n\nimport \"time\"\n\nconst (\n\tInterval = 10 * time.Second\n\tTimeout  = 10 * time.Minute\n)\n",
+          "gold_preview": "package utils\n\nimport \"time\"\n\nvar (\n\tInterval = 10 * time.Second\n\tTimeout  = 10 * time.Minute\n)\n",
+          "pred": "package utils\n\nimport \"time\"\n\nconst (\n\tInterval = 10 * time.Second\n\tTimeout  = 10 * time.Minute\n)\n",
+          "gold": "package utils\n\nimport \"time\"\n\nvar (\n\tInterval = 10 * time.Second\n\tTimeout  = 10 * time.Minute\n)\n"
+        },
+        {
+          "i": 4,
+          "objective": "Add version number in the program output",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.759
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"fmt\"\n)\n\nconst version = \"1.0.0\"\n\nfunc main() {\n\tfmt.Printf(\"My Hello Golang Program, Version %s - Hello World\\n\", version)\n}\n",
+          "gold_preview": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Printf(\"My Hello Golang Program, Hello World 1.0.0\\n\")\n}\n",
+          "pred": "package main\n\nimport (\n\t\"fmt\"\n)\n\nconst version = \"1.0.0\"\n\nfunc main() {\n\tfmt.Printf(\"My Hello Golang Program, Version %s - Hello World\\n\", version)\n}\n",
+          "gold": "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Printf(\"My Hello Golang Program, Hello World 1.0.0\\n\")\n}\n"
+        },
+        {
+          "i": 5,
+          "objective": "Update scraper to use new script",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.5
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package cloudformation\n\n//go:generate go run ./scraper/new_scraper.go -format=go -out=schema.go\n//go:generate go run ./scraper/new_scraper.go -format=json -out=schema.json\n",
+          "gold_preview": "package cloudformation\n\n//go:generate go test -v ./scraper/.\n",
+          "pred": "package cloudformation\n\n//go:generate go run ./scraper/new_scraper.go -format=go -out=schema.go\n//go:generate go run ./scraper/new_scraper.go -format=json -out=schema.json\n",
+          "gold": "package cloudformation\n\n//go:generate go test -v ./scraper/.\n"
+        },
+        {
+          "i": 6,
+          "objective": "Add 'Package' before description to remove golint warnings.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.714
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/*\nPackage ctxdownload provides helper functions for performing context-aware download tasks.\n*/\npackage ctxdownload\n",
+          "gold_preview": "/*\nPackage ctxdownload is a Golang package which provides helper functions for performing context-aware download task.\n\n*/\npackage ctxdownload\n",
+          "pred": "/*\nPackage ctxdownload provides helper functions for performing context-aware download tasks.\n*/\npackage ctxdownload\n",
+          "gold": "/*\nPackage ctxdownload is a Golang package which provides helper functions for performing context-aware download task.\n\n*/\npackage ctxdownload\n"
+        },
+        {
+          "i": 7,
+          "objective": "Improve TestMain function for exit code",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.595
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\nfunc TestMain(m *testing.M) {\n\tif err := os.Setenv(\"FAW_ICONS_YAML_PATH\", \"workflow/icons.yml\"); err != nil {\n\t\tpanic(fmt.Sprintf(\"Failed to set environment ",
+          "gold_preview": "package main\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\nfunc TestMain(m *testing.M) {\n\tos.Setenv(\"FAW_ICONS_YAML_PATH\", \"workflow/icons.yml\")\n\tos.Exit(m.Run())\n}\n",
+          "pred": "package main\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\nfunc TestMain(m *testing.M) {\n\tif err := os.Setenv(\"FAW_ICONS_YAML_PATH\", \"workflow/icons.yml\"); err != nil {\n\t\tpanic(fmt.Sprintf(\"Failed to set environment variable: %v\", err))\n\t}\n\tos.Exit(m.Run())\n}\n",
+          "gold": "package main\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\nfunc TestMain(m *testing.M) {\n\tos.Setenv(\"FAW_ICONS_YAML_PATH\", \"workflow/icons.yml\")\n\tos.Exit(m.Run())\n}\n"
+        },
+        {
+          "i": 8,
+          "objective": "Fix a typo in the test method name",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/stretchr/testify/assert\"\n)\n\nfunc TestVersion(t *testing.T) {\n\tassert.Equal(t, \"unknown\", Version())\n}\n",
+          "gold_preview": "package main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/stretchr/testify/assert\"\n)\n\nfunc TestVersion(t *testing.T) {\n\tassert.Equal(t, \"unknown\", Version())\n}\n",
+          "pred": "package main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/stretchr/testify/assert\"\n)\n\nfunc TestVersion(t *testing.T) {\n\tassert.Equal(t, \"unknown\", Version())\n}\n",
+          "gold": "package main\n\nimport (\n\t\"testing\"\n\n\t\"github.com/stretchr/testify/assert\"\n)\n\nfunc TestVersion(t *testing.T) {\n\tassert.Equal(t, \"unknown\", Version())\n}\n"
+        },
+        {
+          "i": 9,
+          "objective": "Add necessary include directives for PHP 5 path",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.704
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// +build !php7\n\npackage engine\n\n// #cgo CFLAGS: -Iinclude/php5\n// #cgo LDFLAGS: -lphp5\nimport (\n\t\"C\"\n)\n",
+          "gold_preview": "// +build !php7\n\npackage engine\n\n// #cgo CFLAGS: -I/usr/include/php5 -I/usr/include/php5/main -I/usr/include/php5/TSRM\n// #cgo CFLAGS: -I/usr/include/Zend -Iinclude/php5\n// #cgo LDFLAGS: -lphp5\nimport",
+          "pred": "// +build !php7\n\npackage engine\n\n// #cgo CFLAGS: -Iinclude/php5\n// #cgo LDFLAGS: -lphp5\nimport (\n\t\"C\"\n)\n",
+          "gold": "// +build !php7\n\npackage engine\n\n// #cgo CFLAGS: -I/usr/include/php5 -I/usr/include/php5/main -I/usr/include/php5/TSRM\n// #cgo CFLAGS: -I/usr/include/Zend -Iinclude/php5\n// #cgo LDFLAGS: -lphp5\nimport \"C\"\n"
+        },
+        {
+          "i": 10,
+          "objective": "Add test for NewLink() in fileservice package.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.354
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package fileservice\n\nimport (\n\t\"testing\"\n)\n\n// TestNewLink verifies the behavior of NewLink function.\nfunc TestNewLink(t *testing.T) {\n\t// Add your test cases here to ensure NewLink works as expected.",
+          "gold_preview": "package fileservice\n\nimport (\n\t\"testing\"\n\t\"time\"\n)\n\nfunc TestNewLink(t *testing.T) {\n\tnow := time.Now()\n\turi := \"http://example.com\"\n\tlink := NewLink(uri, now)\n\n\tif link.Uri != uri {\n\t\tt.FailNow()\n\t}\n",
+          "pred": "package fileservice\n\nimport (\n\t\"testing\"\n)\n\n// TestNewLink verifies the behavior of NewLink function.\nfunc TestNewLink(t *testing.T) {\n\t// Add your test cases here to ensure NewLink works as expected.\n}\n",
+          "gold": "package fileservice\n\nimport (\n\t\"testing\"\n\t\"time\"\n)\n\nfunc TestNewLink(t *testing.T) {\n\tnow := time.Now()\n\turi := \"http://example.com\"\n\tlink := NewLink(uri, now)\n\n\tif link.Uri != uri {\n\t\tt.FailNow()\n\t}\n\n\tif link.Expire != now {\n\t\tt.FailNow()\n\t}\n}\n"
+        },
+        {
+          "i": 11,
+          "objective": "Add -L flag to the default find command",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.889
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package fzf\n\nconst (\n\t// Reader\n\tdefaultCommand = `find . -L -path '*/\\.*' -prune -o -type f -print -o -type l -print 2> /dev/null | sed s/^..//`\n)\n",
+          "gold_preview": "// +build !windows\n\npackage fzf\n\nconst (\n\t// Reader\n\tdefaultCommand = `find -L . -path '*/\\.*' -prune -o -type f -print -o -type l -print 2> /dev/null | sed s/^..//`\n)\n",
+          "pred": "package fzf\n\nconst (\n\t// Reader\n\tdefaultCommand = `find . -L -path '*/\\.*' -prune -o -type f -print -o -type l -print 2> /dev/null | sed s/^..//`\n)\n",
+          "gold": "// +build !windows\n\npackage fzf\n\nconst (\n\t// Reader\n\tdefaultCommand = `find -L . -path '*/\\.*' -prune -o -type f -print -o -type l -print 2> /dev/null | sed s/^..//`\n)\n"
+        },
+        {
+          "i": 12,
+          "objective": "Remove type annotations from packet.Handshake",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "gold_preview": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "pred": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "gold": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n"
+        },
+        {
+          "i": 13,
+          "objective": "Fix self-signed certificates on Windows",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.562
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// +build windows\n// +build !confonly\n\npackage tls\n\nimport (\n\t\"crypto/x509\"\n\t\"os\"\n)\n\nfunc (c *Config) getCertPool() (*x509.CertPool, error) {\n\tif c.DisableSystemRoot {\n\t\treturn c.loadSelfCertPool()\n\t}",
+          "gold_preview": "// +build windows\n// +build !confonly\n\npackage tls\n\nimport \"crypto/x509\"\n\nfunc (c *Config) getCertPool() (*x509.CertPool, error) {\n\treturn c.loadSelfCertPool()\n}\n",
+          "pred": "// +build windows\n// +build !confonly\n\npackage tls\n\nimport (\n\t\"crypto/x509\"\n\t\"os\"\n)\n\nfunc (c *Config) getCertPool() (*x509.CertPool, error) {\n\tif c.DisableSystemRoot {\n\t\treturn c.loadSelfCertPool()\n\t}\n\n\t// Load system root certificates\n\tsystemRoots, err := x509.SystemCertPool()\n\tif err != nil {\n\t\t// Fallback to an empty pool if loading fails\n\t\treturn x509.NewCertPool(), nil\n\t}\n\n\treturn systemRoots, nil\n}\n",
+          "gold": "// +build windows\n// +build !confonly\n\npackage tls\n\nimport \"crypto/x509\"\n\nfunc (c *Config) getCertPool() (*x509.CertPool, error) {\n\treturn c.loadSelfCertPool()\n}\n"
+        },
+        {
+          "i": 14,
+          "objective": "Correct -Q to actually only show local packages.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.272
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package commands\n\nimport (\n\t\"fmt\"\n\t\"os/exec\"\n)\n\n// LocalSearch queries the local package database for packages matching the given names.\nfunc LocalSearch(packages []string) error {\n\targs := append([]s",
+          "gold_preview": "package commands\n\nfunc LocalSearch(packages []string) error {\n\tpackages = append(packages, `\"\"`) //Trick to prevent barking on empty input. Will give a quoted empty string to grep so it shows everythi",
+          "pred": "package commands\n\nimport (\n\t\"fmt\"\n\t\"os/exec\"\n)\n\n// LocalSearch queries the local package database for packages matching the given names.\nfunc LocalSearch(packages []string) error {\n\targs := append([]string{\"pkgnames\"}, packages...)\n\tcmd := exec.Command(\"apt-cache\", args...)\n\n\toutput, err := cmd.CombinedOutput()\n\tif err != nil {\n\t\treturn fmt.Errorf(\"failed to search local packages: %v\\n%s\", err, output)\n\t}\n\n\tfmt.Println(string(output))\n\treturn nil\n}\n",
+          "gold": "package commands\n\nfunc LocalSearch(packages []string) error {\n\tpackages = append(packages, `\"\"`) //Trick to prevent barking on empty input. Will give a quoted empty string to grep so it shows everything\n\treturn run(\"bash\", \"-c\", []string{\"dpkg --get-selections | grep \" + packages[0]})\n}\n"
+        },
+        {
+          "i": 15,
+          "objective": "Add trivial though meaningful comment.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.634
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package algoholic\n\nimport \"testing\"\n\n// TestInsertionSortSortsReversedInts verifies that the InsertionSort function correctly sorts a slice of reversed integers.\nfunc TestInsertionSortSortsReversedInt",
+          "gold_preview": "package algoholic\n\nimport \"testing\"\n\nfunc TestInsertionSortSortsReversedInts(t *testing.T) {\n\tcorrectlySortsReversedInts(t, 1e4, func(ns []int) []int {\n\t\t// In-place sort.\n\t\tInsertionSort(ns)\n\t\treturn",
+          "pred": "package algoholic\n\nimport \"testing\"\n\n// TestInsertionSortSortsReversedInts verifies that the InsertionSort function correctly sorts a slice of reversed integers.\nfunc TestInsertionSortSortsReversedInts(t *testing.T) {\n\tcorrectlySortsReversedInts(t, 1e4, func(ns []int) []int {\n\t\tInsertionSort(ns)\n\t\treturn ns\n\t})\n}\n",
+          "gold": "package algoholic\n\nimport \"testing\"\n\nfunc TestInsertionSortSortsReversedInts(t *testing.T) {\n\tcorrectlySortsReversedInts(t, 1e4, func(ns []int) []int {\n\t\t// In-place sort.\n\t\tInsertionSort(ns)\n\t\treturn ns\n\t})\n}\n"
+        },
+        {
+          "i": 16,
+          "objective": "Fix issue in build tags",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.879
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package goselect\n\n// darwin, netbsd and openbsd uses uint32 on both amd64 and 386\n\nconst (\n\t// NFDBITS is the amount of bits per mask\n\tNFDBITS = 8 * 8\n)\n",
+          "gold_preview": "// +build amd64,arm64 !darwin,!netbsd,!openbsd\n\npackage goselect\n\n// darwin, netbsd and openbsd uses uint32 on both amd64 and 386\n\nconst (\n\t// NFDBITS is the amount of bits per mask\n\tNFDBITS = 8 * 8\n)",
+          "pred": "package goselect\n\n// darwin, netbsd and openbsd uses uint32 on both amd64 and 386\n\nconst (\n\t// NFDBITS is the amount of bits per mask\n\tNFDBITS = 8 * 8\n)\n",
+          "gold": "// +build amd64,arm64 !darwin,!netbsd,!openbsd\n\npackage goselect\n\n// darwin, netbsd and openbsd uses uint32 on both amd64 and 386\n\nconst (\n\t// NFDBITS is the amount of bits per mask\n\tNFDBITS = 8 * 8\n)\n"
+        },
+        {
+          "i": 17,
+          "objective": "Rename test suite to follow with the object name of `TTLHashSet`",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.964
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package ttl_hash_set_test\n\nimport (\n\t\"testing\"\n\n\t. \"github.com/onsi/ginkgo/v2\"\n\t. \"github.com/onsi/gomega\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Su",
+          "gold_preview": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite",
+          "pred": "package ttl_hash_set_test\n\nimport (\n\t\"testing\"\n\n\t. \"github.com/onsi/ginkgo/v2\"\n\t. \"github.com/onsi/gomega\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite\")\n}\n",
+          "gold": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite\")\n}\n"
+        },
+        {
+          "i": 18,
+          "objective": "Comment for main exported fuctions",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.725
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package jiffy\n\nconst (\n\tcancelTTL = iota\n\textendTTL\n)\n\nvar (\n\t// registry holds the global instance of Registry.\n\tregistry *Registry\n)\n\n// GetTopic retrieves a Topic by its name from the global regist",
+          "gold_preview": "package jiffy\n\nconst (\n\tcancelTTL = iota\n\textendTTL\n)\n\nvar (\n\tregistry *Registry\n)\n\n// Returns a topic from the global registry.\nfunc GetTopic(name string) *Topic {\n\treturn registry.GetTopic(name)\n}\n\n",
+          "pred": "package jiffy\n\nconst (\n\tcancelTTL = iota\n\textendTTL\n)\n\nvar (\n\t// registry holds the global instance of Registry.\n\tregistry *Registry\n)\n\n// GetTopic retrieves a Topic by its name from the global registry.\nfunc GetTopic(name string) *Topic {\n\treturn registry.GetTopic(name)\n}\n\nfunc init() {\n\t// Initialize the global registry on package load.\n\tregistry = CreateRegistry()\n}\n",
+          "gold": "package jiffy\n\nconst (\n\tcancelTTL = iota\n\textendTTL\n)\n\nvar (\n\tregistry *Registry\n)\n\n// Returns a topic from the global registry.\nfunc GetTopic(name string) *Topic {\n\treturn registry.GetTopic(name)\n}\n\nfunc init() {\n\tregistry = CreateRegistry()\n}\n"
+        },
+        {
+          "i": 19,
+          "objective": "Fix parameter name for `phabulous.toslack` conduit call",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.903
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package requests\n\nimport \"github.com/etcinit/gonduit/requests\"\n\n// PhabulousToSlackRequest represents a request to phabulous.toslack.\ntype PhabulousToSlackRequest struct {\n\tUserPHIDs []string `json:\"u",
+          "gold_preview": "package requests\n\nimport \"github.com/etcinit/gonduit/requests\"\n\n// PhabulousToSlackRequest represets a request to phabulous.toslack.\ntype PhabulousToSlackRequest struct {\n\tUserPHIDs []string `json:\"Us",
+          "pred": "package requests\n\nimport \"github.com/etcinit/gonduit/requests\"\n\n// PhabulousToSlackRequest represents a request to phabulous.toslack.\ntype PhabulousToSlackRequest struct {\n\tUserPHIDs []string `json:\"user_phids\"`\n\trequests.Request\n}\n",
+          "gold": "package requests\n\nimport \"github.com/etcinit/gonduit/requests\"\n\n// PhabulousToSlackRequest represets a request to phabulous.toslack.\ntype PhabulousToSlackRequest struct {\n\tUserPHIDs []string `json:\"UserPHIDs\"`\n\trequests.Request\n}\n"
+        },
+        {
+          "i": 20,
+          "objective": "Add the name of a Git directory",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.735
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/*\nPackage consts implements constants for the entire project.\n*/\npackage consts\n\n// ConfigurationFileName is the configuration file name of Goyave.\nconst ConfigurationFileName = \".goyave\"\n\n// GitDire",
+          "gold_preview": "/*\nPackage consts implements constants for the entire project\n*/\npackage consts\n\n// ConfigurationFileName is the configuration file name of Goyave\nconst ConfigurationFileName = \".goyave\"\n\n// GitFileNa",
+          "pred": "/*\nPackage consts implements constants for the entire project.\n*/\npackage consts\n\n// ConfigurationFileName is the configuration file name of Goyave.\nconst ConfigurationFileName = \".goyave\"\n\n// GitDirectoryName is the directory name used by Git.\nconst GitDirectoryName = \".git\"\n",
+          "gold": "/*\nPackage consts implements constants for the entire project\n*/\npackage consts\n\n// ConfigurationFileName is the configuration file name of Goyave\nconst ConfigurationFileName = \".goyave\"\n\n// GitFileName is the name of the git directory, in a git repository\nconst GitFileName = \".git\"\n"
+        },
+        {
+          "i": 21,
+          "objective": "Use a const for base 62 digits.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.818
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package utils\n\nconst base62Digits = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n\nfunc Base62(n uint) string {\n\tif n == 0 {\n\t\treturn \"0\"\n\t}\n\n\tvar b62 []byte\n\tfor n != 0 {\n\t\tr := n ",
+          "gold_preview": "package utils\n\nconst digits = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n\nfunc Base62(n uint) string {\n\tb62 := \"\"\n\tif n == 0 {\n\t\treturn \"0\"\n\t}\n\tfor n != 0 {\n\t\tr := n % 62\n\t\tn = n",
+          "pred": "package utils\n\nconst base62Digits = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n\nfunc Base62(n uint) string {\n\tif n == 0 {\n\t\treturn \"0\"\n\t}\n\n\tvar b62 []byte\n\tfor n != 0 {\n\t\tr := n % 62\n\t\tn /= 62\n\t\tb62 = append([]byte{base62Digits[r]}, b62...)\n\t}\n\treturn string(b62)\n}\n",
+          "gold": "package utils\n\nconst digits = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n\nfunc Base62(n uint) string {\n\tb62 := \"\"\n\tif n == 0 {\n\t\treturn \"0\"\n\t}\n\tfor n != 0 {\n\t\tr := n % 62\n\t\tn = n / 62\n\t\tb62 = string(digits[r]) + b62\n\t}\n\treturn b62\n}\n"
+        },
+        {
+          "i": 22,
+          "objective": "Fix frontend errors in `DisabledCertificateCheck` tests.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"net/http\"\n\t\"testing\"\n\n\t\"crypto/tls\"\n)\n\nfunc TestSomethingExciting(t *testing.T) {\n\ttransport := &http.Transport{\n\t\tTLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // O",
+          "gold_preview": "package main\n\nimport (\n\t\"crypto/tls\"\n\t\"net/http\"\n\t\"testing\"\n)\n\nfunc TestSomethingExciting(t *testing.T) {\n\ttransport := &http.Transport{\n\t\tTLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // OK",
+          "pred": "package main\n\nimport (\n\t\"net/http\"\n\t\"testing\"\n\n\t\"crypto/tls\"\n)\n\nfunc TestSomethingExciting(t *testing.T) {\n\ttransport := &http.Transport{\n\t\tTLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // OK\n\t}\n\tdoStuffTo(transport)\n}\n\nfunc doStuffTo(t *http.Transport) {}\n",
+          "gold": "package main\n\nimport (\n\t\"crypto/tls\"\n\t\"net/http\"\n\t\"testing\"\n)\n\nfunc TestSomethingExciting(t *testing.T) {\n\ttransport := &http.Transport{\n\t\tTLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // OK\n\t}\n\tdoStuffTo(transport)\n}\n\nfunc doStuffTo(t *http.Transport) {}\n"
+        },
+        {
+          "i": 23,
+          "objective": "Change imprort name of gcfg to make project compile",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.78
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport \"github.com/go-ini/gcfg\"\n\n// Config is config\ntype Config struct {\n\tTelegram struct {\n\t\tToken    string\n\t\tUsername string\n\t}\n}\n\nfunc getConfig() (Config, error) {\n\tvar cfg Config\n",
+          "gold_preview": "package main\n\nimport \"gopkg.in/gcfg.v1\"\n\n// Config is config\ntype Config struct {\n\tTelegram struct {\n\t\tToken    string\n\t\tUsername string\n\t}\n}\n\nfunc getConfig() (Config, error) {\n\tvar cfg Config\n\terr :",
+          "pred": "package main\n\nimport \"github.com/go-ini/gcfg\"\n\n// Config is config\ntype Config struct {\n\tTelegram struct {\n\t\tToken    string\n\t\tUsername string\n\t}\n}\n\nfunc getConfig() (Config, error) {\n\tvar cfg Config\n\terr := gcfg.ReadFileInto(&cfg, \"./config.cfg\")\n\treturn cfg, err\n}\n",
+          "gold": "package main\n\nimport \"gopkg.in/gcfg.v1\"\n\n// Config is config\ntype Config struct {\n\tTelegram struct {\n\t\tToken    string\n\t\tUsername string\n\t}\n}\n\nfunc getConfig() (Config, error) {\n\tvar cfg Config\n\terr := gcfg.ReadFileInto(&cfg, \"/tmp/config.cfg\")\n\treturn cfg, err\n}\n"
+        },
+        {
+          "i": 24,
+          "objective": "Fix bug of test file",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 0.516
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package sort_test\n\nimport (\n\t\"testing\"\n\t\"fmt\"\n\n\t\"github.com/goSTL/sort\"\n)\n\nfunc TestHeapSortInt(t *testing.T) {\n\tsample := []int{3, 138, 1, 674, 213, 23, 5, 2}\n\tfmt.Println(sample)\n\n\tsort.HeapSortInt(",
+          "gold_preview": "package sort_test\n\nimport (\n\t\"fmt\"\n\n\t\"github.com/goSTL/sort\"\n)\n\nfunc ExampleHeapSortInt() {\n\tsample := []int{3, 138, 1, 674, 213, 23, 5, 2}\n\tfmt.Println(sample)\n\n\tsort.HeapSortInt(sample)\n\tfmt.Println",
+          "pred": "package sort_test\n\nimport (\n\t\"testing\"\n\t\"fmt\"\n\n\t\"github.com/goSTL/sort\"\n)\n\nfunc TestHeapSortInt(t *testing.T) {\n\tsample := []int{3, 138, 1, 674, 213, 23, 5, 2}\n\tfmt.Println(sample)\n\n\tsort.HeapSortInt(sample)\n\tfmt.Println(sample)\n\n\texpected := []int{1, 2, 3, 5, 23, 138, 213, 674}\n\tif !slicesEqual(sample, expected) {\n\t\tt.Errorf(\"HeapSortInt did not sort the array correctly. Got: %v, Want: %v\", sample, expected)\n\t}\n}\n\nfunc slicesEqual(a, b []int) bool {\n\tif len(a) != len(b) {\n\t\treturn false\n\t}\n\tfor i := range a {\n\t\tif a[i] != b[i] {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n",
+          "gold": "package sort_test\n\nimport (\n\t\"fmt\"\n\n\t\"github.com/goSTL/sort\"\n)\n\nfunc ExampleHeapSortInt() {\n\tsample := []int{3, 138, 1, 674, 213, 23, 5, 2}\n\tfmt.Println(sample)\n\n\tsort.HeapSortInt(sample)\n\tfmt.Println(sample)\n\t//Output:\n\t//[3 138 1 674 213 23 5 2]\n\t//[1 2 3 5 23 138 213 674]\n}\n"
+        }
+      ]
+    }
+  }
+}

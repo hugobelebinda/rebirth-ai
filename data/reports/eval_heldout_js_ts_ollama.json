@@ -1,0 +1,380 @@
+{
+  "backend": "ollama",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:js_ts",
+      "backend": "ollama",
+      "lang": "js_ts",
+      "n": 24,
+      "soft_exact": 1,
+      "soft_exact_rate": 0.041666666666666664,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.9583333333333334,
+      "mean_token_overlap": 0.6037083333333334,
+      "model": "qwen2.5-coder:14b-instruct-q6_K",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Replace var with const/let",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.875
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function sum(a, b) {\n  let total = a + b;\n  return total;\n}\n",
+          "gold_preview": "function sum(a, b) {\n  const total = a + b;\n  return total;\n}\n",
+          "pred": "function sum(a, b) {\n  let total = a + b;\n  return total;\n}\n",
+          "gold": "function sum(a, b) {\n  const total = a + b;\n  return total;\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Fix CLI usage to be executable",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.25
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import { Command } from 'commander';\nimport Shuffler from './shuffler';\n\nconst program = new Command();\n\nprogram\n  .name('shuffle-cli')\n  .description('A CLI tool to shuffle items')\n  .version('1.0.0'",
+          "gold_preview": "#! /usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n",
+          "pred": "import { Command } from 'commander';\nimport Shuffler from './shuffler';\n\nconst program = new Command();\n\nprogram\n  .name('shuffle-cli')\n  .description('A CLI tool to shuffle items')\n  .version('1.0.0')\n  .action(() => {\n    new Shuffler().run();\n  });\n\nprogram.parse(process.argv);\n",
+          "gold": "#! /usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n"
+        },
+        {
+          "i": 3,
+          "objective": "Remove dot from snapsvg name.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.167
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// Modernized source without the dot in snapsvg name\nimport Snap from 'snapsvg';\nimport './pizza/pizza';\nimport './pizza/**/*.js';\n\nexport { Snap };\n",
+          "gold_preview": "//= require snapsvg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n",
+          "pred": "// Modernized source without the dot in snapsvg name\nimport Snap from 'snapsvg';\nimport './pizza/pizza';\nimport './pizza/**/*.js';\n\nexport { Snap };\n",
+          "gold": "//= require snapsvg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n"
+        },
+        {
+          "i": 4,
+          "objective": "Add \"primary\" style for buttons, etc",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.688
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "export default [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n",
+          "gold_preview": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n",
+          "pred": "export default [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n",
+          "gold": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n"
+        },
+        {
+          "i": 5,
+          "objective": "Resolve test modules as local modules.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.429
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import events from './test.events';\nimport emitter from './test.events.emitter';\n\nexport default {};\n",
+          "gold_preview": "define(['./test.events',\n        './test.events.emitter'],\nfunction() {\n  return {}\n});\n",
+          "pred": "import events from './test.events';\nimport emitter from './test.events.emitter';\n\nexport default {};\n",
+          "gold": "define(['./test.events',\n        './test.events.emitter'],\nfunction() {\n  return {}\n});\n"
+        },
+        {
+          "i": 6,
+          "objective": "Replace == with ===",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "gold_preview": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "pred": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "gold": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n"
+        },
+        {
+          "i": 7,
+          "objective": "Send coverage in node 4 only",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.63
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  'node-4': 'nyc report --reporter=text-lcov > coverage/coverage.lcov && codeclimate-test-reporter < coverage/coverage.lcov',\n};\n",
+          "gold_preview": "module.exports = {\n  'v4.0.0': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n",
+          "pred": "module.exports = {\n  'node-4': 'nyc report --reporter=text-lcov > coverage/coverage.lcov && codeclimate-test-reporter < coverage/coverage.lcov',\n};\n",
+          "gold": "module.exports = {\n  'v4.0.0': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n"
+        },
+        {
+          "i": 8,
+          "objective": "Allow jsx in .js files",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.621
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  extends: ['airbnb', 'plugin:react/jsx-runtime'],\n  settings: {\n    react: {\n      version: 'detect',\n    },\n  },\n};\n",
+          "gold_preview": "module.exports = {\n  extends: 'airbnb',\n  rules: {\n    'react/jsx-filename-extension': ['error', { extensions: ['.js'] }],\n  },\n};\n",
+          "pred": "module.exports = {\n  extends: ['airbnb', 'plugin:react/jsx-runtime'],\n  settings: {\n    react: {\n      version: 'detect',\n    },\n  },\n};\n",
+          "gold": "module.exports = {\n  extends: 'airbnb',\n  rules: {\n    'react/jsx-filename-extension': ['error', { extensions: ['.js'] }],\n  },\n};\n"
+        },
+        {
+          "i": 9,
+          "objective": "Add Bluebird to window if window is a thing",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.909
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "if (typeof window !== 'undefined') {\n  window.Bluebird = require('./promise.js');\n}\n\nmodule.exports = require('./promise.js');\n",
+          "gold_preview": "const Bluebird = require(\"./promise.js\");\nmodule.exports = Bluebird\n\nif (typeof window !== 'undefined') {\n    window.Bluebird = Bluebird;\n}",
+          "pred": "if (typeof window !== 'undefined') {\n  window.Bluebird = require('./promise.js');\n}\n\nmodule.exports = require('./promise.js');\n",
+          "gold": "const Bluebird = require(\"./promise.js\");\nmodule.exports = Bluebird\n\nif (typeof window !== 'undefined') {\n    window.Bluebird = Bluebird;\n}"
+        },
+        {
+          "i": 10,
+          "objective": "Add script for project 2",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.5
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import $ from 'jquery';\n\nfunction toggleDiv(projectId) {\n  $(`#${projectId}`).toggle();\n}\n\nexport { toggleDiv };\n",
+          "gold_preview": "function toggleDiv(project1) {\n\n   $(\"#\"+project1).toggle();\n\n}\n\nfunction toggleDiv(project2) {\n\n   $(\"#\"+project2).toggle();\n\n}\n",
+          "pred": "import $ from 'jquery';\n\nfunction toggleDiv(projectId) {\n  $(`#${projectId}`).toggle();\n}\n\nexport { toggleDiv };\n",
+          "gold": "function toggleDiv(project1) {\n\n   $(\"#\"+project1).toggle();\n\n}\n\nfunction toggleDiv(project2) {\n\n   $(\"#\"+project2).toggle();\n\n}\n"
+        },
+        {
+          "i": 11,
+          "objective": "Complete 'Closures' challenge in 'Scopes chains closures' tutorial",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.464
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "const foo = () => {\n  let bar;\n  window.quux = 42; // Assuming global scope is intended\n  const zip = () => {\n    const quux = 42 + 42;\n  };\n};\n",
+          "gold_preview": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42\n    bar = true;\n  }\n\n  return zip;\n}\n",
+          "pred": "const foo = () => {\n  let bar;\n  window.quux = 42; // Assuming global scope is intended\n  const zip = () => {\n    const quux = 42 + 42;\n  };\n};\n",
+          "gold": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42\n    bar = true;\n  }\n\n  return zip;\n}\n"
+        },
+        {
+          "i": 12,
+          "objective": "Put export back to previous pattern.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.773
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import app from '../app';\n\nfunction polyT(...args) {\n  return app.polyglot.t(...args);\n}\n\nmodule.exports = {\n  polyT,\n};\n",
+          "gold_preview": "import app from '../app';\n\nexport function polyT(...args) {\n  return app.polyglot.t(args);\n}\n\n",
+          "pred": "import app from '../app';\n\nfunction polyT(...args) {\n  return app.polyglot.t(...args);\n}\n\nmodule.exports = {\n  polyT,\n};\n",
+          "gold": "import app from '../app';\n\nexport function polyT(...args) {\n  return app.polyglot.t(args);\n}\n\n"
+        },
+        {
+          "i": 13,
+          "objective": "Increase typing speed when filling out forms x2",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.364
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// eslint-disable-next-line import/no-extraneous-dependencies\nimport '@cypress/code-coverage/support';\nimport './commands';\n\n// Increase typing speed when filling out forms x2\nCypress.Commands.overwri",
+          "gold_preview": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\n\nCypress.Keyboard.defaults({\n  keystrokeDelay: 5,\n})\n",
+          "pred": "// eslint-disable-next-line import/no-extraneous-dependencies\nimport '@cypress/code-coverage/support';\nimport './commands';\n\n// Increase typing speed when filling out forms x2\nCypress.Commands.overwrite('type', (originalFn, subject, text, options) => {\n  options = { ...options, delay: (options?.delay || 0) / 2 };\n  return originalFn(subject, text, options);\n});\n",
+          "gold": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\n\nCypress.Keyboard.defaults({\n  keystrokeDelay: 5,\n})\n"
+        },
+        {
+          "i": 14,
+          "objective": "Add math & clean up.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.773
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "const { Unit } = require('./unit');\nconst { Lexer } = require('./lexer');\n\nmodule.exports = {\n  Unit,\n  Lexer,\n};\n",
+          "gold_preview": "module.exports = {\n  // Objects\n  'Unit': require('./unit'),\n  'Lexer': require('./lexer'),\n\n  // Methods\n  'math': require('./math'),\n};\n",
+          "pred": "const { Unit } = require('./unit');\nconst { Lexer } = require('./lexer');\n\nmodule.exports = {\n  Unit,\n  Lexer,\n};\n",
+          "gold": "module.exports = {\n  // Objects\n  'Unit': require('./unit'),\n  'Lexer': require('./lexer'),\n\n  // Methods\n  'math': require('./math'),\n};\n"
+        },
+        {
+          "i": 15,
+          "objective": "Increase hook timeout to 3 min",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.893
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n  hookTimeout: 180000 // 3 minutes in milliseconds\n};\n",
+          "gold_preview": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n\n  hookTimeout: 180000\n\n};\n",
+          "pred": "module.exports = {\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n  hookTimeout: 180000 // 3 minutes in milliseconds\n};\n",
+          "gold": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n\n  hookTimeout: 180000\n\n};\n"
+        },
+        {
+          "i": 16,
+          "objective": "Deploy to GitHub pages",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 0.387
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import BackgroundPlus from './backgrounds-plus.jpg';\n\nexport default {\n    BackgroundPlus,\n};\n",
+          "gold_preview": "import React from \"react\";\nimport Image from \"../../../components/Image\"\nexport const BackgroundsPlus = p => <Image {...p} src={require(\"./backgrounds-plus.jpg\")} />",
+          "pred": "import BackgroundPlus from './backgrounds-plus.jpg';\n\nexport default {\n    BackgroundPlus,\n};\n",
+          "gold": "import React from \"react\";\nimport Image from \"../../../components/Image\"\nexport const BackgroundsPlus = p => <Image {...p} src={require(\"./backgrounds-plus.jpg\")} />"
+        },
+        {
+          "i": 17,
+          "objective": "Bring back tests with styles",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.8
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')({\n      stage: 0,\n      preserve: false\n    })\n  ]\n};\n",
+          "gold_preview": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')\n  ]\n}\n",
+          "pred": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')({\n      stage: 0,\n      preserve: false\n    })\n  ]\n};\n",
+          "gold": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')\n  ]\n}\n"
+        },
+        {
+          "i": 18,
+          "objective": "Make readJson return the read file",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.677
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import fs from 'fs/promises';\n\nexport async function readJson(fileName) {\n  const data = await fs.readFile(fileName, 'utf-8');\n  return JSON.parse(data);\n}\n",
+          "gold_preview": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n",
+          "pred": "import fs from 'fs/promises';\n\nexport async function readJson(fileName) {\n  const data = await fs.readFile(fileName, 'utf-8');\n  return JSON.parse(data);\n}\n",
+          "gold": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n"
+        },
+        {
+          "i": 19,
+          "objective": "Use more human-friendly hour strings",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.371
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "const hours = Array.from({ length: 24 }, (_, index) => index);\n\nexport default hours;\n",
+          "gold_preview": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  if (i < 10) {\n    hours.push(`0${i}`);\n  } else {\n    hours.push(`${i}`);\n  }\n}\n\nexport default hours;\n",
+          "pred": "const hours = Array.from({ length: 24 }, (_, index) => index);\n\nexport default hours;\n",
+          "gold": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  if (i < 10) {\n    hours.push(`0${i}`);\n  } else {\n    hours.push(`${i}`);\n  }\n}\n\nexport default hours;\n"
+        },
+        {
+          "i": 20,
+          "objective": "Create merge conflict in master branch",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.531
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// ./src/hello-world.js\n\nimport { success } from 'gulp-messenger';\n\nsuccess('Hello World!');\n",
+          "gold_preview": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\nconsole.log('This is added in master branch')",
+          "pred": "// ./src/hello-world.js\n\nimport { success } from 'gulp-messenger';\n\nsuccess('Hello World!');\n",
+          "gold": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\nconsole.log('This is added in master branch')"
+        },
+        {
+          "i": 21,
+          "objective": "Remove RSA password from repo.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.629
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n\talgorithm: 'aes-256-ctr',\n\tpassword: process.env.ENCRYPTION_PASSWORD || 'defaultPassword', // Use environment variable or a default placeholder\n\tfilename: '.data.db'\n};\n",
+          "gold_preview": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: process.env.NEON_SECURE_PASSWORD,\n\tfilename \t: '.data.db'\n}\n\n\n",
+          "pred": "module.exports = {\n\talgorithm: 'aes-256-ctr',\n\tpassword: process.env.ENCRYPTION_PASSWORD || 'defaultPassword', // Use environment variable or a default placeholder\n\tfilename: '.data.db'\n};\n",
+          "gold": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: process.env.NEON_SECURE_PASSWORD,\n\tfilename \t: '.data.db'\n}\n\n\n"
+        },
+        {
+          "i": 22,
+          "objective": "Add session time to initial state",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.476
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "export default {\n    root: {\n        isAuthenticated: false,\n        isAuthenticationInProgress: false,\n        sessionTime: null // Added session time to initial state\n    }\n}\n",
+          "gold_preview": "export default {\n    root: {\n        currentSessionTime: 0,\n        isAuthenticated: false,\n        isAuthenticationInProgress: false\n    }\n}",
+          "pred": "export default {\n    root: {\n        isAuthenticated: false,\n        isAuthenticationInProgress: false,\n        sessionTime: null // Added session time to initial state\n    }\n}\n",
+          "gold": "export default {\n    root: {\n        currentSessionTime: 0,\n        isAuthenticated: false,\n        isAuthenticationInProgress: false\n    }\n}"
+        },
+        {
+          "i": 23,
+          "objective": "Add helper for converting dashed words to lower camel case",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.359
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import { capitalize } from 'lodash';\n\nexport default function dashesToCamelCase(str) {\n    return str.split('-').map((word, index) => \n        index === 0 ? word.toLowerCase() : capitalize(word)\n    )",
+          "gold_preview": "export default function dashesToCamelCase(str) {\n    return str.replace(/-([a-z])/g, function (g) {\n        return g[1].toUpperCase();\n    });\n};",
+          "pred": "import { capitalize } from 'lodash';\n\nexport default function dashesToCamelCase(str) {\n    return str.split('-').map((word, index) => \n        index === 0 ? word.toLowerCase() : capitalize(word)\n    ).join('');\n};\n",
+          "gold": "export default function dashesToCamelCase(str) {\n    return str.replace(/-([a-z])/g, function (g) {\n        return g[1].toUpperCase();\n    });\n};"
+        },
+        {
+          "i": 24,
+          "objective": "Disable the no-unused-vars and no-undef rules",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.923
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 'off',\n    'no-undef': 'off'\n  }\n};\n",
+          "gold_preview": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 0,\n    'no-undef': 0\n  }\n};\n",
+          "pred": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 'off',\n    'no-undef': 'off'\n  }\n};\n",
+          "gold": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 0,\n    'no-undef': 0\n  }\n};\n"
+        }
+      ]
+    }
+  }
+}

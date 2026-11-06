@@ -1,0 +1,1 @@
+{"pass": true, "adapter": {"n": 24, "soft_exact": 1, "parses": 23, "mean_symbol_jaccard": 0.8333333333333334, "mean_token_overlap": 0.7221666666666667}, "base": {"n": 24, "soft_exact": 1, "parses": 24, "mean_symbol_jaccard": 0.9305416666666666, "mean_token_overlap": 0.665625}, "checks": {"soft_exact>=base": true, "parses>=base-1": true}}

@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-04 (Phases **0–10 complete** on `main`; corpus **24 640**; next = Phases **12–14** LoRA).  
+> Last updated: 2026-11-05 (Phases **0–11 complete**; **now = Phase 12** local tuning v3; phases renumbered in execution order — [map](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai  
 > Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
 > **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
@@ -12,8 +12,10 @@
 
 **Phases 0–10 are complete on `main`.** All eight adapters live; corpus **24 640** (≥15K); fixture eval **8/8**; quality CLI (`report`, `eval --suite fixtures`, `data/runs/`) shipped.
 
-**Next:** [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) — train **per-language LoRA** (Phases 12–14).  
-**Do not start Phase 11** (`v1.0.0`) until those waves finish or are explicitly skipped.
+**Phase 11 complete (2026-11-05):** recipe-v2 4-bit QLoRA @512 adapters for all 8 languages; all pass their gate vs base 7B and beat/tie Ollama 14B on held-out soft-exact — [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md).  
+**In progress — Phase 12:** [PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) (expanded corpus, frozen 100-row eval sets, recipe experiments, v3 wave). GPU queue only runs when the user says go.  
+**Phase 13 complete (2026-11-05):** MLflow tracking + registry + YAML recipes ([PHASE_13](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md)).  
+**Then:** Phase 14 (MLOps repro + infra) → 15 (cloud 14B, waits on AWS quota) → 16 (model CI/CD) → 17 (cross-language) → 18 (monitoring) → 19 (v1.0 launch).
 
 ---
 
@@ -189,16 +191,22 @@ rebirth doctor
 | 2 RAG + Classifier | [PHASE_2_RAG_CLASSIFIER.md](phases/PHASE_2_RAG_CLASSIFIER.md) | **Complete** | SQLite RAG + classifier acc 0.947; CLI index/query/classify |
 | 3 LoRA + Inference | [PHASE_3_LORA_INFERENCE.md](phases/PHASE_3_LORA_INFERENCE.md) | **Complete** | Ollama + PEFT path; dataset mined; 0.5B + **7B** adapters |
 | 4 LangGraph | [PHASE_4_LANGGRAPH.md](phases/PHASE_4_LANGGRAPH.md) | **Complete** | Single-file fail→classify→rewrite→pass (1 iter E2E) |
-| Data (interlude) | [DATASET.md](DATASET.md) | **Complete (corpus)** | **24640** multi-lang; JS/TS 7B LoRA proof; more LoRAs in 12–14 |
+| Data (interlude) | [DATASET.md](DATASET.md) | **Complete (corpus)** | **24640** multi-lang; JS/TS 7B LoRA proof; v2 LoRA per language in Phase 11 |
 | 5 Repo scale | [PHASE_5_REPO_SCALE.md](phases/PHASE_5_REPO_SCALE.md) | **Complete** | `migrate-repo` + GitHub PR #1 (multi-file E2E) |
 | 6 Repo hardening | [PHASE_6_REPO_HARDENING.md](phases/PHASE_6_REPO_HARDENING.md) | **Complete (100%)** | Topo, dry-run, VRAM/PEFT doctor, test matrix, gitignore `!` |
 | 7 Real-world JS | [PHASE_7_REAL_WORLD_JS.md](phases/PHASE_7_REAL_WORLD_JS.md) | **Complete (100%)** | Full golden matrix + Express install path + held-out 12/12 |
 | 8 Adapter factory + Python | [PHASE_8_PYTHON.md](phases/PHASE_8_PYTHON.md) | **Complete** | Registry + pytest sandbox; Python vertical + mine |
 | 9 Full language wave | [PHASE_9_MULTI_LANG_QUALITY.md](phases/PHASE_9_MULTI_LANG_QUALITY.md) | **Complete** | Go/Java/C#/Rust/**C++/Swift** adapters + fixtures + mines |
 | 10 Quality + 15K | [PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | **Complete** | Fixtures **8/8**; report+runs; corpus **24640** |
-| **12–14 Per-lang LoRA** | [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) | **Next** | Harness + Python → wave A → C++/Swift + PEFT routing |
-| 11 Official launch | [PHASE_11_LAUNCH.md](phases/PHASE_11_LAUNCH.md) | **Deferred** | Bootstrap + docs + **v1.0.0** (after 12–14) |
-| Optional C | [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md) §C | Optional | Cloud 14B QLoRA (browser billing; not required) |
+| 11 Per-lang LoRA | [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md) | **Complete** (2026-11-05) | Harness + v2 7B adapters for all 8 languages, gated vs base 7B |
+| **12 Local tuning v3** | [PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) | **In progress** | Frozen eval sets; recipe decided; v3 wave; GGUF→Ollama adapter test |
+| 13 MLOps 1 — tracking + registry | [PHASE_13_MLOPS_TRACKING_REGISTRY.md](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md) | **Complete** (2026-11-05) | MLflow runs + registry (8 champions) + YAML recipes; `rebirth track/registry/mlflow-ui` |
+| 14 MLOps 2 — repro + infra | [PHASE_14_MLOPS_REPRO_INFRA.md](phases/PHASE_14_MLOPS_REPRO_INFRA.md) | Planned | DVC + S3; Docker CUDA image; Terraform; cloud scripts; vLLM eval |
+| 15 Cloud 14B adapters | [PHASE_15_CLOUD_14B.md](phases/PHASE_15_CLOUD_14B.md) | Planned (AWS quota) | 14B per-lang adapters + DPO on g6e.xlarge — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
+| 16 MLOps 3 — CI/CD + packaging | [PHASE_16_MLOPS_CICD_PACKAGING.md](phases/PHASE_16_MLOPS_CICD_PACKAGING.md) | Planned | CI gates, champion/challenger, model cards, Ollama adapters, rollback |
+| 17 Cross-language | [PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md) | Planned | `--to <lang>`, equivalence harness, unified adapter |
+| 18 MLOps 4 — monitoring | [PHASE_18_MLOPS_MONITORING.md](phases/PHASE_18_MLOPS_MONITORING.md) | Planned | Run telemetry dashboard, drift, data flywheel |
+| 19 Official launch | [PHASE_19_LAUNCH.md](phases/PHASE_19_LAUNCH.md) | Planned (last) | Bootstrap + docs + **v1.0.0** |
 
 ---
 
@@ -238,7 +246,11 @@ rebirth doctor
 | 2026-11-03 | Phase 8 complete | Registry + PythonAdapter + sandbox; migrate 1 iter; **1503** Python pairs |
 | 2026-11-03 | Phase 9 complete | Folded C++/Swift into wave; **8** adapters live; corpus ≈**3244** |
 | 2026-11-04 | Phase 10 complete | `eval --suite fixtures` 8/8; `report` + `data/runs/`; corpus **24640** |
-| 2026-11-04 | LoRA before launch | Insert Phases **12–14** (per-lang LoRA); **defer Phase 11** until done |
+| 2026-11-04 | LoRA before launch | Insert Phase **11** (per-lang LoRA); **defer Phase 19** until done |
+| 2026-11-04 | Phase 11.1 harness | `train_lora.py --lang`; hash splits (5%, seed 1337) in `data/datasets/splits/`; `rebirth_meta.json`; PEFT routes by `adapter_id`, Ollama fallback when a lang has no adapter |
+| 2026-11-04 | 4-bit QLoRA validated | bitsandbytes ROCm: NF4 train OK @512 (8.75 GB); NF4 cached generate broken → train 4-bit, infer bf16; recipe v2 |
+| 2026-11-04 | Go seq-256 test | GPU reset at step 1 (memory pressure, not thermal); base-7B ablation shows seq-128 LoRA adds nothing → fix recipe / free VRAM before more trains |
+| 2026-11-04 | Python 7B LoRA | 624 steps, loss 1.121; fixture PEFT PASS 1 iter; held-out soft-exact 4/24 vs Ollama 8/24 → experimental; decode leak fix (fence + `<|…|>` tokens) |
 
 ---
 
@@ -259,7 +271,9 @@ After **each** phase completes:
 
 - Docker socket may be invisible inside restricted sandboxes — run Docker-dependent work with full host permissions.  
 - **Display on RX 7800 XT:** long/heavier PyTorch LoRA can **GPU Hang** the session (seen on 2-epoch r=16). Prefer short 1-epoch seq≤128 or cloud CUDA.  
-- Seq **512** bf16 7B **OOMs** on 16GB with compositor; seq **128** is the proven budget.  
+- Seq **512** bf16 7B **OOMs** on 16GB with compositor; seq **256 → MES timeout + GPU MODE1 reset at step 1** (2026-11-04, `logs/train/go_seq256_*`); seq **128** is the only proven budget — and it truncates the target on most rows (PHASE_11).  
+- bf16 7B is capped at 128; use `--quant 4bit` for 512 (inference stays bf16 — ROCm NF4 cached decode is broken).  
+- Train only via `scripts/train_logged.sh` (fsync'd step + GPU telemetry logs); after a hang run `scripts/gpu_hang_postmortem.sh`.  
 - Nested repo under parent `Personal Project` git tree: always operate git from `Rebirth AI/` with its own `.git`.  
 - Bind-mount + container writes can change host ownership — sandbox uses temp copies (Phase 1).  
 - Agent default is still **stock Ollama 14B** — 7B LoRA is PEFT-in-process only (not merged into Ollama).  
@@ -267,14 +281,17 @@ After **each** phase completes:
 
 ## 11. Next steps (production path — local-first)
 
-Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** · LoRA plan: **[PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md)**.
+Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** · LoRA plan: **[PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md)**.
 
 | Now | Do this |
 |-----|---------|
-| **1** | **Phase 12** — train harness + Python LoRA (+ optional JS/TS refresh on ~9K) |
-| **2** | **Phase 13** — Go / Java / C# / Rust LoRAs |
-| **3** | **Phase 14** — C++ / Swift LoRAs + PEFT language routing + eval |
-| **4** | **Phase 11** — bootstrap + docs + **v1.0.0** (deferred until 12–14) |
-| Optional | Cloud 14B QLoRA — card in HF **browser** billing; per-lang if local 7B insufficient |
+| **Now** | **Phase 12** — local tuning v3 (v3 wave when the user says go; GGUF→Ollama adapter test) |
+| ✅ | **Phase 13** — MLOps 1: MLflow tracking + model registry + YAML recipes (done 2026-11-05) |
+| **3** | **Phase 14** — MLOps 2: DVC + S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval |
+| **4** | **Phase 15** — cloud 14B per-language adapters + DPO (when the AWS quota is approved) — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
+| **5** | **Phase 16** — MLOps 3: model CI/CD + Ollama packaging + rollback |
+| **6** | **Phase 17** — cross-language migration (any → any of 8) + unified adapter |
+| **7** | **Phase 18** — MLOps 4: monitoring + data flywheel |
+| **8** | **Phase 19** — bootstrap + docs + **v1.0.0** |
 
-Cloud GPU is **optional**. Product verticals (adapters/sandboxes) already ship on Ollama 14B; Phases 12–14 add **specialized** PEFT adapters.
+End product: one offline tool — modernize in-language **and** migrate between any of the 8 languages ([CLOUD_GPU_PLAN.md §7](CLOUD_GPU_PLAN.md#7-the-final-product)).

@@ -1,0 +1,81 @@
+{
+  "n": 8,
+  "exact_match": 5,
+  "exact_rate": 0.625,
+  "mean_token_overlap": 0.958041958041958,
+  "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+  "results": [
+    {
+      "i": 1,
+      "objective": "Arrow callback",
+      "exact": false,
+      "overlap": 1.0,
+      "legacy_chars": 44,
+      "pred_preview": "[1,2,3].map((n) => n + 1);\n",
+      "gold_preview": "[1, 2, 3].map((n) => n + 1);\n"
+    },
+    {
+      "i": 2,
+      "objective": "Prefer Number.isNaN",
+      "exact": false,
+      "overlap": 0.846,
+      "legacy_chars": 39,
+      "pred_preview": "function good(n) {\n  return Number.isNaN(n);\n}\n",
+      "gold_preview": "function bad(n) {\n  return Number.isNaN(n);\n}\n"
+    },
+    {
+      "i": 3,
+      "objective": "Shorthand properties",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 49,
+      "pred_preview": "function pair(a, b) {\n  return { a, b };\n}\n",
+      "gold_preview": "function pair(a, b) {\n  return { a, b };\n}\n"
+    },
+    {
+      "i": 4,
+      "objective": "Replace substr with slice",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 48,
+      "pred_preview": "function first3(s) {\n  return s.slice(0, 3);\n}\n",
+      "gold_preview": "function first3(s) {\n  return s.slice(0, 3);\n}\n"
+    },
+    {
+      "i": 5,
+      "objective": "Boolean cast cleanup",
+      "exact": false,
+      "overlap": 0.818,
+      "legacy_chars": 52,
+      "pred_preview": "function on(flag) {\n  return !!flag;\n}\n",
+      "gold_preview": "function on(flag) {\n  return Boolean(flag);\n}\n"
+    },
+    {
+      "i": 6,
+      "objective": "var to const sample 0",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 48,
+      "pred_preview": "function f0(x) {\n  const y = x + 0;\n  return y;\n}\n",
+      "gold_preview": "function f0(x) {\n  const y = x + 0;\n  return y;\n}\n"
+    },
+    {
+      "i": 7,
+      "objective": "var to const sample 1",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 48,
+      "pred_preview": "function f1(x) {\n  const y = x + 1;\n  return y;\n}\n",
+      "gold_preview": "function f1(x) {\n  const y = x + 1;\n  return y;\n}\n"
+    },
+    {
+      "i": 8,
+      "objective": "var to const sample 2",
+      "exact": true,
+      "overlap": 1.0,
+      "legacy_chars": 48,
+      "pred_preview": "function f2(x) {\n  const y = x + 2;\n  return y;\n}\n",
+      "gold_preview": "function f2(x) {\n  const y = x + 2;\n  return y;\n}\n"
+    }
+  ]
+}

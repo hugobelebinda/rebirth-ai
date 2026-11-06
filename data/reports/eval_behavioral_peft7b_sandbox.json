@@ -1,0 +1,45 @@
+{
+  "backend": "peft",
+  "suites": {
+    "sandbox": {
+      "suite": "sandbox",
+      "backend": "peft",
+      "n": 2,
+      "sandbox_pass": 2,
+      "sandbox_pass_rate": 1.0,
+      "seed_fails_baseline": 2,
+      "results": [
+        {
+          "id": "math_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.606
+          },
+          "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+          "pred_chars": 692,
+          "pred_preview": "/**\n * Intentionally broken draft for Phase 4 closed-loop demo.\n * Tests expect multiply(a,b) === a*b; this returns a+b instead.\n */\n\nimport { formatResult } from './format.js';\n\nexport function add(a, b) {\n  return a + b;\n}\n\nexport functio"
+        },
+        {
+          "id": "format_broken",
+          "sandbox_pass": true,
+          "seed_fails_as_expected": true,
+          "test_exit": 0,
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.55
+          },
+          "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+          "pred_chars": 208,
+          "pred_preview": "/** Corrected separator for Phase 5 multi-file demo. */\n\nexport function formatResult(label, value) {\n  return label + '=' + String(value);\n}\n\nexport function formatList(items) {\n  return items.join(', ');\n}\n"
+        }
+      ]
+    }
+  }
+}

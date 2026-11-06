@@ -37,10 +37,12 @@ def test_clean_keeps_legitimate_exports() -> None:
 
 
 def test_sft_token_cap_bounds_short_idioms() -> None:
-    assert _sft_max_new_tokens("var x = 1;", 512) <= 256
-    assert _sft_max_new_tokens("var x = 1;", 512) >= 64
+    # Short legacy still gets room for additive rewrites (was 64 → truncation).
+    assert _sft_max_new_tokens("var x = 1;", 512) == 256
+    assert _sft_max_new_tokens("var x = 1;", 100) == 100
     long = "x" * 2000
-    assert _sft_max_new_tokens(long, 1024) == 256
+    assert _sft_max_new_tokens(long, 1024) == 512
+    assert _sft_max_new_tokens(long, 300) == 300
 
 
 def test_chat_token_cap_scales_with_file_size() -> None:
@@ -49,3 +51,21 @@ def test_chat_token_cap_scales_with_file_size() -> None:
     assert _chat_max_new_tokens(short, 1024) >= 256
     assert _chat_max_new_tokens(long, 4096) > _chat_max_new_tokens(short, 4096)
     assert _chat_max_new_tokens(long, 4096) <= 4096
+
+
+def test_clean_strips_trailing_closing_fence() -> None:
+    raw = '# header\n__version__ = "1.26.0.dev0"\n```\n'
+    assert _clean_sft_completion(raw) == '# header\n__version__ = "1.26.0.dev0"\n'
+
+
+def test_clean_cuts_leaked_pretraining_tokens() -> None:
+    raw = "major = 0\npatch = 18\n<|repo_name|>python']\n```\n"
+    assert _clean_sft_completion(raw) == "major = 0\npatch = 18\n"
+    raw2 = "x = 1\n<|file_sep|>other.py\ny = 2\n"
+    assert _clean_sft_completion(raw2) == "x = 1\n"
+
+
+def test_clean_keeps_fenced_block_and_inline_backticks() -> None:
+    assert _clean_sft_completion("```python\nx = 1\n```\n") == "x = 1\n"
+    raw = 'doc = "use ``` for code"\n'
+    assert _clean_sft_completion(raw) == raw

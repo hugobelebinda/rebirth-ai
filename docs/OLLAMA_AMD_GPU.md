@@ -1,8 +1,8 @@
 # Ollama on AMD RX 7800 XT (ROCm / Vulkan)
 
 Last verified: 2026-10-31 (Ollama ROCm inference).  
-Docs refresh: 2026-11-04 — Phases **0–10 complete**; next = Phases **12–14** per-lang LoRA ([PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md); [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
-Doctor warns if Ollama is resident when PEFT would stack VRAM. **Unload Ollama before any Phase 12–14 GPU train.**
+Docs refresh: 2026-11-04 — Phases **0–10 complete**; next = Phase **11** per-lang LoRA ([PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md); [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).  
+Doctor warns if Ollama is resident when PEFT would stack VRAM. **Unload Ollama before any GPU train.**
 
 ## Hardware
 
@@ -103,5 +103,7 @@ Caveats when display is on the dGPU:
 
 - Longer / heavier trains (e.g. 2-epoch, `lora_r=16`) can **GPU Hang** and abort the session.
 - Do not confuse Ollama’s ROCm stack with PyTorch HIP — verify train stack via `bash scripts/verify_rocm_torch.sh`.
+- **Seq 256 bf16 7B → GPU reset** (2026-11-04): `MES failed to respond to msg=REMOVE_QUEUE` → MODE1 reset at step 1, VRAM 15.6/16 GB + 2 GB GTT spill, 55 °C. Reset recovered without reboot but killed all GPU clients. Moving the display to the iGPU is the cheapest way to gain headroom.
+- Log every train with `bash scripts/train_logged.sh <lang> <len>`; postmortem: `bash scripts/gpu_hang_postmortem.sh <run dir>` (needs `sudo` within ~5 min to grab the devcoredump).
 - Full PEFT / dataset notes: `docs/DATASET.md`.
 

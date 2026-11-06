@@ -3,7 +3,7 @@
 > Status: **COMPLETE**  
 > Depends on: Phase 1 (AST chunks feed the indexer)  
 > Completed: 2026-10-31 · Docs refresh: 2026-11-04 (classifier ~105 logs / ≥0.90 acc)  
-> Project now: Phases **0–10 complete** on `main`; next = Phases **12–14** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
+> Project now: Phases **0–10 complete** on `main`; next = Phase **11** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

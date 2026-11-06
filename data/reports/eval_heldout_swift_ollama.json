@@ -1,0 +1,380 @@
+{
+  "backend": "ollama",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:swift",
+      "backend": "ollama",
+      "lang": "swift",
+      "n": 24,
+      "soft_exact": 2,
+      "soft_exact_rate": 0.08333333333333333,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.9117916666666667,
+      "mean_token_overlap": 0.7654583333333332,
+      "model": "qwen2.5-coder:14b-instruct-q6_K",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Update SPM package to latest format",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.676
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// swift-tools-version:5.7\nimport PackageDescription\n\nlet package = Package(\n    name: \"slox\",\n    products: [\n        .library(\n            name: \"Slox\",\n            targets: [\"Slox\"]),\n    ],\n    de",
+          "gold_preview": "// swift-tools-version:4.0\nimport PackageDescription\nlet package = Package(\n\tname: \"slox\",\n\ttargets: [\n\t\t.target(\n\t\t\tname: \"slox\",\n\t\t\tpath: \"slox\"\n\t\t)\n\t]\n)\n",
+          "pred": "// swift-tools-version:5.7\nimport PackageDescription\n\nlet package = Package(\n    name: \"slox\",\n    products: [\n        .library(\n            name: \"Slox\",\n            targets: [\"Slox\"]),\n    ],\n    dependencies: [],\n    targets: [\n        .target(\n            name: \"Slox\",\n            dependencies: []),\n        .testTarget(\n            name: \"SloxTests\",\n            dependencies: [\"Slox\"]),\n    ]\n)\n",
+          "gold": "// swift-tools-version:4.0\nimport PackageDescription\nlet package = Package(\n\tname: \"slox\",\n\ttargets: [\n\t\t.target(\n\t\t\tname: \"slox\",\n\t\t\tpath: \"slox\"\n\t\t)\n\t]\n)\n"
+        },
+        {
+          "i": 2,
+          "objective": "Use data phase as enum",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": true,
+          "pred_preview": "import Foundation\n\nenum MVitaPtpDataPhase: UInt32 {\n    case none = 0\n    case send = 1\n    case receive = 2\n}\n",
+          "gold_preview": "import Foundation\n\nenum MVitaPtpDataPhase:UInt32\n{\n    case none = 0\n    case send = 1\n    case receive = 2\n}\n",
+          "pred": "import Foundation\n\nenum MVitaPtpDataPhase: UInt32 {\n    case none = 0\n    case send = 1\n    case receive = 2\n}\n",
+          "gold": "import Foundation\n\nenum MVitaPtpDataPhase:UInt32\n{\n    case none = 0\n    case send = 1\n    case receive = 2\n}\n"
+        },
+        {
+          "i": 3,
+          "objective": "Add protocol responsible for constraint query clauses",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.659
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  Limitable.swift\n//  FireRecord\n//\n//  Created by Victor Alisson on 28/09/17.\n//\n\nimport Foundation\n\nprotocol Limitable {\n    func limit(_ count: Int) -> Self\n}\n",
+          "gold_preview": "//\n//  Limitable.swift\n//  FireRecord\n//\n//  Created by Victor Alisson on 28/09/17.\n//\n\nimport Foundation\n\npublic protocol Limitable {\n    associatedtype FireRecordType\n    \n    static func `where`(va",
+          "pred": "//\n//  Limitable.swift\n//  FireRecord\n//\n//  Created by Victor Alisson on 28/09/17.\n//\n\nimport Foundation\n\nprotocol Limitable {\n    func limit(_ count: Int) -> Self\n}\n",
+          "gold": "//\n//  Limitable.swift\n//  FireRecord\n//\n//  Created by Victor Alisson on 28/09/17.\n//\n\nimport Foundation\n\npublic protocol Limitable {\n    associatedtype FireRecordType\n    \n    static func `where`(value: Any) -> FireRecordType.Type\n}\n"
+        },
+        {
+          "i": 4,
+          "objective": "Add servicerequest and requestpayload wrappers",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.75,
+            "soft_exact": false,
+            "token_overlap": 0.587
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  Request.swift\n//  Pods\n//\n//  Created by Kilian K\u00f6ltzsch on 16/11/2016.\n//\n//\n\nimport Foundation\n\npublic protocol Request {}\n\npublic struct ServiceRequest<T: Codable> {\n    public let payload: ",
+          "gold_preview": "//\n//  Request.swift\n//  Triassic\n//\n//  Created by Kilian K\u00f6ltzsch on 16/11/2016.\n//  Copyright \u00a9 2016 Triassic Park. All rights reserved.\n//\n\nimport Foundation\n\npublic struct ServiceRequest {\n    pu",
+          "pred": "//\n//  Request.swift\n//  Pods\n//\n//  Created by Kilian K\u00f6ltzsch on 16/11/2016.\n//\n//\n\nimport Foundation\n\npublic protocol Request {}\n\npublic struct ServiceRequest<T: Codable> {\n    public let payload: T\n    \n    public init(payload: T) {\n        self.payload = payload\n    }\n}\n\npublic struct RequestPayload<T: Codable>: Codable {\n    public let data: T\n    \n    public init(data: T) {\n        self.data = data\n    }\n}\n",
+          "gold": "//\n//  Request.swift\n//  Triassic\n//\n//  Created by Kilian K\u00f6ltzsch on 16/11/2016.\n//  Copyright \u00a9 2016 Triassic Park. All rights reserved.\n//\n\nimport Foundation\n\npublic struct ServiceRequest {\n    public let payload: RequestPayload\n}\n\npublic struct RequestPayload {\n    public let request: Request\n}\n\npublic protocol Request {}\n"
+        },
+        {
+          "i": 5,
+          "objective": "Add child with identifier method",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.885
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import Foundation\n\nprotocol FDatabaseProtocol {\n    var identifier: String? { get set }\n    var parent: FDatabaseProtocol? { get set }\n    var path: String { get }\n    var json: Any? { get }\n\n    init",
+          "gold_preview": "import Foundation\n\nprotocol FDatabaseProtocol\n{\n    var identifier:String? { get set }\n    var parent:FDatabaseProtocol? { get set }\n    var path:String { get }\n    var json:Any? { get }\n    \n    init",
+          "pred": "import Foundation\n\nprotocol FDatabaseProtocol {\n    var identifier: String? { get set }\n    var parent: FDatabaseProtocol? { get set }\n    var path: String { get }\n    var json: Any? { get }\n\n    init?(json: Any)\n    \n    func addChild(withIdentifier identifier: String) -> FDatabaseProtocol?\n}\n",
+          "gold": "import Foundation\n\nprotocol FDatabaseProtocol\n{\n    var identifier:String? { get set }\n    var parent:FDatabaseProtocol? { get set }\n    var path:String { get }\n    var json:Any? { get }\n    \n    init?(json:Any)\n    \n    func child(identifier:String) -> String\n}\n"
+        },
+        {
+          "i": 6,
+          "objective": "Add manage v1 tests in test suit for Linux",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.793
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#if os(Linux)\n\nimport XCTest\n@testable import AppLogicTests\n\nXCTMain([\n    // AppLogicTests\n    testCase(RouteTests.allTests),\n    testCase(V1PublicCollectionTests.allTests),\n    testCase(V1AdminColle",
+          "gold_preview": "#if os(Linux)\n\nimport XCTest\n@testable import AppLogicTests\n\nXCTMain([\n    // AppLogicTests\n    testCase(RouteTests.allTests),\n    testCase(V1PublicCollectionTests.allTests),\n    testCase(V1ManageColl",
+          "pred": "#if os(Linux)\n\nimport XCTest\n@testable import AppLogicTests\n\nXCTMain([\n    // AppLogicTests\n    testCase(RouteTests.allTests),\n    testCase(V1PublicCollectionTests.allTests),\n    testCase(V1AdminCollectionTests.allTests),\n    // Add new V1 tests here\n])\n\n#endif\n",
+          "gold": "#if os(Linux)\n\nimport XCTest\n@testable import AppLogicTests\n\nXCTMain([\n    // AppLogicTests\n    testCase(RouteTests.allTests),\n    testCase(V1PublicCollectionTests.allTests),\n    testCase(V1ManageCollectionTests.allTests),\n    testCase(V1AdminCollectionTests.allTests)\n])\n\n#endif\n"
+        },
+        {
+          "i": 7,
+          "objective": "Throw error correctly (for real this time)",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.848
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import Vapor\nimport Validation\n\npublic struct JSONValidator: Validator {\n\n    public func validate(_ input: String) throws {\n        do {\n            _ = try JSON(bytes: input.utf8)\n        } catch {\n",
+          "gold_preview": "import Vapor\nimport Validation\n\npublic struct JSONValidator: Validator {\n\n    public func validate(_ input: String) throws {\n        do {\n            _ = try JSON(bytes: input.makeBytes())\n        } c",
+          "pred": "import Vapor\nimport Validation\n\npublic struct JSONValidator: Validator {\n\n    public func validate(_ input: String) throws {\n        do {\n            _ = try JSON(bytes: input.utf8)\n        } catch {\n            throw ValidationError(\"Invalid JSON.\")\n        }\n    }\n}\n",
+          "gold": "import Vapor\nimport Validation\n\npublic struct JSONValidator: Validator {\n\n    public func validate(_ input: String) throws {\n        do {\n            _ = try JSON(bytes: input.makeBytes())\n        } catch {\n            throw self.error(\"Invalid JSON.\")\n        }\n    }\n}\n"
+        },
+        {
+          "i": 8,
+          "objective": "Fix test tool to support new swift syntax",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.9
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#!/usr/bin/swift\n\nimport Foundation\n\nlet userInfo = [\"com.apple.MCX.changedDomains\": [\"com.github.ygini.Hello-IT\"]]\n\nNSDistributedNotificationCenter.default.post(name: NSNotification.Name(\"com.apple.M",
+          "gold_preview": "#!/usr/bin/swift\n\nimport Foundation\n\nlet userInfo = [\"com.apple.MCX.changedDomains\": [\"com.github.ygini.Hello-IT\"]]\n\nDistributedNotificationCenter.default().post(name: Notification.Name(\"com.apple.MCX",
+          "pred": "#!/usr/bin/swift\n\nimport Foundation\n\nlet userInfo = [\"com.apple.MCX.changedDomains\": [\"com.github.ygini.Hello-IT\"]]\n\nNSDistributedNotificationCenter.default.post(name: NSNotification.Name(\"com.apple.MCX._managementStatusChangedForDomains\"), object: \"com.apple.MCX\", userInfo: userInfo)\n\nexit(0)\n",
+          "gold": "#!/usr/bin/swift\n\nimport Foundation\n\nlet userInfo = [\"com.apple.MCX.changedDomains\": [\"com.github.ygini.Hello-IT\"]]\n\nDistributedNotificationCenter.default().post(name: Notification.Name(\"com.apple.MCX._managementStatusChangedForDomains\"), object: \"com.apple.MCX\", userInfo: userInfo) \n\nexit(0)\n"
+        },
+        {
+          "i": 9,
+          "objective": "Add Jay 0.3.0 for Linux",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.628
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import PackageDescription\n\nlet package = Package(\n    name: \"EezehRequests\",\n    dependencies: [\n        .package(url: \"https://github.com/Zewo/HTTPClient.git\", from: \"0.3.0\")\n    ],\n    targets: [\n  ",
+          "gold_preview": "import PackageDescription\n\n#if os(Linux)\n\tlet package = Package(\n\t\tname: \"EezehRequests\",\n\t\tdependencies: [\n\t\t\t.Package(url: \"https://github.com/Zewo/HTTPClient.git\", majorVersion: 0, minor: 3),\n\t\t\t.P",
+          "pred": "import PackageDescription\n\nlet package = Package(\n    name: \"EezehRequests\",\n    dependencies: [\n        .package(url: \"https://github.com/Zewo/HTTPClient.git\", from: \"0.3.0\")\n    ],\n    targets: [\n        .target(\n            name: \"EezehRequests\",\n            dependencies: [\"HTTPClient\"]),\n        .testTarget(\n            name: \"EezehRequestsTests\",\n            dependencies: [\"EezehRequests\"]),\n    ]\n)\n",
+          "gold": "import PackageDescription\n\n#if os(Linux)\n\tlet package = Package(\n\t\tname: \"EezehRequests\",\n\t\tdependencies: [\n\t\t\t.Package(url: \"https://github.com/Zewo/HTTPClient.git\", majorVersion: 0, minor: 3),\n\t\t\t.Package(url: \"https://github.com/czechboy0/Jay.git\", Version(0,3,0))\n\t\t]\n\t)\n#else\n\tlet package = Package(\n\t\tname: \"EezehRequests\"\n\t)\n#endif"
+        },
+        {
+          "i": 10,
+          "objective": "Apply patch provided by gribozavr; swift -target requires a proper triple.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.936
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// RUN: %swift -parse %s -verify -D FOO -D BAR -target x86_64-freebsd10.0 -disable-objc-interop -D FOO -parse-stdlib\n// RUN: %swift-ide-test -test-input-complete -source-filename=%s -target x86_64-fre",
+          "gold_preview": "// RUN: %swift -parse %s -verify -D FOO -D BAR -target x86_64-unknown-freebsd10 -disable-objc-interop -D FOO -parse-stdlib\n// RUN: %swift-ide-test -test-input-complete -source-filename=%s -target x86_",
+          "pred": "// RUN: %swift -parse %s -verify -D FOO -D BAR -target x86_64-freebsd10.0 -disable-objc-interop -D FOO -parse-stdlib\n// RUN: %swift-ide-test -test-input-complete -source-filename=%s -target x86_64-freebsd10.0\n\n#if arch(x86_64) && os(FreeBSD) && _runtime(_Native)\nclass C {}\nvar x = C()\n#endif\nvar y = x\n",
+          "gold": "// RUN: %swift -parse %s -verify -D FOO -D BAR -target x86_64-unknown-freebsd10 -disable-objc-interop -D FOO -parse-stdlib\n// RUN: %swift-ide-test -test-input-complete -source-filename=%s -target x86_64-unknown-freebsd10\n\n#if arch(x86_64) && os(FreeBSD) && _runtime(_Native)\nclass C {}\nvar x = C()\n#endif\nvar y = x\n"
+        },
+        {
+          "i": 11,
+          "objective": "Exclude a test for tvOS",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.698
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import XCTest\nimport SwiftUI\n@testable import ViewInspector\n\nfinal class TreeViewTests: XCTestCase {\n    \n    func testEnclosedView() throws {\n        guard !ProcessInfo.processInfo.isOperatingSystemA",
+          "gold_preview": "import XCTest\nimport SwiftUI\n@testable import ViewInspector\n\nfinal class TreeViewTests: XCTestCase {\n    \n    #if !os(tvOS)\n    func testEnclosedView() throws {\n        let sut = Text(\"Test\").contextM",
+          "pred": "import XCTest\nimport SwiftUI\n@testable import ViewInspector\n\nfinal class TreeViewTests: XCTestCase {\n    \n    func testEnclosedView() throws {\n        guard !ProcessInfo.processInfo.isOperatingSystemAtLeast(macOSVersion: .tvOS) else {\n            return // Skip this test for tvOS\n        }\n        \n        let sut = Text(\"Test\").contextMenu(ContextMenu(menuItems: { Text(\"Menu\") }))\n        let text = try sut.inspect().text().string()\n        XCTAssertEqual(text, \"Test\")\n    }\n}\n",
+          "gold": "import XCTest\nimport SwiftUI\n@testable import ViewInspector\n\nfinal class TreeViewTests: XCTestCase {\n    \n    #if !os(tvOS)\n    func testEnclosedView() throws {\n        let sut = Text(\"Test\").contextMenu(ContextMenu(menuItems: { Text(\"Menu\") }))\n        let text = try sut.inspect().text().string()\n        XCTAssertEqual(text, \"Test\")\n    }\n    #endif\n}\n"
+        },
+        {
+          "i": 12,
+          "objective": "Add Array transform: mutating versions of map",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.362
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "extension Array {\n    /// Mutating version of `map` that transforms each element in the array.\n    mutating func transform(_ transform: (Element) -> Element) {\n        for i in indices {\n            s",
+          "gold_preview": "extension String: Error {\n  public func print(terminator: String = \"\") {\n    Swift.print(self, terminator: terminator)\n  }\n}\n\nextension Array {\n  public mutating func transform(by transforming: (Eleme",
+          "pred": "extension Array {\n    /// Mutating version of `map` that transforms each element in the array.\n    mutating func transform(_ transform: (Element) -> Element) {\n        for i in indices {\n            self[i] = transform(self[i])\n        }\n    }\n}\n",
+          "gold": "extension String: Error {\n  public func print(terminator: String = \"\") {\n    Swift.print(self, terminator: terminator)\n  }\n}\n\nextension Array {\n  public mutating func transform(by transforming: (Element) throws -> Element) rethrows {\n    for index in 0..<count {\n      self[index] = try transforming(self[index])\n    }\n  }\n\n  public mutating func transform<S: Sequence>(at indices: S, by transforming: (Element) throws -> Element) rethrows\n  where Index == S.Iterator.Element {\n    for index in indices {\n      self[index] = try transforming(self[index])\n    }\n  }\n}\n"
+        },
+        {
+          "i": 13,
+          "objective": "Add username to example project config",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.83
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  Config.swift\n//  GitYourFeedack\n//\n//  Created by Gabe Kangas on 9/12/16.\n//  Copyright \u00a9 2016 CocoaPods. All rights reserved.\n//\n\nimport Foundation\n\nstruct Config {\n    static let githubApiTok",
+          "gold_preview": "//\n//  Config.swift\n//  GitYourFeedack\n//\n//  Created by Gabe Kangas on 9/12/16.\n//  Copyright \u00a9 2016 CocoaPods. All rights reserved.\n//\n\nimport Foundation\n\nstruct Config {\n    static let githubApiTok",
+          "pred": "//\n//  Config.swift\n//  GitYourFeedack\n//\n//  Created by Gabe Kangas on 9/12/16.\n//  Copyright \u00a9 2016 CocoaPods. All rights reserved.\n//\n\nimport Foundation\n\nstruct Config {\n    static let githubApiToken = \"abc123\"\n    static let githubRepo = \"yourusername/yourRepoName\"\n    static let googleStorageBucket = \"yourbucket.appspot.com\"\n    static let username = \"yourUsername\" // Added username to the config\n}\n",
+          "gold": "//\n//  Config.swift\n//  GitYourFeedack\n//\n//  Created by Gabe Kangas on 9/12/16.\n//  Copyright \u00a9 2016 CocoaPods. All rights reserved.\n//\n\nimport Foundation\n\nstruct Config {\n    static let githubApiToken = \"abc123\"\n    static let githubRepo = \"yourusername/yourRepoName\"\n    static let githubUser = \"repoman\"\n    static let googleStorageBucket = \"yourbucket.appspot.com\"\n}\n"
+        },
+        {
+          "i": 14,
+          "objective": "Trim whitespace from words always.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.333,
+            "soft_exact": false,
+            "token_overlap": 0.898
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  Word.swift\n//  Words\n//\n//  Created by Will Hains on 2016-06-05.\n//  Copyright \u00a9 2016 Will Hains. All rights reserved.\n//\n\nimport Foundation\n\n// MARK:- Model\n\n/// Represents a saved word.\nstruc",
+          "gold_preview": "//\n//  WordList.swift\n//  Words\n//\n//  Created by Will Hains on 2016-06-05.\n//  Copyright \u00a9 2016 Will Hains. All rights reserved.\n//\n\nimport UIKit\n\n// MARK:- Model\n\n/// Represents a saved word.\nstruct",
+          "pred": "//\n//  Word.swift\n//  Words\n//\n//  Created by Will Hains on 2016-06-05.\n//  Copyright \u00a9 2016 Will Hains. All rights reserved.\n//\n\nimport Foundation\n\n// MARK:- Model\n\n/// Represents a saved word.\nstruct Word {\n    let text: String\n    \n    // TODO #14: This is where metadata would go.\n    \n    func canonicalize() -> String {\n        return self.text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()\n    }\n}\n",
+          "gold": "//\n//  WordList.swift\n//  Words\n//\n//  Created by Will Hains on 2016-06-05.\n//  Copyright \u00a9 2016 Will Hains. All rights reserved.\n//\n\nimport UIKit\n\n// MARK:- Model\n\n/// Represents a saved word.\nstruct Word\n{\n\tlet text: String\n\t\n\t// TODO #14: This is where metadata would go.\n\t\n\tfunc canonicalise() -> String\n\t{\n        self.text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)\n\t}\n}\n"
+        },
+        {
+          "i": 15,
+          "objective": "Allow passing evaluator to convenience string evaluation",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.92
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  String.swift\n//  DDMathParser\n//\n//  Created by Dave DeLong on 8/24/15.\n//\n//\n\nimport Foundation\n\npublic extension String {\n    \n    public func evaluate(withSubstitutions substitutions: Substi",
+          "gold_preview": "//\n//  String.swift\n//  DDMathParser\n//\n//  Created by Dave DeLong on 8/24/15.\n//\n//\n\nimport Foundation\n\npublic extension String {\n    \n    public func evaluate(using evaluator: Evaluator = .default, ",
+          "pred": "//\n//  String.swift\n//  DDMathParser\n//\n//  Created by Dave DeLong on 8/24/15.\n//\n//\n\nimport Foundation\n\npublic extension String {\n    \n    public func evaluate(withSubstitutions substitutions: Substitutions = [:], using evaluator: Evaluator = .default) throws -> Double {\n        let expression = try Expression(string: self)\n        return try evaluator.evaluate(expression, withSubstitutions: substitutions)\n    }\n    \n}\n",
+          "gold": "//\n//  String.swift\n//  DDMathParser\n//\n//  Created by Dave DeLong on 8/24/15.\n//\n//\n\nimport Foundation\n\npublic extension String {\n    \n    public func evaluate(using evaluator: Evaluator = .default, _ substitutions: Substitutions = [:]) throws -> Double {\n        let e = try Expression(string: self)\n        return try evaluator.evaluate(e, substitutions: substitutions)\n    }\n    \n}\n"
+        },
+        {
+          "i": 16,
+          "objective": "Update Base64 dependency to 0.7",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.61
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import PackageDescription\n\nlet package = Package(\n    name: \"BasicAuthMiddleware\",\n    dependencies: [\n        .package(url: \"https://github.com/vapor/http.git\", from: \"1.0.0\"),\n        .package(url: ",
+          "gold_preview": "import PackageDescription\n\nlet package = Package(\n    name: \"BasicAuthMiddleware\",\n    dependencies: [\n        .Package(url: \"https://github.com/Zewo/HTTP.git\", majorVersion: 0, minor: 5),\n        .Pa",
+          "pred": "import PackageDescription\n\nlet package = Package(\n    name: \"BasicAuthMiddleware\",\n    dependencies: [\n        .package(url: \"https://github.com/vapor/http.git\", from: \"1.0.0\"),\n        .package(url: \"https://github.com/apple/swift-base64.git\", from: \"0.7.0\"),\n        .package(url: \"https://github.com/apple/swift-collections.git\", from: \"1.0.0\"),\n    ]\n)\n",
+          "gold": "import PackageDescription\n\nlet package = Package(\n    name: \"BasicAuthMiddleware\",\n    dependencies: [\n        .Package(url: \"https://github.com/Zewo/HTTP.git\", majorVersion: 0, minor: 5),\n        .Package(url: \"https://github.com/Zewo/Base64.git\", majorVersion: 0, minor: 7),\n        .Package(url: \"https://github.com/Zewo/String.git\", majorVersion: 0, minor: 5),\n    ]\n)\n"
+        },
+        {
+          "i": 17,
+          "objective": "Remove obsolete output from test.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.178
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import Swift\n\nvar a = A()\n",
+          "gold_preview": "// RUN: %empty-directory(%t)\n// RUN: %target-swift-frontend -emit-module -O -sil-inline-threshold 0 -module-name Swift -module-link-name swiftCore -parse-as-library -parse-stdlib -emit-module %S/Input",
+          "pred": "import Swift\n\nvar a = A()\n",
+          "gold": "// RUN: %empty-directory(%t)\n// RUN: %target-swift-frontend -emit-module -O -sil-inline-threshold 0 -module-name Swift -module-link-name swiftCore -parse-as-library -parse-stdlib -emit-module %S/Inputs/vtable-function-deserialization-input.swift -o %t/Swift.swiftmodule\n// RUN: %target-swift-frontend -I %t %s -emit-sil -o - -O -sil-link-all\n\nimport Swift\n\nvar a = A()\n"
+        },
+        {
+          "i": 18,
+          "objective": "Add optional date format parameter to toNSDate method",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.911
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//\n//  DateUtil.swift\n//  eSportsKitProject\n//\n//  Created by Taylor Caldwell on 7/10/15.\n//  Copyright (c) 2015 Rithms. All rights reserved.\n//\n\nimport Foundation\n\nextension String {\n    \n    func to",
+          "gold_preview": "//\n//  DateUtil.swift\n//  eSportsKitProject\n//\n//  Created by Taylor Caldwell on 7/10/15.\n//  Copyright (c) 2015 Rithms. All rights reserved.\n//\n\nimport Foundation\n\nextension String {\n    \n    func to",
+          "pred": "//\n//  DateUtil.swift\n//  eSportsKitProject\n//\n//  Created by Taylor Caldwell on 7/10/15.\n//  Copyright (c) 2015 Rithms. All rights reserved.\n//\n\nimport Foundation\n\nextension String {\n    \n    func toNSDate(format: String = \"yyyy-MM-dd'T'HH:mmZ\") -> NSDate? {\n        let formatter = DateFormatter()\n        formatter.dateFormat = format\n        return formatter.date(from: self)\n    }\n}\n",
+          "gold": "//\n//  DateUtil.swift\n//  eSportsKitProject\n//\n//  Created by Taylor Caldwell on 7/10/15.\n//  Copyright (c) 2015 Rithms. All rights reserved.\n//\n\nimport Foundation\n\nextension String {\n    \n    func toNSDate(format: String = \"yyyy-MM-dd'T'HH:mmZ\") -> NSDate? {\n        let formatter = NSDateFormatter()\n        formatter.dateFormat = format\n        return formatter.dateFromString(self)\n    }\n}"
+        },
+        {
+          "i": 19,
+          "objective": "Use if-let for data unwrapping",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.76
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import Foundation\n\nclass JSONFileReader {\n  class func JSON(fromFile file: String) -> AnyObject? {\n    if let path = NSBundle(forClass: self).pathForResource(file, ofType: \"json\"),\n       let data = N",
+          "gold_preview": "import Foundation\n\nclass JSONFileReader {\n  class func JSON(fromFile file: String) -> AnyObject? {\n    let path = NSBundle(forClass: self).pathForResource(file, ofType: \"json\")\n\n    if path != nil {\n ",
+          "pred": "import Foundation\n\nclass JSONFileReader {\n  class func JSON(fromFile file: String) -> AnyObject? {\n    if let path = NSBundle(forClass: self).pathForResource(file, ofType: \"json\"),\n       let data = NSData(contentsOfFile: path),\n       let json = try? NSJSONSerialization.JSONObject(with: data, options: []) as AnyObject {\n      return json\n    }\n\n    return nil\n  }\n}\n",
+          "gold": "import Foundation\n\nclass JSONFileReader {\n  class func JSON(fromFile file: String) -> AnyObject? {\n    let path = NSBundle(forClass: self).pathForResource(file, ofType: \"json\")\n\n    if path != nil {\n      if let data = NSData(contentsOfFile: path!) {\n        return NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(0), error: nil)\n      }\n    }\n\n    return .None\n  }\n}\n"
+        },
+        {
+          "i": 20,
+          "objective": "Test that leaves are leaves.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.8,
+            "soft_exact": false,
+            "token_overlap": 0.947
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//  Copyright (c) 2015 Rob Rix. All rights reserved.\n\nfinal class BinaryTreeTests: XCTestCase {\n    func testEmptyTreesAreNotLeaves() {\n        XCTAssertFalse(BinaryTree<Int>().isLeaf)\n    }\n\n    func",
+          "gold_preview": "//  Copyright (c) 2015 Rob Rix. All rights reserved.\n\nfinal class BinaryTreeTests: XCTestCase {\n\tfunc testEmptyTreesAreNotLeaves() {\n\t\tXCTAssertFalse(BinaryTree<Int>().isLeaf)\n\t}\n\n\tfunc testLeavesAreL",
+          "pred": "//  Copyright (c) 2015 Rob Rix. All rights reserved.\n\nfinal class BinaryTreeTests: XCTestCase {\n    func testEmptyTreesAreNotLeaves() {\n        XCTAssertFalse(BinaryTree<Int>().isLeaf)\n    }\n\n    func testLeavesAreNonEmpty() {\n        XCTAssertFalse(BinaryTree(0).isEmpty)\n    }\n\n    func testLeavesAreNotBranches() {\n        XCTAssertFalse(BinaryTree(0).isBranch)\n    }\n}\n\nimport BinaryTree\nimport XCTest\n",
+          "gold": "//  Copyright (c) 2015 Rob Rix. All rights reserved.\n\nfinal class BinaryTreeTests: XCTestCase {\n\tfunc testEmptyTreesAreNotLeaves() {\n\t\tXCTAssertFalse(BinaryTree<Int>().isLeaf)\n\t}\n\n\tfunc testLeavesAreLeaves() {\n\t\tXCTAssert(BinaryTree(0).isLeaf)\n\t}\n\n\tfunc testLeavesAreNonEmpty() {\n\t\tXCTAssertFalse(BinaryTree(0).isEmpty)\n\t}\n\n\tfunc testLeavesAreNotBranches() {\n\t\tXCTAssertFalse(BinaryTree(0).isBranch)\n\t}\n}\n\n\nimport BinaryTree\nimport XCTest\n"
+        },
+        {
+          "i": 21,
+          "objective": "Change getting started to bullet points.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.857
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import Prelude\n\n/*:\n# Prelude\n\nA collection of tools that are used in the Kickstarter apps.\n\n---\n\n## Getting started\n\n- Open `Prelude.xcworkspace` instead of the playground file directly.\n- Hit `cmd+B",
+          "gold_preview": "import Prelude\n\n/*:\n# Prelude\n\nA collection of tools that are used in the Kickstarter apps.\n\n---\n\n## Getting started\n\n* Open `Prelude.xcworkspace` instead of the playground file directly.\n* Build the ",
+          "pred": "import Prelude\n\n/*:\n# Prelude\n\nA collection of tools that are used in the Kickstarter apps.\n\n---\n\n## Getting started\n\n- Open `Prelude.xcworkspace` instead of the playground file directly.\n- Hit `cmd+B` to build the framework.\n- Go to Editor > Show Rendered Markup to render the markdown.\n\n## Table of contents\n\n* [Array.swift](Array.swift)\n* [Function.swift](Function.swift)\n*/\n",
+          "gold": "import Prelude\n\n/*:\n# Prelude\n\nA collection of tools that are used in the Kickstarter apps.\n\n---\n\n## Getting started\n\n* Open `Prelude.xcworkspace` instead of the playground file directly.\n* Build the `Prelude` framework (`cmd+B`).\n* Render the markdown by going to Editor > Show Rendered Markup.\n\n## Table of contents\n\n* [Array.swift](Array.swift)\n* [Function.swift](Function.swift)\n*/\n"
+        },
+        {
+          "i": 22,
+          "objective": "Fix result property access level",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "public enum RequestResult<T> {\n    \n    case success(T)\n    case error(Error)\n    \n    public var value: T? {\n        switch self {\n        case .success(let value):\n            return value\n        d",
+          "gold_preview": "\npublic enum RequestResult<T> {\n    \n    case success(T)\n    case error(Error)\n    \n    public var value: T? {\n        switch self {\n        case .success(let value):\n            return value\n        ",
+          "pred": "public enum RequestResult<T> {\n    \n    case success(T)\n    case error(Error)\n    \n    public var value: T? {\n        switch self {\n        case .success(let value):\n            return value\n        default:\n            return nil\n        }\n    }\n    \n    public var error: Error? {\n        switch self {\n        case .error(let error):\n            return error\n        default:\n            return nil\n        }\n    }\n}\n",
+          "gold": "\npublic enum RequestResult<T> {\n    \n    case success(T)\n    case error(Error)\n    \n    public var value: T? {\n        switch self {\n        case .success(let value):\n            return value\n        default:\n            return nil\n        }\n    }\n    \n    public var error: Error? {\n        switch self {\n        case .error(let error):\n            return error\n        default:\n            return nil\n        }\n    }\n}\n"
+        },
+        {
+          "i": 23,
+          "objective": "Apply AppCode inspection \"redundant return\"",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.885
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "public class Item {\n    public var name: String\n    public var sellIn: Int\n    public var quality: Int\n    \n    public init(name: String, sellIn: Int, quality: Int) {\n        self.name = name\n        ",
+          "gold_preview": "public class Item {\n    public var name: String\n    public var sellIn: Int\n    public var quality: Int\n    \n    public init(name: String, sellIn: Int, quality: Int) {\n        self.name = name\n        ",
+          "pred": "public class Item {\n    public var name: String\n    public var sellIn: Int\n    public var quality: Int\n    \n    public init(name: String, sellIn: Int, quality: Int) {\n        self.name = name\n        self.sellIn = sellIn\n        self.quality = quality\n    }\n}\n\nextension Item: CustomStringConvertible {\n    public var description: String {\n        \"\\(name), \\(sellIn), \\(quality)\"\n    }\n}\n",
+          "gold": "public class Item {\n    public var name: String\n    public var sellIn: Int\n    public var quality: Int\n    \n    public init(name: String, sellIn: Int, quality: Int) {\n        self.name = name\n        self.sellIn = sellIn\n        self.quality = quality\n    }\n}\n\nextension Item: CustomStringConvertible {\n    public var description: String {\n        name + \", \" + String(sellIn) + \", \" + String(quality);\n    }\n}\n"
+        },
+        {
+          "i": 24,
+          "objective": "Add an anchor point for the running bar",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.603
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import SpriteKit\n\n// Sprite node for the bar\nlet runningBar = SKSpriteNode(imageNamed: \"bar\")\n\nclass PlayScene: SKScene {\n    override func didMove(to view: SKView) {\n        self.backgroundColor = UI",
+          "gold_preview": "import SpriteKit\n\n// Sprite node for the bar\nlet runningBar = SKSpriteNode(imageNamed: \"bar\")\n\nclass PlayScene: SKScene{\n    override func didMoveToView(view: SKView!) {\n        self.backgroundColor =",
+          "pred": "import SpriteKit\n\n// Sprite node for the bar\nlet runningBar = SKSpriteNode(imageNamed: \"bar\")\n\nclass PlayScene: SKScene {\n    override func didMove(to view: SKView) {\n        self.backgroundColor = UIColor(hex: 0x809DFF)\n        \n        // Add the running bar to the scene\n        addChild(runningBar)\n        \n        // Position the running bar at the bottom of the screen\n        runningBar.position = CGPoint(x: size.width / 2, y: runningBar.size.height / 2)\n    }\n    \n    /// Update the scene: It will run every single frame\n    override func update(_ currentTime: TimeInterval) {\n        // Update logic for the running bar can be added here\n    }\n}\n",
+          "gold": "import SpriteKit\n\n// Sprite node for the bar\nlet runningBar = SKSpriteNode(imageNamed: \"bar\")\n\nclass PlayScene: SKScene{\n    override func didMoveToView(view: SKView!) {\n        self.backgroundColor = UIColor(hex: 0x809DFF)\n        \n        // Set the anchor point of the running bar at (0, 0.5)\n        self.runningBar.anchorPoint = CGPointMake(0, 0.5)   \n    }\n    \n    /// Update the scene: It will run every single frame\n    override func update(currentTime: NSTimeInterval) {\n        \n    }\n}\n"
+        }
+      ]
+    }
+  }
+}

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from pathlib import Path
 
 from rebirth_ai.generate.ollama_client import GenerateResult
+from rebirth_ai.lora import lora_target, normalize_lang, read_meta
 from rebirth_ai.generate.prompts import (
     SYSTEM_PROMPT,
     build_migration_prompt,
@@ -24,12 +26,43 @@ DEFAULT_BASE = DEFAULT_BASE_7B
 DEFAULT_ADAPTER = DEFAULT_ADAPTER_7B
 
 
+NO_ADAPTER = "none"  # REBIRTH_PEFT_ADAPTER=none → base model only (ablation baseline)
+
+
+def peft_env_override() -> bool:
+    return bool(os.environ.get("REBIRTH_PEFT_BASE") or os.environ.get("REBIRTH_PEFT_ADAPTER"))
+
+
+def lang_adapter(language: str | None) -> tuple[str, Path] | None:
+    """Trained per-language adapter (``data/models/lora_<lang>_7b/adapter``) if it exists.
+
+    Base model comes from ``rebirth_meta.json`` / ``train_meta.json`` when recorded.
+    """
+    lang_id = normalize_lang(language)
+    if lang_id is None:
+        return None
+    target = lora_target(lang_id)
+    if not target.adapter.exists():
+        return None
+    meta = read_meta(target.adapter) or {}
+    if not meta:
+        legacy = target.out / "train_meta.json"
+        if legacy.is_file():
+            meta = json.loads(legacy.read_text(encoding="utf-8"))
+    return str(meta.get("base_model") or DEFAULT_BASE_7B), target.adapter
+
+
 def resolve_peft_paths(
     *,
     base_model: str | None = None,
     adapter_path: Path | str | None = None,
+    language: str | None = None,
 ) -> tuple[str, Path]:
-    """Pick PEFT base + adapter: explicit args → env → 7B if present → 0.5B."""
+    """Pick PEFT base + adapter.
+
+    Order: explicit args → ``REBIRTH_PEFT_*`` env → per-language adapter for
+    ``language`` → JS/TS 7B → 0.5B.
+    """
     env_base = os.environ.get("REBIRTH_PEFT_BASE")
     env_adapter = os.environ.get("REBIRTH_PEFT_ADAPTER")
 
@@ -42,6 +75,10 @@ def resolve_peft_paths(
         base = env_base or DEFAULT_BASE_7B
         raw = env_adapter or str(DEFAULT_ADAPTER_7B)
         return base, Path(raw)
+
+    per_lang = lang_adapter(language)
+    if per_lang is not None:
+        return per_lang
 
     if DEFAULT_ADAPTER_7B.exists():
         return DEFAULT_BASE_7B, DEFAULT_ADAPTER_7B
@@ -71,9 +108,20 @@ _LEAK_MARKERS = (
 )
 
 
+# Qwen pretraining control tokens (<|repo_name|>, <|file_sep|>, <|fim_*|>, …) are not
+# flagged special in the tokenizer, so skip_special_tokens leaves them in the text.
+_CONTROL_TOKEN_RE = re.compile(r"<\|[a-z_]+\|>")
+
+
 def _clean_sft_completion(text: str) -> str:
-    """Drop leaked SFT headers, fences, and trailing prose from completions."""
+    """Drop leaked SFT headers, fences, control tokens and trailing prose from completions."""
+    m = _CONTROL_TOKEN_RE.search(text)
+    if m and text[: m.start()].strip():
+        text = text[: m.start()]
     cleaned = text.strip()
+    # Lone closing fence at the very end (strip() removed the "\n" the marker below needs)
+    if cleaned.endswith("\n```") and not cleaned.lstrip().startswith("```"):
+        cleaned = cleaned[: -len("\n```")]
     for marker in ("### Modern", "### Legacy", "### Objective", "###"):
         if cleaned.startswith(marker):
             cleaned = cleaned[len(marker) :].lstrip("\n# ")
@@ -92,12 +140,18 @@ def _clean_sft_completion(text: str) -> str:
     cleaned = cleaned.rstrip()
     return cleaned + "\n" if cleaned else ""
 
+SFT_MAX_NEW_TOKENS = 512
+SFT_MIN_NEW_TOKENS = 256
+
+
 def _sft_max_new_tokens(legacy_code: str, requested: int) -> int:
-    """Bound generation length from input size so short idioms stop sooner."""
-    # ~4 chars/token rough; allow 2× rewrite headroom, clamp for short prompts
+    """Bound generation length from input size (floor matches the chat path)."""
+    # ~3 chars/token; 2x rewrite headroom. Floor SFT_MIN_NEW_TOKENS: a 64-token floor
+    # truncated additive rewrites (gold >> legacy) mid-statement and cost the v2
+    # adapters their parse checks. Recipe-v2 adapters learn EOS, so they stop early.
+    # Ceiling 512 = recipe-v2 train length.
     approx_in = max(16, len(legacy_code) // 3)
-    bounded = max(64, min(requested, approx_in * 2, 256))
-    return bounded
+    return min(requested, SFT_MAX_NEW_TOKENS, max(SFT_MIN_NEW_TOKENS, approx_in * 2))
 
 
 def _chat_max_new_tokens(legacy_code: str, requested: int) -> int:
@@ -121,12 +175,14 @@ class PeftClient:
         *,
         base_model: str | None = None,
         adapter_path: Path | str | None = None,
+        language: str | None = None,
         max_new_tokens: int = 1024,
         prompt_style: str | None = None,
     ) -> None:
         self.base_model, self.adapter_path = resolve_peft_paths(
             base_model=base_model,
             adapter_path=adapter_path,
+            language=language,
         )
         self.max_new_tokens = max_new_tokens
         self.prompt_style = prompt_style or _default_prompt_style()  # sft | chat
@@ -139,7 +195,8 @@ class PeftClient:
     def _ensure_loaded(self) -> None:
         if self._model is not None:
             return
-        if not self.adapter_path.exists():
+        use_adapter = str(self.adapter_path) != NO_ADAPTER
+        if use_adapter and not self.adapter_path.exists():
             raise FileNotFoundError(
                 f"LoRA adapter not found at {self.adapter_path}. "
                 "Train 7B: see docs/DATASET.md (or 0.5B: python training/train_lora.py --cpu)"
@@ -159,7 +216,7 @@ class PeftClient:
         print(f"[peft] loading {self.base_model} + {self.adapter_path} on {self._device}")
 
         self._tokenizer = AutoTokenizer.from_pretrained(
-            self.adapter_path, trust_remote_code=True
+            self.adapter_path if use_adapter else self.base_model, trust_remote_code=True
         )
         if self._tokenizer.pad_token is None:
             self._tokenizer.pad_token = self._tokenizer.eos_token
@@ -169,7 +226,7 @@ class PeftClient:
             torch_dtype=dtype,
             trust_remote_code=True,
         )
-        self._model = PeftModel.from_pretrained(base, str(self.adapter_path))
+        self._model = PeftModel.from_pretrained(base, str(self.adapter_path)) if use_adapter else base
         self._model.to(self._device)
         self._model.eval()
 
@@ -196,7 +253,7 @@ class PeftClient:
         inputs = self._tokenizer(text, return_tensors="pt").to(self._device)
         max_new = self.max_new_tokens
         if self.prompt_style == "sft":
-            max_new = self._sft_token_cap or min(max_new, 256)
+            max_new = self._sft_token_cap or min(max_new, SFT_MAX_NEW_TOKENS)
         elif self._chat_token_cap is not None:
             max_new = self._chat_token_cap
 

@@ -78,13 +78,13 @@ def load_manifest_cases(manifest: Path) -> list[dict]:
     return cases
 
 
-def _get_generator(backend: str):
+def _get_generator(backend: str, language: str | None = None):
     from rebirth_ai.generate.factory import get_generator
 
     os.environ["REBIRTH_GENERATOR"] = backend
     if backend in {"peft", "lora", "local"}:
         os.environ.setdefault("REBIRTH_EMBEDDER", "hash")
-    return get_generator(backend)
+    return get_generator(backend, language=language)
 
 
 def _eval_ast(pred: str, gold: str, *, language: str) -> dict:
@@ -191,26 +191,51 @@ def run_sandbox_suite(
     }
 
 
-def run_synth_suite(backend: str, *, n: int, data: Path) -> dict:
-    from rebirth_ai.eval.metrics import soft_exact_match
+def run_synth_suite(
+    backend: str,
+    *,
+    n: int,
+    data: Path,
+    lang: str | None = None,
+    seed: int | None = None,
+    eval_file: Path | None = None,
+) -> dict:
+    """Soft-exact / AST suite.
 
-    client = _get_generator(backend)
-    rows: list[dict] = []
-    with data.open(encoding="utf-8") as fh:
-        for line in fh:
-            if not line.strip():
-                continue
-            rows.append(json.loads(line))
-    synth = [r for r in rows if r.get("source", "synthetic") == "synthetic"]
-    pool = synth or rows
-    pool = sorted(pool, key=lambda r: len(r.get("legacy", "")) + len(r.get("modern", "")))
+    Without ``lang``: shortest synthetic rows of ``data`` (legacy JS/TS behaviour).
+    With ``lang``: shortest rows from that language's **held-out eval split**
+    (Phase 11 — never seen in LoRA training), routed to that language's adapter.
+    With ``eval_file``: the first ``n`` rows of a frozen eval set, in file order
+    (``training/make_eval_sets.py`` — seeded random held-out rows, not just the shortest).
+    """
+    from rebirth_ai.eval.metrics import soft_exact_match
+    from rebirth_ai.lora import DEFAULT_EVAL_FRAC, DEFAULT_SEED, load_rows, lora_target, split_rows
+
+    client = _get_generator(backend, language=lang)
+    if eval_file is not None:
+        pool = load_rows(eval_file)
+        suite_name = f"evalset:{eval_file.stem}"
+    elif lang:
+        target = lora_target(lang)
+        pool = split_rows(
+            load_rows(target.data), eval_frac=DEFAULT_EVAL_FRAC, seed=seed or DEFAULT_SEED
+        ).eval
+        suite_name = f"heldout_split:{target.lang}"
+    else:
+        rows = load_rows(data)
+        synth = [r for r in rows if r.get("source", "synthetic") == "synthetic"]
+        pool = synth or rows
+        suite_name = "synthetic"
+    if eval_file is None:
+        pool = sorted(pool, key=lambda r: len(r.get("legacy", "")) + len(r.get("modern", "")))
     sample = pool[:n]
 
-    print(f"\n=== synthetic suite ({backend}) — {len(sample)} pairs ===")
+    print(f"\n=== {suite_name} suite ({backend}) — {len(sample)} pairs ===")
     results = []
     soft = 0
     parses = 0
     jaccards: list[float] = []
+    overlaps: list[float] = []
 
     for i, row in enumerate(sample, 1):
         language = row.get("language", "javascript")
@@ -227,6 +252,7 @@ def run_synth_suite(backend: str, *, n: int, data: Path) -> dict:
         if ast["parses"]:
             parses += 1
         jaccards.append(ast["symbol_jaccard"])
+        overlaps.append(ast["token_overlap"])
         mark = "SOFT_EXACT" if ast["soft_exact"] else f"sym={ast['symbol_jaccard']:.2f}"
         print(f"[{i}/{len(sample)}] {mark} parses={ast['parses']} :: {row['objective'][:60]}")
         results.append(
@@ -240,22 +266,53 @@ def run_synth_suite(backend: str, *, n: int, data: Path) -> dict:
                 ),
                 "pred_preview": pred.code[:200],
                 "gold_preview": gold[:200],
+                # Full texts so parse failures can be diagnosed (where/why the code breaks)
+                "pred": pred.code,
+                "gold": gold,
             }
         )
 
     n_s = len(sample)
     return {
-        "suite": "synthetic",
+        "suite": suite_name,
         "backend": backend,
+        "lang": lang,
         "n": n_s,
         "soft_exact": soft,
         "soft_exact_rate": soft / n_s if n_s else 0.0,
         "parses": parses,
         "parse_rate": parses / n_s if n_s else 0.0,
         "mean_symbol_jaccard": sum(jaccards) / len(jaccards) if jaccards else 0.0,
+        "mean_token_overlap": sum(overlaps) / len(overlaps) if overlaps else 0.0,
         "model": getattr(pred, "model", None) if sample else None,
         "results": results,
     }
+
+
+def _track_synthetic(args: argparse.Namespace) -> None:
+    """Best-effort MLflow record of the synthetic suite (never fails the eval)."""
+    from rebirth_ai.lora import lora_target
+    from rebirth_ai.tracking import try_log_eval
+
+    adapter: Path | None = None
+    if args.model_label:
+        label = args.model_label
+    elif args.backend == "ollama":
+        label = "ollama-14b"
+    elif os.environ.get("REBIRTH_PEFT_ADAPTER", "").lower() == "none":
+        label = f"base-7b-{os.environ.get('REBIRTH_PEFT_PROMPT_STYLE', 'sft')}"
+    else:
+        label = "adapter"
+        env_adapter = os.environ.get("REBIRTH_PEFT_ADAPTER")
+        if env_adapter:
+            adapter = Path(env_adapter)
+        elif args.lang:
+            adapter = lora_target(args.lang).adapter
+    run_id = try_log_eval(
+        args.out, model_label=label, lang=args.lang, adapter=adapter, eval_file=args.eval_file
+    )
+    if run_id:
+        print(f"[tracking] eval → MLflow run {run_id}")
 
 
 def main() -> int:
@@ -272,6 +329,17 @@ def main() -> int:
         choices=["sandbox", "synthetic", "heldout", "both", "all"],
     )
     parser.add_argument("--n-synth", type=int, default=8)
+    parser.add_argument(
+        "--lang",
+        default=None,
+        help="Synthetic suite: sample this language's held-out split + route PEFT to its adapter",
+    )
+    parser.add_argument(
+        "--eval-file",
+        type=Path,
+        default=None,
+        help="Frozen eval set JSONL (overrides held-out split sampling; see make_eval_sets.py)",
+    )
     parser.add_argument(
         "--data",
         type=Path,
@@ -295,6 +363,17 @@ def main() -> int:
         help="Also write a baseline snapshot JSON (e.g. data/reports/baselines/ollama_js_ts.json)",
     )
     parser.add_argument("--cpu", action="store_true", help="Force PEFT on CPU")
+    parser.add_argument(
+        "--track",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Record the synthetic-suite result in MLflow (Phase 13; no-op if MLflow is missing)",
+    )
+    parser.add_argument(
+        "--model-label",
+        default=None,
+        help="MLflow label for what was scored (default: adapter / base-7b-<style> / ollama-14b)",
+    )
     args = parser.parse_args()
 
     if args.cpu:
@@ -313,11 +392,13 @@ def main() -> int:
         )
     if suite in {"synthetic", "both", "all"}:
         report["suites"]["synthetic"] = run_synth_suite(
-            args.backend, n=args.n_synth, data=args.data
+            args.backend, n=args.n_synth, data=args.data, lang=args.lang, eval_file=args.eval_file
         )
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if args.track and "synthetic" in report["suites"]:
+        _track_synthetic(args)
 
     # Headline
     print("\n=== headline ===")

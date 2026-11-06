@@ -4,7 +4,7 @@
 > Depends on: Phase 7 + PR #2 merged to `main` (`5f1540e`)  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 8  
 > Playbook: [ADDING_A_LANGUAGE.md](../adapters/ADDING_A_LANGUAGE.md)  
-> Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) — Phases 0–10 done; next LoRA Phase 12
+> Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) — Phases 0–10 done; next LoRA Phase 11
 
 ## Objectives
 

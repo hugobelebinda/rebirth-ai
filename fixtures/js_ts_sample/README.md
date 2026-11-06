@@ -1,6 +1,6 @@
 # JS/TS sample fixture
 
-> Still used for smoke; Phase 6–7 benches + eval_suite. Project: Phases 0–10 done; next = LoRA 12–14 — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
+> Still used for smoke; Phase 6–7 benches + eval_suite. Project: Phases 0–11 done; now = Phase 12 local tuning — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
 
 Tiny Node project used by Phases 1–4 for:
 

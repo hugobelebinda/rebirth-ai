@@ -1,7 +1,7 @@
 # Adding a language adapter (playbook)
 
 > Status: **live** — all 8 v1.0 languages shipped (Phases 8–9); Phase 10 quality/corpus done (2026-11-04).  
-> Next specialization: per-lang LoRA — [PHASE_12_LORA_PER_LANGUAGE.md](../phases/PHASE_12_LORA_PER_LANGUAGE.md).
+> Next specialization: per-lang LoRA — [PHASE_11_LORA_PER_LANGUAGE.md](../phases/PHASE_11_LORA_PER_LANGUAGE.md).
 
 Every language vertical is **instantiation**, not a rewrite of LangGraph.
 

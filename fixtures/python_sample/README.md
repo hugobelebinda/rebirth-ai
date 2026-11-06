@@ -1,6 +1,6 @@
 # Python sample fixture (Phase 8)
 
-> Live adapter vertical. Project: Phases 0–10 done; LoRA train in Phase 12 — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
+> Live adapter vertical. Project: Phases 0–10 done; LoRA v2 adapter trained (Phase 11); now Phase 12 — [SESSION_HANDOFF.md](../../docs/SESSION_HANDOFF.md).
 
 ## Layout
 

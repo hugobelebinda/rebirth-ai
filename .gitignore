@@ -68,3 +68,16 @@ Thumbs.db
 logs/
 /tmp/
 data/bench/
+
+# graphify knowledge graph output
+graphify-out/
+# Per-language LoRA metadata (adapters themselves stay ignored)
+!data/models/lora_*_7b/
+!data/models/lora_*_7b/*.json
+
+# Phase 13 MLOps — local MLflow store + UI venv
+mlruns/
+.venv-mlflow/
+
+# Phase 12 expanded corpus (282 MB; rebuilt by training/mine_migration_pairs.py; versioned via DVC/S3 in Phase 14)
+data/datasets/expanded/

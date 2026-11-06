@@ -1,9 +1,9 @@
 # Phase 3 — Code Generation & LoRA Training
 
-> Status: **COMPLETE** (JS/TS LoRA proof; per-lang waves = [PHASE_12_LORA_PER_LANGUAGE.md](PHASE_12_LORA_PER_LANGUAGE.md))  
+> Status: **COMPLETE** (JS/TS LoRA proof; per-lang waves = [PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md))  
 > Depends on: Phase 2 (RAG context available for prompts)  
 > Completed: 2026-10-31 · Docs refresh: 2026-11-04  
-> Project now: Phases **0–10 complete** on `main`; next = Phases **12–14** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
+> Project now: Phases **0–10 complete** on `main`; next = Phase **11** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ---
 

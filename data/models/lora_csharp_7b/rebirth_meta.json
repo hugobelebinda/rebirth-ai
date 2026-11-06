@@ -1,0 +1,43 @@
+{
+  "language": "csharp",
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "adapter": "data/models/lora_csharp_7b/adapter",
+  "data": "data/datasets/csharp_migration.jsonl",
+  "corpus_sha256": "821541b14bccd6b30c1e67f551e4eb9b0a8abe1508fe9434d2bb67d709fc0978",
+  "corpus_rows": 1562,
+  "train_rows": 1451,
+  "split_train_rows": 1486,
+  "recipe": {
+    "quant": "4bit",
+    "eos": true,
+    "completion_only": true,
+    "drop_overlong": true,
+    "features": {
+      "rows": 1486,
+      "kept": 1451,
+      "dropped_overlong": 35,
+      "truncated": 0,
+      "label_tokens": 161095
+    }
+  },
+  "eval_rows": 76,
+  "eval_frac": 0.05,
+  "split_seed": 1337,
+  "split_index": "data/datasets/splits/csharp.split.json",
+  "global_steps": 182,
+  "train_loss": 0.1915802757491122,
+  "hyperparams": {
+    "lora_r": 8,
+    "lora_alpha": 16,
+    "epochs": 1,
+    "max_length": 512,
+    "batch_size": 1,
+    "grad_accum": 8,
+    "max_steps": -1
+  },
+  "lr": 0.0002,
+  "smoke": false,
+  "device": "AMD Radeon RX 7800 XT",
+  "torch": "2.9.1+rocm6.4",
+  "trained_at": "2026-11-05T13:57:23+00:00"
+}

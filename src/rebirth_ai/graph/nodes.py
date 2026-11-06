@@ -67,8 +67,8 @@ def retrieve_context(state: MigrationState) -> MigrationState:
 
 
 def generate_code(state: MigrationState) -> MigrationState:
-    client = get_generator()
     language = state.get("language") or "javascript"
+    client = get_generator(language=state.get("adapter_id") or language)
     result = client.migrate(
         objective=state.get("objective")
         or "Modernize the file and ensure project tests pass",

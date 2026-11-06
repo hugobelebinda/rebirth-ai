@@ -416,7 +416,7 @@ def ensure_synthetic_backup(current: Path, backup: Path) -> list[Pair]:
     """Preserve original hand-written pairs once; always reload synthetic from backup."""
     if current.exists() and not backup.exists():
         # First run: current file is still the hand-curated set
-        rows = [json.loads(l) for l in current.read_text().splitlines() if l.strip()]
+        rows = [json.loads(l) for l in current.read_text(encoding="utf-8").split("\n") if l.strip()]
         if rows and all(r.get("source", "synthetic") == "synthetic" for r in rows):
             shutil.copy2(current, backup)
             print(f"Backed up synthetic → {backup}")
@@ -434,7 +434,7 @@ def ensure_synthetic_backup(current: Path, backup: Path) -> list[Pair]:
         return []
 
     pairs: list[Pair] = []
-    for line in backup.read_text(encoding="utf-8").splitlines():
+    for line in backup.read_text(encoding="utf-8").split("\n"):
         if not line.strip():
             continue
         row = json.loads(line)
@@ -510,7 +510,7 @@ def main() -> int:
     synthetic = ensure_synthetic_backup(out_path, synth_backup)
     existing: list[Pair] = []
     if out_path.is_file():
-        for line in out_path.read_text(encoding="utf-8").splitlines():
+        for line in out_path.read_text(encoding="utf-8").split("\n"):
             if not line.strip():
                 continue
             row = json.loads(line)

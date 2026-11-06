@@ -1,0 +1,380 @@
+{
+  "backend": "peft",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:csharp",
+      "backend": "peft",
+      "lang": "csharp",
+      "n": 24,
+      "soft_exact": 6,
+      "soft_exact_rate": 0.25,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.986125,
+      "mean_token_overlap": 0.7443333333333334,
+      "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Update context that is passed through",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.826
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\nusing Glimpse.Core.Extensibility;\n\nnamespace Glimpse.Agent.Web\n{\n    public interface IIgnoredRequestPolicy\n    {\n        bool ShouldIgnore(IGlimpseCoreContext context);\n    }\n}\n",
+          "gold_preview": "\ufeffusing System;\nusing Glimpse.Web;\n\nnamespace Glimpse.Agent.Web\n{\n    public interface IIgnoredRequestPolicy\n    {\n        bool ShouldIgnore(IHttpContext context);\n    }\n}",
+          "pred": "\ufeffusing System;\nusing Glimpse.Core.Extensibility;\n\nnamespace Glimpse.Agent.Web\n{\n    public interface IIgnoredRequestPolicy\n    {\n        bool ShouldIgnore(IGlimpseCoreContext context);\n    }\n}\n",
+          "gold": "\ufeffusing System;\nusing Glimpse.Web;\n\nnamespace Glimpse.Agent.Web\n{\n    public interface IIgnoredRequestPolicy\n    {\n        bool ShouldIgnore(IHttpContext context);\n    }\n}"
+        },
+        {
+          "i": 2,
+          "objective": "Change rule to use delegates, string will move to implemenation detail",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.478
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System;\n\nnamespace Engine\n{\n    public class Rule\n    {\n        public Func<string, bool> Matcher;\n        public Action<string> ValuesDisturbtion;\n    }\n}\n",
+          "gold_preview": "using Engine.Rules.Matcher;\nusing Engine.Rules.ValueDistribution;\n\nnamespace Engine\n{\n    public class Rule\n    {\n        public Matcher Matcher;\n        public ValueDistributor ValuesDisturbtion;\n   ",
+          "pred": "using System;\n\nnamespace Engine\n{\n    public class Rule\n    {\n        public Func<string, bool> Matcher;\n        public Action<string> ValuesDisturbtion;\n    }\n}\n",
+          "gold": "using Engine.Rules.Matcher;\nusing Engine.Rules.ValueDistribution;\n\nnamespace Engine\n{\n    public class Rule\n    {\n        public Matcher Matcher;\n        public ValueDistributor ValuesDisturbtion;\n    }\n}"
+        },
+        {
+          "i": 3,
+          "objective": "Build fix? (not sure why travis doesn't see this file)",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.586
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System;\n\nnamespace FlatBuffers\n{\n    public static class FieldTypeMetaData\n    {\n        public const string Index = \"id\";\n        public const string Required = \"required\";\n\n        [Obsolete(\"",
+          "gold_preview": "namespace FlatBuffers\n{\n    public static class FieldTypeMetaData\n    {\n        public const string Index = \"id\";\n        public const string Required = \"required\";\n\n    }\n}",
+          "pred": "using System;\n\nnamespace FlatBuffers\n{\n    public static class FieldTypeMetaData\n    {\n        public const string Index = \"id\";\n        public const string Required = \"required\";\n\n        [Obsolete(\"Use 'Required' instead.\")]\n        public const string IsRequired = \"required\";\n    }\n}\n",
+          "gold": "namespace FlatBuffers\n{\n    public static class FieldTypeMetaData\n    {\n        public const string Index = \"id\";\n        public const string Required = \"required\";\n\n    }\n}"
+        },
+        {
+          "i": 4,
+          "objective": "Build script now writes the package name and version into the AssemblyDescription attibute. This allows the package info",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System.Reflection;\r\nusing System.Runtime.InteropServices;\r\n\r\n[assembly: AssemblyTitle(\"Autofac.Extras.AggregateService\")]\r\n[assembly: ComVisible(false)]\n",
+          "gold_preview": "\ufeffusing System.Reflection;\r\nusing System.Runtime.InteropServices;\r\n\r\n[assembly: AssemblyTitle(\"Autofac.Extras.AggregateService\")]\r\n[assembly: ComVisible(false)]",
+          "pred": "\ufeffusing System.Reflection;\r\nusing System.Runtime.InteropServices;\r\n\r\n[assembly: AssemblyTitle(\"Autofac.Extras.AggregateService\")]\r\n[assembly: ComVisible(false)]\n",
+          "gold": "\ufeffusing System.Reflection;\r\nusing System.Runtime.InteropServices;\r\n\r\n[assembly: AssemblyTitle(\"Autofac.Extras.AggregateService\")]\r\n[assembly: ComVisible(false)]"
+        },
+        {
+          "i": 5,
+          "objective": "Revert to fixed versioning scheme used by build",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.533
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System.Reflection;\n\n[assembly: AssemblyVersion(\"2.0.0.0\")]\n[assembly: AssemblyFileVersion(\"2.0.0.0\")]\n[assembly: AssemblyInformationalVersion(\"2.0.0\")]\n",
+          "gold_preview": "using System.Reflection;\n\n// These \"special\" version numbers are found and replaced at build time.\n[assembly: AssemblyVersion(\"1.0.0.0\")]\n[assembly: AssemblyFileVersion(\"1.1.1.1\")]\n[assembly: Assembly",
+          "pred": "using System.Reflection;\n\n[assembly: AssemblyVersion(\"2.0.0.0\")]\n[assembly: AssemblyFileVersion(\"2.0.0.0\")]\n[assembly: AssemblyInformationalVersion(\"2.0.0\")]\n",
+          "gold": "using System.Reflection;\n\n// These \"special\" version numbers are found and replaced at build time.\n[assembly: AssemblyVersion(\"1.0.0.0\")]\n[assembly: AssemblyFileVersion(\"1.1.1.1\")]\n[assembly: AssemblyInformationalVersion(\"1.0.0\")]\n"
+        },
+        {
+          "i": 6,
+          "objective": "Revert \"Added method to perform validity check for effect parameters\"",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.667,
+            "soft_exact": false,
+            "token_overlap": 0.35
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\nusing System.Collections.Generic;\n\nnamespace SoxSharp.Effects\n{\n  public abstract class BaseEffect : IBaseEffect\n  {\n    public abstract string Name { get; }\n\n    public virtual bool Is",
+          "gold_preview": "\ufeffnamespace SoxSharp.Effects\n{\n  public abstract class BaseEffect : IBaseEffect\n  {\n    public abstract string Name { get; }\n\n    public abstract override string ToString();\n  }\n}\n",
+          "pred": "\ufeffusing System;\nusing System.Collections.Generic;\n\nnamespace SoxSharp.Effects\n{\n  public abstract class BaseEffect : IBaseEffect\n  {\n    public abstract string Name { get; }\n\n    public virtual bool IsValid()\n    {\n      var properties = this.GetType().GetProperties();\n\n      foreach (var property in properties)\n      {\n        if (!property.CanRead) continue;\n\n        var value = property.GetValue(this, null);\n\n        if (value == null || !IsValid(value)) return false;\n      }\n\n      return true;\n    }\n\n    private static bool IsValid(object value)\n    {\n      if (value is IEnumerable<object> enumerable)\n      {\n        foreach (var item in enumerable)\n        {\n          if (!IsValid(item)) return false;\n        }\n\n        return true;\n      }\n\n      if (value is IValidatable validatable)\n      {\n        return validatable.IsValid();\n      }\n\n      return true;\n    }\n\n    public abstract override string ToString();\n  }\n}\n",
+          "gold": "\ufeffnamespace SoxSharp.Effects\n{\n  public abstract class BaseEffect : IBaseEffect\n  {\n    public abstract string Name { get; }\n\n    public abstract override string ToString();\n  }\n}\n"
+        },
+        {
+          "i": 7,
+          "objective": "Fix link open in browsers",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.444
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing UnityEngine;\nusing System.Diagnostics;\n\npublic class LinkButton : MonoBehaviour {\n\n\tpublic void OpenUrl (string url) {\n\t\tvar psi = new ProcessStartInfo { FileName = url, UseShellExecute = true ",
+          "gold_preview": "\ufeffusing UnityEngine;\n\npublic class LinkButton : MonoBehaviour {\n\n\tpublic void OpenUrl (string url) {\n\t\tif(Application.platform == RuntimePlatform.WebGLPlayer) {\n\t\t\tApplication.ExternalEval(\"window.open",
+          "pred": "\ufeffusing UnityEngine;\nusing System.Diagnostics;\n\npublic class LinkButton : MonoBehaviour {\n\n\tpublic void OpenUrl (string url) {\n\t\tvar psi = new ProcessStartInfo { FileName = url, UseShellExecute = true };\n\t\tSystem.Diagnostics.Process.Start(psi);\n\t}\n}\n",
+          "gold": "\ufeffusing UnityEngine;\n\npublic class LinkButton : MonoBehaviour {\n\n\tpublic void OpenUrl (string url) {\n\t\tif(Application.platform == RuntimePlatform.WebGLPlayer) {\n\t\t\tApplication.ExternalEval(\"window.open(\\\"\" + url + \"\\\",\\\"_blank\\\")\");\n\t\t} else {\n\t\t\tApplication.OpenURL(url);\n\t\t}\n\t}\n}\n"
+        },
+        {
+          "i": 8,
+          "objective": "Fix assembly version for Shimmer",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.867
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System.Reflection;\n\n[assembly: AssemblyProduct(\"Espera\")]\n[assembly: AssemblyCopyright(\"Copyright \u00a9 2013 Dennis Daume\")]\n[assembly: AssemblyVersion(\"1.8.0.0\")]\n[assembly: AssemblyFileVersion(\"1",
+          "gold_preview": "\ufeffusing System.Reflection;\n\n[assembly: AssemblyProduct(\"Espera\")]\n[assembly: AssemblyCopyright(\"Copyright \u00a9 2013 Dennis Daume\")]\n[assembly: AssemblyVersion(\"1.7.6\")]\n[assembly: AssemblyFileVersion(\"1.7",
+          "pred": "\ufeffusing System.Reflection;\n\n[assembly: AssemblyProduct(\"Espera\")]\n[assembly: AssemblyCopyright(\"Copyright \u00a9 2013 Dennis Daume\")]\n[assembly: AssemblyVersion(\"1.8.0.0\")]\n[assembly: AssemblyFileVersion(\"1.8.0.0\")]\n",
+          "gold": "\ufeffusing System.Reflection;\n\n[assembly: AssemblyProduct(\"Espera\")]\n[assembly: AssemblyCopyright(\"Copyright \u00a9 2013 Dennis Daume\")]\n[assembly: AssemblyVersion(\"1.7.6\")]\n[assembly: AssemblyFileVersion(\"1.7.6\")]\n[assembly: AssemblyInformationalVersion(\"1.7.6\")]"
+        },
+        {
+          "i": 9,
+          "objective": "Add BMP version to initiation message",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.697
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\n\nnamespace BmpListener.Bmp\n{\n    public class BmpInitiation : BmpMessage\n    {\n        public BmpInitiation(BmpHeader bmpHeader, byte[] bmpVersion)\n            : base(bmpHeader)\n       ",
+          "gold_preview": "\ufeffusing System;\n\nnamespace BmpListener.Bmp\n{\n    public class BmpInitiation : BmpMessage\n    {\n        public BmpInitiation(BmpHeader bmpHeader)\n            : base(bmpHeader)\n        {\n            BmpV",
+          "pred": "\ufeffusing System;\n\nnamespace BmpListener.Bmp\n{\n    public class BmpInitiation : BmpMessage\n    {\n        public BmpInitiation(BmpHeader bmpHeader, byte[] bmpVersion)\n            : base(bmpHeader)\n        {\n            this.BmpVersion = bmpVersion;\n        }\n\n        public byte[] BmpVersion { get; private set; }\n    }\n}\n",
+          "gold": "\ufeffusing System;\n\nnamespace BmpListener.Bmp\n{\n    public class BmpInitiation : BmpMessage\n    {\n        public BmpInitiation(BmpHeader bmpHeader)\n            : base(bmpHeader)\n        {\n            BmpVersion = BmpHeader.Version;\n        }\n\n        public int BmpVersion { get; }\n    }\n}"
+        },
+        {
+          "i": 10,
+          "objective": "Add 'side by side' support in Framework .NET 4.0",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.564
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System.Reflection;\r\nusing System.Runtime.CompilerServices;\r\n\r\n[assembly: AssemblyTitle(\"Spring.Core Tests\")]\r\n[assembly: AssemblyDescription(\"Unit tests for Spring.Core assembly\")]\r\n[assembly: I",
+          "gold_preview": "using System.Reflection;\r\nusing System.Runtime.CompilerServices;\r\n\r\n#if NET_4_0\r\n[assembly: System.Security.SecurityRules(System.Security.SecurityRuleSet.Level1)] \r\n#endif\r\n[assembly: AssemblyTitle(\"S",
+          "pred": "using System.Reflection;\r\nusing System.Runtime.CompilerServices;\r\n\r\n[assembly: AssemblyTitle(\"Spring.Core Tests\")]\r\n[assembly: AssemblyDescription(\"Unit tests for Spring.Core assembly\")]\r\n[assembly: InternalsVisibleTo(\"Spring.Integration,PublicKeyToken=6595b64144ccf1df\")]\n",
+          "gold": "using System.Reflection;\r\nusing System.Runtime.CompilerServices;\r\n\r\n#if NET_4_0\r\n[assembly: System.Security.SecurityRules(System.Security.SecurityRuleSet.Level1)] \r\n#endif\r\n[assembly: AssemblyTitle(\"Spring.Core Tests\")]\r\n[assembly: AssemblyDescription(\"Unit tests for Spring.Core assembly\")]\r\n"
+        },
+        {
+          "i": 11,
+          "objective": "Add missing license header and remove unused usings",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.314
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\n\nnamespace osu.Game.Rulesets.Mods\n{\n    public interface IApplicableToAudio : IApplicableToTrack, IApplicableToSa",
+          "gold_preview": "\ufeff// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.\n// See the LICENCE file in the repository root for full licence text.\n\nnamespace osu.Game.Rulesets.Mods\n{\n    public int",
+          "pred": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\n\nnamespace osu.Game.Rulesets.Mods\n{\n    public interface IApplicableToAudio : IApplicableToTrack, IApplicableToSample\n    {\n    }\n}\n",
+          "gold": "\ufeff// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.\n// See the LICENCE file in the repository root for full licence text.\n\nnamespace osu.Game.Rulesets.Mods\n{\n    public interface IApplicableToAudio : IApplicableToTrack, IApplicableToSample\n    {\n    }\n}\n"
+        },
+        {
+          "i": 12,
+          "objective": "Make ExcludeFromCodeCoverage compatibility stub internal",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#if NET35 || UAP\nusing System;\n\nnamespace System.Diagnostics.CodeAnalysis\n{\n    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]\n    internal class ExcludeFromCodeCover",
+          "gold_preview": "#if NET35 || UAP\nusing System;\n\nnamespace System.Diagnostics.CodeAnalysis\n{\n    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]\n    internal class ExcludeFromCodeCover",
+          "pred": "#if NET35 || UAP\nusing System;\n\nnamespace System.Diagnostics.CodeAnalysis\n{\n    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]\n    internal class ExcludeFromCodeCoverageAttribute : Attribute\n    {\n\n    }\n}\n#endif\n",
+          "gold": "#if NET35 || UAP\nusing System;\n\nnamespace System.Diagnostics.CodeAnalysis\n{\n    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = false)]\n    internal class ExcludeFromCodeCoverageAttribute : Attribute\n    {\n\n    }\n}\n#endif"
+        },
+        {
+          "i": 13,
+          "objective": "Fix DataCenter enum in tests project",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.846
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffnamespace NFig.Tests.Common\n{\n    public enum Tier\n    {\n        Any = 0,\n        Local = 1,\n        Dev = 2,\n        Prod = 3,\n    }\n\n    public enum DataCenter\n    {\n        Any = 0,\n        Local ",
+          "gold_preview": "\ufeffnamespace NFig.Tests.Common\n{\n    public enum Tier\n    {\n        Any = 0,\n        Local = 1,\n        Dev = 2,\n        Prod = 3,\n    }\n\n    public enum DataCenter\n    {\n        Any = 0,\n        Local ",
+          "pred": "\ufeffnamespace NFig.Tests.Common\n{\n    public enum Tier\n    {\n        Any = 0,\n        Local = 1,\n        Dev = 2,\n        Prod = 3,\n    }\n\n    public enum DataCenter\n    {\n        Any = 0,\n        Local = 1,\n        Dev = 2,\n        Prod = 3,\n        Test = 4,\n    }\n}\n",
+          "gold": "\ufeffnamespace NFig.Tests.Common\n{\n    public enum Tier\n    {\n        Any = 0,\n        Local = 1,\n        Dev = 2,\n        Prod = 3,\n    }\n\n    public enum DataCenter\n    {\n        Any = 0,\n        Local = 1,\n        East = 2,\n        West = 3,\n    }\n}"
+        },
+        {
+          "i": 14,
+          "objective": "Add basic fields in Charge's PMD 3DS field",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.727
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "namespace Stripe\n{\n    using Newtonsoft.Json;\n    using Stripe.Infrastructure;\n\n    public class ChargePaymentMethodDetailsCardThreeDSecure : StripeEntity\n    {\n        [JsonProperty(\"authentication_r",
+          "gold_preview": "namespace Stripe\n{\n    using Newtonsoft.Json;\n    using Stripe.Infrastructure;\n\n    public class ChargePaymentMethodDetailsCardThreeDSecure : StripeEntity\n    {\n        [JsonProperty(\"succeeded\")]\n   ",
+          "pred": "namespace Stripe\n{\n    using Newtonsoft.Json;\n    using Stripe.Infrastructure;\n\n    public class ChargePaymentMethodDetailsCardThreeDSecure : StripeEntity\n    {\n        [JsonProperty(\"authentication_response\")]\n        public string AuthenticationResponse { get; set; }\n\n        [JsonProperty(\"status\")]\n        public string Status { get; set; }\n    }\n}\n",
+          "gold": "namespace Stripe\n{\n    using Newtonsoft.Json;\n    using Stripe.Infrastructure;\n\n    public class ChargePaymentMethodDetailsCardThreeDSecure : StripeEntity\n    {\n        [JsonProperty(\"succeeded\")]\n        public bool Succeeded { get; set; }\n\n        [JsonProperty(\"version\")]\n        public string Version { get; set; }\n    }\n}\n"
+        },
+        {
+          "i": 15,
+          "objective": "Change color to read to test sub-module.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing UnityEngine;\nusing System.Collections;\n\npublic class RandomColor : MonoBehaviour {\n\n\tvoid Start () {\n//\t\tvar c = new Color(Random.value, Random.value, Random.value, 1f);\n\t\tvar c = new Color(1f,",
+          "gold_preview": "\ufeffusing UnityEngine;\nusing System.Collections;\n\npublic class RandomColor : MonoBehaviour {\n\n\tvoid Start () {\n//\t\tvar c = new Color(Random.value, Random.value, Random.value, 1f);\n\t\tvar c = new Color(1f,",
+          "pred": "\ufeffusing UnityEngine;\nusing System.Collections;\n\npublic class RandomColor : MonoBehaviour {\n\n\tvoid Start () {\n//\t\tvar c = new Color(Random.value, Random.value, Random.value, 1f);\n\t\tvar c = new Color(1f, 0, 0f, 1f);\n\t\tGetComponent<Renderer>().material.color = c;\n\t}\n}\n",
+          "gold": "\ufeffusing UnityEngine;\nusing System.Collections;\n\npublic class RandomColor : MonoBehaviour {\n\n\tvoid Start () {\n//\t\tvar c = new Color(Random.value, Random.value, Random.value, 1f);\n\t\tvar c = new Color(1f, 0, 0f, 1f);\n\t\tGetComponent<Renderer>().material.color = c;\n\t}\n}\n"
+        },
+        {
+          "i": 16,
+          "objective": "Remove unnecessary null coalescing operator",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.821
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffnamespace NetIRC.Messages\n{\n    public class PingMessage : IRCMessage, IServerMessage\n    {\n        public string Target { get; }\n\n        public PingMessage(ParsedIRCMessage parsedMessage)\n        {",
+          "gold_preview": "\ufeffnamespace NetIRC.Messages\n{\n    public class PingMessage : IRCMessage, IServerMessage\n    {\n        public string Target { get; }\n\n        public PingMessage(ParsedIRCMessage parsedMessage)\n        {",
+          "pred": "\ufeffnamespace NetIRC.Messages\n{\n    public class PingMessage : IRCMessage, IServerMessage\n    {\n        public string Target { get; }\n\n        public PingMessage(ParsedIRCMessage parsedMessage)\n        {\n            Target = parsedMessage.Parameters[0];\n        }\n    }\n}\n",
+          "gold": "\ufeffnamespace NetIRC.Messages\n{\n    public class PingMessage : IRCMessage, IServerMessage\n    {\n        public string Target { get; }\n\n        public PingMessage(ParsedIRCMessage parsedMessage)\n        {\n            Target = parsedMessage.Trailing;\n        }\n    }\n}\n"
+        },
+        {
+          "i": 17,
+          "objective": "Change IntervalReached event to contain duration position.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.7
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System;\r\nusing Microsoft.SPOT;\r\n\r\nnamespace IntervalTimer\r\n{\r\n    public class IntervalReachedEventArgs : EventArgs\r\n    {\r\n        public TimeSpan Duration { get; private set; }\r\n        public",
+          "gold_preview": "using System;\r\nusing Microsoft.SPOT;\r\n\r\nnamespace IntervalTimer\r\n{\r\n    public class IntervalReachedEventArgs : EventArgs\r\n    {\r\n        public int DurationNumber { get; set; }\r\n\r\n        public Inte",
+          "pred": "using System;\r\nusing Microsoft.SPOT;\r\n\r\nnamespace IntervalTimer\r\n{\r\n    public class IntervalReachedEventArgs : EventArgs\r\n    {\r\n        public TimeSpan Duration { get; private set; }\r\n        public int Position { get; private set; }\r\n\r\n        public IntervalReachedEventArgs(TimeSpan duration, int position)\r\n        {\r\n            Duration = duration;\r\n            Position = position;\r\n        }\r\n    }\r\n}\n",
+          "gold": "using System;\r\nusing Microsoft.SPOT;\r\n\r\nnamespace IntervalTimer\r\n{\r\n    public class IntervalReachedEventArgs : EventArgs\r\n    {\r\n        public int DurationNumber { get; set; }\r\n\r\n        public IntervalReachedEventArgs(int durationNumber)\r\n        {\r\n            DurationNumber = durationNumber;\r\n        }\r\n    }\r\n}\r\n"
+        },
+        {
+          "i": 18,
+          "objective": "Improve form safe name regex",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System.Text.RegularExpressions;\n\nnamespace FormEditor\n{\n\tpublic static class FieldHelper\n\t{\n\t\tprivate static readonly Regex FormSafeNameRegex = new Regex(\"[^a-zA-Z0-9_]\", RegexOptions.Compiled)",
+          "gold_preview": "\ufeffusing System.Text.RegularExpressions;\n\nnamespace FormEditor\n{\n\tpublic static class FieldHelper\n\t{\n\t\tprivate static readonly Regex FormSafeNameRegex = new Regex(\"[^a-zA-Z0-9_]\", RegexOptions.Compiled)",
+          "pred": "\ufeffusing System.Text.RegularExpressions;\n\nnamespace FormEditor\n{\n\tpublic static class FieldHelper\n\t{\n\t\tprivate static readonly Regex FormSafeNameRegex = new Regex(\"[^a-zA-Z0-9_]\", RegexOptions.Compiled);\n\t\tpublic static string FormSafeName(string name)\n\t\t{\n\t\t\treturn FormSafeNameRegex.Replace(name ?? string.Empty, \"_\");\n\t\t}\n\t}\n}\n",
+          "gold": "\ufeffusing System.Text.RegularExpressions;\n\nnamespace FormEditor\n{\n\tpublic static class FieldHelper\n\t{\n\t\tprivate static readonly Regex FormSafeNameRegex = new Regex(\"[^a-zA-Z0-9_]\", RegexOptions.Compiled);\n\t\tpublic static string FormSafeName(string name)\n\t\t{\n\t\t\treturn FormSafeNameRegex.Replace(name ?? string.Empty, \"_\");\n\t\t}\n\t}\n}"
+        },
+        {
+          "i": 19,
+          "objective": "Include the Table namespace into Hangman",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "using System;\nusing Table;\n\npublic class Hangman {\n  public static void Main(string[] args) {\n    Console.WriteLine(\"Hello, World!\");\n    Console.WriteLine(\"You entered the following {0} command line ",
+          "gold_preview": "using System;\nusing Table;\n\npublic class Hangman {\n  public static void Main(string[] args) {\n    Console.WriteLine(\"Hello, World!\");\n    Console.WriteLine(\"You entered the following {0} command line ",
+          "pred": "using System;\nusing Table;\n\npublic class Hangman {\n  public static void Main(string[] args) {\n    Console.WriteLine(\"Hello, World!\");\n    Console.WriteLine(\"You entered the following {0} command line arguments:\",\n         args.Length );\n    for (int i=0; i < args.Length; i++) {\n      Console.WriteLine(\"{0}\", args[i]); \n    }\n  }\n}\n",
+          "gold": "using System;\nusing Table;\n\npublic class Hangman {\n  public static void Main(string[] args) {\n    Console.WriteLine(\"Hello, World!\");\n    Console.WriteLine(\"You entered the following {0} command line arguments:\",\n         args.Length );\n    for (int i=0; i < args.Length; i++) {\n      Console.WriteLine(\"{0}\", args[i]); \n    }\n  }\n}\n"
+        },
+        {
+          "i": 20,
+          "objective": "Remove second parameter, bug not picked up by compiler",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing Owin;\n\nnamespace JSNLog\n{\n    public static class AppBuilderExtensions\n    {\n        public static void Use",
+          "gold_preview": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing Owin;\n\nnamespace JSNLog\n{\n    public static class AppBuilderExtensions\n    {\n        public static void Use",
+          "pred": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing Owin;\n\nnamespace JSNLog\n{\n    public static class AppBuilderExtensions\n    {\n        public static void UseJSNLog(this IAppBuilder app)\n        {\n            app.Use<JsnlogMiddlewareComponent>();\n        }\n    }\n}\n",
+          "gold": "\ufeffusing System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing Owin;\n\nnamespace JSNLog\n{\n    public static class AppBuilderExtensions\n    {\n        public static void UseJSNLog(this IAppBuilder app)\n        {\n            app.Use<JsnlogMiddlewareComponent>();\n        }\n    }\n}\n"
+        },
+        {
+          "i": 21,
+          "objective": "Add multi-exit discriminator (MED) support",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.544
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\nusing System.Collections.Generic;\n\nnamespace BmpListener.Bgp\n{\n    internal class PathAttributeMultiExitDisc : PathAttribute\n    {\n        public List<int> Metrics { get; private set; }",
+          "gold_preview": "\ufeffusing BmpListener.Utilities;\n\nnamespace BmpListener.Bgp\n{\n    internal class PathAttributeMultiExitDisc : PathAttribute\n    {\n        public uint Metric { get; private set; }\n\n        public override",
+          "pred": "\ufeffusing System;\nusing System.Collections.Generic;\n\nnamespace BmpListener.Bgp\n{\n    internal class PathAttributeMultiExitDisc : PathAttribute\n    {\n        public List<int> Metrics { get; private set; } = new List<int>();\n\n        public override void Decode(byte[] data, int offset)\n        {\n            var count = BitConverter.ToUInt16(data, offset);\n            for (var i = 0; i < count; ++i)\n                Metrics.Add(BitConverter.ToInt32(data, offset + 2 * i));\n        }\n    }\n}\n",
+          "gold": "\ufeffusing BmpListener.Utilities;\n\nnamespace BmpListener.Bgp\n{\n    internal class PathAttributeMultiExitDisc : PathAttribute\n    {\n        public uint Metric { get; private set; }\n\n        public override void Decode(byte[] data, int offset)\n        {\n            Metric = EndianBitConverter.Big.ToUInt32(data, offset);\n        }\n    }\n}"
+        },
+        {
+          "i": 22,
+          "objective": "Add new plugin repository URL",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.861
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing FogCreek.Plugins;\n\n[assembly: AssemblyFogCreekPluginId(\"FBExtendedEvents@goit.io\")]\n[assembly: AssemblyFogCreekMajorVersion(3)]\n[assembly: AssemblyFogCreekMinorVersionMin(6)]\n[assembly: Assembl",
+          "gold_preview": "\ufeffusing FogCreek.Plugins;\n\n[assembly: AssemblyFogCreekPluginId(\"FBExtendedEvents@goit.io\")]\n[assembly: AssemblyFogCreekMajorVersion(3)]\n[assembly: AssemblyFogCreekMinorVersionMin(5)]\n[assembly: Assembl",
+          "pred": "\ufeffusing FogCreek.Plugins;\n\n[assembly: AssemblyFogCreekPluginId(\"FBExtendedEvents@goit.io\")]\n[assembly: AssemblyFogCreekMajorVersion(3)]\n[assembly: AssemblyFogCreekMinorVersionMin(6)]\n[assembly: AssemblyFogCreekEmailAddress(\"jozef.izso@gmail.com\")]\n[assembly: AssemblyFogCreekWebsite(\"https://github.com/jozefizso/FBExtendedEvents\")]\n",
+          "gold": "\ufeffusing FogCreek.Plugins;\n\n[assembly: AssemblyFogCreekPluginId(\"FBExtendedEvents@goit.io\")]\n[assembly: AssemblyFogCreekMajorVersion(3)]\n[assembly: AssemblyFogCreekMinorVersionMin(5)]\n[assembly: AssemblyFogCreekEmailAddress(\"jozef.izso@gmail.com\")]\n[assembly: AssemblyFogCreekWebsite(\"https://github.com/jozefizso/FogBugz-ExtendedEvents\")]\n"
+        },
+        {
+          "i": 23,
+          "objective": "Add short term caching to sandbox html response to avoid repeated download by the browser.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.762
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing System.Web;\r\nusing System.Web.Mvc;\r\n\r\nnamespace Witness.Controllers\r\n{\r\n    public class SandboxController : Controller\r\n  ",
+          "gold_preview": "\ufeffusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing System.Web;\r\nusing System.Web.Mvc;\r\n\r\nnamespace Witness.Controllers\r\n{\r\n    public class SandboxController : Controller\r\n  ",
+          "pred": "\ufeffusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing System.Web;\r\nusing System.Web.Mvc;\r\n\r\nnamespace Witness.Controllers\r\n{\r\n    public class SandboxController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            Response.Cache.SetCacheability(HttpCacheability.Public);\r\n            Response.Cache.SetExpires(DateTime.Now.AddMinutes(10));\r\n            Response.Cache.SetMaxAge(new TimeSpan(0, 10, 0));\r\n\r\n            return View();\r\n        }\r\n    }\r\n}\n",
+          "gold": "\ufeffusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing System.Web;\r\nusing System.Web.Mvc;\r\n\r\nnamespace Witness.Controllers\r\n{\r\n    public class SandboxController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(1));\r\n            return View();\r\n        }\r\n    }\r\n}\r\n"
+        },
+        {
+          "i": 24,
+          "objective": "Add [KnownType(typeof(Dictionary<string,object>))] to allow for Object mapping to be passed over WCF channel",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.944
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "\ufeffusing System.Runtime.Serialization;\n\nnamespace CefSharp\n{\n\t[DataContract]\n\t[KnownType(typeof(object[]))]\n\t[KnownType(typeof(Dictionary<string,object>))]\n\tpublic class JavascriptResponse\n\t{\n\t\t[DataMem",
+          "gold_preview": "\ufeffusing System.Collections.Generic;\nusing System.Runtime.Serialization;\n\nnamespace CefSharp\n{\n\t[DataContract]\n\t[KnownType(typeof(object[]))]\n\t[KnownType(typeof(Dictionary<string,object>))]\n\tpublic clas",
+          "pred": "\ufeffusing System.Runtime.Serialization;\n\nnamespace CefSharp\n{\n\t[DataContract]\n\t[KnownType(typeof(object[]))]\n\t[KnownType(typeof(Dictionary<string,object>))]\n\tpublic class JavascriptResponse\n\t{\n\t\t[DataMember]\n\t\tpublic string Message { get; set; }\n\n\t\t[DataMember]\n\t\tpublic bool Success { get; set; }\n\n\t\t[DataMember]\n\t\tpublic object Result { get; set; }\n\t}\n}\n",
+          "gold": "\ufeffusing System.Collections.Generic;\nusing System.Runtime.Serialization;\n\nnamespace CefSharp\n{\n\t[DataContract]\n\t[KnownType(typeof(object[]))]\n\t[KnownType(typeof(Dictionary<string,object>))]\n\tpublic class JavascriptResponse\n\t{\n\t\t[DataMember]\n\t\tpublic string Message { get; set; }\n\n\t\t[DataMember]\n\t\tpublic bool Success { get; set; }\n\n\t\t[DataMember]\n\t\tpublic object Result { get; set; }\n\t}\n}\n"
+        }
+      ]
+    }
+  }
+}

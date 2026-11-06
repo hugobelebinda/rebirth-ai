@@ -181,19 +181,21 @@ def migrate_repository(
         """Return a skip result, or None if the file may proceed."""
         rel_s = rel.as_posix()
         abs_path = project_dir / rel_s
-        if not adapter.is_source_file(abs_path):
-            return FileMigrationResult(
-                relative_file=rel_s,
-                relative_test=None,
-                status="skipped_wrong_language",
-                message=f"Not owned by adapter {adapter.name}",
-            )
+        # Secret check first: a credential path must be reported as such even when
+        # the adapter would not own it anyway (truthful report / PR body).
         if is_secret_path(rel):
             return FileMigrationResult(
                 relative_file=rel_s,
                 relative_test=None,
                 status="skipped_secret",
                 message="Secret/credential path blocked",
+            )
+        if not adapter.is_source_file(abs_path):
+            return FileMigrationResult(
+                relative_file=rel_s,
+                relative_test=None,
+                status="skipped_wrong_language",
+                message=f"Not owned by adapter {adapter.name}",
             )
         if file_too_large(abs_path):
             return FileMigrationResult(

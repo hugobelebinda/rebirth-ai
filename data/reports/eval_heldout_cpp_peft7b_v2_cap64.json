@@ -1,0 +1,332 @@
+{
+  "backend": "peft",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:cpp",
+      "backend": "peft",
+      "lang": "cpp",
+      "n": 24,
+      "soft_exact": 1,
+      "soft_exact_rate": 0.041666666666666664,
+      "parses": 23,
+      "parse_rate": 0.9583333333333334,
+      "mean_symbol_jaccard": 0.8333333333333334,
+      "mean_token_overlap": 0.7221666666666667,
+      "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Fix a syscall number for 64-bit arm",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.5
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#define SYS_CLOCK_GETTIME 170\n#include \"linux_clock.cpp\"\n",
+          "gold_preview": "#ifdef BITS_64\n#define SYS_CLOCK_GETTIME 113\n#endif\n\n#ifdef BITS_32\n#define SYS_CLOCK_GETTIME 263\n#endif\n\n#include \"linux_clock.cpp\"\n"
+        },
+        {
+          "i": 2,
+          "objective": "Fix bug to see Travis succeed",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.909
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"arithmetics.hpp\"\n\nnamespace arithmetics\n{\n\tint add(int a, int b)\n\t{\n\t\treturn a + b;\n\t}\n\t\n\tint add_buggy(int a, int b)\n\t{\n\t\treturn a + b - 1;\n\t}\n}\n",
+          "gold_preview": "#include \"arithmetics.hpp\"\n\nnamespace arithmetics\n{\n\tint add(int a, int b)\n\t{\n\t\treturn a + b;\n\t}\n\t\n\tint add_buggy(int a, int b)\n\t{\n\t\treturn a + b;\n\t}\n}\n\n\n"
+        },
+        {
+          "i": 3,
+          "objective": "Add a dummy for testing Boost dependencies within CMake",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.714
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <boost/asio.hpp>\n#include <iostream>\n\nint main () {\n    boost::asio::io_service io_service;\n    std::cout << \"Hello world!\" << std::endl;\n}\n",
+          "gold_preview": "#include <iostream>\n#include <boost/asio.hpp>\n\nint main () {\n    boost::asio::io_service io_dummy;\n    boost::asio::deadline_timer t(io_dummy, boost::posix_time::seconds(5));\n    t.wait();\n    std::co"
+        },
+        {
+          "i": 4,
+          "objective": "Test cases print stack trace on sigsegv",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.596
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <csignal>\n#include <iostream>\n\n#include \"google/gtest/gtest.h\"\n\nvoid handle_sigsegv(int signal) {\n  std::cerr << \"Caught SIGSEGV\" << std::endl;\n  std::abort();\n}\n\nint main(int argc, char **ar",
+          "gold_preview": "#include \"google/gtest/gtest.h\"\n#include <messmer/cpp-utils/assert/backtrace.h>\n\nint main(int argc, char **argv) {\n  cpputils::showBacktraceOnSigSegv();\n  testing::InitGoogleTest(&argc, argv);\n  retur"
+        },
+        {
+          "i": 5,
+          "objective": "Set local to C. Maybe not the best longterm solution.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.794
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"mainwindow.h\"\n#include <QApplication>\n\nint main(int argc, char **argv)\n{\n    QApplication a(argc, argv);\n    MainWindow w;\n    w.show();\n\n    return a.exec();\n}\n",
+          "gold_preview": "#include \"mainwindow.h\"\n#include <QApplication>\n\nint main(int argc, char *argv[])\n{\n    QApplication a(argc, argv);\n    std::locale::global( std::locale( \"C\" ) );\n    MainWindow w;\n    w.show();\n\n    "
+        },
+        {
+          "i": 6,
+          "objective": "Disable random shape optimizations by default",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.862
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"settings.h\"\n\nint N_POLY_POINTS = 4;\nint N_COLOR_VAR = 5;\nint N_POS_VAR = 5;\nint SHAPE_OPT_FREQ = 0; // Disable by default\nint GUI_REFRESH_RATE = 1;\n\nint AUTOFOCUS_RES = 2;\n\nint FOCUS_LEFT=0,",
+          "gold_preview": "#include \"settings.h\"\n\nint N_POLY_POINTS = 4;\nint N_COLOR_VAR = 5;\nint N_POS_VAR = 5;\nint SHAPE_OPT_FREQ = 0;\nint GUI_REFRESH_RATE = 1;\n\nint AUTOFOCUS_RES = 2;\n\nint FOCUS_LEFT=0, FOCUS_RIGHT=100, FOCU"
+        },
+        {
+          "i": 7,
+          "objective": "Fix this test for gcc-4.2.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.897
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// RUN: %llvmgxx %s -S -emit-llvm -O2 -o - | ignore grep _Unwind_Resume | \\\n// RUN:   wc -l | grep {\\[01\\]}\n\nstruct One { };\nstruct Two { };\n\nvoid handle_unexpected () {\n  try\n  {\n    throw;\n  }\n  cat",
+          "gold_preview": "// RUN: %llvmgxx %s -S -emit-llvm -O2 -o - | ignore grep _Unwind_Resume | \\\n// RUN:   wc -l | grep {\\[23\\]}\n\nstruct One { };\nstruct Two { };\n\nvoid handle_unexpected () {\n  try\n  {\n    throw;\n  }\n  cat"
+        },
+        {
+          "i": 8,
+          "objective": "Add comment to sqrt calculation",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.7
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include<math.h>\n\nbool isPrimeBruteForce(int x) {\n\tif (x < 2)\n\t\treturn false;\n\tfloat sqroot_x = sqrt(x); // Calculate the square root of x\n\tfor(int i=0; i <= sqroot_x; i++) {\n\t\tif (x%i==0)\n\t\t\treturn f",
+          "gold_preview": "#include<math.h>\n\nbool isPrimeBruteForce(int x) {\n\tif (x < 2)\n\t\treturn false;\n\tfloat sqroot_x = sqrt(x);\n\tfor(int i=0; i <= sqroot_x; i++) { /* If there were only factors above the square root of x, t"
+        },
+        {
+          "i": 9,
+          "objective": "Fix allocator OOM test on Windows.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.789
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// RUN: %clang_cl_asan -O0 %s -Fe%t\n// RUN: not %run %t 2>&1 | FileCheck %s\n// REQUIRES: asan-32-bits\n\n#include <malloc.h>\n\nint main() {\n  while (true) {\n    void *ptr = malloc(50 * 1024 * 1024);  // ",
+          "gold_preview": "// RUN: %clang_cl_asan -O0 %s -Fe%t\n// RUN: not %run %t 2>&1 | FileCheck %s\n// REQUIRES: asan-32-bits\n\n#include <malloc.h>\n\nint main() {\n  while (true) {\n    void *ptr = malloc(200 * 1024 * 1024);  //"
+        },
+        {
+          "i": 10,
+          "objective": "Debug / release macros check added (required for normal assert functioning on non-Windows systems)",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.545
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"advanced_assert.h\"\r\n\r\n#ifdef _DEBUG\r\n#define ASSERT_DEBUG(x) if (!(x)) { \\\r\n\tstd::cerr << \"Assertion failed: \" #x \"\\n\"; \\\r\n}\r\n#else\r\n#define ASSERT_DEBUG(x)\r\n#endif\r\n\r\nstd::function<void (co",
+          "gold_preview": "#include \"advanced_assert.h\"\r\n\r\n#if defined _DEBUG == (defined NDEBUG || NDEBUG == 1)\r\n#error \"Either _DEBUG or NDEBUG=1 must be defined\"\r\n#endif\r\n\r\nstd::function<void (const char*)> AdvancedAssert::_"
+        },
+        {
+          "i": 11,
+          "objective": "Clean up unused param warning",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"textures/constant_texture.h\"\n\nConstantTexture::ConstantTexture(const Colorf &color) : color(color){}\nColorf ConstantTexture::sample(const DifferentialGeometry &) const {\n\treturn color;\n}\nCol",
+          "gold_preview": "#include \"textures/constant_texture.h\"\n\nConstantTexture::ConstantTexture(const Colorf &color) : color(color){}\nColorf ConstantTexture::sample(const DifferentialGeometry&) const {\n\treturn color;\n}\nColo"
+        },
+        {
+          "i": 12,
+          "objective": "Change style of the code and file name",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.49
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <iostream>\n#include \"Game.h\"\n\nint main(int argc, char** argv)\n{\n    Game::Start();\n    \n    return 0;\n}\n",
+          "gold_preview": "#include \"Game.h\"\n#include <SFML/Graphics.hpp>\n\nint main(int argc, char** argv) { // A * token followed by another * token in this case is a pointer to a pointer. In this case, argv is a pointer to an"
+        },
+        {
+          "i": 13,
+          "objective": "Use more specific checks filter in the test.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.887
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// RUN: grep -Ev \"// *[A-Z-]+:\" %s > %t.cpp\n// RUN: clang-tidy %t.cpp -fix -checks=clang-analyzer-* -- -std=c++11\n// RUN: FileCheck -input-file=%t.cpp %s\n\nnamespace i {\n}\n// CHECK: } // namespace i\n\nc",
+          "gold_preview": "// RUN: grep -Ev \"// *[A-Z-]+:\" %s > %t.cpp\n// RUN: clang-tidy %t.cpp -fix -checks=^llvm-.* --\n// RUN: FileCheck -input-file=%t.cpp %s\n\nnamespace i {\n}\n// CHECK: } // namespace i\n\nclass A { A(int i); "
+        },
+        {
+          "i": 14,
+          "objective": "Support accrus pour la compilation avec MinGW",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.78
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <iostream>\n#include <stdexcept>\n\n#include \"Badger.hpp\"\n\nint main()\n{\n    try\n    {\n        badger::Badger b;\n        b.run();\n\n        return EXIT_SUCCESS;\n    }\n\n    catch(const std::excepti",
+          "gold_preview": "#include <iostream>\n#include <stdexcept>\n\n#include \"Badger.hpp\"\n\n// Include cstdlib for EXIT_SUCCESS with MinGW\n#include <cstdlib>\n\nint main()\n{\n    try\n    {\n        badger::Badger b;\n        b.run()"
+        },
+        {
+          "i": 15,
+          "objective": "Fix test suppressed in r166683 on 32-bit Linux",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.714
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// RUN: %clang_cc1 %s -g -S -emit-llvm -o - | FileCheck %s\n\n// FIXME: Failing on i686.\n// XFAIL: i686-linux-gnu\n// RUN: %clang_cc1 -triple i686-linux %s -g -S -emit-llvm -o - | FileCheck %s\n\nstruct A ",
+          "gold_preview": "// RUN: %clang_cc1 %s -g -S -emit-llvm -o - | FileCheck %s\n\nstruct A {\n  virtual void f();\n};\n\nstruct B {\n  virtual void f();\n};\n\nstruct C : A, B {\n  virtual void f();\n};\n\nvoid C::f() { }\n\n// CHECK: ["
+        },
+        {
+          "i": 16,
+          "objective": "Update example to demonstrate version numbers.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.273
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <iostream>\n#include <string>\n\nint main() {\n  std::cout << \"Hello, World! (v1.2.3)\" << std::endl;\n  return 0;\n}\n",
+          "gold_preview": "#include <iostream>\n#include <stdlib.h>\n\n#include \"exampleConfig.h\"\n#include \"example.h\"\n\n/*\n * Simple main program that demontrates how access\n * CMake definitions (here the version number) from sour"
+        },
+        {
+          "i": 17,
+          "objective": "Add enum definitions for ADC's.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.403
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <avr/io.h>\r\n#include <avr/interrupt.h>\r\n\r\nenum ADC_MODES { MODE_0, MODE_1 };\r\nenum ADC_SPEEDS { SPEED_0, SPEED_1 };\r\n\r\nenum ADC_CHANNELS { ADC0, ADC1, ADC2, ADC3 };\r\n\r\nvoid adc_init(enum ADC_",
+          "gold_preview": "#include <avr/io.h>\r\n#include <avr/interrupt.h>\r\n\r\n/*\r\n           _____   ___ ___\r\n           RESET -|   U   |- VCC\r\n     (Mode) ADC3 -| AT13A |- ADC1 (Depth)\r\n    (Speed) ADC2 -|       |- OC0B (PWM O"
+        },
+        {
+          "i": 18,
+          "objective": "Comment out unused mocks to save build time",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.52
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// Copyright 2015 http://switchdevice.com\n\n#include \"Arduino.cc\"\n#include \"EEPROM.cc\"\n#include \"Serial.cc\"\n#include \"SoftwareSerial.cc\"\n#include \"serialHelper.cc\"\n#include \"Spark.cc\"\n#include \"WiFi.cc",
+          "gold_preview": "// Copyright 2015 http://switchdevice.com\n\n#include \"Arduino.cc\"\n#include \"Serial.cc\"\n#include \"serialHelper.cc\"\n#include \"OneWire.cc\"\n#include \"SoftwareSerial.cc\"\n\n/* At WiTraC we don't make use of a"
+        },
+        {
+          "i": 19,
+          "objective": "Fix the fix. Added missing return type.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// Copyright (c) 2012 The Chromium Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style license that can be\n// found in the LICENSE file.\n\n#include \"ui/views/controls/te",
+          "gold_preview": "// Copyright (c) 2012 The Chromium Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style license that can be\n// found in the LICENSE file.\n\n#include \"ui/views/controls/te"
+        },
+        {
+          "i": 20,
+          "objective": "Fix a shadowed data member.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.957
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/**\n * \\file heuristic.cc\n *\n *\n *\n * \\author Ethan Burns\n * \\date 2008-10-13\n */\n\n#include \"util/fixed_point.h\"\n\n#include \"heuristic.h\"\n\nHeuristic::Heuristic(const SearchDomain *d) : domain(d), weigh",
+          "gold_preview": "/**\n * \\file heuristic.cc\n *\n *\n *\n * \\author Ethan Burns\n * \\date 2008-10-13\n */\n\n#include \"util/fixed_point.h\"\n\n#include \"heuristic.h\"\n\nHeuristic::Heuristic(const SearchDomain *d) : domain(d), weigh"
+        },
+        {
+          "i": 21,
+          "objective": "Read the dashboard file and return the content",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.444
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"dashboardcontroller.h\"\n#include \"serialization/result.h\"\n\nApiMock::ResponseData ApiMock::DashboardController::get(RequestData request) {\n\tauto result = Html(readFile(\"dashboard.html\"));\n\tret",
+          "gold_preview": "#include \"dashboardcontroller.h\"\n#include \"serialization/result.h\"\n#include <fstream>\n\nApiMock::ResponseData ApiMock::DashboardController::get(RequestData request) {\n\t// TODO: This is temporary, just "
+        },
+        {
+          "i": 22,
+          "objective": "Update Floyd with input output",
+          "ast": {
+            "parses": false,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 0.614
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include <iostream>\n#include <climits>\n\nusing namespace std;\n\nconst int MAXN = 100;\nconst int INF = INT_MAX / 2;\n\nvoid floyd(int n, int a[MAXN][MAXN]) {\n  int d[MAXN][MAXN];\n\n  for (int i = 0; i < n; ",
+          "gold_preview": "#include <iostream>\n\nusing namespace std;\n\nint main() {\n  int n = 4;\n  int a[n][n];\n  int d[n][n];\n  \n  for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n      cin >> a[i][j];\n      d[i]"
+        },
+        {
+          "i": 23,
+          "objective": "Check for negative duration in ThreadSleep on Windows",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.944
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// Copyright (c) 2011, Christian Rorvik\n// Distributed under the Simplified BSD License (See accompanying file LICENSE.txt)\n\n#include \"crunch/concurrency/yield.hpp\"\n\n#include <windows.h>\n\nnamespace Cr",
+          "gold_preview": "// Copyright (c) 2011, Christian Rorvik\n// Distributed under the Simplified BSD License (See accompanying file LICENSE.txt)\n\n#include \"crunch/concurrency/yield.hpp\"\n\n#include <windows.h>\n\nnamespace Cr"
+        },
+        {
+          "i": 24,
+          "objective": "Disable testPathFinder. Does not terminate!",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#include \"gtest/gtest.h\"\n#include \"maze.h\"\n#include \"mazereader.h\"\n#include \"mazeflooder.h\"\n#include \"mazepathfinder.h\"\n#include \"mazeprinter.h\"\n\n// TEST(PathFinder,test){\n//     MazeResetData();\n//  ",
+          "gold_preview": "#include \"gtest/gtest.h\"\n#include \"maze.h\"\n#include \"mazereader.h\"\n#include \"mazeflooder.h\"\n#include \"mazepathfinder.h\"\n#include \"mazeprinter.h\"\n\nTEST(PathFinder,test){\n    MazeResetData();\n    ReadMA"
+        }
+      ]
+    }
+  }
+}

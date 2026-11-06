@@ -1,0 +1,20 @@
+name: v3_expanded
+description: >
+  Phase 12 v3 wave — the v2 recipe on the expanded corpus (data/datasets/expanded/<lang>).
+  Go experiment C: 15/100 vs v2 14/100 on the frozen set. Pass --data per language;
+  Python and JS/TS are capped with --limit 12000.
+quant: 4bit
+max_length: 512
+eos: true
+completion_only: true
+drop_overlong: true
+lora_r: 8
+lora_alpha: 16
+lora_targets: attn
+epochs: 1
+lr: 0.0002
+batch_size: 1
+grad_accum: 8
+gradient_checkpointing: true
+attn_eager: true
+save_steps: 50

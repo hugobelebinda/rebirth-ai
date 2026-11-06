@@ -12,6 +12,13 @@ from rebirth_ai import __version__
 
 app = typer.Typer(help="Rebirth AI — autonomous migration agent", no_args_is_help=True)
 
+# Phase 13 MLOps: experiment tracking + model registry (MLflow; optional ".[mlops]" extra)
+from rebirth_ai.mlops_cli import mlflow_ui, registry_app, track_app  # noqa: E402
+
+app.add_typer(track_app, name="track")
+app.add_typer(registry_app, name="registry")
+app.command("mlflow-ui")(mlflow_ui)
+
 
 @app.command()
 def version() -> None:

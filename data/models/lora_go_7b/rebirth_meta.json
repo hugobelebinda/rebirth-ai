@@ -1,0 +1,43 @@
+{
+  "language": "go",
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "adapter": "data/models/lora_go_7b/adapter",
+  "data": "data/datasets/go_migration.jsonl",
+  "corpus_sha256": "b49db7c730dd28b3b76edb3579528a04816126d57d748089692735e5aa787c17",
+  "corpus_rows": 1528,
+  "train_rows": 1418,
+  "split_train_rows": 1436,
+  "recipe": {
+    "quant": "4bit",
+    "eos": true,
+    "completion_only": true,
+    "drop_overlong": true,
+    "features": {
+      "rows": 1436,
+      "kept": 1418,
+      "dropped_overlong": 18,
+      "truncated": 0,
+      "label_tokens": 184414
+    }
+  },
+  "eval_rows": 92,
+  "eval_frac": 0.05,
+  "split_seed": 1337,
+  "split_index": "data/datasets/splits/go.split.json",
+  "global_steps": 178,
+  "train_loss": 0.22406358732266374,
+  "hyperparams": {
+    "lora_r": 8,
+    "lora_alpha": 16,
+    "epochs": 1,
+    "max_length": 512,
+    "batch_size": 1,
+    "grad_accum": 8,
+    "max_steps": -1
+  },
+  "lr": 0.0002,
+  "smoke": false,
+  "device": "AMD Radeon RX 7800 XT",
+  "torch": "2.9.1+rocm6.4",
+  "trained_at": "2026-11-05T11:36:55+00:00"
+}
