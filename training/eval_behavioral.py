@@ -16,6 +16,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import UTC
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -208,7 +209,6 @@ def run_synth_suite(
     With ``eval_file``: the first ``n`` rows of a frozen eval set, in file order
     (``training/make_eval_sets.py`` — seeded random held-out rows, not just the shortest).
     """
-    from rebirth_ai.eval.metrics import soft_exact_match
     from rebirth_ai.lora import DEFAULT_EVAL_FRAC, DEFAULT_SEED, load_rows, lora_target, split_rows
 
     client = _get_generator(backend, language=lang)
@@ -232,49 +232,54 @@ def run_synth_suite(
 
     print(f"\n=== {suite_name} suite ({backend}) — {len(sample)} pairs ===")
     results = []
-    soft = 0
-    parses = 0
-    jaccards: list[float] = []
-    overlaps: list[float] = []
-
+    pred = None
     for i, row in enumerate(sample, 1):
-        language = row.get("language", "javascript")
-        gold = row["modern"]
         pred = client.migrate(
             objective=row["objective"],
             legacy_code=row["legacy"],
             file_path=row.get("path") or "snippet.js",
-            language=language,
+            language=row.get("language", "javascript"),
         )
-        ast = _eval_ast(pred.code, gold, language=language)
-        if ast["soft_exact"]:
-            soft += 1
-        if ast["parses"]:
-            parses += 1
-        jaccards.append(ast["symbol_jaccard"])
-        overlaps.append(ast["token_overlap"])
-        mark = "SOFT_EXACT" if ast["soft_exact"] else f"sym={ast['symbol_jaccard']:.2f}"
-        print(f"[{i}/{len(sample)}] {mark} parses={ast['parses']} :: {row['objective'][:60]}")
-        results.append(
-            {
-                "i": i,
-                "objective": row["objective"][:120],
-                "ast": ast,
-                "strict_ws_norm_was_misleading": (
-                    soft_exact_match(pred.code, gold)
-                    and pred.code.strip() != gold.strip()
-                ),
-                "pred_preview": pred.code[:200],
-                "gold_preview": gold[:200],
-                # Full texts so parse failures can be diagnosed (where/why the code breaks)
-                "pred": pred.code,
-                "gold": gold,
-            }
-        )
+        results.append(score_row(i, row, pred.code, total=len(sample)))
+    return summarize(
+        results, suite=suite_name, backend=backend, lang=lang,
+        model=getattr(pred, "model", None) if sample else None,
+    )
 
-    n_s = len(sample)
+
+def score_row(i: int, row: dict, code: str, *, total: int) -> dict:
+    """Score one prediction (shared by the PEFT/Ollama loop and training/eval_vllm.py)."""
+    from rebirth_ai.eval.metrics import soft_exact_match
+
+    language = row.get("language", "javascript")
+    gold = row["modern"]
+    ast = _eval_ast(code, gold, language=language)
+    mark = "SOFT_EXACT" if ast["soft_exact"] else f"sym={ast['symbol_jaccard']:.2f}"
+    print(f"[{i}/{total}] {mark} parses={ast['parses']} :: {row['objective'][:60]}", flush=True)
     return {
-        "suite": suite_name,
+        "i": i,
+        "objective": row["objective"][:120],
+        "ast": ast,
+        "strict_ws_norm_was_misleading": (
+            soft_exact_match(code, gold) and code.strip() != gold.strip()
+        ),
+        "pred_preview": code[:200],
+        "gold_preview": gold[:200],
+        # Full texts so parse failures can be diagnosed (where/why the code breaks)
+        "pred": code,
+        "gold": gold,
+    }
+
+
+def summarize(results: list[dict], *, suite: str, backend: str, lang: str | None, model: str | None) -> dict:
+    """Aggregate scored rows into the report's synthetic-suite dict (one schema for all backends)."""
+    n_s = len(results)
+    soft = sum(1 for r in results if r["ast"]["soft_exact"])
+    parses = sum(1 for r in results if r["ast"]["parses"])
+    jaccards = [r["ast"]["symbol_jaccard"] for r in results]
+    overlaps = [r["ast"]["token_overlap"] for r in results]
+    return {
+        "suite": suite,
         "backend": backend,
         "lang": lang,
         "n": n_s,
@@ -284,7 +289,7 @@ def run_synth_suite(
         "parse_rate": parses / n_s if n_s else 0.0,
         "mean_symbol_jaccard": sum(jaccards) / len(jaccards) if jaccards else 0.0,
         "mean_token_overlap": sum(overlaps) / len(overlaps) if overlaps else 0.0,
-        "model": getattr(pred, "model", None) if sample else None,
+        "model": model,
         "results": results,
     }
 
@@ -420,10 +425,10 @@ def main() -> int:
     print(f"wrote {args.out}")
 
     if args.freeze_baseline is not None:
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         baseline = {
-            "frozen_at": datetime.now(timezone.utc).isoformat(),
+            "frozen_at": datetime.now(UTC).isoformat(),
             "backend": args.backend,
             "model": os.environ.get("OLLAMA_MODEL", "qwen2.5-coder:14b-instruct-q6_K"),
             "suites": {

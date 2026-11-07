@@ -1,0 +1,10 @@
+# DVC pipeline parameters (Phase 14). Recipes themselves live in configs/recipes/*.yaml.
+base_7b: Qwen/Qwen2.5-Coder-7B-Instruct
+eval_rows: 100
+# v3 wave (Phase 12): expanded corpus, recipe v3_expanded. Python / JS-TS capped to ~3 h each.
+v3:
+  python: {limit: "--limit 12000"}
+  csharp: {limit: ""}
+  java: {limit: ""}
+  swift: {limit: ""}
+  js_ts: {limit: "--limit 12000"}

@@ -1,6 +1,6 @@
 # Rebirth AI — Production-Grade Roadmap
 
-> Last updated: 2026-11-05 (Phases **0–11 complete**; **now = Phase 12**; phases renumbered in execution order — see Phase map)  
+> Last updated: 2026-11-06 (Phases **0–14 complete**; Phase 15 blocked on AWS quota → offline Phase 16 work; phases renumbered in execution order — see Phase map)  
 > Scope: take the **local-first JS/TS MVP** (Phases 0–5 + data interlude) to a **production-grade, multi-language** migration product.  
 > Constraint: **cloud GPU is optional** — required only for optional 14B LoRA specialization. Everything else runs on this machine (Ollama 14B + Docker + local PEFT 7B).  
 > **New agent:** start at [SESSION_HANDOFF.md](SESSION_HANDOFF.md).
@@ -72,9 +72,9 @@ Phase 8    Adapter factory + Python vertical          ✅
 Phase 9    Full language wave (Go…Swift)              ✅
 Phase 10   Quality gates + ≥15K corpus                ✅
 Phase 11   Per-language LoRA — harness + v2 7B adapters (all 8)          ✅ 2026-11-05
-Phase 12   Local tuning v3 + eval hardening                               ← IN PROGRESS
+Phase 12   Local tuning v3 + eval hardening                               ✅ 2026-11-06
 Phase 13   MLOps 1 — experiment tracking + model registry + YAML recipes   ✅ 2026-11-05
-Phase 14   MLOps 2 — reproducible pipelines + infra (DVC/S3, Docker, Terraform, vLLM)
+Phase 14   MLOps 2 — reproducible pipelines + infra (DVC/S3, Terraform, vLLM)   ✅ 2026-11-05
 Phase 15   Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge)    waits on AWS quota
 Phase 16   MLOps 3 — model CI/CD + packaging (Ollama adapters, rollback)
 Phase 17   Cross-language migration (any → any of 8) + unified adapter
@@ -489,7 +489,7 @@ LoRA playbook (next): [phases/PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LOR
 
 ```
 Done         Phases 0–11 (8 langs; corpus 24640; fixtures 8/8; v2 LoRA per language)
-Now          Phase 12 — local tuning v3 + eval hardening (local GPU, user-started)
+Now          Phase 15 blocked on AWS quota → offline Phase 16 work + data prep
 Then         Phase 13 — MLOps 1: MLflow tracking + registry + YAML recipes   (no GPU)
 Then         Phase 14 — MLOps 2: DVC/S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval
 Then         Phase 15 — cloud 14B adapters + DPO (AWS g6e.xlarge; needs quota)
@@ -548,7 +548,7 @@ Then         Phase 19 — bootstrap + docs + v1.0.0 tag
 | [OLLAMA_AMD_GPU.md](OLLAMA_AMD_GPU.md) | Inference / train GPU ops |
 | [phases/PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | Last completed product phase (quality + 15K) |
 | [phases/PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md) | Per-lang LoRA (complete) |
-| [phases/PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) | **Current** — local tuning v3 |
+| [phases/PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) | ✅ Complete — v3 results, references, Ollama test |
 | [phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md) · [14](phases/PHASE_14_MLOPS_REPRO_INFRA.md) · [16](phases/PHASE_16_MLOPS_CICD_PACKAGING.md) · [18](phases/PHASE_18_MLOPS_MONITORING.md) | MLOps phases |
 | [phases/PHASE_15_CLOUD_14B.md](phases/PHASE_15_CLOUD_14B.md) · [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) | Cloud 14B adapters |
 | [phases/PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md) | Cross-language migration |

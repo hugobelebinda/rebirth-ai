@@ -24,7 +24,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -257,6 +257,17 @@ def main() -> int:
         help="Force eager attention (avoids experimental ROCm SDPA)",
     )
     parser.add_argument(
+        "--attn-impl",
+        choices=("eager", "sdpa", "flash_attention_2"),
+        default=None,
+        help="Attention implementation (CUDA cloud: sdpa; flash_attention_2 needs flash-attn). Overrides --attn-eager",
+    )
+    parser.add_argument(
+        "--group-by-length",
+        action="store_true",
+        help="Batch rows of similar length (less padding when --batch-size > 1)",
+    )
+    parser.add_argument(
         "--cpu",
         action="store_true",
         help="Force CPU even if ROCm/CUDA is visible",
@@ -292,6 +303,14 @@ def main() -> int:
     args.base_model = args.base_model or (
         DEFAULT_BASE_7B if args.lang else "Qwen/Qwen2.5-Coder-0.5B-Instruct"
     )
+    if args.lang and args.out == lora_target(args.lang).out:
+        # Default out dir follows the base size: a 14B run must never land in (and later
+        # sync over) the 7B champion's lora_<lang>_7b directory.
+        from rebirth_ai.tracking import base_label
+
+        size = base_label(args.base_model)
+        if size not in ("7b", "unknown"):
+            args.out = lora_target(args.lang).out.with_name(f"lora_{lora_target(args.lang).lang}_{size}")
     args.out = args.out or DEFAULT_OUT
     eval_frac = args.eval_frac if args.eval_frac is not None else (DEFAULT_EVAL_FRAC if args.lang else 0.0)
     if not 0.0 <= eval_frac < 1.0:
@@ -388,7 +407,9 @@ def main() -> int:
         "dtype": dtype,
         "trust_remote_code": True,
     }
-    if args.attn_eager:
+    if args.attn_impl:
+        load_kwargs["attn_implementation"] = args.attn_impl
+    elif args.attn_eager:
         load_kwargs["attn_implementation"] = "eager"
     if args.quant != "none":
         if not use_gpu:
@@ -460,6 +481,8 @@ def main() -> int:
         gradient_checkpointing=bool(args.gradient_checkpointing and use_gpu),
         gradient_checkpointing_kwargs={"use_reentrant": False} if args.quant != "none" else None,
         optim="adamw_torch",  # adamw_8bit needs working CUDA bitsandbytes
+        # transformers 5: group_by_length moved to train_sampling_strategy
+        train_sampling_strategy="group_by_length" if args.group_by_length else "random",
     )
     step_log = StepLog(args.step_log)
     step_log.write(
@@ -549,7 +572,7 @@ def main() -> int:
         "smoke": args.smoke,
         "device": device_name,
         "torch": torch.__version__,
-        "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "trained_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
     (args.out / "rebirth_meta.json").write_text(json.dumps(rebirth_meta, indent=2), encoding="utf-8")
     print(f"Saved LoRA adapter → {adapter_dir}")

@@ -55,6 +55,8 @@ ev() {  # lang name adapter_dir → data/reports/exp/<lang>_<name>.json
     python -u training/eval_behavioral.py --backend peft --suite synthetic --lang "$lang" \
     --eval-file "data/datasets/evalsets/$lang.jsonl" --n-synth 100 --out "$out" > "$X/eval_${lang}_$name.log" 2>&1
   local code=$?
+  # Phase 14: record the stage in dvc.lock (only pipeline stages: <lang>_v2 / <lang>_v3).
+  case "$name" in v2|v3) [ "$code" -eq 0 ] && bash scripts/dvc.sh commit -f -q "eval_${name}@${lang}" >> "$X/dvc.log" 2>&1 ;; esac
   note "\"event\":\"eval_end\",\"lang\":\"$lang\",\"name\":\"$name\",\"exit\":$code,\"summary\":$(python3 -c "
 import json;d=json.load(open('$out'))['suites']['synthetic']
 print(json.dumps({k:round(d[k],3) for k in ('n','soft_exact','parses','mean_symbol_jaccard','mean_token_overlap')}))" 2>/dev/null || echo null)"
@@ -70,6 +72,7 @@ train_exp() {  # lang name extra-args… → data/models/exp/<lang>_<name>
   bash scripts/train_logged.sh "$lang" 512 --data "data/datasets/expanded/${lang}_migration.jsonl" \
     --out "$out" --resume "${limit[@]}" "$@" >> "$X/train_${lang}_$name.console" 2>&1
   local code=$?
+  [ "$code" -eq 0 ] && [ "$name" = v3 ] && bash scripts/dvc.sh commit -f -q "train_v3@${lang}" >> "$X/dvc.log" 2>&1
   local loss
   loss=$(python3 -c "import json;print(round(json.load(open('$out/rebirth_meta.json'))['train_loss'],4))" 2>/dev/null || echo null)
   note "\"event\":\"train_end\",\"lang\":\"$lang\",\"name\":\"$name\",\"exit\":$code,\"train_loss\":$loss,\"run_dir\":\"$(ls -dt logs/train/${lang}_seq512_* | head -1)\""
@@ -84,6 +87,14 @@ fi
 
 for lang in "${LANGS[@]}"; do
   ev "$lang" v2 "data/models/lora_${lang}_7b/adapter"
-  train_exp "$lang" v3 --recipe "$RECIPE" && ev "$lang" v3 "data/models/exp/${lang}_v3/adapter"
+  train_exp "$lang" v3 --recipe "$RECIPE" && ev "$lang" v3 "data/models/exp/${lang}_v3/adapter" || continue
+  # Phase 13 gate, dry-run: v3 vs the champion on the frozen set — reported, never auto-promoted.
+  gate_out="$X/gate_${lang}_v3.json"
+  rebirth registry gate --lang "$lang" --adapter "data/models/exp/${lang}_v3" \
+    --eval-file "data/datasets/evalsets/${lang}.jsonl" --dry-run > "$gate_out" 2>>"$X/gate.log"
+  note "\"event\":\"gate\",\"lang\":\"$lang\",\"result\":$(python3 -c "
+import json,sys
+try: d=json.load(open('$gate_out')); print(json.dumps({k:d.get(k) for k in ('decision','passed','checks')}))
+except Exception as e: print(json.dumps({'error': str(e)[:200]}))")"
 done
 note "\"event\":\"done\""

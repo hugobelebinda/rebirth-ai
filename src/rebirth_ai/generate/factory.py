@@ -24,13 +24,21 @@ class Generator(Protocol):
 
 
 def get_generator(backend: str | None = None, *, language: str | None = None) -> Generator:
-    """Return generator from ``REBIRTH_GENERATOR`` (``ollama`` | ``peft``).
+    """Return generator from ``REBIRTH_GENERATOR`` (``auto`` default | ``ollama`` | ``peft``).
+
+    ``auto``: the language's packaged adapter from ``configs/routing.yaml`` (Ollama), or plain
+    Ollama when the language is not routed — identical to ``ollama`` until something is packaged.
 
     With ``peft`` and a known non-JS ``language`` that has no trained adapter
     (``data/models/lora_<lang>_7b/adapter``) and no ``REBIRTH_PEFT_*`` override,
     fall back to Ollama rather than running the JS/TS adapter on another language.
     """
-    name = (backend or os.environ.get("REBIRTH_GENERATOR", "ollama")).strip().lower()
+    name = (backend or os.environ.get("REBIRTH_GENERATOR", "auto")).strip().lower()
+    if name in {"auto", "routed", "rebirth"}:
+        # Phase 16: packaged champion via configs/routing.yaml, else plain Ollama (14B).
+        from rebirth_ai.routing import routed_generator
+
+        return routed_generator(language) or OllamaClient()
     if name in {"peft", "lora", "local"}:
         from rebirth_ai.generate.peft_client import PeftClient, lang_adapter, peft_env_override
         from rebirth_ai.lora import normalize_lang

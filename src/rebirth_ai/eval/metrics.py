@@ -31,7 +31,7 @@ def ast_parse_ok(code: str, *, language: str = "javascript") -> bool:
     """True if Tree-sitter produces a tree without ERROR nodes."""
     try:
         return CodeChunker(language).parses(code)
-    except Exception:  # noqa: BLE001
+    except Exception:
         return False
 
 

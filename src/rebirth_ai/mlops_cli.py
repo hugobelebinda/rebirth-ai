@@ -85,8 +85,8 @@ def registry_list(lang: str | None = typer.Option(None, "--lang")) -> None:
     langs = [normalize_lang(lang)] if lang else list(LORA_LANGS)
     for lg in langs:
         try:
-            versions = sorted(registry._versions(lg), key=lambda v: int(v.version))  # noqa: SLF001
-        except Exception:  # noqa: BLE001
+            versions = sorted(registry._versions(lg), key=lambda v: int(v.version))
+        except Exception:
             versions = []
         if not versions:
             continue
@@ -94,7 +94,7 @@ def registry_list(lang: str | None = typer.Option(None, "--lang")) -> None:
         try:
             for a, ver in (c.get_registered_model(registry.model_name(lg)).aliases or {}).items():
                 aliases.setdefault(str(ver), []).append(a)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         t = Table(title=registry.model_name(lg))
         for col in ("v", "aliases", "base", "adapter", "recipe", "scores (soft-exact/parses)"):
@@ -115,16 +115,32 @@ def registry_list(lang: str | None = typer.Option(None, "--lang")) -> None:
 @registry_app.command("gate")
 def registry_gate(
     lang: str = typer.Option(..., "--lang"),
-    version: str = typer.Option(..., "--version", help="Challenger version"),
-    eval_set: str = typer.Option(..., "--eval-set", help="Eval set id (see `registry list`)"),
+    version: str | None = typer.Option(None, "--version", help="Challenger version (or use --adapter)"),
+    adapter: Path | None = typer.Option(None, "--adapter", help="Challenger adapter dir (resolves its version)"),
+    eval_set: str | None = typer.Option(None, "--eval-set", help="Eval set id (see `registry list`)"),
+    eval_file: Path | None = typer.Option(None, "--eval-file", help="Frozen eval set file (resolves the id)"),
+    n: int = typer.Option(100, "--n", help="Rows scored, with --eval-file"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Evaluate the gate without promoting"),
     min_gain: int = typer.Option(1, "--min-gain", help="Soft-exact rows the challenger must gain (0 = ties promote)"),
 ) -> None:
     """Challenger vs champion on one eval set; promotes on pass."""
     _need_tracking()
     from rebirth_ai import registry
+    from rebirth_ai.tracking import eval_set_id
 
-    res = registry.gate(normalize_lang(lang), version, eval_set, min_gain=min_gain, apply=not dry_run)
+    lg = normalize_lang(lang)
+    if version is None:
+        if adapter is None:
+            raise typer.BadParameter("give --version or --adapter")
+        version = registry.find_version(lg, adapter.resolve())
+        if version is None:
+            print(json.dumps({"lang": lg, "decision": "not_registered", "adapter": str(adapter), "passed": None}))
+            raise typer.Exit(1)
+    if eval_set is None:
+        if eval_file is None:
+            raise typer.BadParameter("give --eval-set or --eval-file")
+        eval_set = eval_set_id({"suites": {"synthetic": {"n": n, "lang": lg}}}, eval_file)
+    res = registry.gate(lg, version, eval_set, min_gain=min_gain, apply=not dry_run)
     print(json.dumps(res, indent=2))
     raise typer.Exit(0 if res.get("passed") else 1)
 
@@ -166,9 +182,77 @@ def mlflow_ui(
         raise typer.Exit(2)
     if not DB_PATH.exists():
         print("[yellow]No runs yet — run `rebirth track backfill` first[/yellow]")
-    env = {**os.environ, "MLFLOW_DISABLE_AGENT_HINT": "1"}
+    env = {**os.environ, "MLFLOW_DISABLE_AGENT_HINT": "1", "MLFLOW_DISABLE_TELEMETRY": "true", "DO_NOT_TRACK": "1"}
     print(f"MLflow UI → http://{host}:{port}  (store: {tracking_uri()})  Ctrl-C to stop")
     subprocess.run(
         [str(exe), "ui", "--backend-store-uri", tracking_uri(), "--host", host, "--port", str(port)],
         env=env, check=False,
     )
+
+
+# --------------------------------------------------------------------------- Phase 16: serving
+
+serve_app = typer.Typer(help="Packaged Ollama models: routes (configs/routing.yaml) and rollback")
+
+
+def package_cmd(
+    lang: str = typer.Option(..., "--lang", "-l", help="Language id, or 'all'"),
+    version: str | None = typer.Option(None, "--version", help="Registry version (default: champion)"),
+    quant: str = typer.Option("q4", "--quant", help="Base quantization: q4 (Q4_K_M, default) | q8 | q6 (14B)"),
+    gate: bool = typer.Option(True, "--gate/--no-gate", help="Score the served model on the frozen set"),
+    publish: bool = typer.Option(True, "--publish/--no-publish", help="On pass: alias + route + model card"),
+    n: int = typer.Option(100, "--n", help="Eval rows for the serving gate"),
+) -> None:
+    """Champion adapter → GGUF → versioned Ollama model → serving gate → route."""
+    _need_tracking()
+    from rebirth_ai.packaging import package
+
+    langs = list(LORA_LANGS) if lang == "all" else [lang]
+    failed = []
+    for one in langs:
+        entry = package(one, version=version if lang != "all" else None, quant=quant,
+                        gate=gate, publish=publish, n=n)
+        if gate and not entry["gate"]["passed"]:
+            failed.append(one)
+    if failed:
+        print(f"[red]serving gate failed: {', '.join(failed)} (not routed)[/red]")
+        raise typer.Exit(1)
+
+
+@serve_app.command("status")
+def serve_status() -> None:
+    """Show which packaged model serves each language."""
+    from rebirth_ai.routing import load_routing, routing_path
+
+    data = load_routing()
+    t = Table(title=f"routes ({routing_path()}) — served/peft = soft-exact/parses(/n) on the frozen sets")
+    for col in ("lang", "served tag", "v", "served", "peft", "base", "gate", "rollback"):
+        t.add_column(col)
+    for lang in LORA_LANGS:
+        e = (data.get("languages") or {}).get(lang)
+        if not e:
+            t.add_row(lang, "[dim]plain Ollama (fallback)[/dim]", "", "", "", "", "", "")
+            continue
+        s, p, b = e.get("served") or {}, e.get("peft") or {}, e.get("base") or {}
+        t.add_row(
+            lang, e["tag"], str(e["version"]),
+            f"{s.get('soft_exact', '?'):g}/{s.get('parses', '?'):g}/{s.get('n', '?'):g}" if s else "",
+            f"{p.get('soft_exact'):g}/{p.get('parses'):g}" if p else "",
+            f"{b.get('soft_exact'):g}" if b else "",
+            "pass" if (e.get("gate") or {}).get("passed") else "?",
+            ", ".join(f"v{v}" for v in (e.get("history") or {})),
+        )
+    print(t)
+
+
+@serve_app.command("rollback")
+def serve_rollback_cmd(lang: str = typer.Option(..., "--lang", "-l")) -> None:
+    """Roll back champion ↔ previous in the registry AND re-point the served Ollama alias."""
+    _need_tracking()
+    from rebirth_ai.packaging import serve_rollback
+
+    try:
+        serve_rollback(lang)
+    except (RuntimeError, ValueError) as exc:
+        print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc

@@ -51,7 +51,7 @@ def retrieve_context(state: MigrationState) -> MigrationState:
             retriever = Retriever(db_path=db)
             hits = retriever.query_for_file(path, top_k=4)
             context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             return {
                 **state,
                 "retrieved_context": [],
@@ -183,7 +183,7 @@ def classify_error(state: MigrationState) -> MigrationState:
             unknown = True
             if override:
                 label = override
-    except Exception:  # noqa: BLE001
+    except Exception:
         label = override or "TestLogicFailure"
         if override is None:
             unknown = True

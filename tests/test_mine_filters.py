@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from training.mine_migration_pairs import (
+    Pair,
     _looks_like_migration,
     _quality_ok,
     dedupe,
-    Pair,
 )
 
 

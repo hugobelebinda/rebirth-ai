@@ -1,0 +1,66 @@
+# Rebirth AI pipeline (Phase 14) — `bash scripts/dvc.sh repro <stage>` rebuilds only what changed.
+# Data/adapters are DVC-tracked (`*.dvc` files); remote = S3 bucket from infra/aws (see docs).
+# Stage commands run through scripts/with_env.sh (training venv + ROCm locally / CUDA on AWS).
+# The GPU queue (scripts/wave_v3.sh) runs the same commands and records results with `dvc commit`.
+stages:
+  evalsets:
+    # FROZEN: the 100-row eval sets must never change (every score is only comparable on the
+    # same rows). The stage documents how they were built; `dvc repro` never re-runs it.
+    frozen: true
+    cmd: bash scripts/with_env.sh python training/make_eval_sets.py --corpus-dir data/datasets/expanded --n ${eval_rows}
+    deps:
+      - data/datasets/expanded
+      - training/make_eval_sets.py
+    outs:
+      - data/datasets/evalsets:
+          cache: false   # small + frozen: lives in git
+
+  train_v3:
+    foreach: ${v3}
+    do:
+      cmd: >-
+        bash scripts/train_logged.sh ${key} 512 --recipe v3_expanded
+        --data data/datasets/expanded/${key}_migration.jsonl
+        --out data/models/exp/${key}_v3 --resume ${item.limit}
+      deps:
+        - data/datasets/expanded/${key}_migration.jsonl
+        - configs/recipes/v3_expanded.yaml
+        - training/train_lora.py
+        - src/rebirth_ai/lora.py
+      outs:
+        - data/models/exp/${key}_v3/adapter
+        - data/models/exp/${key}_v3/rebirth_meta.json
+
+  eval_v2:
+    foreach: ${v3}
+    do:
+      cmd: >-
+        REBIRTH_PEFT_BASE=${base_7b} REBIRTH_PEFT_ADAPTER=data/models/lora_${key}_7b/adapter
+        bash scripts/with_env.sh python -u training/eval_behavioral.py --backend peft --suite synthetic
+        --lang ${key} --eval-file data/datasets/evalsets/${key}.jsonl --n-synth ${eval_rows}
+        --out data/reports/exp/${key}_v2.json
+      deps:
+        - data/models/lora_${key}_7b/adapter
+        - data/datasets/evalsets/${key}.jsonl
+        - training/eval_behavioral.py
+        - src/rebirth_ai/generate/peft_client.py
+      outs:
+        - data/reports/exp/${key}_v2.json:
+            cache: false
+
+  eval_v3:
+    foreach: ${v3}
+    do:
+      cmd: >-
+        REBIRTH_PEFT_BASE=${base_7b} REBIRTH_PEFT_ADAPTER=data/models/exp/${key}_v3/adapter
+        bash scripts/with_env.sh python -u training/eval_behavioral.py --backend peft --suite synthetic
+        --lang ${key} --eval-file data/datasets/evalsets/${key}.jsonl --n-synth ${eval_rows}
+        --out data/reports/exp/${key}_v3.json
+      deps:
+        - data/models/exp/${key}_v3/adapter
+        - data/datasets/evalsets/${key}.jsonl
+        - training/eval_behavioral.py
+        - src/rebirth_ai/generate/peft_client.py
+      outs:
+        - data/reports/exp/${key}_v3.json:
+            cache: false

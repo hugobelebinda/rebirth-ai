@@ -69,3 +69,31 @@ def test_clean_keeps_fenced_block_and_inline_backticks() -> None:
     assert _clean_sft_completion("```python\nx = 1\n```\n") == "x = 1\n"
     raw = 'doc = "use ``` for code"\n'
     assert _clean_sft_completion(raw) == raw
+
+
+# ---- Phase 16: chat replies with prose before the code fence (Phase 14 known issue) ----
+
+
+def test_clean_keeps_code_after_prose_preamble() -> None:
+    from rebirth_ai.generate.prompts import extract_code_block
+
+    raw = "Here is the modernized code:\n\n```go\nfunc f() error {\n\treturn nil\n}\n```\n\nThis uses errors.\n"
+    want = "func f() error {\n\treturn nil\n}\n"
+    assert _clean_sft_completion(raw) == want
+    assert extract_code_block(raw) == want
+
+
+def test_clean_preamble_rule_ignores_code_followed_by_fence() -> None:
+    # SFT completion: code, then a leaked closing fence and prose — not a preamble.
+    raw = "const a = 1;\nconst b = 2;\nexport { a, b };\n```\nSome notes\n"
+    assert _clean_sft_completion(raw) == "const a = 1;\nconst b = 2;\nexport { a, b };\n"
+
+
+def test_clean_preamble_needs_language_tag_and_short_prose() -> None:
+    from rebirth_ai.generate.prompts import extract_code_block
+
+    # No fence at all → unchanged.
+    assert extract_code_block("x = 1\n") == "x = 1\n"
+    # Long code-like prefix with a fenced example inside → not treated as a preamble.
+    code = "def f():\n    return 1\n\ndef g():\n    return 2\n\nDOC = '''\n```python\nf()\n```\n'''\n"
+    assert extract_code_block(code) == code

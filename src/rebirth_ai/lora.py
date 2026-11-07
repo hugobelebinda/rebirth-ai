@@ -78,7 +78,7 @@ def is_eval_row(row: dict, *, eval_frac: float, seed: int) -> bool:
     """Content-hash split: stable across appends, identical rows never straddle train/eval."""
     if eval_frac <= 0:
         return False
-    digest = hashlib.sha256(f"{seed}\x00{_row_key(row)}".encode("utf-8")).digest()
+    digest = hashlib.sha256(f"{seed}\x00{_row_key(row)}".encode()).digest()
     bucket = int.from_bytes(digest[:8], "big") / 2**64
     return bucket < eval_frac
 

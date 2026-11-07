@@ -8,7 +8,8 @@ import re
 from pathlib import Path
 
 from rebirth_ai.adapters.base import LanguageAdapter
-from rebirth_ai.adapters.js_ts import JsTsAdapter, SOURCE_SUFFIXES as JS_SOURCE_SUFFIXES
+from rebirth_ai.adapters.js_ts import SOURCE_SUFFIXES as JS_SOURCE_SUFFIXES
+from rebirth_ai.adapters.js_ts import JsTsAdapter
 from rebirth_ai.adapters.registry import get_adapter
 from rebirth_ai.safety import file_too_large, is_secret_path
 
@@ -375,7 +376,7 @@ def extract_local_imports(project_dir: Path, relative_file: Path | str) -> list[
         for chunk in adapter.parse(path, source=text):
             if chunk.kind == "import" and chunk.name not in {"import", "<anonymous>"}:
                 specs.append(chunk.name)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
     if not specs and path.suffix.lower() != ".py":
         for match in _IMPORT_SPEC.finditer(text):

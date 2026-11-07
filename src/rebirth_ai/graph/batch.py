@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from rebirth_ai.adapters.registry import get_adapter_for_project
 from rebirth_ai.graph.app import build_migration_graph, initial_state
@@ -297,7 +297,7 @@ def migrate_repository(
 
         try:
             final = graph.invoke(state)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             report.results.append(
                 FileMigrationResult(
                     relative_file=rel_s,

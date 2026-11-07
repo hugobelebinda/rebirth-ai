@@ -6,7 +6,7 @@ import json
 import os
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +16,7 @@ DEFAULT_RUNS_DIR = Path(os.environ.get("REBIRTH_RUNS_DIR", "data/runs"))
 
 
 def new_run_id() -> str:
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     return f"{stamp}_{uuid.uuid4().hex[:8]}"
 
 
@@ -40,7 +40,7 @@ def write_run_log(
         {
             "run_id": rid,
             "kind": kind,
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "payload": payload,
         }
     )

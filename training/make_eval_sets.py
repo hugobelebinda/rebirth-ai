@@ -38,9 +38,8 @@ def main() -> int:
     ap.add_argument("--tokenizer", default="Qwen/Qwen2.5-Coder-7B-Instruct")
     args = ap.parse_args()
 
-    from transformers import AutoTokenizer
-
     from train_lora import format_prompt
+    from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(args.tokenizer)
     args.out_dir.mkdir(parents=True, exist_ok=True)

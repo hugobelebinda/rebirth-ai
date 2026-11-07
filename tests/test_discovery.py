@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from rebirth_ai.graph.batch import migrate_repository, render_pr_body
 from rebirth_ai.graph.discovery import (
     discover_source_files,
     extract_local_imports,
@@ -12,7 +13,6 @@ from rebirth_ai.graph.discovery import (
     parse_under_roots,
     topological_migrate_order,
 )
-from rebirth_ai.graph.batch import migrate_repository, render_pr_body
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "js_ts_sample"
 

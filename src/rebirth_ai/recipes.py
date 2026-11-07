@@ -35,7 +35,7 @@ def load_recipe(recipe: str | Path, parser: argparse.ArgumentParser) -> tuple[di
     raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     if not isinstance(raw, dict):
         raise ValueError(f"{path}: recipe must be a mapping")
-    actions = {a.dest: a for a in parser._actions}  # noqa: SLF001 — stable argparse internals
+    actions = {a.dest: a for a in parser._actions}
     defaults: dict = {}
     meta = {"recipe_file": str(path), "recipe_name": raw.get("name") or path.stem}
     for key, val in raw.items():

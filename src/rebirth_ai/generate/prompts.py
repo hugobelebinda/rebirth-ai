@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 SYSTEM_PROMPT = """You are Rebirth AI, a precise code migration engine.
 Rewrite legacy source into modern idioms for the target stack.
 Rules:
@@ -53,8 +55,35 @@ def build_sft_prompt(*, objective: str, legacy_code: str) -> str:
     )
 
 
+# A chat reply that opens with a short prose sentence, then a fenced block with a language tag:
+# "Here is the modernized code:\n\n```go\n…\n```\n…". Group 1 = prose, group 2 = code.
+_PREAMBLE_FENCE_RE = re.compile(
+    r"\A(?P<prose>[^\n]*(?:\n[^\n]*){0,2}?)\n+```[A-Za-z0-9_+#.-]+[ \t]*\n(?P<code>.*?)\n```",
+    re.DOTALL,
+)
+_CODE_HINTS = re.compile(r"[{};=]|^\s*(def|class|import|from|func|fn|package|using|#include|let|var|const)\b", re.MULTILINE)
+
+
+def strip_prose_preamble(text: str) -> str | None:
+    """Code of the first tagged fenced block if ``text`` starts with ≤3 lines of prose, else None.
+
+    Prose = the lines before the fence carry no code hints and the last one is a sentence
+    ("…:" / "….") — so SFT completions (code, then a leaked fence) are never touched.
+    """
+    m = _PREAMBLE_FENCE_RE.match(text.strip())
+    if not m:
+        return None
+    prose = m.group("prose").strip()
+    if not prose or _CODE_HINTS.search(prose) or not prose.rstrip().endswith((":", ".", "!")):
+        return None
+    return m.group("code").rstrip() + "\n"
+
+
 def extract_code_block(text: str) -> str:
-    """Strip optional markdown fences from model output."""
+    """Strip optional markdown fences (and a short prose preamble) from model output."""
+    pre = strip_prose_preamble(text)
+    if pre is not None:
+        return pre
     stripped = text.strip()
     if stripped.startswith("```"):
         lines = stripped.splitlines()

@@ -1,8 +1,8 @@
 name: cloud_14b
 description: >
   Phase 15 draft (AWS g6e.xlarge, L40S 48 GB) — 14B in bf16 (no quantization), seq 1024,
-  all-linear r16, 1 epoch. Batch size / FlashAttention land with the Phase 14 CUDA path;
-  re-tune after the S0 smoke run.
+  all-linear r16, 1 epoch, batch 4 grouped by length, SDPA attention (Phase 14 CUDA path).
+  Re-tune batch size after the S0 smoke run measures peak memory.
 base_model: Qwen/Qwen2.5-Coder-14B-Instruct
 quant: none
 max_length: 1024
@@ -18,3 +18,5 @@ batch_size: 4
 grad_accum: 2
 gradient_checkpointing: true
 save_steps: 50
+attn_impl: sdpa
+group_by_length: true

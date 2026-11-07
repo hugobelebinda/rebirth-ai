@@ -1,7 +1,7 @@
 # Cloud GPU plan (AWS) — rest of the project
 
 > Written 2026-11-05. Status: **account setup done (2026-11-05)** — Paid plan, budgets alerts, key pair `rebirth-gpu` imported, security group `rebirth-gpu-sg`. **Only the G/VT quota case (8 vCPUs) is pending.**
-> Phases: groundwork = [Phase 14](phases/PHASE_14_MLOPS_REPRO_INFRA.md) (Docker, Terraform, cloud scripts, vLLM eval); sessions S0–S4 below = [Phase 15](phases/PHASE_15_CLOUD_14B.md); cross-language = [Phase 17](phases/PHASE_17_CROSS_LANGUAGE.md).
+> Phases: groundwork = [Phase 14](phases/PHASE_14_MLOPS_REPRO_INFRA.md) (**done**: Terraform, cloud scripts, pinned CUDA env, vLLM eval); sessions S0–S4 below = [Phase 15](phases/PHASE_15_CLOUD_14B.md); cross-language = [Phase 17](phases/PHASE_17_CROSS_LANGUAGE.md).
 > Until it is approved, training continues locally on the 7800 XT (started/stopped by hand).
 > Budget: **$120 AWS credit** for all remaining phases — **~$60 for this round** (per-language
 > models), the rest for Phase 17 (cross-language, [phases/PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md)).
@@ -25,7 +25,7 @@
 | 1 | Paid plan | AWS console → Billing | The Free plan very likely blocks GPU instances. Credits still apply; spend beyond them bills your card. |
 | 2 | G/VT quota = 8 vCPUs | Service Quotas | **Pending (case open).** "Running On-Demand G and VT instances". Spot has a separate quota ("All G and VT Spot Instance Requests") — request it too if you want spot pricing. |
 | 3 | Budgets alerts | Billing → Budgets | Alerts at **$30, $60, $90** (email). |
-| 4 | Region | Console top-right | **us-east-1** (or the nearest region that lists g6e). Use the same region every time. |
+| 4 | Region | Console top-right | **us-east-1 (N. Virginia)** — chosen 2026-11-05 because **g6e is not offered in ca-central-1** (checked via `describe-instance-type-offerings`: only g6/g5 there). Key pair + security group + G/VT quota request must exist in us-east-1. The earlier ca-central-1 setup (key pair, SG, quota case) stays as a fallback: g6.2xlarge (L4 24 GB) with 4-bit 14B. |
 | 5 | SSH key pair | Your PC + EC2 → Key pairs | See 1.1 |
 | 6 | Security group | EC2 → Security groups | See 1.2 |
 | 7 | AMI (the OS image) | Launch wizard | See 1.3 — chosen when launching, nothing to install |

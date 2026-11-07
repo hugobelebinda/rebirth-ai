@@ -1,0 +1,292 @@
+schema: '2.0'
+stages:
+  evalsets:
+    cmd: bash scripts/with_env.sh python training/make_eval_sets.py --corpus-dir
+      data/datasets/expanded --n 100
+    deps:
+    - path: data/datasets/expanded
+      hash: md5
+      md5: d30942ee3331df5343a5ab6d8ad133ec.dir
+      size: 294884845
+      nfiles: 18
+    - path: training/make_eval_sets.py
+      hash: md5
+      md5: 98476f5ebac4f7a72be8ec92a5b3b50d
+      size: 2685
+    outs:
+    - path: data/datasets/evalsets
+      hash: md5
+      md5: ecb3175f52271695f6edc97aae6c5027.dir
+      size: 1542371
+      nfiles: 8
+  eval_v2@python:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/lora_python_7b/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang python --eval-file 
+      data/datasets/evalsets/python.jsonl --n-synth 100 --out 
+      data/reports/exp/python_v2.json
+    deps:
+    - path: data/datasets/evalsets/python.jsonl
+      hash: md5
+      md5: 62b13109e5d9b64b0ecb429091b5a4db
+      size: 198601
+    - path: data/models/lora_python_7b/adapter
+      hash: md5
+      md5: 126b8c5e83bbb48aa8ed5a0282cc037e.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/python_v2.json
+      hash: md5
+      md5: 1317aea8f7f9e4b91adff15214addd4d
+      size: 227253
+  train_v3@python:
+    cmd: bash scripts/train_logged.sh python 512 --recipe v3_expanded --data 
+      data/datasets/expanded/python_migration.jsonl --out 
+      data/models/exp/python_v3 --resume --limit 12000
+    deps:
+    - path: configs/recipes/v3_expanded.yaml
+      hash: md5
+      md5: 6bf1346e3b3f9d5e10a6dddc198b91cd
+      size: 494
+    - path: data/datasets/expanded/python_migration.jsonl
+      hash: md5
+      md5: 5446d00dcb17f2eb022bfc64727dd033
+      size: 88647375
+    - path: src/rebirth_ai/lora.py
+      hash: md5
+      md5: a6e30487431679564bf9089e620175f4
+      size: 5061
+    - path: training/train_lora.py
+      hash: md5
+      md5: 9006cfb9e1a01c3aa61ca55198da895c
+      size: 22401
+    outs:
+    - path: data/models/exp/python_v3/adapter
+      hash: md5
+      md5: d86d57b8a07ec270977478fa01807269.dir
+      size: 31646201
+      nfiles: 6
+    - path: data/models/exp/python_v3/rebirth_meta.json
+      hash: md5
+      md5: 413e4bd30aaa1c732ab5330b3713c529
+      size: 1214
+  eval_v3@python:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/exp/python_v3/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang python --eval-file 
+      data/datasets/evalsets/python.jsonl --n-synth 100 --out 
+      data/reports/exp/python_v3.json
+    deps:
+    - path: data/datasets/evalsets/python.jsonl
+      hash: md5
+      md5: 62b13109e5d9b64b0ecb429091b5a4db
+      size: 198601
+    - path: data/models/exp/python_v3/adapter
+      hash: md5
+      md5: d86d57b8a07ec270977478fa01807269.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/python_v3.json
+      hash: md5
+      md5: 432624dc57e17da44471001328cf2738
+      size: 227219
+  eval_v2@csharp:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/lora_csharp_7b/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang csharp --eval-file 
+      data/datasets/evalsets/csharp.jsonl --n-synth 100 --out 
+      data/reports/exp/csharp_v2.json
+    deps:
+    - path: data/datasets/evalsets/csharp.jsonl
+      hash: md5
+      md5: 80c2b032a567de9d56d9b19221d9f4df
+      size: 213854
+    - path: data/models/lora_csharp_7b/adapter
+      hash: md5
+      md5: 974245c04f153c81165d45eb01d8f29d.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/csharp_v2.json
+      hash: md5
+      md5: 0636f686773bfad45d6f0f9fab65167c
+      size: 263249
+  train_v3@csharp:
+    cmd: 'bash scripts/train_logged.sh csharp 512 --recipe v3_expanded --data data/datasets/expanded/csharp_migration.jsonl
+      --out data/models/exp/csharp_v3 --resume '
+    deps:
+    - path: configs/recipes/v3_expanded.yaml
+      hash: md5
+      md5: 6bf1346e3b3f9d5e10a6dddc198b91cd
+      size: 494
+    - path: data/datasets/expanded/csharp_migration.jsonl
+      hash: md5
+      md5: e54c326b3f97888c2de8077b3c94ca5d
+      size: 22078106
+    - path: src/rebirth_ai/lora.py
+      hash: md5
+      md5: a6e30487431679564bf9089e620175f4
+      size: 5061
+    - path: training/train_lora.py
+      hash: md5
+      md5: 9006cfb9e1a01c3aa61ca55198da895c
+      size: 22401
+    outs:
+    - path: data/models/exp/csharp_v3/adapter
+      hash: md5
+      md5: 90a3d7c96819c705ad860064aad83006.dir
+      size: 31646201
+      nfiles: 6
+    - path: data/models/exp/csharp_v3/rebirth_meta.json
+      hash: md5
+      md5: 1243c5b3493414f17155c03a165bdb9d
+      size: 1206
+  eval_v3@csharp:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/exp/csharp_v3/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang csharp --eval-file 
+      data/datasets/evalsets/csharp.jsonl --n-synth 100 --out 
+      data/reports/exp/csharp_v3.json
+    deps:
+    - path: data/datasets/evalsets/csharp.jsonl
+      hash: md5
+      md5: 80c2b032a567de9d56d9b19221d9f4df
+      size: 213854
+    - path: data/models/exp/csharp_v3/adapter
+      hash: md5
+      md5: 90a3d7c96819c705ad860064aad83006.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/csharp_v3.json
+      hash: md5
+      md5: 3eb6ca6ca54374a1f7e777025e453670
+      size: 266100
+  eval_v2@swift:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/lora_swift_7b/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang swift --eval-file 
+      data/datasets/evalsets/swift.jsonl --n-synth 100 --out 
+      data/reports/exp/swift_v2.json
+    deps:
+    - path: data/datasets/evalsets/swift.jsonl
+      hash: md5
+      md5: eb26f727ecdcadd525cdeb55d92dd12c
+      size: 211034
+    - path: data/models/lora_swift_7b/adapter
+      hash: md5
+      md5: 2b698b99f6fb6b51b87ee0205d9349b0.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/swift_v2.json
+      hash: md5
+      md5: 2c7e9aed4fa6ae986de5edabbaa19801
+      size: 231111
+  eval_v2@java:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/lora_java_7b/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang java --eval-file 
+      data/datasets/evalsets/java.jsonl --n-synth 100 --out 
+      data/reports/exp/java_v2.json
+    deps:
+    - path: data/datasets/evalsets/java.jsonl
+      hash: md5
+      md5: f0deb083b38406b4dad08ad8a44828fa
+      size: 246996
+    - path: data/models/lora_java_7b/adapter
+      hash: md5
+      md5: 6ad62f5c2addd02a760605ae2b2d1959.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/java_v2.json
+      hash: md5
+      md5: 691f654d53da68c127e7dbb3acfeb3f6
+      size: 246059
+  eval_v2@js_ts:
+    cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
+      REBIRTH_PEFT_ADAPTER=data/models/lora_js_ts_7b/adapter bash 
+      scripts/with_env.sh python -u training/eval_behavioral.py --backend peft 
+      --suite synthetic --lang js_ts --eval-file 
+      data/datasets/evalsets/js_ts.jsonl --n-synth 100 --out 
+      data/reports/exp/js_ts_v2.json
+    deps:
+    - path: data/datasets/evalsets/js_ts.jsonl
+      hash: md5
+      md5: bbda8af6f7a7a652d3bbe065f5fecec1
+      size: 195584
+    - path: data/models/lora_js_ts_7b/adapter
+      hash: md5
+      md5: f07948b9b976b4f8ebb0bf53bd0e9fed.dir
+      size: 31646201
+      nfiles: 6
+    - path: src/rebirth_ai/generate/peft_client.py
+      hash: md5
+      md5: 2108abf47caaa18f96d8e5e3ef396d87
+      size: 13711
+    - path: training/eval_behavioral.py
+      hash: md5
+      md5: 5441faeecf65f12c03338a59f057018b
+      size: 16089
+    outs:
+    - path: data/reports/exp/js_ts_v2.json
+      hash: md5
+      md5: 9ff68ae1e79652bcda19a730ed7d6756
+      size: 219607

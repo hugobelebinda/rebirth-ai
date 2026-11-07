@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import docker
 import pytest
 from docker.errors import DockerException, ImageNotFound
 
+import docker
 from rebirth_ai.adapters.js_ts import JsTsAdapter
 from rebirth_ai.sandbox.runner import SandboxRunner
 

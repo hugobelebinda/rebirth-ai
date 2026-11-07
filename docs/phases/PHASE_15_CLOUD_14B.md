@@ -1,6 +1,6 @@
 # Phase 15 — Cloud: 14B per-language adapters + DPO
 
-> Status: **PLANNED — waiting on the AWS G/VT quota** (8 vCPU case open, 2026-11-05). Account setup (Paid plan, budgets, key pair, security group) is done.
+> Status: **PLANNED — blocked on the AWS G/VT quota.** us-east-1 request (8 vCPU) **denied 2026-11-06** (new account, no usage history); re-requested **4 vCPU** (one g6e.xlarge) the same day. ca-central-1 case still open (fallback: g6.2xlarge L4). If refused again: resubmit after the next billing cycle, or run the same `scripts/cloud/*` over SSH on another NVIDIA provider (real money, not credits). Account setup, bucket and IAM are done.
 > Previous: [PHASE_14_MLOPS_REPRO_INFRA.md](PHASE_14_MLOPS_REPRO_INFRA.md) · Next: [PHASE_16_MLOPS_CICD_PACKAGING.md](PHASE_16_MLOPS_CICD_PACKAGING.md)
 > Full plan (setup guide, access rules, models, costs): **[../CLOUD_GPU_PLAN.md](../CLOUD_GPU_PLAN.md)**
 

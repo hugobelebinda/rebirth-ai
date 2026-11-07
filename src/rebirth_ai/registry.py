@@ -33,7 +33,7 @@ def _ensure_model(name: str) -> None:
     c = client()
     try:
         c.get_registered_model(name)
-    except Exception:  # noqa: BLE001 — RESOURCE_DOES_NOT_EXIST
+    except Exception:
         c.create_registered_model(
             name, description=f"Rebirth AI LoRA adapters for {name.removeprefix('rebirth-')}"
         )
@@ -126,7 +126,7 @@ def version_scores(lang: str, version: str, set_id: str) -> dict | None:
 def alias_version(lang: str, alias: str = CHAMPION) -> str | None:
     try:
         return str(client().get_model_version_by_alias(model_name(lang), alias).version)
-    except Exception:  # noqa: BLE001 — no such alias / model
+    except Exception:
         return None
 
 

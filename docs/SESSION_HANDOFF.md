@@ -3,7 +3,7 @@
 > **Read this first** in a new agent window. Then sync [GLOBAL.md](GLOBAL.md) + [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).
 > Phases were **renumbered in execution order** on 2026-11-05 (map: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-## Where we are — **Phase 12** (local tuning v3)
+## Where we are — Phase 12 ✅ (2026-11-06); Phase 15 blocked on AWS quota → offline Phase 16 work
 
 | Item | State |
 |------|--------|
@@ -30,9 +30,10 @@
 
 ## Exact next step
 
-1. **Phase 12 (now)** — report D1; when the user says go: `systemd-run --user --unit=rebirth-gpu-job --working-directory="$PWD" bash scripts/gpu_job.sh` (Swift → C# → Java → Python → JS/TS v3 vs v2 on frozen sets). Also the GGUF→Ollama adapter test. [phases/PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md)
+1. **Phase 12 — done 2026-11-06.** v3 tied/lost for Go, Python, C# → v2 stays champion everywhere; user decided no v3 for Swift/Java/JS/TS. Base-7B + v2 frozen-set refs for all 8 languages and the GGUF→Ollama test (Q4_K_M 13/99 vs PEFT 14/99) in [phases/PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md). Rust/C++ data options: [research/RUST_CPP_DATA_SOURCES.md](research/RUST_CPP_DATA_SOURCES.md)
+2. **Phase 16 (offline part) — done 2026-11-06.** All 8 7B champions served from Ollama (`rebirth-<lang>:7b`, Q4_K_M + GGUF LoRA, serving gate 8/8 pass; served 107 vs PEFT 112 soft-exact in total); `rebirth migrate` defaults to `--backend auto` via `configs/routing.yaml`; `rebirth package` / `rebirth serve status|rollback`; CI workflow (not yet run on GitHub — needs a push). Details: [phases/PHASE_16_MLOPS_CICD_PACKAGING.md](phases/PHASE_16_MLOPS_CICD_PACKAGING.md)
 2. ✅ **Phase 13** done (2026-11-05) — `rebirth track backfill`, `rebirth registry list`, `rebirth mlflow-ui`; store `mlruns/` (SQLite). Promotions go through `rebirth registry gate`.
-3. **Phase 14** — MLOps 2: DVC + S3, Docker CUDA image, Terraform, `scripts/cloud/`, vLLM eval.
+3. ✅ **Phase 14** done (2026-11-05) — DVC (`bash scripts/dvc.sh`), `dvc.yaml`, Terraform (`infra/aws`, `.tools/terraform_1.17.1`), `scripts/cloud/*`, `training/eval_vllm.py`. AWS (us-east-1): bucket + IAM applied, DVC pushed; GPU quota requested in us-east-1 (and ca-central-1 as fallback).
 4. **Phase 15** — cloud 14B adapters + DPO, once the AWS quota is approved.
 5. **Phase 16** — model CI/CD + Ollama packaging · **17** cross-language · **18** monitoring · **19** v1.0 launch.
 

@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from rebirth_ai.github import client as gh
+from rebirth_ai.github.client import GitHubError
 from rebirth_ai.graph.batch import BatchReport, render_pr_body
 from rebirth_ai.safety import filter_secret_paths
-from rebirth_ai.github.client import GitHubError
 
 
 @dataclass(frozen=True)

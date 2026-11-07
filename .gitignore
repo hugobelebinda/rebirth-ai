@@ -74,10 +74,25 @@ graphify-out/
 # Per-language LoRA metadata (adapters themselves stay ignored)
 !data/models/lora_*_7b/
 !data/models/lora_*_7b/*.json
+# Phase 14: adapters are DVC-tracked — commit their pointer + per-dir .gitignore
+!data/models/lora_*_7b/*.dvc
+!data/models/lora_*_7b/.gitignore
+# Phase 15: 14B adapters — same rules
+!data/models/lora_*_14b/
+!data/models/lora_*_14b/*.json
+!data/models/lora_*_14b/*.dvc
+!data/models/lora_*_14b/.gitignore
 
 # Phase 13 MLOps — local MLflow store + UI venv
 mlruns/
 .venv-mlflow/
+.venv-tools/
 
-# Phase 12 expanded corpus (282 MB; rebuilt by training/mine_migration_pairs.py; versioned via DVC/S3 in Phase 14)
-data/datasets/expanded/
+
+# Phase 14 Terraform (state stays local; lock file is committed)
+infra/aws/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.tools/
+.cloud_host

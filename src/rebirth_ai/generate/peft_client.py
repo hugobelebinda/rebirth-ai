@@ -5,16 +5,18 @@ from __future__ import annotations
 import json
 import os
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from rebirth_ai.generate.ollama_client import GenerateResult
-from rebirth_ai.lora import lora_target, normalize_lang, read_meta
 from rebirth_ai.generate.prompts import (
     SYSTEM_PROMPT,
     build_migration_prompt,
     build_sft_prompt,
     extract_code_block,
+    strip_prose_preamble,
 )
+from rebirth_ai.lora import lora_target, normalize_lang, read_meta
 
 # Prefer the proven 7B ROCm adapter; fall back to 0.5B if 7B is missing.
 DEFAULT_BASE_7B = "Qwen/Qwen2.5-Coder-7B-Instruct"
@@ -118,6 +120,9 @@ def _clean_sft_completion(text: str) -> str:
     m = _CONTROL_TOKEN_RE.search(text)
     if m and text[: m.start()].strip():
         text = text[: m.start()]
+    pre = strip_prose_preamble(text)  # chat reply: "Here is the code:\n```go …```" (Phase 16)
+    if pre is not None:
+        return pre
     cleaned = text.strip()
     # Lone closing fence at the very end (strip() removed the "\n" the marker below needs)
     if cleaned.endswith("\n```") and not cleaned.lstrip().startswith("```"):
@@ -161,6 +166,61 @@ def _chat_max_new_tokens(legacy_code: str, requested: int) -> int:
     # ~3 chars/token + rewrite headroom; floor 256, ceiling requested
     approx = max(256, min(requested, max(lines * 8, chars // 2, 512)))
     return int(approx)
+
+
+@dataclass(frozen=True)
+class GenerationPlan:
+    """What to send to the model for one migration (shared by PEFT and vLLM eval)."""
+
+    style: str  # "sft" (raw completion prompt) | "chat" (system + user messages)
+    prompt: str  # SFT: full completion prompt; chat: the user message
+    max_new_tokens: int
+    system: str = SYSTEM_PROMPT
+    stop: tuple[str, ...] = ()
+
+
+def plan_generation(
+    *,
+    prompt_style: str,
+    objective: str,
+    legacy_code: str,
+    file_path: str,
+    language: str,
+    max_new_tokens: int = 1024,
+    retrieved_context: list[str] | None = None,
+    error_class: str | None = None,
+    test_logs: str | None = None,
+) -> GenerationPlan:
+    """Prompt style + prompt + token budget — single source of truth for local and cloud eval."""
+    # Phase 6: whole-file / agent repairs use chat (SFT truncates multi-hundred-line files).
+    line_count = legacy_code.count("\n") + 1
+    force_chat = (
+        prompt_style == "chat"
+        or bool(error_class)
+        or bool(test_logs)
+        or line_count >= 80
+        or os.environ.get("REBIRTH_PEFT_FORCE_CHAT", "").strip() in {"1", "true", "yes"}
+    )
+    if prompt_style == "sft" and not force_chat:
+        return GenerationPlan(
+            style="sft",
+            prompt=build_sft_prompt(objective=objective, legacy_code=legacy_code),
+            max_new_tokens=_sft_max_new_tokens(legacy_code, max_new_tokens),
+            stop=tuple(_SFT_STOP_STRINGS),
+        )
+    return GenerationPlan(
+        style="chat",
+        prompt=build_migration_prompt(
+            objective=objective,
+            legacy_code=legacy_code,
+            file_path=file_path,
+            language=language,
+            retrieved_context=retrieved_context,
+            error_class=error_class,
+            test_logs=test_logs,
+        ),
+        max_new_tokens=_chat_max_new_tokens(legacy_code, max_new_tokens),
+    )
 
 
 def _default_prompt_style() -> str:
@@ -231,7 +291,6 @@ class PeftClient:
         self._model.eval()
 
     def generate_raw(self, prompt: str, *, system: str = SYSTEM_PROMPT) -> str:
-        import torch
 
         self._ensure_loaded()
         assert self._model is not None and self._tokenizer is not None and self._device
@@ -289,38 +348,30 @@ class PeftClient:
         error_class: str | None = None,
         test_logs: str | None = None,
     ) -> GenerateResult:
-        # Phase 6: whole-file / agent repairs use chat (SFT truncates multi-hundred-line files).
-        line_count = legacy_code.count("\n") + 1
-        force_chat = (
-            self.prompt_style == "chat"
-            or bool(error_class)
-            or bool(test_logs)
-            or line_count >= 80
-            or os.environ.get("REBIRTH_PEFT_FORCE_CHAT", "").strip() in {"1", "true", "yes"}
+        plan = plan_generation(
+            prompt_style=self.prompt_style,
+            objective=objective,
+            legacy_code=legacy_code,
+            file_path=file_path,
+            language=language,
+            max_new_tokens=self.max_new_tokens,
+            retrieved_context=retrieved_context,
+            error_class=error_class,
+            test_logs=test_logs,
         )
-        use_sft = self.prompt_style == "sft" and not force_chat
-        if use_sft:
-            prompt = build_sft_prompt(objective=objective, legacy_code=legacy_code)
+        prompt = plan.prompt
+        if plan.style == "sft":
             prev_cap = self._sft_token_cap
-            self._sft_token_cap = _sft_max_new_tokens(legacy_code, self.max_new_tokens)
+            self._sft_token_cap = plan.max_new_tokens
             try:
                 raw = self.generate_raw(prompt)
             finally:
                 self._sft_token_cap = prev_cap
         else:
-            prompt = build_migration_prompt(
-                objective=objective,
-                legacy_code=legacy_code,
-                file_path=file_path,
-                language=language,
-                retrieved_context=retrieved_context,
-                error_class=error_class,
-                test_logs=test_logs,
-            )
             prev = self.prompt_style
             prev_chat_cap = self._chat_token_cap
             self.prompt_style = "chat"
-            self._chat_token_cap = _chat_max_new_tokens(legacy_code, self.max_new_tokens)
+            self._chat_token_cap = plan.max_new_tokens
             try:
                 raw = self.generate_raw(prompt)
             finally:

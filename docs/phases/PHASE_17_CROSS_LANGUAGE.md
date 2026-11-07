@@ -53,12 +53,30 @@ Estimates use measured throughput (2026-11-05): ~9 s / optimizer step (8 rows @ 
 |---|-------|------|------|-------|-----------------|
 | 1 | Pipeline | `rebirth migrate --to <lang>`; new output file with target extension; run the **target** sandbox; cross-language test strategy (I/O-equivalence harness or compile + smoke run) | **2–3 days** dev | Local | Yes |
 | 2 | Zero-shot baseline | Ollama 14B on all 56 directions × ~15–20 snippets | ~6–8 h | Local | No |
+| 3a | Teacher pilot | **First cloud session of Phase 17 (~$2–4):** ~200 identical source snippets translated by the 14B and by the 32B teacher (vLLM), both verified the same way → measured verified-pass rate per model. Use the 32B for stage 3 only if it clearly wins (my estimate: +10–20 points, unmeasured) | ~1–2 h | **AWS** | Go to launch |
 | 3 | Data generation | Translate snippets from the existing per-language corpus into each target; ~20K candidates → expect 40–60 % verified → **~8–10K pairs** | ~1.5–2 days local, or ~10–20 h on AWS with vLLM | **AWS** (generation) + local (verification) | No |
 | 4 | Train | One shared adapter, ~8–10K pairs, 2 epochs, seq ~1024 | ~5–8 h | **AWS** (or local if the 1024 probe passes) | No |
 | 5 | Eval | 56 directions vs the stage-2 baseline | ~6–8 h | Either | No |
 | 6 | Fix-up round | More data for weak directions (likely Swift, Rust), retrain | ~1 day | Either | Mostly no |
 
 **Total ≈ 1 week calendar, ~2–3 days of hands-on work, ~60–80 GPU-hours** (fewer on AWS with batched vLLM generation).
+
+### 32B teacher: what it is for (decided 2026-11-06)
+
+- **Main model stays 14B.** A 32B student would cost ~$100–170 to train for 8 languages and does not
+  fit a 16 GB GPU at 4-bit (~19–20 GB), so it cannot be the offline product. The user dropped
+  "32B as the main model" on 2026-11-06.
+- **Teacher only, on the cloud.** Expected value: **large for cross-language** (no parallel corpus
+  covers 56 directions; a better teacher means more verified pairs per GPU hour), **small for
+  same-language** (≈ +0–3 soft-exact / 100, i.e. noise. Our metric scores against human commits,
+  so a better-but-different rewrite does not score). Side uses in the same session: good rewrites
+  for the **no-op cases** (DPO "chosen" vs the adapter's unchanged output) and cleaning weak rows.
+- **Not for C++/Rust same-language data.** `clang-tidy` / `cargo fix` pairs are correct by
+  construction ([../research/RUST_CPP_DATA_SOURCES.md](../research/RUST_CPP_DATA_SOURCES.md)).
+- **Every teacher output is verified** (target compiles + behaves like the source) before it is
+  trained on. Unverified teacher data teaches the teacher's mistakes.
+- License: Qwen2.5-Coder-32B-Instruct is Apache 2.0, so its outputs can be used as training data.
+  Re-check newer coder models (e.g. Qwen3-Coder) at the time of the pilot.
 
 Biggest risks: the cross-language equivalence harness for 8 languages (largest engineering piece);
 sequence length on the local GPU; public parallel datasets (e.g. Rosetta Code, which has the same

@@ -12,6 +12,7 @@
 #   telemetry.jsonl GPU VRAM / busy% / temps / power every 2 s, fsync'd → when it hung
 #   kernel.log      amdgpu kernel messages during the run
 #   exit.json       exit code + end time (missing ⇒ the machine died mid-run)
+#   env.txt         pip freeze of the training venv
 # Then (exit 0) the run is recorded in MLflow: `rebirth track train <run dir>` (Phase 13).
 # After a hard freeze + reboot: bash scripts/gpu_hang_postmortem.sh <run dir>
 set -uo pipefail
@@ -56,6 +57,9 @@ dirty = bool(subprocess.run(["git", "status", "--porcelain"], capture_output=Tru
 json.dump({"start": start, "cmd": cmd, "git": sha, "git_dirty": dirty,
            "kernel": platform.release()}, open(out, "w"), indent=2)
 PY
+
+# Exact environment of this run (Phase 14 reproducibility; logged to MLflow with its sha256).
+python -m pip freeze --exclude-editable > "$run/env.txt" 2>/dev/null || true
 
 python -u training/gpu_telemetry.py --out "$run/telemetry.jsonl" --interval 2 &
 tele_pid=$!

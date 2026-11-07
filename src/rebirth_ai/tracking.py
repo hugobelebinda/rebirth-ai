@@ -58,6 +58,9 @@ def mlflow_mod():
             'MLflow tracking unavailable (pip install -e ".[mlops]", or REBIRTH_TRACKING=0 set)'
         )
     os.environ.setdefault("MLFLOW_DISABLE_AGENT_HINT", "1")
+    # Local-first: no usage telemetry leaves the machine.
+    os.environ.setdefault("MLFLOW_DISABLE_TELEMETRY", "true")
+    os.environ.setdefault("DO_NOT_TRACK", "1")
     import mlflow
 
     TRACKING_DIR.mkdir(parents=True, exist_ok=True)
@@ -249,6 +252,8 @@ def log_training(
         if weights.is_file():
             run_tags["rebirth.adapter_sha256"] = file_sha(weights)
             run_tags["rebirth.adapter_mb"] = f"{weights.stat().st_size / 2**20:.1f}"
+        if run_dirs and (run_dirs[-1] / "env.txt").is_file():
+            run_tags["env.freeze_sha256"] = file_sha(run_dirs[-1] / "env.txt")
         if run_dirs:
             try:
                 rj = json.loads((run_dirs[-1] / "run.json").read_text(encoding="utf-8"))
@@ -276,7 +281,7 @@ def log_training(
                 if (out_dir / f).is_file():
                     mlflow.log_artifact(str(out_dir / f), "meta")
             for d in run_dirs:
-                for f in ("run.json", "exit.json", "kernel.log"):
+                for f in ("run.json", "exit.json", "kernel.log", "env.txt"):
                     if (d / f).is_file():
                         mlflow.log_artifact(str(d / f), f"logs/{d.name}")
             adapter_dir = out_dir / "adapter"
@@ -324,9 +329,9 @@ def _log_step_series(mlflow, run_dirs: list[Path]) -> None:
         tele = [r for r in read_jsonl(d / "telemetry.jsonl") if "vram_used_mb" in r]
         if tele:
             mlflow.log_metrics({
-                f"gpu.vram_used_mb_max": max(r["vram_used_mb"] for r in tele),
-                f"gpu.temp_junction_c_max": max(r.get("temp_junction_c") or 0 for r in tele),
-                f"gpu.power_w_mean": sum(r.get("power_w") or 0 for r in tele) / len(tele),
+                "gpu.vram_used_mb_max": max(r["vram_used_mb"] for r in tele),
+                "gpu.temp_junction_c_max": max(r.get("temp_junction_c") or 0 for r in tele),
+                "gpu.power_w_mean": sum(r.get("power_w") or 0 for r in tele) / len(tele),
             })
     client_ = mlflow.MlflowClient()
     run_id = mlflow.active_run().info.run_id
@@ -405,8 +410,20 @@ def log_eval(
         out_dir = _adapter_out_dir(Path(adapter))
         version = registry.find_version(lang, out_dir) if out_dir else None
         if version is not None:
-            registry.record_eval(lang, version, set_id, metrics, eval_run_id=run_id)
+            registry.record_eval(lang, version, registry_set_key(set_id, model_label, tags),
+                                 metrics, eval_run_id=run_id)
     return run_id
+
+
+SERVED_ENGINES = {"ollama"}  # quantized deployment copies — never the version's primary score
+
+
+def registry_set_key(set_id: str, model_label: str, tags: dict[str, str] | None) -> str:
+    """Registry tag key for a score: ``set_id`` for the trained artifact (PEFT / vLLM), and
+    ``served:<label>:<set_id>`` for a served copy (Ollama GGUF on a quantized base) so it can
+    never overwrite the score the promotion gate uses."""
+    engine = (tags or {}).get("rebirth.engine", "peft")
+    return f"served:{model_label}:{set_id}" if engine in SERVED_ENGINES else set_id
 
 
 def _adapter_out_dir(adapter: Path) -> Path | None:
@@ -428,7 +445,7 @@ def try_log_training(out_dir: Path, **kw: Any) -> str | None:
         return None
     try:
         return log_training(out_dir, **kw)
-    except Exception as exc:  # noqa: BLE001 — tracking must never break a training pipeline
+    except Exception as exc:
         warn(f"training not tracked ({type(exc).__name__}: {exc})")
         return None
 
@@ -438,6 +455,6 @@ def try_log_eval(report_path: Path, **kw: Any) -> str | None:
         return None
     try:
         return log_eval(report_path, **kw)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         warn(f"eval not tracked ({type(exc).__name__}: {exc})")
         return None

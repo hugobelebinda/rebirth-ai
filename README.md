@@ -21,9 +21,9 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | 9 | Full language wave — Go, Java, C#, Rust, C++, Swift | **Complete** |
 | 10 | Quality gates + ≥15K corpus | **Complete** (fixtures **8/8**) |
 | 11 | Per-language LoRA — harness + v2 7B adapters, all 8 languages | **Complete** (2026-11-05; all 8 pass their gate) |
-| **12** | **Local tuning v3 + eval hardening** (expanded corpus, frozen eval sets, recipe experiments) | **In progress** |
+| **12** | **Local tuning v3 + eval hardening** (expanded corpus, frozen eval sets, recipe experiments) | ✅ Complete (2026-11-06) |
 | 13 | MLOps 1 — experiment tracking + model registry (MLflow) + YAML recipes | **Complete** (2026-11-05) |
-| 14 | MLOps 2 — reproducible pipelines + infra (DVC + S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval) | Planned |
+| 14 | MLOps 2 — reproducible pipelines + infra (DVC, pinned CUDA env, Terraform, cloud scripts, vLLM eval) | **Complete** (2026-11-05) |
 | 15 | Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge) | Planned (waits on AWS quota) |
 | 16 | MLOps 3 — model CI/CD + packaging (gates in CI, Ollama adapters, rollback) | Planned |
 | 17 | Cross-language migration (any → any of 8) + unified adapter | Planned |
@@ -33,7 +33,7 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 Phase numbers follow execution order (renumbered 2026-11-05 — map in [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
 **Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — Phases **0–11 complete** (8 langs + **24640** pairs + fixtures 8/8 + v2 LoRA per language).  
-**Now:** [`docs/phases/PHASE_12_LOCAL_TUNING_V3.md`](docs/phases/PHASE_12_LOCAL_TUNING_V3.md) — Phase 12. Cloud plan: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
+**Now:** Phase 15 (cloud 14B) is blocked on the AWS quota; meanwhile the offline parts of Phase 16 (Ollama packaging, cleaner fix, registry serving, CI) and Rust/C++ + cross-language data prep — [`docs/phases/PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md), [`docs/phases/PHASE_16_MLOPS_CICD_PACKAGING.md`](docs/phases/PHASE_16_MLOPS_CICD_PACKAGING.md). Phase 12 results: [`PHASE_12_LOCAL_TUNING_V3.md`](docs/phases/PHASE_12_LOCAL_TUNING_V3.md). Cloud plan: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
 **Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md)
 
 Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Default brain: Ollama 14B. LoRA: v2 7B adapter per language (Phase 11, 2026-11-05) via `--backend peft`.

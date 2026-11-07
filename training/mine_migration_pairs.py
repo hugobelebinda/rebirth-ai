@@ -286,7 +286,7 @@ def _parseable(code: str, language: str) -> bool:
             parser.language = Language(tsjs.language())
         tree = parser.parse(code.encode("utf-8"))
         return not tree.root_node.has_error
-    except Exception:  # noqa: BLE001
+    except Exception:
         return True
 
 
@@ -416,7 +416,7 @@ def ensure_synthetic_backup(current: Path, backup: Path) -> list[Pair]:
     """Preserve original hand-written pairs once; always reload synthetic from backup."""
     if current.exists() and not backup.exists():
         # First run: current file is still the hand-curated set
-        rows = [json.loads(l) for l in current.read_text(encoding="utf-8").split("\n") if l.strip()]
+        rows = [json.loads(ln) for ln in current.read_text(encoding="utf-8").split("\n") if ln.strip()]
         if rows and all(r.get("source", "synthetic") == "synthetic" for r in rows):
             shutil.copy2(current, backup)
             print(f"Backed up synthetic → {backup}")
@@ -470,7 +470,7 @@ def write_jsonl(path: Path, pairs: list[Pair]) -> None:
 
 
 def _group_for_langs(langs: list[str]) -> str:
-    groups = {LANG_GROUP.get(l, l) for l in langs}
+    groups = {LANG_GROUP.get(g, g) for g in langs}
     if len(groups) != 1:
         raise SystemExit(
             f"--langs must stay within one dataset group (got {sorted(groups)}); "
@@ -540,7 +540,7 @@ def main() -> int:
             print(f"Downloading CommitPackFT/{folder}…")
             try:
                 cache_file = download_commitpack_lang(lang, args.cache_dir)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 print(f"ERROR downloading {folder}: {exc}", file=sys.stderr)
                 return 1
         else:

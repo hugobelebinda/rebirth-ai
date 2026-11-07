@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-05 (Phases **0–11 complete**; **now = Phase 12** local tuning v3; phases renumbered in execution order — [map](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).  
+> Last updated: 2026-11-06 (Phases **0–14 complete**; Phase 15 blocked on AWS quota → offline Phase 16 work; phases renumbered in execution order — [map](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai  
 > Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
 > **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
@@ -13,9 +13,10 @@
 **Phases 0–10 are complete on `main`.** All eight adapters live; corpus **24 640** (≥15K); fixture eval **8/8**; quality CLI (`report`, `eval --suite fixtures`, `data/runs/`) shipped.
 
 **Phase 11 complete (2026-11-05):** recipe-v2 4-bit QLoRA @512 adapters for all 8 languages; all pass their gate vs base 7B and beat/tie Ollama 14B on held-out soft-exact — [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md).  
-**In progress — Phase 12:** [PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) (expanded corpus, frozen 100-row eval sets, recipe experiments, v3 wave). GPU queue only runs when the user says go.  
+**Now:** Phase 15 (cloud 14B) is blocked on the AWS quota; meanwhile the offline parts of Phase 16 (Ollama packaging, cleaner fix, registry serving, CI) and Rust/C++ + cross-language data prep. Phase 12 done 2026-11-06: v2 stays champion in all 8 languages (v3 tied/lost); GGUF→Ollama adapters verified. GPU queue only runs when the user says go.  
 **Phase 13 complete (2026-11-05):** MLflow tracking + registry + YAML recipes ([PHASE_13](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md)).  
-**Then:** Phase 14 (MLOps repro + infra) → 15 (cloud 14B, waits on AWS quota) → 16 (model CI/CD) → 17 (cross-language) → 18 (monitoring) → 19 (v1.0 launch).
+**Phase 14 complete (2026-11-05):** DVC, Terraform, cloud scripts, vLLM eval ([PHASE_14](phases/PHASE_14_MLOPS_REPRO_INFRA.md)).  
+**Then:** 15 (cloud 14B, waits on AWS quota) → 16 (model CI/CD) → 17 (cross-language) → 18 (monitoring) → 19 (v1.0 launch).
 
 ---
 
@@ -199,9 +200,9 @@ rebirth doctor
 | 9 Full language wave | [PHASE_9_MULTI_LANG_QUALITY.md](phases/PHASE_9_MULTI_LANG_QUALITY.md) | **Complete** | Go/Java/C#/Rust/**C++/Swift** adapters + fixtures + mines |
 | 10 Quality + 15K | [PHASE_10_RELEASE.md](phases/PHASE_10_RELEASE.md) | **Complete** | Fixtures **8/8**; report+runs; corpus **24640** |
 | 11 Per-lang LoRA | [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md) | **Complete** (2026-11-05) | Harness + v2 7B adapters for all 8 languages, gated vs base 7B |
-| **12 Local tuning v3** | [PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) | **In progress** | Frozen eval sets; recipe decided; v3 wave; GGUF→Ollama adapter test |
+| **12 Local tuning v3** | [PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md) | ✅ Complete (2026-11-06) | Frozen eval sets; v2 kept everywhere; GGUF→Ollama adapters = PEFT within noise |
 | 13 MLOps 1 — tracking + registry | [PHASE_13_MLOPS_TRACKING_REGISTRY.md](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md) | **Complete** (2026-11-05) | MLflow runs + registry (8 champions) + YAML recipes; `rebirth track/registry/mlflow-ui` |
-| 14 MLOps 2 — repro + infra | [PHASE_14_MLOPS_REPRO_INFRA.md](phases/PHASE_14_MLOPS_REPRO_INFRA.md) | Planned | DVC + S3; Docker CUDA image; Terraform; cloud scripts; vLLM eval |
+| 14 MLOps 2 — repro + infra | [PHASE_14_MLOPS_REPRO_INFRA.md](phases/PHASE_14_MLOPS_REPRO_INFRA.md) | **Complete** (2026-11-05; S3 push + `terraform apply` need your credentials) | DVC pipeline + data/adapters; pinned CUDA venv + vLLM image; Terraform; cloud scripts; vLLM eval |
 | 15 Cloud 14B adapters | [PHASE_15_CLOUD_14B.md](phases/PHASE_15_CLOUD_14B.md) | Planned (AWS quota) | 14B per-lang adapters + DPO on g6e.xlarge — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
 | 16 MLOps 3 — CI/CD + packaging | [PHASE_16_MLOPS_CICD_PACKAGING.md](phases/PHASE_16_MLOPS_CICD_PACKAGING.md) | Planned | CI gates, champion/challenger, model cards, Ollama adapters, rollback |
 | 17 Cross-language | [PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md) | Planned | `--to <lang>`, equivalence harness, unified adapter |
@@ -285,9 +286,9 @@ Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** · LoRA plan: **
 
 | Now | Do this |
 |-----|---------|
-| **Now** | **Phase 12** — local tuning v3 (v3 wave when the user says go; GGUF→Ollama adapter test) |
+| **Now** | Phase 15 waits on the AWS quota; offline Phase 16 work + data prep meanwhile |
 | ✅ | **Phase 13** — MLOps 1: MLflow tracking + model registry + YAML recipes (done 2026-11-05) |
-| **3** | **Phase 14** — MLOps 2: DVC + S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval |
+| ✅ | **Phase 14** — MLOps 2: DVC pipeline, pinned CUDA env, Terraform, cloud scripts, vLLM eval (done 2026-11-05) |
 | **4** | **Phase 15** — cloud 14B per-language adapters + DPO (when the AWS quota is approved) — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
 | **5** | **Phase 16** — MLOps 3: model CI/CD + Ollama packaging + rollback |
 | **6** | **Phase 17** — cross-language migration (any → any of 8) + unified adapter |
