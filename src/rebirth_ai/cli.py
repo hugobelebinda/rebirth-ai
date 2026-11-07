@@ -423,9 +423,52 @@ def migrate_file(
         "-l",
         help="Adapter id override (js_ts | python); default = auto-detect",
     ),
+    to: str | None = typer.Option(
+        None,
+        "--to",
+        help="Translate to another language (python | typescript | javascript | go | java | csharp | "
+        "rust | cpp | swift). Writes a new file; the source is never modified.",
+    ),
+    out_dir: Path | None = typer.Option(
+        None, "--out-dir", help="--to: output root (default <project>/rebirth_out/<to>, mirrors the source tree)"
+    ),
+    target_project: Path | None = typer.Option(
+        None,
+        "--target-project",
+        exists=True,
+        file_okay=False,
+        help="--to: a project in the target language whose tests the translation must pass",
+    ),
+    target_file: str | None = typer.Option(
+        None, "--target-file", help="--to: where the translation goes inside --target-project"
+    ),
+    target_test: str | None = typer.Option(
+        None, "--target-test", help="--to: target-project test file (also shown to the model)"
+    ),
 ) -> None:
-    """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route."""
+    """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route.
+
+    With ``--to <lang>``: translate the file to another language instead (translate → target
+    sandbox → classify → retry); see docs/phases/PHASE_17_CROSS_LANGUAGE.md.
+    """
     import os
+
+    if to:
+        _translate_file(
+            project=project,
+            file=file,
+            to=to,
+            source_lang=lang,
+            backend=backend,
+            max_iterations=max_iterations,
+            out_dir=out_dir,
+            out=out,
+            target_project=target_project,
+            target_file=target_file,
+            target_test=target_test,
+            write=write,
+        )
+        return
 
     from rebirth_ai.graph.app import build_migration_graph, initial_state
 
@@ -496,6 +539,93 @@ def migrate_file(
     )
     print(f"[dim]run log[/dim] {run_path}")
 
+    raise typer.Exit(code=0 if status == "success" else 1)
+
+
+def _translate_file(
+    *,
+    project: Path,
+    file: str,
+    to: str,
+    source_lang: str | None,
+    backend: str,
+    max_iterations: int,
+    out_dir: Path | None,
+    out: Path | None,
+    target_project: Path | None,
+    target_file: str | None,
+    target_test: str | None,
+    write: bool,
+) -> None:
+    """``rebirth migrate --to``: translate one file; never touches the source file."""
+    from rebirth_ai.runs import write_run_log
+    from rebirth_ai.xlang.graph import build_translation_graph, initial_translation_state
+    from rebirth_ai.xlang.languages import get_lang
+
+    target = get_lang(to)
+    if target_project is not None and not target_file:
+        print("[red]--target-project needs --target-file (where the translation goes in that project)[/red]")
+        raise typer.Exit(2)
+    project = project.resolve()
+    try:
+        state = initial_translation_state(
+            project_dir=project,
+            source_rel=file,
+            target_lang=target.id,
+            source_lang=source_lang,
+            target_project=target_project,
+            target_file=target_file,
+            target_test=target_test,
+            backend=backend,
+            max_iterations=max_iterations,
+        )
+    except ValueError as exc:
+        print(f"[red]{exc}[/red]")
+        raise typer.Exit(2) from exc
+    print(f"[dim]translating {file} ({state['source_lang']} → {target.id}) …[/dim]")
+    final = build_translation_graph().invoke(state)
+
+    status = final.get("status", "unknown")
+    color = {"success": "green", "human_review": "yellow"}.get(status, "red")
+    print(f"[{color}]status={status}[/{color}] iterations={final.get('iteration_count')} verify={final.get('verify_mode')}")
+    for step in final.get("trace") or []:
+        print(f"  • {step}")
+
+    draft = final.get("current_draft") or ""
+    root = (out_dir or (project / "rebirth_out" / target.id)).resolve()
+    dest = root / (final.get("target_rel") or state["target_rel"])
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(draft, encoding="utf-8")
+    print(f"[green]wrote[/green] {dest}" + ("" if status == "success" else " [yellow](not verified — review it)[/yellow]"))
+    if out is not None:
+        out.write_text(draft, encoding="utf-8")
+        print(f"[green]wrote[/green] {out}")
+    if write and status == "success" and target_project is not None and target_file:
+        (target_project / target_file).write_text(draft, encoding="utf-8")
+        print(f"[green]wrote[/green] {target_project / target_file}")
+
+    run_path = write_run_log(
+        kind="translate",
+        payload={
+            "project": str(project),
+            "file": file,
+            "source_lang": final.get("source_lang"),
+            "target_lang": target.id,
+            "target_rel": final.get("target_rel"),
+            "target_project": final.get("target_project"),
+            "target_test": target_test,
+            "output": str(dest),
+            "backend": backend,
+            "model": final.get("model"),
+            "status": status,
+            "verify_mode": final.get("verify_mode"),
+            "iterations": final.get("iteration_count"),
+            "error_class": final.get("error_class"),
+            "trace": final.get("trace") or [],
+            "test_logs": (final.get("test_logs") or "")[:4000],
+        },
+    )
+    print(f"[dim]run log[/dim] {run_path}")
     raise typer.Exit(code=0 if status == "success" else 1)
 
 

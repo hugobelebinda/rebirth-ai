@@ -54,6 +54,7 @@ class OllamaClient:
         *,
         system: str = SYSTEM_PROMPT,
         num_predict: int = 4096,
+        temperature: float = 0.1,
     ) -> str:
         payload = {
             "model": self.model,
@@ -61,7 +62,7 @@ class OllamaClient:
             "system": system,
             "stream": False,
             "options": {
-                "temperature": 0.1,
+                "temperature": temperature,
                 "num_predict": num_predict,
             },
         }

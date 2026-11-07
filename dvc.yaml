@@ -64,3 +64,22 @@ stages:
       outs:
         - data/reports/exp/${key}_v3.json:
             cache: false
+
+  p15_corpus:
+    # Phase 15 training corpora (2026-11-07): a leak-free copy of the expanded corpus for every
+    # language (rows from a frozen eval-set file dropped); Rust / C++ also get full-CommitPack rows
+    # and tool-generated pairs from data/datasets/pool (`dvc add`-ed: mined from the HF Hub by
+    # training/mine_commitpack_full.py + training/make_tool_pairs.py, not reproducible offline).
+    # The first run also wrote evalsets/{rust,cpp}_v2.jsonl; those are frozen and never rewritten.
+    cmd: >-
+      bash scripts/with_env.sh python training/build_p15_corpus.py
+      --langs rust cpp go python java csharp swift js_ts --target ${p15.target}
+    deps:
+      - data/datasets/expanded
+      - data/datasets/pool
+      - data/datasets/evalsets
+      - training/build_p15_corpus.py
+    params:
+      - p15
+    outs:
+      - data/datasets/p15

@@ -1,0 +1,26 @@
+{
+  "problems": 164,
+  "targets": {
+    "cpp": 161,
+    "csharp": 158,
+    "go": 154,
+    "java": 158,
+    "javascript": 161,
+    "python": 164,
+    "rust": 156,
+    "swift": 158,
+    "typescript": 159
+  },
+  "sources": {
+    "cpp": 164,
+    "go": 164,
+    "java": 164,
+    "javascript": 164,
+    "python": 164
+  },
+  "licenses": {
+    "MultiPL-E": "MIT",
+    "openai_humaneval": "MIT",
+    "humaneval-x": "Apache-2.0"
+  }
+}

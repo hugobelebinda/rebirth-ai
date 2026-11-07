@@ -290,7 +290,8 @@ class PeftClient:
         self._model.to(self._device)
         self._model.eval()
 
-    def generate_raw(self, prompt: str, *, system: str = SYSTEM_PROMPT) -> str:
+    def generate_raw(self, prompt: str, *, system: str = SYSTEM_PROMPT, clean: bool = True) -> str:
+        """Decode greedily. ``clean=False`` returns the reply as-is (callers that parse fences)."""
 
         self._ensure_loaded()
         assert self._model is not None and self._tokenizer is not None and self._device
@@ -335,7 +336,7 @@ class PeftClient:
 
         gen = out[0][inputs["input_ids"].shape[-1] :]
         decoded = self._tokenizer.decode(gen, skip_special_tokens=True)
-        return _clean_sft_completion(decoded)
+        return _clean_sft_completion(decoded) if clean else decoded
 
     def migrate(
         self,

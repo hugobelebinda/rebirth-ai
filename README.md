@@ -24,16 +24,16 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | **12** | **Local tuning v3 + eval hardening** (expanded corpus, frozen eval sets, recipe experiments) | ✅ Complete (2026-11-06) |
 | 13 | MLOps 1 — experiment tracking + model registry (MLflow) + YAML recipes | **Complete** (2026-11-05) |
 | 14 | MLOps 2 — reproducible pipelines + infra (DVC, pinned CUDA env, Terraform, cloud scripts, vLLM eval) | **Complete** (2026-11-05) |
-| 15 | Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge) | Planned (waits on AWS quota) |
-| 16 | MLOps 3 — model CI/CD + packaging (gates in CI, Ollama adapters, rollback) | Planned |
-| 17 | Cross-language migration (any → any of 8) + unified adapter | Planned |
+| 15 | Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge) | Local prep done (2026-11-07); cloud part waits on AWS quota |
+| 16 | MLOps 3 — model CI/CD + packaging (gates in CI, Ollama adapters, rollback) | Offline part complete (2026-11-06) |
+| 17 | Cross-language migration (any → any of 8) + unified adapter | Stages 1–2 done 2026-11-07 — `rebirth migrate --to`; zero-shot 14B baseline 89.3 % over 56 directions |
 | 18 | MLOps 4 — monitoring + data flywheel | Planned |
 | 19 | Packaging, UX & official **v1.0** launch | Planned (last) |
 
 Phase numbers follow execution order (renumbered 2026-11-05 — map in [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
 **Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — Phases **0–11 complete** (8 langs + **24640** pairs + fixtures 8/8 + v2 LoRA per language).  
-**Now:** Phase 15 (cloud 14B) is blocked on the AWS quota; meanwhile the offline parts of Phase 16 (Ollama packaging, cleaner fix, registry serving, CI) and Rust/C++ + cross-language data prep — [`docs/phases/PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md), [`docs/phases/PHASE_16_MLOPS_CICD_PACKAGING.md`](docs/phases/PHASE_16_MLOPS_CICD_PACKAGING.md). Phase 12 results: [`PHASE_12_LOCAL_TUNING_V3.md`](docs/phases/PHASE_12_LOCAL_TUNING_V3.md). Cloud plan: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
+**Now:** Phase 15 (cloud 14B) is blocked on the AWS quota (local prep done: [`PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md)); Phase 17 stages 1–2 — translating between languages with `rebirth migrate --to`, zero-shot baseline 89.3 % on HumanEval across all 56 directions — are in ([`PHASE_17_CROSS_LANGUAGE.md`](docs/phases/PHASE_17_CROSS_LANGUAGE.md)). Phase 12 results: [`PHASE_12_LOCAL_TUNING_V3.md`](docs/phases/PHASE_12_LOCAL_TUNING_V3.md). Cloud plan: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
 **Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md)
 
 Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Default brain: Ollama 14B. LoRA: v2 7B adapter per language (Phase 11, 2026-11-05) via `--backend peft`.
@@ -65,6 +65,11 @@ rebirth migrate fixtures/python_sample \
   --file src/math_ops.py --test tests/test_math_ops.py \
   --seed-draft fixtures/python_sample/seeds/math_ops.broken.py \
   --lang python --no-write
+
+# Translate to another language (Phase 17): new file under <project>/rebirth_out/<lang>/,
+# checked against a target-language project's tests (else a compile check), retried on errors
+rebirth migrate fixtures/python_sample --file src/math_ops.py --to go \
+  --target-project fixtures/go_sample --target-file src/mathops.go --target-test src/mathops_test.go
 
 # Multi-file
 rebirth migrate-repo fixtures/js_ts_sample \

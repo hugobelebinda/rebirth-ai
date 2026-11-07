@@ -148,10 +148,10 @@ Each session = launch → `scripts/cloud/setup.sh` → jobs → results home →
 | Session | What | Est. time | Est. cost | Decision at the end |
 |---------|------|----------:|----------:|---------------------|
 | **S0 Setup + smoke** | Launch, setup script, 20-step 14B LoRA smoke at 1024, vLLM eval smoke on 10 rows, measure step time | 1–1.5 h | ~$3 | Real step time → re-estimate S2–S4 |
-| **S1 Baseline matrix** | vLLM eval of base 7B, base 14B, v2 (and v3 if trained locally by then) on all 8 frozen eval sets | ~1 h | ~$2 | Which languages have the most headroom |
-| **S2 14B pilot** | Train Go + Python on 14B (expanded corpus, rows ≤ 1024 tokens), eval vs 7B adapters and base 14B | ~2 h | ~$4 | **Go/no-go:** continue only if 14B adapter ≥ 7B adapter + 3 soft-exact on both (per 100 rows) |
-| **S3 14B wave** | Remaining 6 languages (Python/JS-TS uncapped at 1024 tokens), eval each | 6–8 h | ~$12–15 | Per language: 14B adapter, 7B adapter, or plain Ollama 14B as default |
-| **S4 DPO** | Generate the adapter's own outputs on train prompts (vLLM), build pairs (gold ≻ no-op/unparsable/low-overlap), DPO on 2 languages, eval | ~3 h | ~$6 | Roll out DPO to all languages only if it beats S3 |
+| **S1 Baseline matrix** | vLLM eval of base 7B, base 14B, v2 (and v3 if trained locally by then) on all 8 frozen eval sets + `rust_v2` / `cpp_v2` (100 rows; local 7B scores already in PHASE_15) | ~1 h | ~$2 | Which languages have the most headroom |
+| **S2 14B pilot** | Train Go + Python on 14B (`data/datasets/p15` corpus = leak-free expanded, rows ≤ 1024 tokens), eval vs 7B adapters and base 14B | ~2 h | ~$4 | **Go/no-go:** continue only if 14B adapter ≥ 7B adapter + 3 soft-exact on both (per 100 rows) |
+| **S3 14B wave** | Remaining 6 languages from `data/datasets/p15` (Rust / C++: 8K rows with new CommitPack + tool pairs; Python/JS-TS uncapped at 1024 tokens), eval each (Rust / C++ on the 100-row `_v2` sets) | 6–8 h | ~$12–15 | Per language: 14B adapter, 7B adapter, or plain Ollama 14B as default |
+| **S4 DPO** | Generate the adapter's own outputs on train prompts (vLLM), build pairs (gold ≻ no-op/unparsable/low-overlap/partial; `training/build_dpo_pairs.py`), DPO on 2 languages (`training/train_dpo.py`, smoke-tested locally on 7B), eval | ~3 h | ~$6 | Roll out DPO to all languages only if it beats S3 |
 | **Reserve** | Retries, debugging, idle time | | ~$8 | |
 | **Total this round** | | **~13–16 h** | **~$35–40** | |
 | Phase 17 (later) | 32B teacher generation, cross-language + **unified** adapter (§7), 56-direction eval | ~15–20 h | ~$30–40 | See PHASE_17 |

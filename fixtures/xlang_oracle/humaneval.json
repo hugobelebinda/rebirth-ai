@@ -1,0 +1,59 @@
+{
+ "python": {
+  "HumanEval_0": "def has_close_elements(numbers, threshold):\n    return any(abs(a - b) < threshold for i, a in enumerate(numbers) for j, b in enumerate(numbers) if i != j)\n\nif __name__ == \"__main__\":\n    print(has_close_elements([1.0, 2.0], 0.5))\n",
+  "HumanEval_8": "def sum_product(numbers):\n    p = 1\n    for n in numbers:\n        p *= n\n    return (sum(numbers), p)\n",
+  "HumanEval_23": "def strlen(string: str) -> int:\n    return len(string)\n",
+  "HumanEval_23!wrong": "def strlen(string: str) -> int:\n    return len(string) + 1\n"
+ },
+ "javascript": {
+  "HumanEval_0": "function has_close_elements(numbers, threshold){\n  for (let i = 0; i < numbers.length; i++)\n    for (let j = 0; j < numbers.length; j++)\n      if (i !== j && Math.abs(numbers[i] - numbers[j]) < threshold) return true;\n  return false;\n}\n",
+  "HumanEval_8": "function sum_product(numbers){\n  let s = 0, p = 1;\n  for (const n of numbers) { s += n; p *= n; }\n  return [s, p];\n}\n",
+  "HumanEval_23": "function strlen(string){\n  return string.length;\n}\n",
+  "HumanEval_23!wrong": "function strlen(string){\n  return string.length + 1;\n}\n"
+ },
+ "typescript": {
+  "HumanEval_0": "function has_close_elements(numbers: number[], threshold: number): boolean {\n  for (let i = 0; i < numbers.length; i++)\n    for (let j = 0; j < numbers.length; j++)\n      if (i !== j && Math.abs(numbers[i] - numbers[j]) < threshold) return true;\n  return false;\n}\n",
+  "HumanEval_8": "function sum_product(numbers: number[]): [number, number] {\n  let s = 0, p = 1;\n  for (const n of numbers) { s += n; p *= n; }\n  return [s, p];\n}\n",
+  "HumanEval_23": "function strlen(string: string): number {\n  return string.length;\n}\n",
+  "HumanEval_23!wrong": "function strlen(string: string): number {\n  return string.length + 1;\n}\n"
+ },
+ "go": {
+  "HumanEval_0": "package main\n\nimport \"math\"\n\nfunc has_close_elements(numbers []float64, threshold float64) bool {\n\tfor i := range numbers {\n\t\tfor j := range numbers {\n\t\t\tif i != j && math.Abs(numbers[i]-numbers[j]) < threshold {\n\t\t\t\treturn true\n\t\t\t}\n\t\t}\n\t}\n\treturn false\n}\n\nfunc main() {\n\tprintln(has_close_elements([]float64{1, 2}, 0.5))\n}\n",
+  "HumanEval_8": "func sum_product(numbers []int) []interface{} {\n\ts, p := 0, 1\n\tfor _, n := range numbers {\n\t\ts += n\n\t\tp *= n\n\t}\n\treturn []interface{}{s, p}\n}\n",
+  "HumanEval_23": "import (\n\t\"fmt\"\n\t\"unicode/utf8\"\n)\n\nfunc strlen(myString string) int {\n\t_ = fmt.Sprint()\n\treturn utf8.RuneCountInString(myString)\n}\n",
+  "HumanEval_23!wrong": "func strlen(myString string) int {\n\treturn len(myString) + 1\n}\n",
+  "HumanEval_34": "import \"sort\"\n\nfunc unique(l []int) []int {\n    seen := map[int]bool{}\n    out := []int{}\n    for _, x := range l {\n        if !seen[x] {\n            seen[x] = true\n            out = append(out, x)\n        }\n    }\n    sort.Ints(out)\n    return out\n}\n"
+ },
+ "java": {
+  "HumanEval_0": "import java.util.*;\nimport java.util.stream.*;\n\nclass Solution {\n    public static boolean hasCloseElements(ArrayList<Float> numbers, float threshold) {\n        for (int i = 0; i < numbers.size(); i++)\n            for (int j = 0; j < numbers.size(); j++)\n                if (i != j && Math.abs(numbers.get(i) - numbers.get(j)) < threshold) return true;\n        return false;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"{demo}\");\n    }\n}\n",
+  "HumanEval_8": "public static Pair<Long, Long> sumProduct(ArrayList<Long> numbers) {\n    long s = 0, p = 1;\n    for (long n : numbers) { s += n; p *= n; }\n    return Pair.with(s, p);\n}\n",
+  "HumanEval_23": "public static long strlen(String string) {\n    return string.length();\n}\n",
+  "HumanEval_23!wrong": "public static long strlen(String string) {\n    return string.length() + 1;\n}\n"
+ },
+ "csharp": {
+  "HumanEval_0": "using System.Linq;\n\npublic static bool HasCloseElements(List<float> numbers, float threshold) {\n    for (int i = 0; i < numbers.Count; i++)\n        for (int j = 0; j < numbers.Count; j++)\n            if (i != j && Math.Abs(numbers[i] - numbers[j]) < threshold) return true;\n    return false;\n}\n",
+  "HumanEval_8": "public static Tuple<long, long> SumProduct(List<long> numbers) {\n    long s = 0, p = 1;\n    foreach (var n in numbers) { s += n; p *= n; }\n    return Tuple.Create(s, p);\n}\n",
+  "HumanEval_23": "public static long Strlen(string str) {\n    return str.Length;\n}\n",
+  "HumanEval_23!wrong": "public static long Strlen(string str) {\n    return str.Length + 1;\n}\n",
+  "HumanEval_34": "public static List<long> Unique(List<long> l) {\n    return l.Distinct().OrderBy(x => x).ToList();\n}\n",
+  "HumanEval_34!wrong": "public static List<long> Unique(List<long> l) {\n    return l.Distinct().ToList();\n}\n"
+ },
+ "rust": {
+  "HumanEval_0": "fn has_close_elements(numbers: Vec<f64>, threshold: f64) -> bool {\n    for i in 0..numbers.len() {\n        for j in 0..numbers.len() {\n            if i != j && (numbers[i] - numbers[j]).abs() < threshold {\n                return true;\n            }\n        }\n    }\n    false\n}\n\nfn main() {\n    println!(\"{}\", has_close_elements(vec![1.0, 2.0], 0.5));\n}\n",
+  "HumanEval_8": "fn sum_product(numbers: Vec<isize>) -> (isize, isize) {\n    (numbers.iter().sum(), numbers.iter().product())\n}\n",
+  "HumanEval_23": "fn strlen(string: String) -> isize {\n    string.chars().count() as isize\n}\n",
+  "HumanEval_23!wrong": "fn strlen(string: String) -> isize {\n    string.len() as isize + 1\n}\n"
+ },
+ "cpp": {
+  "HumanEval_0": "#include <cmath>\n#include <vector>\n\nbool has_close_elements(std::vector<float> numbers, float threshold) {\n    for (size_t i = 0; i < numbers.size(); ++i)\n        for (size_t j = 0; j < numbers.size(); ++j)\n            if (i != j && std::abs(numbers[i] - numbers[j]) < threshold) return true;\n    return false;\n}\n\nint main() {\n    return has_close_elements({1.0f, 2.0f}, 0.5f) ? 1 : 0;\n}\n",
+  "HumanEval_8": "std::tuple<long, long> sum_product(std::vector<long> numbers) {\n    long s = 0, p = 1;\n    for (long n : numbers) { s += n; p *= n; }\n    return {s, p};\n}\n",
+  "HumanEval_23": "long string_length(std::string string) {\n    return static_cast<long>(string.size());\n}\n",
+  "HumanEval_23!wrong": "long string_length(std::string string) {\n    return static_cast<long>(string.size()) + 1;\n}\n"
+ },
+ "swift": {
+  "HumanEval_0": "func has_close_elements(numbers: [Double], threshold: Double) -> Bool {\n    for i in 0..<numbers.count {\n        for j in 0..<numbers.count where i != j {\n            if abs(numbers[i] - numbers[j]) < threshold { return true }\n        }\n    }\n    return false\n}\n",
+  "HumanEval_8": "func sum_product(numbers: [Int]) -> (Int, Int) {\n    return (numbers.reduce(0, +), numbers.reduce(1, *))\n}\n",
+  "HumanEval_23": "import Foundation\n\nfunc strlen(string: String) -> Int {\n    return string.count\n}\n",
+  "HumanEval_23!wrong": "func strlen(string: String) -> Int {\n    return string.count + 1\n}\n"
+ }
+}

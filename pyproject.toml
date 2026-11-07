@@ -52,6 +52,14 @@ ml = [
 github = [
   "PyGithub>=2.3.0",
 ]
+# Phase 15 DPO (training/train_dpo.py). Installed with --no-deps locally so the ROCm torch stays put.
+dpo = [
+  "trl>=1.17,<2",
+]
+# Tool-generated pairs (training/make_tool_pairs.py): clang-tidy wheel; Rust comes from rustup.
+datagen = [
+  "clang-tidy>=20",
+]
 mlops = [
   "mlflow-skinny>=3.18,<4",
   "SQLAlchemy>=2.0",

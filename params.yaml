@@ -8,3 +8,6 @@ v3:
   java: {limit: ""}
   swift: {limit: ""}
   js_ts: {limit: "--limit 12000"}
+# Phase 15 corpora (training/build_p15_corpus.py): rows per language for Rust / C++.
+p15:
+  target: 8000
