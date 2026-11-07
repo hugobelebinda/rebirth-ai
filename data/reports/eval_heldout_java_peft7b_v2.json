@@ -1,0 +1,380 @@
+{
+  "backend": "peft",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:java",
+      "backend": "peft",
+      "lang": "java",
+      "n": 24,
+      "soft_exact": 7,
+      "soft_exact_rate": 0.2916666666666667,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.8833333333333333,
+      "mean_token_overlap": 0.8052083333333333,
+      "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Revert \"marked class as abstract\"",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package org.codehaus.groovy.grails.orm.hibernate;\n\npublic class AbstractJavaClass {\n}\n",
+          "gold_preview": "package org.codehaus.groovy.grails.orm.hibernate;\n\npublic class AbstractJavaClass {\n}\n",
+          "pred": "package org.codehaus.groovy.grails.orm.hibernate;\n\npublic class AbstractJavaClass {\n}\n",
+          "gold": "package org.codehaus.groovy.grails.orm.hibernate;\n\npublic class AbstractJavaClass {\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Add new Avro compatibility modes",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.85
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package org.zalando.nakadi.domain;\n\npublic enum CompatibilityMode {\n    FORWARD, COMPATIBLE, NONE, BACKWARD;\n}\n",
+          "gold_preview": "package org.zalando.nakadi.domain;\n\npublic enum CompatibilityMode {\n    FORWARD, COMPATIBLE, NONE,\n    BACKWARD, BACKWARD_TRANSITIVE,\n    FORWARD_TRANSITIVE, COMPATIBLE_TRANSITIVE\n}\n",
+          "pred": "package org.zalando.nakadi.domain;\n\npublic enum CompatibilityMode {\n    FORWARD, COMPATIBLE, NONE, BACKWARD;\n}\n",
+          "gold": "package org.zalando.nakadi.domain;\n\npublic enum CompatibilityMode {\n    FORWARD, COMPATIBLE, NONE,\n    BACKWARD, BACKWARD_TRANSITIVE,\n    FORWARD_TRANSITIVE, COMPATIBLE_TRANSITIVE\n}\n"
+        },
+        {
+          "i": 3,
+          "objective": "Add activating and stopping states.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.84
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package sg.ncl.service.realization.domain;\n\n/**\n * Created by Desmond.\n */\npublic enum RealizationState {\n    ACTIVE, STOPPED, WARNING\n}\n",
+          "gold_preview": "package sg.ncl.service.realization.domain;\n\n/**\n * Created by Desmond.\n */\npublic enum RealizationState {\n    ACTIVE, STOP, WARNING, ACTIVATING, STOPPING\n}\n",
+          "pred": "package sg.ncl.service.realization.domain;\n\n/**\n * Created by Desmond.\n */\npublic enum RealizationState {\n    ACTIVE, STOPPED, WARNING\n}\n",
+          "gold": "package sg.ncl.service.realization.domain;\n\n/**\n * Created by Desmond.\n */\npublic enum RealizationState {\n    ACTIVE, STOP, WARNING, ACTIVATING, STOPPING\n}\n"
+        },
+        {
+          "i": 4,
+          "objective": "Create Java package inside src/ folder",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.629
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package src;\n\n/**\n * Created by roxane on 03/10/2016.\n */\npublic class test {\n    public static void main(String[] args) {\n        System.out.println(\"Hello world\");\n    }\n}\n",
+          "gold_preview": "public class test {\n    public static void main(String[] args) {\n        System.out.println(\"Hello world\");\n    }\n}\n",
+          "pred": "package src;\n\n/**\n * Created by roxane on 03/10/2016.\n */\npublic class test {\n    public static void main(String[] args) {\n        System.out.println(\"Hello world\");\n    }\n}\n",
+          "gold": "public class test {\n    public static void main(String[] args) {\n        System.out.println(\"Hello world\");\n    }\n}\n"
+        },
+        {
+          "i": 5,
+          "objective": "Fix typo in method name",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "public class ShipMarket extends Market {\n\tList<Ship> ships;\n\tpublic void disassembleShip() {\n\t\t\n\t}\n\tpublic void buyShip(Ship selectedShip) {\n\t\t\n\t}\n}\n",
+          "gold_preview": "\npublic class ShipMarket extends Market {\n\tList<Ship> ships;\n\tpublic void disassembleShip() {\n\t\t\n\t}\n\tpublic void buyShip(Ship selectedShip) {\n\t\t\n\t}\n}\n",
+          "pred": "public class ShipMarket extends Market {\n\tList<Ship> ships;\n\tpublic void disassembleShip() {\n\t\t\n\t}\n\tpublic void buyShip(Ship selectedShip) {\n\t\t\n\t}\n}\n",
+          "gold": "\npublic class ShipMarket extends Market {\n\tList<Ship> ships;\n\tpublic void disassembleShip() {\n\t\t\n\t}\n\tpublic void buyShip(Ship selectedShip) {\n\t\t\n\t}\n}\n"
+        },
+        {
+          "i": 6,
+          "objective": "Update heroku dev backend url",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package cc.softwarefactory.lokki.android.constants;\n\npublic class Constants {\n    public static final String API_URL = \"https://dev-lokki.herokuapp.com/api/locmap/v1/\";\n}\n",
+          "gold_preview": "package cc.softwarefactory.lokki.android.constants;\n\npublic class Constants {\n    public static final String API_URL = \"https://lokki-dev.herokuapp.com/api/locmap/v1/\";\n}\n",
+          "pred": "package cc.softwarefactory.lokki.android.constants;\n\npublic class Constants {\n    public static final String API_URL = \"https://dev-lokki.herokuapp.com/api/locmap/v1/\";\n}\n",
+          "gold": "package cc.softwarefactory.lokki.android.constants;\n\npublic class Constants {\n    public static final String API_URL = \"https://lokki-dev.herokuapp.com/api/locmap/v1/\";\n}\n"
+        },
+        {
+          "i": 7,
+          "objective": "Fix typo in javadocs link.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/**\n * This is the top-level package of the OpenXC library. It contains the\n * primary entry point for applications, the {@link com.openxc.VehicleManager}.\n */\npackage com.openxc;\n",
+          "gold_preview": "/**\n * This is the top-level package of the OpenXC library. It contains the\n * primary entry point for applications, the {@link com.openxc.VehicleManager}.\n */\npackage com.openxc;\n",
+          "pred": "/**\n * This is the top-level package of the OpenXC library. It contains the\n * primary entry point for applications, the {@link com.openxc.VehicleManager}.\n */\npackage com.openxc;\n",
+          "gold": "/**\n * This is the top-level package of the OpenXC library. It contains the\n * primary entry point for applications, the {@link com.openxc.VehicleManager}.\n */\npackage com.openxc;\n"
+        },
+        {
+          "i": 8,
+          "objective": "Clean up issue from IntelliJ",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package edu.colorado.plv.cuanto.tinyjava;\n\npublic class ReturnFortytwoTest {\n    public static int return42() {\n        return 42;\n    }\n}\n",
+          "gold_preview": "package edu.colorado.plv.cuanto.tinyjava;\n\npublic class ReturnFortytwoTest {\n    public static int return42() {\n        return 42;\n    }\n}\n\n",
+          "pred": "package edu.colorado.plv.cuanto.tinyjava;\n\npublic class ReturnFortytwoTest {\n    public static int return42() {\n        return 42;\n    }\n}\n",
+          "gold": "package edu.colorado.plv.cuanto.tinyjava;\n\npublic class ReturnFortytwoTest {\n    public static int return42() {\n        return 42;\n    }\n}\n\n"
+        },
+        {
+          "i": 9,
+          "objective": "Add methods to make main class non-static :)",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.294
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import java.util.Scanner;\n\npublic class DatabaseApp {\n\n\tprivate Scanner scanner;\n\t\n\tpublic DatabaseApp() {\n\t\tscanner = new Scanner(System.in);\n\t}\n\t\n\tpublic void run() {\n\t\t\n\t\tSystem.out.println(\"Welcom",
+          "gold_preview": "\npublic class DatabaseApp {\n\n\tpublic static void main(String[] args) {\n\t\tDatabaseApp app = new DatabaseApp();\n\t\ttry {\n\t\t\tapp.setup();\n\t\t\tapp.run();\n\t\t} finally {\n\t\t\tapp.cleanup();\n\t\t}\n\t}\n\t\n\tpublic voi",
+          "pred": "import java.util.Scanner;\n\npublic class DatabaseApp {\n\n\tprivate Scanner scanner;\n\t\n\tpublic DatabaseApp() {\n\t\tscanner = new Scanner(System.in);\n\t}\n\t\n\tpublic void run() {\n\t\t\n\t\tSystem.out.println(\"Welcome to the database app!\");\n\t\t\n\t\tboolean running = true;\n\t\t\n\t\twhile(running) {\n\t\t\tSystem.out.print(\"> \");\n\t\t\t\n\t\t\tString input = scanner.nextLine();\n\t\t\t\n\t\t\tif(input.equals(\"exit\")) {\n\t\t\t\trunning = false;\n\t\t\t} else if(input.equals(\"help\")) {\n\t\t\t\tprintHelp();\n\t\t\t} else {\n\t\t\t\tSystem.out.println(\"Unknown command: \" + input);\n\t\t\t}\n\t\t}\n\t\t\n\t\tSystem.out.println(\"Goodbye!\");\n\t}\n\t\n\tprivate void printHelp() {\n\t\tSystem.out.println(\"Available commands:\");\n\t\tSystem.out.println(\"  exit - Exit the application\");\n\t\tSystem.out.println(\"  help - Print this message\");\n\t}\n\t\n\tpublic static void main(String[] args) {\n\t\tnew DatabaseApp().run();\n\t}\n\n}\n",
+          "gold": "\npublic class DatabaseApp {\n\n\tpublic static void main(String[] args) {\n\t\tDatabaseApp app = new DatabaseApp();\n\t\ttry {\n\t\t\tapp.setup();\n\t\t\tapp.run();\n\t\t} finally {\n\t\t\tapp.cleanup();\n\t\t}\n\t}\n\t\n\tpublic void setup() {\n\t\t\n\t}\n\tpublic void run() {\n\t\t\n\t}\n\tpublic void cleanup() {\n\t\t\n\t}\n\n}\n"
+        },
+        {
+          "i": 10,
+          "objective": "Add more docs to deployment",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.667
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package edu.kit.ipd.crowdcontrol.objectservice.config;\n\n/**\n * Configuration for the deployment of the object service.\n *\n * @author LeanderK\n */\npublic class Deployment {\n    /**\n     * Deployment or",
+          "gold_preview": "package edu.kit.ipd.crowdcontrol.objectservice.config;\n\n/**\n * Deployment variables specific to the control ui.\n */\npublic class Deployment {\n    /**\n     * Deployment origin of the control ui.\n     *",
+          "pred": "package edu.kit.ipd.crowdcontrol.objectservice.config;\n\n/**\n * Configuration for the deployment of the object service.\n *\n * @author LeanderK\n */\npublic class Deployment {\n    /**\n     * Deployment origin of the control ui.\n     */\n    public String origin;\n}\n",
+          "gold": "package edu.kit.ipd.crowdcontrol.objectservice.config;\n\n/**\n * Deployment variables specific to the control ui.\n */\npublic class Deployment {\n    /**\n     * Deployment origin of the control ui.\n     */\n    public String origin;\n}\n"
+        },
+        {
+          "i": 11,
+          "objective": "Fix a dynamic interface bug.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.931
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package org.skywalking.apm.agent.core.plugin.interceptor.enhance;\n\n/**\n * @author wusheng\n */\npublic interface EnhancedInstance {\n    Object getSkyWalkingDynamicField();\n\n    void setSkyWalkingDynamic",
+          "gold_preview": "package org.skywalking.apm.agent.core.plugin.interceptor.enhance;\n\n/**\n * @author wusheng\n */\npublic interface EnhancedInstance {\n    Object getSkyWalkingDynamicField();\n\n    void setSkyWalkingDynamic",
+          "pred": "package org.skywalking.apm.agent.core.plugin.interceptor.enhance;\n\n/**\n * @author wusheng\n */\npublic interface EnhancedInstance {\n    Object getSkyWalkingDynamicField();\n\n    void setSkyWalkingDynamicField(Object field);\n}\n",
+          "gold": "package org.skywalking.apm.agent.core.plugin.interceptor.enhance;\n\n/**\n * @author wusheng\n */\npublic interface EnhancedInstance {\n    Object getSkyWalkingDynamicField();\n\n    void setSkyWalkingDynamicField(Object value);\n}\n"
+        },
+        {
+          "i": 12,
+          "objective": "Remove modid stuff for now (might be needed)",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package info.u_team.u_team_core.api.construct;\n\nimport java.lang.annotation.*;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.TYPE)\npublic @interface Construct {\n\t\n\tboolean client() default ",
+          "gold_preview": "package info.u_team.u_team_core.api.construct;\n\nimport java.lang.annotation.*;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.TYPE)\npublic @interface Construct {\n\t\n\tboolean client() default ",
+          "pred": "package info.u_team.u_team_core.api.construct;\n\nimport java.lang.annotation.*;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.TYPE)\npublic @interface Construct {\n\t\n\tboolean client() default false;\n\t\n}\n",
+          "gold": "package info.u_team.u_team_core.api.construct;\n\nimport java.lang.annotation.*;\n\n@Retention(RetentionPolicy.RUNTIME)\n@Target(ElementType.TYPE)\npublic @interface Construct {\n\t\n\tboolean client() default false;\n\t\n}\n"
+        },
+        {
+          "i": 13,
+          "objective": "Increase WebSocket text buffer size",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.583
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import ch.rasc.embeddedtc.EmbeddedTomcat;\nimport org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;\n\npublic class Spring4WSStartTomcat {\n\tpublic static void main(String[",
+          "gold_preview": "import ch.rasc.embeddedtc.EmbeddedTomcat;\n\npublic class Spring4WSStartTomcat {\n\tpublic static void main(String[] args) throws Exception {\n\t\tEmbeddedTomcat.create().addContextInitializationParameter(\"o",
+          "pred": "import ch.rasc.embeddedtc.EmbeddedTomcat;\nimport org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;\n\npublic class Spring4WSStartTomcat {\n\tpublic static void main(String[] args) throws Exception {\n\t\tServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();\n\t\tcontainer.setMaxTextMessageBufferSize(1024 * 1024);\n\n\t\tEmbeddedTomcat.create(container).startAndWait();\n\t}\n}\n",
+          "gold": "import ch.rasc.embeddedtc.EmbeddedTomcat;\n\npublic class Spring4WSStartTomcat {\n\tpublic static void main(String[] args) throws Exception {\n\t\tEmbeddedTomcat.create().addContextInitializationParameter(\"org.apache.tomcat.websocket.textBufferSize\", \"1000000\").startAndWait();\n\t}\n}\n"
+        },
+        {
+          "i": 14,
+          "objective": "Change to Exception with message",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package devopsdistilled.operp.client.items.exceptions;\n\npublic class ProductBrandPairExistsException extends Exception {\n\n\tprivate static final long serialVersionUID = -6474661245907152963L;\n\n\tpublic ",
+          "gold_preview": "package devopsdistilled.operp.client.items.exceptions;\n\npublic class ProductBrandPairExistsException extends Exception {\n\n\tpublic ProductBrandPairExistsException(String message) {\n\t\tsuper(message);\n\t}",
+          "pred": "package devopsdistilled.operp.client.items.exceptions;\n\npublic class ProductBrandPairExistsException extends Exception {\n\n\tprivate static final long serialVersionUID = -6474661245907152963L;\n\n\tpublic ProductBrandPairExistsException(String message) {\n\t\tsuper(message);\n\t}\n\n}\n",
+          "gold": "package devopsdistilled.operp.client.items.exceptions;\n\npublic class ProductBrandPairExistsException extends Exception {\n\n\tpublic ProductBrandPairExistsException(String message) {\n\t\tsuper(message);\n\t}\n\n\tprivate static final long serialVersionUID = -6474661245907152963L;\n\n}\n"
+        },
+        {
+          "i": 15,
+          "objective": "Change code style to google code style.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": true,
+          "pred_preview": "/**\n * Package of test cases.\n * <p>\n *     Spring test must extends {@link com.saintdan.framework.BaseTest}\n * </p>\n *\n * @author <a href=\"http://github.com/saintdan\">Liao Yifan</a>\n * @date 10/30/15",
+          "gold_preview": "/**\n * Package of test cases.\n * <p>\n *   Spring test must extends {@link com.saintdan.framework.BaseTest}\n * </p>\n *\n * @author <a href=\"http://github.com/saintdan\">Liao Yifan</a>\n * @date 10/30/15\n ",
+          "pred": "/**\n * Package of test cases.\n * <p>\n *     Spring test must extends {@link com.saintdan.framework.BaseTest}\n * </p>\n *\n * @author <a href=\"http://github.com/saintdan\">Liao Yifan</a>\n * @date 10/30/15\n * @since JDK1.8\n */\npackage com.saintdan.framework;\n",
+          "gold": "/**\n * Package of test cases.\n * <p>\n *   Spring test must extends {@link com.saintdan.framework.BaseTest}\n * </p>\n *\n * @author <a href=\"http://github.com/saintdan\">Liao Yifan</a>\n * @date 10/30/15\n * @since JDK1.8\n */\npackage com.saintdan.framework;"
+        },
+        {
+          "i": 16,
+          "objective": "Add an empty IdSelector utility",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.333,
+            "soft_exact": false,
+            "token_overlap": 0.643
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package io.jasonsparc.chemistry.util;\n\nimport android.support.annotation.IdRes;\nimport android.view.View;\n\nimport java.util.function.Predicate;\n\n/**\n * Created by Jason on 19/08/2016.\n */\n@UtilityClas",
+          "gold_preview": "package io.jasonsparc.chemistry.util;\n\nimport io.jasonsparc.chemistry.IdSelector;\nimport io.jasonsparc.chemistry.internal.NullChemistry;\n\n/**\n * Created by Jason on 19/08/2016.\n */\n@UtilityClass\npubli",
+          "pred": "package io.jasonsparc.chemistry.util;\n\nimport android.support.annotation.IdRes;\nimport android.view.View;\n\nimport java.util.function.Predicate;\n\n/**\n * Created by Jason on 19/08/2016.\n */\n@UtilityClass\npublic final class IdSelectors {\n\n\t// Factories\n\n\tpublic static Predicate<View> id(@IdRes int id) {\n\t\treturn view -> view.getId() == id;\n\t}\n\n\t// Utilities\n\n}\n",
+          "gold": "package io.jasonsparc.chemistry.util;\n\nimport io.jasonsparc.chemistry.IdSelector;\nimport io.jasonsparc.chemistry.internal.NullChemistry;\n\n/**\n * Created by Jason on 19/08/2016.\n */\n@UtilityClass\npublic final class IdSelectors {\n\n\t// Factories\n\n\t// Utilities\n\n\tpublic static <Item> IdSelector<Item> empty() {\n\t\treturn NullChemistry.get();\n\t}\n}\n"
+        },
+        {
+          "i": 17,
+          "objective": "Add test for default constructor",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.667
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package com.deuteriumlabs.dendrite.unittest;\n\nimport static org.junit.Assert.*;\n\nimport org.junit.Test;\n\npublic class PageIdTest {\n\n    @Test\n    public void testDefaultConstructor() {\n        // Arra",
+          "gold_preview": "package com.deuteriumlabs.dendrite.unittest;\n\nimport static org.junit.Assert.assertNotNull;\nimport org.junit.Test;\nimport com.deuteriumlabs.dendrite.model.PageId;\n\npublic class PageIdTest {\n    @Test\n",
+          "pred": "package com.deuteriumlabs.dendrite.unittest;\n\nimport static org.junit.Assert.*;\n\nimport org.junit.Test;\n\npublic class PageIdTest {\n\n    @Test\n    public void testDefaultConstructor() {\n        // Arrange\n        final String expected = \"0\";\n\n        // Act\n        final PageId pageId = new PageId();\n        final String actual = pageId.toString();\n\n        // Assert\n        assertEquals(expected, actual);\n    }\n\n}\n",
+          "gold": "package com.deuteriumlabs.dendrite.unittest;\n\nimport static org.junit.Assert.assertNotNull;\nimport org.junit.Test;\nimport com.deuteriumlabs.dendrite.model.PageId;\n\npublic class PageIdTest {\n    @Test\n    public void testDefaultConstructor() {\n        final PageId pageId = new PageId();\n        assertNotNull(pageId);\n    }\n}\n"
+        },
+        {
+          "i": 18,
+          "objective": "Add register page and pre-load js functions to API",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.2,
+            "soft_exact": false,
+            "token_overlap": 0.308
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package com.decker.essentiallib.API;\r\n\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\n\r\npublic class PageAPI {\r\n\tprivate static Map<String, String> _jsFunctions = new HashMap<>();\r\n\t\r\n\tpublic stat",
+          "gold_preview": "package com.decker.essentiallib.API;\r\n\r\nimport com.decker.essentiallib.Page;\r\nimport com.decker.essentiallib.PageTitleIcon;\r\nimport com.decker.essentiallib.Reactor;\r\n\r\npublic class PageAPI {\r\n    publ",
+          "pred": "package com.decker.essentiallib.API;\r\n\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\n\r\npublic class PageAPI {\r\n\tprivate static Map<String, String> _jsFunctions = new HashMap<>();\r\n\t\r\n\tpublic static void addJSFunction(String name, String function) {\r\n\t\t_jsFunctions.put(name, function);\r\n\t}\r\n\t\r\n\tpublic static String getJSFunctions() {\r\n\t\tStringBuilder sb = new StringBuilder();\r\n\t\t\r\n\t\tfor (String key : _jsFunctions.keySet()) {\r\n\t\t\tsb.append(\"function \").append(key).append(\"(\");\r\n\t\t\tboolean first = true;\r\n\t\t\t\r\n\t\t\tfor (String param : _jsFunctions.get(key).split(\",\")) {\r\n\t\t\t\tif (!first)\r\n\t\t\t\t\tsb.append(\", \");\r\n\t\t\t\t\r\n\t\t\t\tfirst = false;\r\n\t\t\t\tsb.append(param.trim());\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tsb.append(\") {\").append(_jsFunctions.get(key)).append(\"}\");\r\n\t\t}\r\n\t\t\r\n\t\treturn sb.toString();\r\n\t}\r\n}\n",
+          "gold": "package com.decker.essentiallib.API;\r\n\r\nimport com.decker.essentiallib.Page;\r\nimport com.decker.essentiallib.PageTitleIcon;\r\nimport com.decker.essentiallib.Reactor;\r\n\r\npublic class PageAPI {\r\n    public static void reigsterPage(String title, String url, PageTitleIcon icon) {\r\n\tReactor.getReactor().addSidelistItem(title, new Page(title, url, icon));\r\n    }\r\n\r\n    public static void addPreloadJavascript(String url) {\r\n\tReactor.getReactor().addPreloadJavaScript(url);\r\n    }\r\n}\r\n"
+        },
+        {
+          "i": 19,
+          "objective": "Change return type as per 5d74d94b...",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.839
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package powerups.core.boardpowerup;\n\nimport models.Club;\nimport powerups.Powerup;\n\nimport javax.xml.transform.Result;\n\npublic class Board extends Powerup {\n\n    public Board(Club club) {\n        super",
+          "gold_preview": "package powerups.core.boardpowerup;\n\nimport models.Club;\nimport powerups.Powerup;\n\npublic class Board extends Powerup {\n\n    public Board(Club club) {\n        super(club);\n\n\n    }\n\n    @Override\n    p",
+          "pred": "package powerups.core.boardpowerup;\n\nimport models.Club;\nimport powerups.Powerup;\n\nimport javax.xml.transform.Result;\n\npublic class Board extends Powerup {\n\n    public Board(Club club) {\n        super(club);\n    }\n\n\n    @Override\n    public Result render() {\n        return null;\n    }\n}\n",
+          "gold": "package powerups.core.boardpowerup;\n\nimport models.Club;\nimport powerups.Powerup;\n\npublic class Board extends Powerup {\n\n    public Board(Club club) {\n        super(club);\n\n\n    }\n\n    @Override\n    public play.mvc.Result render() {\n        return null;\n    }\n}\n"
+        },
+        {
+          "i": 20,
+          "objective": "Remove tickable interface from casing",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.95
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package de.nedelosk.modularmachines.api.modules;\n\nimport de.nedelosk.modularmachines.api.modules.energy.IModuleHeat;\nimport de.nedelosk.modularmachines.api.modules.storaged.IModuleModuleStorage;\n\npubl",
+          "gold_preview": "package de.nedelosk.modularmachines.api.modules;\n\nimport de.nedelosk.modularmachines.api.modules.energy.IModuleHeat;\nimport de.nedelosk.modularmachines.api.modules.storaged.IModuleModuleStorage;\n\npubl",
+          "pred": "package de.nedelosk.modularmachines.api.modules;\n\nimport de.nedelosk.modularmachines.api.modules.energy.IModuleHeat;\nimport de.nedelosk.modularmachines.api.modules.storaged.IModuleModuleStorage;\n\npublic interface IModuleCasing extends IModuleModuleStorage, IModuleHeat {\n\n}\n",
+          "gold": "package de.nedelosk.modularmachines.api.modules;\n\nimport de.nedelosk.modularmachines.api.modules.energy.IModuleHeat;\nimport de.nedelosk.modularmachines.api.modules.storaged.IModuleModuleStorage;\n\npublic interface IModuleCasing extends IModuleModuleStorage {\n\n}\n"
+        },
+        {
+          "i": 21,
+          "objective": "Remove @Style annotation from Melisandre example style",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package com.axellience.vuegwtexamples.client.examples.melisandre;\n\nimport com.google.gwt.resources.client.CssResource;\n\n/**\n * @author Adrien Baron\n */\npublic interface MelisandreComponentStyle extend",
+          "gold_preview": "package com.axellience.vuegwtexamples.client.examples.melisandre;\n\nimport com.google.gwt.resources.client.CssResource;\n\n/**\n * @author Adrien Baron\n */\npublic interface MelisandreComponentStyle extend",
+          "pred": "package com.axellience.vuegwtexamples.client.examples.melisandre;\n\nimport com.google.gwt.resources.client.CssResource;\n\n/**\n * @author Adrien Baron\n */\npublic interface MelisandreComponentStyle extends CssResource\n{\n    String red();\n    String bold();\n}\n",
+          "gold": "package com.axellience.vuegwtexamples.client.examples.melisandre;\n\nimport com.google.gwt.resources.client.CssResource;\n\n/**\n * @author Adrien Baron\n */\npublic interface MelisandreComponentStyle extends CssResource\n{\n    String red();\n    String bold();\n}"
+        },
+        {
+          "i": 22,
+          "objective": "Test with 2 @Id mappings for Blaze Persistence JPA Criteria",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.882
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab.cte;\n\nimport com.blazebit.persistence.CTE;\n\nimport javax.persistence.Entity;\nimport javax.persistence.Id;\n\n@CTE\n@Entity\npublic class Tab",
+          "gold_preview": "package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab.cte;\n\nimport com.blazebit.persistence.CTE;\n\nimport javax.persistence.Entity;\nimport javax.persistence.Id;\nimport java.io.Serializable;\n\n",
+          "pred": "package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab.cte;\n\nimport com.blazebit.persistence.CTE;\n\nimport javax.persistence.Entity;\nimport javax.persistence.Id;\n\n@CTE\n@Entity\npublic class TabKeyVer {\n    @Id\n    private String tabKey;\n\n    @Id\n    private Long tabVer;\n}\n",
+          "gold": "package com.vladmihalcea.book.hpjp.hibernate.criteria.blaze.tab.cte;\n\nimport com.blazebit.persistence.CTE;\n\nimport javax.persistence.Entity;\nimport javax.persistence.Id;\nimport java.io.Serializable;\n\n@CTE\n@Entity\npublic class TabKeyVer implements Serializable {\n    @Id\n    private String tabKey;\n    @Id\n    private Long tabVer;\n}"
+        },
+        {
+          "i": 23,
+          "objective": "Add a basic test for CommandLineInterpreter with a partial board",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.667,
+            "soft_exact": false,
+            "token_overlap": 0.682
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package apostov;\r\n\r\nimport org.junit.Test;\r\n\r\npublic class CommandLineInterpreterTest {\r\n\r\n\t@Test\r\n\tpublic void test01() {\r\n\t\tnew CommandLineInterpreter().interpretArguments(new String[]{\"AsAh\", \"2h7d",
+          "gold_preview": "package apostov;\r\n\r\nimport org.junit.Test;\r\n\r\npublic class CommandLineInterpreterTest {\r\n\r\n\t@Test\r\n\tpublic void test01() {\r\n\t\tnew CommandLineInterpreter().interpretArguments(new String[]{\"AsAh\", \"2h7d",
+          "pred": "package apostov;\r\n\r\nimport org.junit.Test;\r\n\r\npublic class CommandLineInterpreterTest {\r\n\r\n\t@Test\r\n\tpublic void test01() {\r\n\t\tnew CommandLineInterpreter().interpretArguments(new String[]{\"AsAh\", \"2h7d\", \"JhTh\", \"KsTs\", \"QsJs\", \"9s8s\", \"7s6s\", \"5s4s\", \"3s2s\"});\r\n\t}\r\n}\n",
+          "gold": "package apostov;\r\n\r\nimport org.junit.Test;\r\n\r\npublic class CommandLineInterpreterTest {\r\n\r\n\t@Test\r\n\tpublic void test01() {\r\n\t\tnew CommandLineInterpreter().interpretArguments(new String[]{\"AsAh\", \"2h7d\", \"JhTh\"});\r\n\t}\r\n\t\r\n\t@Test\r\n\tpublic void test02() {\r\n\t\tnew CommandLineInterpreter().interpretArguments(new String[]{\r\n\t\t\t\t\"AsAh\", \"2h7d\", \"JhTh\",\r\n\t\t\t\t\"--board\", \"2s2cJd\"\r\n\t\t});\r\n\t}\r\n}\r\n"
+        },
+        {
+          "i": 24,
+          "objective": "Initialize FabricXX C++ code and register rootview",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.56
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\npackage com.face",
+          "gold_preview": "/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\npackage com.face",
+          "pred": "/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\npackage com.facebook.react.fabric;\n\nimport android.view.View;\nimport androidx.annotation.Nullable;\nimport com.facebook.react.bridge.ReactApplicationContext;\nimport com.facebook.react.uimanager.RootViewManager;\nimport com.facebook.react.uimanager.UIManagerModule;\n\npublic class FabricBinder implements FabricBinding {\n\n  private @Nullable ReactApplicationContext mReactApplicationContext = null;\n  private @Nullable UIManagerModule mUIManagerModule = null;\n\n  public void setBinding(ReactApplicationContext reactApplicationContext) {\n    mReactApplicationContext = reactApplicationContext;\n    mUIManagerModule = new UIManagerModule(mReactApplicationContext);\n  }\n\n  @Override\n  public void initialize() {}\n\n  @Override\n  public void registerRootView(View rootView) {\n    if (mUIManagerModule != null && mReactApplicationContext != null) {\n      mUIManagerModule.registerRootView((RootViewManager) rootView.getClass().getAnnotation(RootViewManager.class), rootView);\n    }\n  }\n}\n",
+          "gold": "/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source code is licensed under the MIT license found in the\n * LICENSE file in the root directory of this source tree.\n */\n\npackage com.facebook.react.fabric;\n\npublic interface FabricBinder<T extends FabricBinding> {\n\n  void setBinding(T binding);\n\n}\n"
+        }
+      ]
+    }
+  }
+}

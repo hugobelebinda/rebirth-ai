@@ -8,10 +8,10 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-import docker
 from docker.errors import ContainerError, ImageNotFound
 from docker.models.containers import Container
 
+import docker
 from rebirth_ai.adapters.base import LanguageAdapter, SandboxSpec
 
 
@@ -169,7 +169,7 @@ class SandboxRunner:
             if container is not None:
                 try:
                     container.remove(force=True)
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
 
         return SandboxResult(

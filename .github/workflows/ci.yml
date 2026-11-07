@@ -1,0 +1,60 @@
+# Phase 16 CI: lint + full test suite on every push / PR (CPU only, no models, no data pull).
+# Model quality is gated locally where the GPU is: `rebirth registry gate` (promotion) and the
+# serving gate inside `rebirth package` (no Ollama alias / route changes without a pass).
+name: ci
+
+on:
+  push:
+    branches: [main, "rebirth/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.3
+      - run: ruff check .
+
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      MLFLOW_DISABLE_TELEMETRY: "true"
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+      DO_NOT_TRACK: "1"
+      HF_HUB_OFFLINE: "1"
+      REBIRTH_EMBEDDER: hash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install (CPU torch, same version as the lock files)
+        run: |
+          pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,mlops,ml]"
+      - run: pytest -q
+
+  pipeline:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "dvc[s3]==3.67.*"
+      - name: dvc.yaml + params.yaml parse and form a valid DAG
+        run: dvc dag

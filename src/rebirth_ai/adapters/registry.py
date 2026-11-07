@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from rebirth_ai.adapters.base import LanguageAdapter
 from rebirth_ai.adapters.cpp import CppAdapter

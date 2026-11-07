@@ -1,0 +1,380 @@
+{
+  "backend": "peft",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:js_ts",
+      "backend": "peft",
+      "lang": "js_ts",
+      "n": 24,
+      "soft_exact": 4,
+      "soft_exact_rate": 0.16666666666666666,
+      "parses": 24,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.9583333333333334,
+      "mean_token_overlap": 0.7747083333333333,
+      "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Replace var with const/let",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.875
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function sum(a, b) {\n  let total = a + b;\n  return total;\n}\n",
+          "gold_preview": "function sum(a, b) {\n  const total = a + b;\n  return total;\n}\n",
+          "pred": "function sum(a, b) {\n  let total = a + b;\n  return total;\n}\n",
+          "gold": "function sum(a, b) {\n  const total = a + b;\n  return total;\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Fix CLI usage to be executable",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": true,
+          "pred_preview": "#!/usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n",
+          "gold_preview": "#! /usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n",
+          "pred": "#!/usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n",
+          "gold": "#! /usr/bin/env node\n\nimport Shuffler from \"./shuffler\";\n\nnew Shuffler().run();\n"
+        },
+        {
+          "i": 3,
+          "objective": "Remove dot from snapsvg name.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.667
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//= require snap.svg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n",
+          "gold_preview": "//= require snapsvg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n",
+          "pred": "//= require snap.svg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n",
+          "gold": "//= require snapsvg\n//= require ./pizza/pizza\n//= require_tree ./pizza\n"
+        },
+        {
+          "i": 4,
+          "objective": "Add \"primary\" style for buttons, etc",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": true,
+          "pred_preview": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger',\n    'primary'\n];\n",
+          "gold_preview": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n",
+          "pred": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger',\n    'primary'\n];\n",
+          "gold": "module.exports = [\n    'default', 'info', 'warning', 'success', 'danger', 'primary'\n];\n"
+        },
+        {
+          "i": 5,
+          "objective": "Resolve test modules as local modules.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.941
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "define(['./events',\n        './events/emitter'],\nfunction() {\n  return {}\n});\n",
+          "gold_preview": "define(['./test.events',\n        './test.events.emitter'],\nfunction() {\n  return {}\n});\n",
+          "pred": "define(['./events',\n        './events/emitter'],\nfunction() {\n  return {}\n});\n",
+          "gold": "define(['./test.events',\n        './test.events.emitter'],\nfunction() {\n  return {}\n});\n"
+        },
+        {
+          "i": 6,
+          "objective": "Replace == with ===",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "gold_preview": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "pred": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n",
+          "gold": "function isReady(flag) {\n  if (flag === true) {\n    return 'yes';\n  }\n  return 'no';\n}\n"
+        },
+        {
+          "i": 7,
+          "objective": "Send coverage in node 4 only",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.81
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  'node-4': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n",
+          "gold_preview": "module.exports = {\n  'v4.0.0': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n",
+          "pred": "module.exports = {\n  'node-4': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n",
+          "gold": "module.exports = {\n  'v4.0.0': 'codeclimate-test-reporter < coverage/coverage.lcov'\n};\n"
+        },
+        {
+          "i": 8,
+          "objective": "Allow jsx in .js files",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.481
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  extends: 'airbnb',\n  settings: {\n    react: {\n      version: 'detect',\n    },\n  },\n};\n",
+          "gold_preview": "module.exports = {\n  extends: 'airbnb',\n  rules: {\n    'react/jsx-filename-extension': ['error', { extensions: ['.js'] }],\n  },\n};\n",
+          "pred": "module.exports = {\n  extends: 'airbnb',\n  settings: {\n    react: {\n      version: 'detect',\n    },\n  },\n};\n",
+          "gold": "module.exports = {\n  extends: 'airbnb',\n  rules: {\n    'react/jsx-filename-extension': ['error', { extensions: ['.js'] }],\n  },\n};\n"
+        },
+        {
+          "i": 9,
+          "objective": "Add Bluebird to window if window is a thing",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.792
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "var Promise = require(\"./promise.js\");\n\nif (typeof window !== \"undefined\") {\n    window.Promise = Promise;\n}\n\nmodule.exports = Promise;\n",
+          "gold_preview": "const Bluebird = require(\"./promise.js\");\nmodule.exports = Bluebird\n\nif (typeof window !== 'undefined') {\n    window.Bluebird = Bluebird;\n}",
+          "pred": "var Promise = require(\"./promise.js\");\n\nif (typeof window !== \"undefined\") {\n    window.Promise = Promise;\n}\n\nmodule.exports = Promise;\n",
+          "gold": "const Bluebird = require(\"./promise.js\");\nmodule.exports = Bluebird\n\nif (typeof window !== 'undefined') {\n    window.Bluebird = Bluebird;\n}"
+        },
+        {
+          "i": 10,
+          "objective": "Add script for project 2",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.938
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function toggleDiv(project1, project2) {\n\n   $(\"#\"+project1).toggle();\n   $(\"#\"+project2).toggle();\n\n}\n",
+          "gold_preview": "function toggleDiv(project1) {\n\n   $(\"#\"+project1).toggle();\n\n}\n\nfunction toggleDiv(project2) {\n\n   $(\"#\"+project2).toggle();\n\n}\n",
+          "pred": "function toggleDiv(project1, project2) {\n\n   $(\"#\"+project1).toggle();\n   $(\"#\"+project2).toggle();\n\n}\n",
+          "gold": "function toggleDiv(project1) {\n\n   $(\"#\"+project1).toggle();\n\n}\n\nfunction toggleDiv(project2) {\n\n   $(\"#\"+project2).toggle();\n\n}\n"
+        },
+        {
+          "i": 11,
+          "objective": "Complete 'Closures' challenge in 'Scopes chains closures' tutorial",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.941
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42;\n  }\n  return zip;\n}\n",
+          "gold_preview": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42\n    bar = true;\n  }\n\n  return zip;\n}\n",
+          "pred": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42;\n  }\n  return zip;\n}\n",
+          "gold": "function foo() {\n  var bar;\n  quux = 42;\n  function zip() {\n    var quux = 42+42\n    bar = true;\n  }\n\n  return zip;\n}\n"
+        },
+        {
+          "i": 12,
+          "objective": "Put export back to previous pattern.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.739
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import app from '../app';\n\nconst polyT = function (...args) {\n  return app.polyglot.t(...args);\n};\n\nmodule.exports = {\n  polyT,\n};\n",
+          "gold_preview": "import app from '../app';\n\nexport function polyT(...args) {\n  return app.polyglot.t(args);\n}\n\n",
+          "pred": "import app from '../app';\n\nconst polyT = function (...args) {\n  return app.polyglot.t(...args);\n};\n\nmodule.exports = {\n  polyT,\n};\n",
+          "gold": "import app from '../app';\n\nexport function polyT(...args) {\n  return app.polyglot.t(args);\n}\n\n"
+        },
+        {
+          "i": 13,
+          "objective": "Increase typing speed when filling out forms x2",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.564
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\nCypress.Commands.add('type', (selector, text) => {\n  cy.get(selector).clear().type(text, { delay: 10 })\n})\n",
+          "gold_preview": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\n\nCypress.Keyboard.defaults({\n  keystrokeDelay: 5,\n})\n",
+          "pred": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\nCypress.Commands.add('type', (selector, text) => {\n  cy.get(selector).clear().type(text, { delay: 10 })\n})\n",
+          "gold": "/* eslint-disable */\nimport '@cypress/code-coverage/support'\nrequire('./commands')\n\nCypress.Keyboard.defaults({\n  keystrokeDelay: 5,\n})\n"
+        },
+        {
+          "i": 14,
+          "objective": "Add math & clean up.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.5
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "var Unit = require('./unit');\nvar Lexer = require('./lexer');\n\nmodule.exports = {\n  'Unit': Unit,\n  'Lexer': Lexer,\n\n  // Math functions.\n  'add': function(a, b) { return a + b; },\n  'subtract': funct",
+          "gold_preview": "module.exports = {\n  // Objects\n  'Unit': require('./unit'),\n  'Lexer': require('./lexer'),\n\n  // Methods\n  'math': require('./math'),\n};\n",
+          "pred": "var Unit = require('./unit');\nvar Lexer = require('./lexer');\n\nmodule.exports = {\n  'Unit': Unit,\n  'Lexer': Lexer,\n\n  // Math functions.\n  'add': function(a, b) { return a + b; },\n  'subtract': function(a, b) { return a - b; },\n  'multiply': function(a, b) { return a * b; },\n  'divide': function(a, b) { return a / b; },\n\n  // TODO: Add more math functions.\n};\n",
+          "gold": "module.exports = {\n  // Objects\n  'Unit': require('./unit'),\n  'Lexer': require('./lexer'),\n\n  // Methods\n  'math': require('./math'),\n};\n"
+        },
+        {
+          "i": 15,
+          "objective": "Increase hook timeout to 3 min",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.923
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n  hooksTimeout: 180000\n\n};\n",
+          "gold_preview": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n\n  hookTimeout: 180000\n\n};\n",
+          "pred": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n  hooksTimeout: 180000\n\n};\n",
+          "gold": "module.exports = {\n\n  port: 1337,\n  serverUrl: process.env.SERVER_URL || 'http://127.0.0.1:1337',\n\n  hookTimeout: 180000\n\n};\n"
+        },
+        {
+          "i": 16,
+          "objective": "Deploy to GitHub pages",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 0.514
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import { createRequire } from 'module';\nconst require = createRequire(import.meta.url);\nexport default {\n    BackgroundPlus: require(\"./backgrounds-plus.jpg\")\n}\n",
+          "gold_preview": "import React from \"react\";\nimport Image from \"../../../components/Image\"\nexport const BackgroundsPlus = p => <Image {...p} src={require(\"./backgrounds-plus.jpg\")} />",
+          "pred": "import { createRequire } from 'module';\nconst require = createRequire(import.meta.url);\nexport default {\n    BackgroundPlus: require(\"./backgrounds-plus.jpg\")\n}\n",
+          "gold": "import React from \"react\";\nimport Image from \"../../../components/Image\"\nexport const BackgroundsPlus = p => <Image {...p} src={require(\"./backgrounds-plus.jpg\")} />"
+        },
+        {
+          "i": 17,
+          "objective": "Bring back tests with styles",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.556
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  plugins: {\n    'postcss-import': {},\n    'postcss-preset-env': {\n      stage: 0,\n      preserve: false\n    },\n    'postcss-modules-extract-imports': {}\n  }\n}\n",
+          "gold_preview": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')\n  ]\n}\n",
+          "pred": "module.exports = {\n  plugins: {\n    'postcss-import': {},\n    'postcss-preset-env': {\n      stage: 0,\n      preserve: false\n    },\n    'postcss-modules-extract-imports': {}\n  }\n}\n",
+          "gold": "module.exports = {\n  plugins: [\n    require('postcss-import'),\n    require('postcss-preset-env')\n  ]\n}\n"
+        },
+        {
+          "i": 18,
+          "objective": "Make readJson return the read file",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n",
+          "gold_preview": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n",
+          "pred": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n",
+          "gold": "import mzFs from 'mz/fs';\n\nexport async function readJson(fileName) {\n  return JSON.parse(await mzFs.readFile(fileName));\n}\n"
+        },
+        {
+          "i": 19,
+          "objective": "Use more human-friendly hour strings",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.806
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  const hour = i % 12;\n  if (hour === 0) {\n    hours.push('12');\n  } else {\n    hours.push(hour.toString());\n  }\n}\n\nexport default hours;\n",
+          "gold_preview": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  if (i < 10) {\n    hours.push(`0${i}`);\n  } else {\n    hours.push(`${i}`);\n  }\n}\n\nexport default hours;\n",
+          "pred": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  const hour = i % 12;\n  if (hour === 0) {\n    hours.push('12');\n  } else {\n    hours.push(hour.toString());\n  }\n}\n\nexport default hours;\n",
+          "gold": "const hours = [];\nfor (let i = 0; i < 24; i++) {\n  if (i < 10) {\n    hours.push(`0${i}`);\n  } else {\n    hours.push(`${i}`);\n  }\n}\n\nexport default hours;\n"
+        },
+        {
+          "i": 20,
+          "objective": "Create merge conflict in master branch",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.639
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\n// This is a new line that will cause a merge conflict.\n",
+          "gold_preview": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\nconsole.log('This is added in master branch')",
+          "pred": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\n// This is a new line that will cause a merge conflict.\n",
+          "gold": "// ./src/hello-world.js\n\nvar console = require('gulp-messenger');\n\nconsole.success('Hello World!');\n\nconsole.log('This is added in master branch')"
+        },
+        {
+          "i": 21,
+          "objective": "Remove RSA password from repo.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.87
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: '',\n\tfilename \t: '.data.db'\n}\n",
+          "gold_preview": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: process.env.NEON_SECURE_PASSWORD,\n\tfilename \t: '.data.db'\n}\n\n\n",
+          "pred": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: '',\n\tfilename \t: '.data.db'\n}\n",
+          "gold": "module.exports = {\n\talgorithm \t: 'aes-256-ctr',\n\tpassword  \t: process.env.NEON_SECURE_PASSWORD,\n\tfilename \t: '.data.db'\n}\n\n\n"
+        },
+        {
+          "i": 22,
+          "objective": "Add session time to initial state",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.714
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "export default {\n    root: {\n        isAuthenticated: false,\n        isAuthenticationInProgress: false,\n        sessionTime: null\n    }\n}\n",
+          "gold_preview": "export default {\n    root: {\n        currentSessionTime: 0,\n        isAuthenticated: false,\n        isAuthenticationInProgress: false\n    }\n}",
+          "pred": "export default {\n    root: {\n        isAuthenticated: false,\n        isAuthenticationInProgress: false,\n        sessionTime: null\n    }\n}\n",
+          "gold": "export default {\n    root: {\n        currentSessionTime: 0,\n        isAuthenticated: false,\n        isAuthenticationInProgress: false\n    }\n}"
+        },
+        {
+          "i": 23,
+          "objective": "Add helper for converting dashed words to lower camel case",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.4
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "export default function dashesToCamelCase(str) {\n  let result = '';\n  const parts = str.split('-');\n\n  parts.forEach((part, index) => {\n    if (index === 0) {\n      result += part;\n    } else {\n      ",
+          "gold_preview": "export default function dashesToCamelCase(str) {\n    return str.replace(/-([a-z])/g, function (g) {\n        return g[1].toUpperCase();\n    });\n};",
+          "pred": "export default function dashesToCamelCase(str) {\n  let result = '';\n  const parts = str.split('-');\n\n  parts.forEach((part, index) => {\n    if (index === 0) {\n      result += part;\n    } else {\n      result += part.charAt(0).toUpperCase() + part.slice(1);\n    }\n  });\n\n  return result;\n};\n",
+          "gold": "export default function dashesToCamelCase(str) {\n    return str.replace(/-([a-z])/g, function (g) {\n        return g[1].toUpperCase();\n    });\n};"
+        },
+        {
+          "i": 24,
+          "objective": "Disable the no-unused-vars and no-undef rules",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.923
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 'off',\n    'no-undef': 'off'\n  }\n};\n",
+          "gold_preview": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 0,\n    'no-undef': 0\n  }\n};\n",
+          "pred": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 'off',\n    'no-undef': 'off'\n  }\n};\n",
+          "gold": "module.exports = {\n  root: false,\n  plugins: ['markdown'],\n  globals: {\n    expect: false\n  },\n  rules: {\n    'no-unused-vars': 0,\n    'no-undef': 0\n  }\n};\n"
+        }
+      ]
+    }
+  }
+}

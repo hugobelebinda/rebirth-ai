@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from rebirth_ai.adapters.registry import get_adapter_for_project
 from rebirth_ai.graph.app import build_migration_graph, initial_state
@@ -181,19 +181,21 @@ def migrate_repository(
         """Return a skip result, or None if the file may proceed."""
         rel_s = rel.as_posix()
         abs_path = project_dir / rel_s
-        if not adapter.is_source_file(abs_path):
-            return FileMigrationResult(
-                relative_file=rel_s,
-                relative_test=None,
-                status="skipped_wrong_language",
-                message=f"Not owned by adapter {adapter.name}",
-            )
+        # Secret check first: a credential path must be reported as such even when
+        # the adapter would not own it anyway (truthful report / PR body).
         if is_secret_path(rel):
             return FileMigrationResult(
                 relative_file=rel_s,
                 relative_test=None,
                 status="skipped_secret",
                 message="Secret/credential path blocked",
+            )
+        if not adapter.is_source_file(abs_path):
+            return FileMigrationResult(
+                relative_file=rel_s,
+                relative_test=None,
+                status="skipped_wrong_language",
+                message=f"Not owned by adapter {adapter.name}",
             )
         if file_too_large(abs_path):
             return FileMigrationResult(
@@ -295,7 +297,7 @@ def migrate_repository(
 
         try:
             final = graph.invoke(state)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             report.results.append(
                 FileMigrationResult(
                     relative_file=rel_s,

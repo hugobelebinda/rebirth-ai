@@ -65,7 +65,7 @@ def main() -> int:
                 }
             )
             print(f"{lang}: {'PASS' if result.ok else 'FAIL'} ({result.duration_sec:.2f}s)")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             results.append(
                 {
                     "id": f"{lang}_fixture",

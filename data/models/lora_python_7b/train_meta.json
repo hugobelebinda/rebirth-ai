@@ -1,0 +1,18 @@
+{
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "examples": 4870,
+  "smoke": false,
+  "lora_r": 8,
+  "lora_alpha": 16,
+  "epochs": 1,
+  "max_length": 512,
+  "batch_size": 1,
+  "grad_accum": 8,
+  "max_steps": -1,
+  "gradient_checkpointing": true,
+  "attn_eager": true,
+  "data": "/home/hugobele/Documents/Personal Project/Rebirth AI/data/datasets/python_migration.jsonl",
+  "device": "AMD Radeon RX 7800 XT",
+  "torch": "2.9.1+rocm6.4",
+  "dtype": "torch.bfloat16"
+}

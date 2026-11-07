@@ -1,0 +1,19 @@
+name: v2
+description: >
+  Phase 11 recipe — all 8 v2 adapters (2026-11-05). 7B, 4-bit QLoRA, seq 512, EOS +
+  completion-only loss, overlong rows dropped, attention-only LoRA r8, 1 epoch, original corpus.
+quant: 4bit
+max_length: 512
+eos: true
+completion_only: true
+drop_overlong: true
+lora_r: 8
+lora_alpha: 16
+lora_targets: attn
+epochs: 1
+lr: 0.0002
+batch_size: 1
+grad_accum: 8
+gradient_checkpointing: true
+attn_eager: true
+save_steps: 50

@@ -6,8 +6,8 @@
 > Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)  
 
 > Note: C++/Swift adapters shipped in Phase 9.  
-> **Next:** per-language LoRA — [PHASE_12_LORA_PER_LANGUAGE.md](PHASE_12_LORA_PER_LANGUAGE.md).  
-> Official packaging / `v1.0` tag ([PHASE_11_LAUNCH.md](PHASE_11_LAUNCH.md)) is **deferred** until after LoRA waves.
+> **Next:** per-language LoRA — [PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md).  
+> Official packaging / `v1.0` tag ([PHASE_19_LAUNCH.md](PHASE_19_LAUNCH.md)) is **deferred** until after LoRA waves.
 
 ## Objectives
 
@@ -84,7 +84,7 @@ Sources: synthetic 62 · commitpackft (keyword) 3182 · commitpackft_corpus 2139
 
 - JS/TS held-out LLM eval (`--suite heldout`) remains the Phase 7 gate; fixtures suite is the multi-lang gate.  
 - `all_migration.jsonl` is regenerated locally (gitignored) — use `corpus_manifest.json` as the durable count.  
-- Phase 11: bootstrap script, README per-lang matrix, official `v1.0.0`.
+- Phase 19: bootstrap script, README per-lang matrix, official `v1.0.0`.
 
 ## Decision log
 

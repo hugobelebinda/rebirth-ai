@@ -39,7 +39,7 @@ def test_ollama_migrate_mocked(monkeypatch: pytest.MonkeyPatch) -> None:
 
     real_client = httpx.Client
 
-    def fake_client(*args, **kwargs):  # noqa: ANN002, ANN003
+    def fake_client(*args, **kwargs):
         kwargs["transport"] = transport
         return real_client(*args, **kwargs)
 

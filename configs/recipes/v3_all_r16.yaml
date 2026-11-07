@@ -1,0 +1,19 @@
+name: v3_all_r16
+description: >
+  Phase 12 Go experiment D1 — LoRA r16 on attention + MLP (all linear layers), 1 epoch,
+  expanded corpus. Peak VRAM 9.2 GB @512 (probe). D (same, 2 epochs) overfit: 12/100.
+quant: 4bit
+max_length: 512
+eos: true
+completion_only: true
+drop_overlong: true
+lora_r: 16
+lora_alpha: 32
+lora_targets: all
+epochs: 1
+lr: 0.0002
+batch_size: 1
+grad_accum: 8
+gradient_checkpointing: true
+attn_eager: true
+save_steps: 50

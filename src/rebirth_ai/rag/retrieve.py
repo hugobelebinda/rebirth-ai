@@ -152,13 +152,6 @@ class Retriever:
         if not query_bits:
             query_bits = [path.read_text(encoding="utf-8")[:1000]]
         query = "\n".join(query_bits)
-        # Exclude the file itself when paths are relative — caller may pass absolute
-        exclude = None
-        try:
-            # Best-effort: if indexed with relative paths, strip common prefixes later
-            exclude = path.name
-        except Exception:  # noqa: BLE001
-            exclude = None
         hits = self.query(query, top_k=top_k * 3, exclude_file=None)
         # Filter out chunks from the same basename
         filtered = [h for h in hits if Path(h.file_path).name != path.name]

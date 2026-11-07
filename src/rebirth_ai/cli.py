@@ -12,6 +12,15 @@ from rebirth_ai import __version__
 
 app = typer.Typer(help="Rebirth AI — autonomous migration agent", no_args_is_help=True)
 
+# Phase 13 MLOps: experiment tracking + model registry (MLflow; optional ".[mlops]" extra)
+from rebirth_ai.mlops_cli import mlflow_ui, package_cmd, registry_app, serve_app, track_app  # noqa: E402
+
+app.add_typer(track_app, name="track")
+app.add_typer(registry_app, name="registry")
+app.add_typer(serve_app, name="serve")  # Phase 16
+app.command("mlflow-ui")(mlflow_ui)
+app.command("package")(package_cmd)  # Phase 16
+
 
 @app.command()
 def version() -> None:
@@ -39,13 +48,13 @@ def doctor() -> None:
             timeout=15,
         )
         print(f"[bold]Docker daemon[/bold]: {'ok' if r.returncode == 0 else 'NOT RUNNING'}")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[bold]Docker daemon[/bold]: error ({exc})")
 
     try:
-        import docker
         from docker.errors import ImageNotFound
 
+        import docker
         from rebirth_ai.adapters.registry import adapter_summaries
 
         client = docker.from_env()
@@ -58,7 +67,7 @@ def doctor() -> None:
             except ImageNotFound:
                 hint = row.get("dockerfile_dir") or "docker/<lang>_sandbox"
                 print(f"[bold]{label}[/bold]: MISSING ({image}) — docker build -t {image} {hint}")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[bold]Sandbox images[/bold]: error ({exc})")
 
     try:
@@ -117,7 +126,7 @@ def doctor() -> None:
                     "[dim]PEFT policy: use hash RAG (`REBIRTH_EMBEDDER=hash`); "
                     "never stack Ollama 14B + PEFT 7B + SentenceTransformers[/dim]"
                 )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
 
 
@@ -291,10 +300,10 @@ def generate_migration(
     db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
     out: Path | None = typer.Option(None, "--out", help="Write draft code to this path"),
     backend: str = typer.Option(
-        "ollama",
+        "auto",
         "--backend",
         "-b",
-        help="Generator: ollama (default) | peft (7B LoRA if present)",
+        help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
     ),
 ) -> None:
     """Generate a modernized draft via Ollama or local PEFT LoRA (optional RAG)."""
@@ -310,7 +319,7 @@ def generate_migration(
         hits = retriever.query_for_file(path, top_k=4)
         context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
 
-    client = get_generator(backend)
+    client = get_generator(backend, language=language)
     result = client.migrate(
         objective=objective,
         legacy_code=source,
@@ -403,10 +412,10 @@ def migrate_file(
     max_iterations: int = typer.Option(5, "--max-iterations"),
     out: Path | None = typer.Option(None, "--out", help="Also write final draft here"),
     backend: str = typer.Option(
-        "ollama",
+        "auto",
         "--backend",
         "-b",
-        help="Generator: ollama (default) | peft (7B LoRA if present)",
+        help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
     ),
     lang: str | None = typer.Option(
         None,
@@ -532,10 +541,10 @@ def migrate_repo(
     db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
     max_iterations: int = typer.Option(5, "--max-iterations"),
     backend: str = typer.Option(
-        "ollama",
+        "auto",
         "--backend",
         "-b",
-        help="ollama (default) | peft (7B LoRA if present)",
+        help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
     ),
     report: Path = typer.Option(
         Path("data/reports/migrate_repo.json"),

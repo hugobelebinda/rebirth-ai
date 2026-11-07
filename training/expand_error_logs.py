@@ -181,7 +181,7 @@ def main() -> int:
 
     existing = []
     if args.path.exists():
-        existing = [json.loads(l) for l in args.path.read_text().splitlines() if l.strip()]
+        existing = [json.loads(ln) for ln in args.path.read_text().splitlines() if ln.strip()]
 
     seen = {(e["label"], e["text"]) for e in existing}
     added = 0

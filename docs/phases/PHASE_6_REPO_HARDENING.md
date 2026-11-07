@@ -4,7 +4,7 @@
 > Depends on: Phase 5 complete (PR #1 merged 2026-11-02)  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 6  
 > Last docs refresh: 2026-11-04  
-> Project now: Phases **0–10 complete** on `main`; next = Phases **12–14** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
+> Project now: Phases **0–10 complete** on `main`; next = Phase **11** per-lang LoRA — [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ## Objectives
 
@@ -46,7 +46,7 @@ rebirth migrate-repo fixtures/bench_monorepo --under packages/a,packages/b --dry
 - [x] Test mapping matrix documented  
 - [x] gitignore negation supported (basic `!`)  
 - [x] Closeout commit `ca1c34c` + PR #2 + tag `v0.2.0-mvp`  
-- [ ] PR #2 merged into `main` (interrupted — do this before Phase 8)
+- [x] PR #2 merged into `main` (`5f1540e`, 2026-11-03)
 
 ## Next
 

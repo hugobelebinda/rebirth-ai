@@ -1,0 +1,332 @@
+{
+  "backend": "peft",
+  "suites": {
+    "synthetic": {
+      "suite": "heldout_split:rust",
+      "backend": "peft",
+      "lang": "rust",
+      "n": 24,
+      "soft_exact": 3,
+      "soft_exact_rate": 0.125,
+      "parses": 22,
+      "parse_rate": 0.9166666666666666,
+      "mean_symbol_jaccard": 0.8854166666666666,
+      "mean_token_overlap": 0.7836249999999999,
+      "model": "peft:Qwen/Qwen2.5-Coder-7B-Instruct@adapter",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Fix point-mutations for newest rust",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "pub fn hamming_distance(a: &str, b: &str) -> usize {\n    a.chars().zip(b.chars()).filter(|&(a, b)| a != b).count()\n}\n",
+          "gold_preview": "pub fn hamming_distance(a: &str, b: &str) -> usize {\n    a.chars().zip(b.chars()).filter(|&(a, b)| a != b).count()\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Add MTLCommandBuffer::renderCommandEncoderWithDescriptor to MTLCommandBuffer trait def",
+          "ast": {
+            "parses": false,
+            "symbol_jaccard": 0.5,
+            "soft_exact": false,
+            "token_overlap": 0.645
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use cocoa::base::id;\nuse metal_sys::{MTLRenderPassDescriptor, MTLRenderCommandEncoder};\n\npub trait MTLCommandBuffer {\n\n    fn renderCommandEncoderWithDescriptor(&self, descriptor: *const MTLRenderPass",
+          "gold_preview": "use cocoa::base::id;\n\npub trait MTLCommandBuffer {\n    fn renderCommandEncoderWithDescriptor(self, renderPassDescriptor: id) -> id;\n}\n\nimpl MTLCommandBuffer for id {\n\n}\n"
+        },
+        {
+          "i": 3,
+          "objective": "Make layout SizeOverflow test trigger on i686.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.833
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#[cfg(target_pointer_width = \"32\")]\nfn main() {\n    let data: [u8; std::isize::MAX as usize] = [42; std::isize::MAX as usize];\n    //~^ ERROR: rustc layout computation failed: SizeOverflow([u8;\n    as",
+          "gold_preview": "fn main() {\n    let data: [u8; std::usize::MAX] = [42; std::usize::MAX];\n    //~^ ERROR: rustc layout computation failed: SizeOverflow([u8;\n    assert_eq!(data.len(), 1024);\n}\n"
+        },
+        {
+          "i": 4,
+          "objective": "Add a test to ensure Fuse stays covariant",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.25,
+            "soft_exact": false,
+            "token_overlap": 0.652
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// run-pass\n\n#![allow(warnings)]\n\nuse std::iter::Zip;\n\nfn zip_covariant<'a, A, B>(iter: Zip<&'static A, &'static B>) -> Zip<&'a A, &'a B> { iter }\n\n#[test]\nfn test_zip_covariance() {\n    let _: Zip<&'",
+          "gold_preview": "// run-pass\n\n#![allow(dead_code)]\n\nuse std::iter::{Fuse, Zip};\n\nfn fuse_covariant<'a, I>(iter: Fuse<&'static I>) -> Fuse<&'a I> { iter }\nfn zip_covariant<'a, A, B>(iter: Zip<&'static A, &'static B>) -"
+        },
+        {
+          "i": 5,
+          "objective": "Disable sys/event tests on Linux",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.655
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#[cfg(not(target_os = \"linux\"))]\nmod test_event;\n\nmod test_socket;\nmod test_sockopt;\nmod test_termios;\nmod test_ioctl;\nmod test_wait;\nmod test_select;\nmod test_uio;\n",
+          "gold_preview": "#[cfg(any(target_os = \"macos\", target_os = \"ios\", target_os = \"freebsd\",\n    target_os = \"dragonfly\", target_os = \"openbsd\", target_os = \"netbsd\"))]\nmod test_event;\nmod test_socket;\nmod test_sockopt;\n"
+        },
+        {
+          "i": 6,
+          "objective": "Add more tests. Remove unecessary attributes.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.167,
+            "soft_exact": false,
+            "token_overlap": 0.725
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#![feature(custom_attribute, rustc_attrs)]\n#![allow(dead_code, unused_attributes)]\n\n#[rustc_mir]\n#[miri_run]\nfn foo() -> i32 {\n    let x = 1;\n    let y = 2;\n    x + y\n}\n\n#[rustc_mir]\n#[miri_run]\nfn ba",
+          "gold_preview": "#![feature(custom_attribute)]\n#![allow(dead_code, unused_attributes)]\n\n#[miri_run(expected = \"Int(1)\")]\nfn ret() -> i32 {\n    1\n}\n\n#[miri_run(expected = \"Int(3)\")]\nfn add() -> i32 {\n    1 + 2\n}\n\n#[mir"
+        },
+        {
+          "i": 7,
+          "objective": "Make the cbits public for those who want",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.806
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#![crate_type = \"lib\"]\n#![crate_name = \"leveldb\"]\n#![feature(globs,phase)]\n#![phase(syntax, link)] extern crate log;\n\nextern crate serialize;\nextern crate libc;\n\npub use database::options as options;\n",
+          "gold_preview": "#![crate_type = \"lib\"]\n#![crate_name = \"leveldb\"]\n#![feature(globs)]\n\nextern crate serialize;\nextern crate libc;\n\npub use database::options as options;\npub use database::error as error;\npub use databa"
+        },
+        {
+          "i": 8,
+          "objective": "Simplify solution, use `loop` for endless loop",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.838
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use std::env;\n\nfn main() {\n    let args: Vec<String> = env::args().collect();\n\n    if args.len() == 1 {\n        loop { println!(\"y\"); }\n    } else {\n        loop { println!(\"{}\", args[1]); }\n    }\n}\n",
+          "gold_preview": "use std::env;\n\nfn main() {\n    let args: Vec<String> = env::args().collect();\n    let args = &args[1..];\n\n    let output = if args.is_empty() { \"y\".to_string() } else { args.join(\" \") };\n    loop {\n  "
+        },
+        {
+          "i": 9,
+          "objective": "Fix invalid crate name generation",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.848
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use codegen::generate_single_version_file;\nuse env::Env;\n\nmod build;\nmod cargo_toml;\npub mod ffi_type;\nmod fields;\nmod functions;\nmod lib_;\nmod statics;\nmod tests;\n\npub fn generate(env: &Env) {\n    ge",
+          "gold_preview": "use codegen::generate_single_version_file;\nuse env::Env;\n\nmod build;\nmod cargo_toml;\npub mod ffi_type;\nmod fields;\nmod functions;\nmod lib_;\nmod statics;\nmod tests;\n\npub fn generate(env: &Env) {\n    ge"
+        },
+        {
+          "i": 10,
+          "objective": "Add enum `Type` for quicker convert and compare",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//! Provides an interface for dealing with FLAC metadata blocks.\n\nmod types;\nmod parser;\nmod metadata;\n\npub use self::types::{\n  Metadata, Data,\n  StreamInfo, Application, VorbisComment, CueSheet, Pic",
+          "gold_preview": "//! Provides an interface for dealing with FLAC metadata blocks.\n\nmod types;\nmod parser;\nmod metadata;\n\npub use self::types::{\n  Metadata, Data, Type,\n  StreamInfo, Application, VorbisComment, CueShee"
+        },
+        {
+          "i": 11,
+          "objective": "Remove exporting of `block` parser",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.897
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//! Provides an interface for dealing with FLAC metadata blocks.\n\nmod types;\nmod parser;\nmod metadata;\n\npub use self::types::{\n  Metadata, Data,\n  StreamInfo, Application, VorbisComment, CueSheet, Pic",
+          "gold_preview": "//! Provides an interface for dealing with FLAC metadata blocks.\n\nmod types;\nmod parser;\nmod metadata;\n\npub use self::types::{\n  Metadata, Data,\n  StreamInfo, Application, VorbisComment, CueSheet, Pic"
+        },
+        {
+          "i": 12,
+          "objective": "Improve solution for Scrabble Score",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.322
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use std::collections::HashMap;\n\npub fn score(word: &str) -> u32 {\n    let mut scores = HashMap::new();\n    scores.insert(\"aeioulnrst\", 1);\n    scores.insert(\"dg\", 2);\n    scores.insert(\"bcmp\", 3);\n   ",
+          "gold_preview": "pub fn score(word: &str) -> u32 {\n    word.to_lowercase().chars().map(|c| {\n        match c {\n            'a' | 'e' | 'i' | 'o' | 'u' | 'l' | 'n' | 'r' | 's' | 't' => 1,\n            'd' | 'g' => 2,\n  "
+        },
+        {
+          "i": 13,
+          "objective": "Fix building libcore for the Sony PSP",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.464
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "//! MIPS\n\nmod msa;\npub use self::msa::*;\n\n#[cfg(test)]\nuse stdarch_test::assert_instr;\n\n/// Generates the trap instruction `BREAK`\n#[cfg_attr(not(target_os = \"psp\"), assert_instr(break))]\n#[inline]\npu",
+          "gold_preview": "//! MIPS\n\n// Building this module (even if unused) for non-fp64 targets such as the Sony\n// PSP fails with an LLVM error. There doesn't seem to be a good way to detect\n// fp64 support as it is sometim"
+        },
+        {
+          "i": 14,
+          "objective": "Remove unnecessary feature from instruction reference documentation generation code",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use std::io::{self, Write};\n\nfn main() {\n    let mut args = std::env::args();\n    args.next().unwrap();\n\n    let opmap = match args.next().expect(\"Architecture name\").as_str() {\n        \"x64\" => dynas",
+          "gold_preview": "use std::io::{self, Write};\n\nfn main() {\n    let mut args = std::env::args();\n    args.next().unwrap();\n\n    let opmap = match args.next().expect(\"Architecture name\").as_str() {\n        \"x64\" => dynas"
+        },
+        {
+          "i": 15,
+          "objective": "Remove debug code from putc()",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": true,
+          "pred_preview": "use stdio;\n\npub unsafe fn outb(port: u16, value: u8) {\n    asm!(\"outb %al, %dx\"\n         :\n         : \"{dx}\" (port), \"{al}\" (value)\n         :\n         : \"volatile\" );\n}\n\npub unsafe fn inb(port: u16) ",
+          "gold_preview": "use stdio;\npub unsafe fn outb(port: u16, value: u8) {\n    asm!(\"outb %al, %dx\"\n         :\n         : \"{dx}\" (port), \"{al}\" (value)\n         :\n         : \"volatile\" );\n}\n\npub unsafe fn inb(port: u16) -"
+        },
+        {
+          "i": 16,
+          "objective": "Add a test for other valid uses of calc()",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.861
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at http://mozilla.org/MPL/2.0/",
+          "gold_preview": "/* This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at http://mozilla.org/MPL/2.0/"
+        },
+        {
+          "i": 17,
+          "objective": "Add initialization of the console",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.762
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use ::xen::StartInfo;\n\npub mod defs;\npub mod barrier;\npub mod memory;\n\nextern {\n    // Start info is not present on all architecture, this is why this\n    // was made a global variable only for x86_*\n",
+          "gold_preview": "use ::xen::StartInfo;\n\nuse ::xen::console::console;\nuse ::xen::console::ConsoleInterface;\n\npub mod defs;\npub mod barrier;\npub mod memory;\n\nextern {\n    // Start info is not present on all architecture"
+        },
+        {
+          "i": 18,
+          "objective": "Print message instead of disabling challenge",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.412
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use super::hmac_client;\nuse super::hmac_server;\n\nuse rand;\nuse rand::Rng;\n\nuse errors::*;\n\npub fn run() -> Result<(), Error> {\n    println!(\"Skipping exercise 13. It runs for a very long time.\");\n\n   ",
+          "gold_preview": "use super::hmac_client;\nuse super::hmac_server;\n\nuse rand;\nuse rand::Rng;\n\nuse errors::*;\n\npub fn run() -> Result<(), Error> {\n    println!(\"Challenge 32: takes about three minutes, pleases wait ...\")"
+        },
+        {
+          "i": 19,
+          "objective": "Add function to convert roman numerals into decimal numbers.",
+          "ast": {
+            "parses": false,
+            "symbol_jaccard": 0.333,
+            "soft_exact": false,
+            "token_overlap": 0.588
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "/*\n** A simple program that allows basic arithmetic operations using roman numerals and conversions to decimal numbers.\n*/\n\nuse std::collections::HashMap;\n\nfn main() {\n    println!(\"Bismillah\");\n}\n\nfn",
+          "gold_preview": "/*\n** A simple program that allows basic arithmetic operations using roman numerals and conversions to decimal numbers.\n*/\n\nfn main() {\n\n\tlet roman_number = \"CLIII\";\n\tlet decimal_number = to_decimal(&"
+        },
+        {
+          "i": 20,
+          "objective": "Remove Copy and Clone trait from Vec3",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.958
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "use std::ops::{Mul,Add};\n\npub struct Vec3<T: Mul<T, Output = T> + Add<T, Output = T>> {\n    x: T,\n    y: T,\n    z: T,\n}\n\nimpl <T: Mul<T, Output = T> + Add<T, Output = T>> Vec3<T> {\n    pub fn norm(sel",
+          "gold_preview": "use std::ops::{Mul,Add};\n\npub struct Vec3<T: Mul<T, Output = T> + Add<T, Output = T> + Copy + Clone> {\n    x: T,\n    y: T,\n    z: T,\n}\n\nimpl <T: Mul<T, Output = T> + Add<T, Output = T> + Copy + Clone>"
+        },
+        {
+          "i": 21,
+          "objective": "Remove FIXME since there is nothing to be fixed.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// This test ensures that rustdoc does not panic on inherented associated types\n// that are referred to without fully-qualified syntax.\n\n#![feature(inherent_associated_types)]\n#![allow(incomplete_feat",
+          "gold_preview": "// This test ensures that rustdoc does not panic on inherented associated types\n// that are referred to without fully-qualified syntax.\n\n#![feature(inherent_associated_types)]\n#![allow(incomplete_feat"
+        },
+        {
+          "i": 22,
+          "objective": "Update rustdoc test to make it work with newly added rustc passes",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#![crate_name = \"foo\"]\n\n#![feature(staged_api)]\n\n#[stable(feature = \"bar\", since = \"OLD 1.0\")]\npub trait Bar {}\n\n#[stable(feature = \"baz\", since = \"OLD 1.0\")]\npub trait Baz {}\n\npub struct Foo;\n\n// @ha",
+          "gold_preview": "#![stable(feature = \"bar\", since = \"OLD 1.0\")]\n#![crate_name = \"foo\"]\n\n#![feature(staged_api)]\n\n#[stable(feature = \"bar\", since = \"OLD 1.0\")]\npub trait Bar {}\n\n#[stable(feature = \"baz\", since = \"OLD 1"
+        },
+        {
+          "i": 23,
+          "objective": "Fix example without markdown feature",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.652
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "extern crate cursive;\n\nuse cursive::Cursive;\nuse cursive::utils::markup::StyledString;\nuse cursive::views::{Dialog, TextView};\n\nfn main() {\n    let mut siv = Cursive::new();\n\n    let text = StyledStri",
+          "gold_preview": "extern crate cursive;\n\nuse cursive::Cursive;\n#[cfg(feature = \"markdown\")]\nuse cursive::utils::markup::MarkdownText;\nuse cursive::views::{Dialog, TextView};\n\n// Make sure you compile with the `markdown"
+        },
+        {
+          "i": 24,
+          "objective": "Make heading levels non exhaustive",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.889
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "#[derive(Debug, Eq, PartialEq, Copy, Clone)]\npub enum HeadingLevel {\n    Level1,\n    Level2,\n    Level3,\n    // ...\n}\n\n#[derive(Debug, Eq, PartialEq, Copy, Clone)]\npub enum ListType {\n    Unordered,\n ",
+          "gold_preview": "#[derive(Debug, Eq, PartialEq, Copy, Clone)]\npub enum HeadingLevel {\n    Level1,\n    Level2,\n    Level3,\n    #[doc(hidden)]\n    __NonExhaustive,\n}\n\n#[derive(Debug, Eq, PartialEq, Copy, Clone)]\npub enu"
+        }
+      ]
+    }
+  }
+}

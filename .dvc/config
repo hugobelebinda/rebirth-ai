@@ -1,0 +1,6 @@
+[core]
+    analytics = false
+    autostage = true
+    remote = s3
+['remote "s3"']
+    url = s3://rebirth-ai-artifacts-YOUR_AWS_ACCOUNT_ID/dvc

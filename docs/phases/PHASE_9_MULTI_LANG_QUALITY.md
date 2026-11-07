@@ -4,7 +4,7 @@
 > Depends on: Phase 8 (adapter factory + Python playbook)  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 9–10  
 > Playbook: [ADDING_A_LANGUAGE.md](../adapters/ADDING_A_LANGUAGE.md)  
-> Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) — Phases 0–10 done; next LoRA Phase 12
+> Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md) — Phases 0–10 done; next LoRA Phase 11
 
 ## Objectives
 
@@ -28,7 +28,7 @@
 
 - [x] All six languages: adapter + image + fixture E2E ≤3 iterations on Ollama  
 - [x] `rebirth adapters` lists `js_ts`, `python`, `go`, `java`, `csharp`, `rust`, `cpp`, `swift`  
-- [ ] Per-language pair counts in `DATASET.md` (mining in progress / partial)  
+- [x] Per-language pair counts in `DATASET.md` (completed in Phase 10 — corpus 24 640)  
 - [x] Doctor checks all sandbox images  
 - [x] Tree-sitter parse green for each language  
 
@@ -63,7 +63,7 @@ rebirth migrate fixtures/go_sample --file src/mathops.go --test ./src \
 |------|---------|---------|
 | Go | PASS | success **1** iter |
 | Java | PASS | success **1** iter |
-| C# | PASS (broken overlay FAIL) | re-verify after csproj fix |
+| C# | PASS (broken overlay FAIL) | re-verified via Phase 10 fixture suite (8/8) |
 | Rust | PASS | success **1** iter |
 | C++ | PASS | success **1** iter |
 | Swift | PASS | success **1** iter |

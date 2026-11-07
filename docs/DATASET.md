@@ -1,6 +1,6 @@
 # Migration datasets
 
-> Last updated: 2026-11-04 (Phase 10 complete; corpus **24 640**; next = Phases 12–14 per-lang LoRA — [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md))
+> Last updated: 2026-11-04 (Phase 10 complete; corpus **24 640**; next = Phase 11 per-lang LoRA — [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md))
 
 ## Goal
 
@@ -23,25 +23,22 @@ Specialize Rebirth AI on **real legacy→modern code edits**, not only hand-writ
 | `data/datasets/rust_migration.jsonl` | **1505** | Rust |
 | `data/datasets/error_logs.jsonl` | **~105** | Error classifier labels |
 
-### Migration pair mix — JS/TS
+### Source mix (all languages, Phase 10)
 
 | Source | Count |
 |--------|------:|
-| `synthetic` | 59 |
-| `commitpackft` (JS/TS, keyword + parse filtered) | 1280 |
-| **Total** | **1339** |
+| `synthetic` | 62 |
+| `commitpackft` (keyword + parse filtered) | 3182 |
+| `commitpackft_corpus` (Phase 10 fill: license + quality + parse, no keyword filter) | 21396 |
+| **Total** | **24640** |
 
-Languages: ~1188 JavaScript, ~151 TypeScript.
+History: JS/TS started at **1339** (59 synthetic + 1280 keyword-mined; the existing `lora_js_ts_7b` adapter was trained on this). Python started at **1503** in Phase 8 (scanned 56025 → kept 2459 → capped 1500 + 3 synthetic). Both were topped up in Phase 10.
 
-### Migration pair mix — Python (Phase 8)
+Note: `js_ts_migration.jsonl` currently has **9105** valid rows vs **9103** in `corpus_manifest.json` (manifest predates 2 rows). Regenerate with `build_corpus_manifest.py` at the next corpus change.
 
-| Source | Count |
-|--------|------:|
-| `synthetic` | 3 |
-| `commitpackft` (python, keyword + parse filtered, capped) | 1500 |
-| **Total** | **1503** |
+### Train / eval splits (Phase 11)
 
-Mine: scanned 56025 → kept 2459 → wrote capped 1500 + synthetic.
+`python training/train_lora.py --lang <id> --plan` writes `data/datasets/splits/<id>.split.json` (eval row indices, seed **1337**, 5%, corpus sha256). Training uses the train side only; the eval side is for held-out smoke eval. See [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md) §11.1.
 
 ### Multi-language corpus plan (Phases 8–10)
 
@@ -111,7 +108,7 @@ rebirth migrate fixtures/js_ts_sample \
 | Backend | Model | When |
 |---------|-------|------|
 | `ollama` (default) | `qwen2.5-coder:14b-instruct-q6_K` | Best agent quality / ROCm inference |
-| `peft` (default paths) | **7B** + `lora_js_ts_7b` if present, else 0.5B | Local specialization |
+| `peft` (default paths) | `lora_<lang>_7b` if trained for that language; JS/TS → `lora_js_ts_7b`, else 0.5B; other langs w/o adapter → **Ollama fallback** | Local specialization |
 | `peft` + 0.5B override | set `REBIRTH_PEFT_*` to 0.5B paths | Pipeline proof only |
 Implementation: `src/rebirth_ai/generate/factory.py`, `peft_client.py` (stop/decode hardened 2026-11-01).
 
@@ -197,6 +194,8 @@ A short 7B/14B QLoRA epoch on ~1.3k pairs is often **~$1–3** on T4/L4.
 - PEFT defaults → 7B — **done** for JS/TS; closed-loop math **PASS**.  
 - Behavioral + fixture eval — **done** (JS sandbox; fixtures **8/8**).  
 - **Do not** stack Ollama 14B + PEFT 7B + ST on the 7800 XT.  
-- **Next:** [PHASE_12_LORA_PER_LANGUAGE.md](phases/PHASE_12_LORA_PER_LANGUAGE.md) — train **per-language** 7B LoRAs (Phases 12–14); train/eval splits + adapter metadata.  
-- Phase 11 / `v1.0.0` — **deferred** until LoRA waves finish.  
+- Train/eval splits + adapter metadata + per-lang PEFT routing — **done** (Phase 11.1 harness).  
+- Python 7B LoRA — **done** (`lora_python_7b`; held-out results in PHASE_11 §11.3).  
+- **Next:** optional JS/TS refresh, then Phase 11 waves — [PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LORA_PER_LANGUAGE.md).  
+- Phase 19 / `v1.0.0` — **deferred** until LoRA waves finish.  
 - Optional cloud 14B QLoRA — Track C (browser billing; per-lang fallback if local 7B insufficient).  
