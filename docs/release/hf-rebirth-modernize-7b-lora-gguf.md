@@ -17,7 +17,7 @@ language:
 
 # Rebirth AI — modernize pack (8 LoRA adapters for Qwen2.5-Coder-7B)
 
-> Draft model card for the Hugging Face repo `<namespace>/rebirth-modernize-7b-lora-gguf` (Phase 19). Review
+> Draft model card for the Hugging Face repo `belebindahugo/rebirth-modernize-7b-lora-gguf` (Phase 19). Review
 > before publishing.
 
 Eight small LoRA adapters (GGUF, f16, ~10 MB each) that turn **Qwen2.5-Coder-7B-Instruct** into a

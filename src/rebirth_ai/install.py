@@ -119,6 +119,9 @@ def download(url: str, dest: Path, *, size: int | None = None,
         if r.status_code == 416 and size and have == size:  # already complete
             part.rename(dest)
             return dest
+        if r.status_code in (401, 404):
+            raise InstallError(f"{url} not found (HTTP {r.status_code}) — release files not published yet? "
+                               "Install from a folder with --from <dir>")
         if r.status_code not in (200, 206):
             raise InstallError(f"download failed: HTTP {r.status_code} for {url}")
         mode = "ab" if r.status_code == 206 else "wb"

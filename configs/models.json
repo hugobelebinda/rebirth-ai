@@ -1,7 +1,7 @@
 {
- "_doc": "Model packs for `rebirth install` / scripts/bootstrap.sh. Files are downloaded from Hugging Face (https://huggingface.co/<hf_namespace>/<hf_repo>/resolve/main/<file>), checked against sha256, then registered in Ollama. hf_namespace is filled in at release; until then install with --from <dir> or --from-local.",
+ "_doc": "Model packs for `rebirth install` / scripts/bootstrap.sh. Files are downloaded from Hugging Face (https://huggingface.co/<hf_namespace>/<hf_repo>/resolve/main/<file>), checked against sha256, then registered in Ollama. Until the release files are uploaded (Phase 19 step 6), install with --from <dir> or --from-local.",
  "version": 1,
- "hf_namespace": "",
+ "hf_namespace": "belebindahugo",
  "packs": {
   "modernize": {
    "description": "Same-language modernization: 8 LoRA adapters (v2 recipe, Phase 11) on Qwen2.5-Coder-7B-Instruct Q4_K_M",
