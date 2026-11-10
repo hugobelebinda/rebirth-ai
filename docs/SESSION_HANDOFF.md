@@ -22,7 +22,8 @@
 | Item | Value |
 |------|--------|
 | Branch | `main` |
-| Last merge | PR #4 (Phase 15 + Phase 17 stages 1–4, 2026-11-10) |
+| Last merge | PR #5 (Phase 17 complete + Phase 18 monitoring + ADR-001, 2026-11-10) |
+| Branch protection | `main`: CI checks `lint` / `test` / `pipeline` required, PR required (0 approvals), applies to admins — everything lands through a PR |
 | Tag | `v0.2.0-mvp` on origin (JS/TS MVP) |
 
 ## Exact next step (plan the day with the user)

@@ -59,7 +59,7 @@ End-to-end check: `rebirth migrate fixtures/python_sample … --lang python` →
 
 ## Exit criteria
 
-- [ ] CI green on main; PRs blocked on failing tests or model gate — CI ✅ green on main and on PRs #3 / #4 (`ci.yml`, 2026-11-07 / 11-10); **blocking not on**: `main` has no branch protection yet (a GitHub repo setting, the owner's call)
+- [x] CI green on main; PRs blocked on failing tests or model gate — CI green on main and on PRs #3–#5 (`ci.yml`); **branch protection on `main` since 2026-11-10**: required checks `lint`, `test`, `pipeline` (branch up to date), PR required (0 approvals, solo repo), applies to admins, no force-push / deletion. Model quality stays gated locally (`rebirth registry gate`, serving gate in `rebirth package`): CI has no GPU
 - [x] All 8 champions packaged as Ollama models; served-model scores recorded (7B, 2026-11-06; repeat for 14B)
 - [ ] Rollback demonstrated on one language — implemented + unit-tested; live demo at the first real promotion (no language has a second packaged champion yet)
 - [x] `rebirth migrate` routes through `configs/routing.yaml` (default `--backend auto`)
