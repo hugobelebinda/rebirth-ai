@@ -415,7 +415,7 @@ def migrate_file(
         "auto",
         "--backend",
         "-b",
-        help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
+        help="auto (default: packaged adapter — configs/routing.yaml for same-language, the cross-language adapter rebirth-xlang:14b-v1 with --to — else plain Ollama) | ollama | peft",
     ),
     lang: str | None = typer.Option(
         None,

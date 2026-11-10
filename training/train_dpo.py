@@ -7,7 +7,7 @@ relative to the SFT champion, not relative to the base model. The output is a no
 (same base, same LoRA shape) that every eval / packaging path already loads.
 
 Locally (ROCm, 16 GB): 4-bit base, seq 512, batch 1 × grad-accum 8, gradient checkpointing.
-On AWS (L40S 48 GB): ``--quant none --max-length 1024`` (bf16, like the 14B SFT runs).
+On AWS (L40S 48 GB): ``--quant none --max-length 1024 --attn-impl sdpa`` (bf16, like the 14B SFT runs).
 
   python training/train_dpo.py --lang rust --pairs data/datasets/dpo/rust_pairs.jsonl \
       --sft-adapter data/models/lora_rust_7b/adapter --out data/models/exp/rust_dpo_smoke
@@ -52,6 +52,7 @@ def main() -> int:
     ap.add_argument("--grad-accum", type=int, default=8)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--seed", type=int, default=1337)
+    ap.add_argument("--attn-impl", default="eager", help="eager (ROCm-safe default) | sdpa (CUDA / L40S)")
     args = ap.parse_args()
 
     import torch
@@ -70,7 +71,7 @@ def main() -> int:
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
 
-    load: dict = {"dtype": torch.bfloat16, "attn_implementation": "eager"}
+    load: dict = {"dtype": torch.bfloat16, "attn_implementation": args.attn_impl}
     if args.quant == "4bit":
         from transformers import BitsAndBytesConfig
 
@@ -127,7 +128,7 @@ def main() -> int:
         "pairs": _rel(args.pairs),
         "pair_rows": len(pairs),
         "hyperparams": {k: getattr(args, k) for k in ("beta", "loss", "lr", "epochs", "max_steps", "batch_size",
-                                                      "grad_accum", "max_length", "quant")},
+                                                      "grad_accum", "max_length", "quant", "attn_impl")},
         "global_steps": int(out.global_step),
         "train_loss": float(out.training_loss),
         "first_log": log[0] if log else None,

@@ -1,8 +1,10 @@
 {
  "model": "ollama:qwen2.5-coder:14b-instruct-q6_K",
+ "suite": "humaneval",
  "problems": "data/datasets/xlang/humaneval.jsonl",
  "limit": 40,
  "bootstrapped_sources": null,
+ "fixups": true,
  "seed": 1337,
  "sources": [
   "python",
@@ -34,9 +36,9 @@
   },
   "cpp->go": {
    "n": 39,
-   "pass": 30,
-   "pass_rate": 0.769,
-   "compile_error": 7,
+   "pass": 35,
+   "pass_rate": 0.897,
+   "compile_error": 2,
    "fail": 2,
    "timeout": 0,
    "missing": 0,
@@ -184,10 +186,10 @@
   },
   "java->go": {
    "n": 39,
-   "pass": 25,
-   "pass_rate": 0.641,
-   "compile_error": 14,
-   "fail": 0,
+   "pass": 34,
+   "pass_rate": 0.872,
+   "compile_error": 4,
+   "fail": 1,
    "timeout": 0,
    "missing": 0,
    "excluded": 1
@@ -254,9 +256,9 @@
   },
   "javascript->go": {
    "n": 39,
-   "pass": 33,
-   "pass_rate": 0.846,
-   "compile_error": 3,
+   "pass": 35,
+   "pass_rate": 0.897,
+   "compile_error": 1,
    "fail": 3,
    "timeout": 0,
    "missing": 0,
@@ -324,9 +326,9 @@
   },
   "python->go": {
    "n": 39,
-   "pass": 27,
-   "pass_rate": 0.692,
-   "compile_error": 7,
+   "pass": 32,
+   "pass_rate": 0.821,
+   "compile_error": 2,
    "fail": 5,
    "timeout": 0,
    "missing": 0,
@@ -783,10 +785,10 @@
    "src": "python",
    "tgt": "go",
    "problem": "HumanEval_105",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func by_length(arr []int) []string {\n    dic := map[int]string{\n        1: \"One\",\n        2: \"Two\",\n        3: \"Three\",\n        4: \"Four\",\n        5: \"Five\",\n        6: \"Six\",\n        7: \"Seven\",\n        8: \"Eight\",\n        9: \"Nine\",\n    }\n    sorted_arr := make([]int, len(arr))\n    copy(sorted_arr, arr)\n    sort.Sort(sort.Reverse(sort.IntSlice(sorted_arr)))\n\n    var new_arr []string\n    for _, varr := range sorted_arr {\n        if val, exists := dic[varr]; exists {\n            new_arr = append(new_arr, val)\n        }\n    }\n    return new_arr\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:22:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "python",
@@ -819,10 +821,10 @@
    "src": "python",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    if k == 0 {\n        return []int{}\n    }\n    sort.Ints(arr)\n    ans := arr[len(arr)-k:]\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "python",
@@ -900,10 +902,10 @@
    "src": "python",
    "tgt": "go",
    "problem": "HumanEval_37",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_even(l []int) []int {\n    evens := make([]int, 0, (len(l)+1)/2)\n    odds := make([]int, 0, len(l)/2)\n\n    for i, v := range l {\n        if i%2 == 0 {\n            evens = append(evens, v)\n        } else {\n            odds = append(odds, v)\n        }\n    }\n\n    sort.Ints(evens)\n\n    ans := make([]int, 0, len(l))\n    for i := 0; i < len(odds); i++ {\n        ans = append(ans, evens[i], odds[i])\n    }\n\n    if len(evens) > len(odds) {\n        ans = append(ans, evens[len(evens)-1])\n    }\n\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:20:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "python",
@@ -936,10 +938,10 @@
    "src": "python",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    var result []string\n    for i := 0; i <= n; i++ {\n        result = append(result, fmt.Sprintf(\"%d\", i))\n    }\n    return strings.Join(result, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "python",
@@ -1065,16 +1067,16 @@
    "status": "compile_error",
    "exit": 90,
    "code": "func is_bored(S string) int {\n    import (\n        \"regexp\"\n    )\n\n    re := regexp.MustCompile(`[.?!]\\s*`)\n    sentences := re.Split(S, -1)\n    count := 0\n\n    for _, sentence := range sentences {\n        if len(sentence) >= 2 && sentence[:2] == \"I \" {\n            count++\n        }\n    }\n\n    return count\n}\n",
-   "log": "# rebirth.check\nprog_test.go:9:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
+   "log": "# rebirth.check\nprog_test.go:10:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
   },
   {
    "src": "python",
    "tgt": "go",
    "problem": "HumanEval_143",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func words_in_sentence(sentence string) string {\n    words := strings.Fields(sentence)\n    var newLst []string\n\n    for _, word := range words {\n        flg := 0\n        if len(word) == 1 {\n            flg = 1\n        }\n        for i := 2; i < len(word); i++ {\n            if len(word)%i == 0 {\n                flg = 1\n            }\n        }\n        if flg == 0 || len(word) == 2 {\n            newLst = append(newLst, word)\n        }\n    }\n    return strings.Join(newLst, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:9:14: undefined: strings\n./prog_test.go:26:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "python",
@@ -2622,7 +2624,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc tri(n: Int) -> [Int] {\n    if n == 0 {\n        return [1]\n    }\n    var myTri = [1, 3]\n    for i in 2...n {\n        if i % 2 == 0 {\n            myTri.append(i / 2 + 1)\n        } else {\n            let nextValue = myTri[i - 1] + myTri[i - 2] + (i + 3) / 2\n            myTri.append(nextValue)\n        }\n    }\n    return myTri\n}\n",
-   "log": "63279bd51440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000070a24967619e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000063279bd50000–0x000063279bd52988 <no build ID> prog            /workspace/progs/python__swift__HumanEval_130/prog\n0x000070a249511000–0x000070a249b262c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "005e96b9fda440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007f6aed34019e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005e96b9fd9000–0x00005e96b9fdb988 <no build ID> prog            /workspace/progs/python__swift__HumanEval_130/prog\n0x00007f6aed1db000–0x00007f6aed7f02c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "python",
@@ -2676,7 +2678,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc double_the_difference(lst: [Double]) -> Int {\n    return lst.filter { $0 > 0 && $0.truncatingRemainder(dividingBy: 2) != 0 && String($0).contains(\".\") == false }\n               .map { Int(pow($0, 2)) }\n               .reduce(0, +)\n}\n",
-   "log": " 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007d7d5e55c6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000056f525daf000–0x000056f525db1dc8 <no build ID> prog            /workspace/progs/python__swift__HumanEval_151/prog\n0x00007d7d5e3f8000–0x00007d7d5ea0d2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007f4b592466b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005dbe1f931000–0x00005dbe1f933dc8 <no build ID> prog            /workspace/progs/python__swift__HumanEval_151/prog\n0x00007f4b590e2000–0x00007f4b596f72c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "python",
@@ -2838,7 +2840,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func all_prefixes(string: String) -> [String] {\n    var result: [String] = []\n    for i in 0..<string.count {\n        let index = string.index(string.startIndex, offsetBy: i + 1)\n        result.append(String(string[...index]))\n    }\n    return result\n}\n",
-   "log": "07fff6fa35d68  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000075398e05e19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x0000608d76ac3000–0x0000608d76ac5840 <no build ID> prog            /workspace/progs/python__swift__HumanEval_14/prog\n0x000075398def9000–0x000075398e50e2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "07fffac8585d8  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007780d159519e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00006297f6138000–0x00006297f613a840 <no build ID> prog            /workspace/progs/python__swift__HumanEval_14/prog\n0x00007780d1430000–0x00007780d1a452c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "python",
@@ -2883,7 +2885,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc words_in_sentence(sentence: String) -> String {\n    var new_lst = [String]()\n    \n    for word in sentence.split(separator: \" \") {\n        var flg = 0\n        if word.count == 1 {\n            flg = 1\n        }\n        for i in 2..<word.count {\n            if word.count % i == 0 {\n                flg = 1\n            }\n        }\n        if flg == 0 || word.count == 2 {\n            new_lst.append(String(word))\n        }\n    }\n    \n    return new_lst.joined(separator: \" \")\n}\n",
-   "log": "007ffcafc92d50  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007222729ca19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00006501588a6000–0x00006501588a92d0 <no build ID> prog            /workspace/progs/python__swift__HumanEval_143/prog\n0x0000722272865000–0x0000722272e7a2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "7ffc130e3c80  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007ac7f164019e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005c9fb5d94000–0x00005c9fb5d972d0 <no build ID> prog            /workspace/progs/python__swift__HumanEval_143/prog\n0x00007ac7f14db000–0x00007ac7f1af02c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "python",
@@ -3429,10 +3431,10 @@
    "src": "javascript",
    "tgt": "go",
    "problem": "HumanEval_20",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func find_closest_elements(numbers []float64) []interface{} {\n    var closest_pair []interface{}\n    var distance *float64\n\n    for i := 0; i < len(numbers); i++ {\n        for j := 0; j < len(numbers); j++ {\n            if i != j {\n                a, b := numbers[i], numbers[j]\n                new_distance := math.Abs(a - b)\n                if distance == nil || new_distance < *distance {\n                    distance = &new_distance\n                    closest_pair = []interface{}{math.Min(a, b), math.Max(a, b)}\n                }\n            }\n        }\n    }\n    return closest_pair\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:16:33: undefined: math\n./prog_test.go:19:50: undefined: math\n"
+   "log": "PASS\n"
   },
   {
    "src": "javascript",
@@ -3456,10 +3458,10 @@
    "src": "javascript",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    result := make([]string, n+1)\n    for i := 0; i <= n; i++ {\n        result[i] = fmt.Sprintf(\"%d\", i)\n    }\n    return strings.Join(result, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "javascript",
@@ -3540,7 +3542,7 @@
    "status": "fail",
    "exit": 2,
    "code": "func sort_array(array []int) []int {\n    arr := make([]int, len(array))\n    copy(arr, array)\n    tot := arr[0] + arr[len(arr)-1]\n    for j := 0; j < len(arr); j++ {\n        ind := j\n        for k := j + 1; k < len(arr); k++ {\n            if (tot%2 == 1 && arr[k] < arr[ind]) || (tot%2 == 0 && arr[k] > arr[ind]) {\n                ind = k\n            }\n        }\n        tmp := arr[j]\n        arr[j] = arr[ind]\n        arr[ind] = tmp\n    }\n    return arr\n}\n",
-   "log": "o:1631 +0x24a\ntesting.tRunner.func1()\n\t/usr/local/go/src/testing/testing.go:1634 +0x377\npanic({0x52eca0?, 0xc000018078?})\n\t/usr/local/go/src/runtime/panic.go:770 +0x132\nrebirth%2echeck_test.sort_array({0xc000058538, 0x0, 0x24?})\n\t/workspace/progs/javascript__go__HumanEval_88/prog_test.go:11 +0x13f\nrebirth%2echeck_test.TestSort_Array(0xc0001264e0)\n\t/workspace/progs/javascript__go__HumanEval_88/prog_test.go:32 +0x42\ntesting.tRunner(0xc0001264e0, 0x548760)\n\t/usr/local/go/src/testing/testing.go:1689 +0xfb\ncreated by testing.(*T).Run in goroutine 1\n\t/usr/local/go/src/testing/testing.go:1742 +0x390\n"
+   "log": "o:1631 +0x24a\ntesting.tRunner.func1()\n\t/usr/local/go/src/testing/testing.go:1634 +0x377\npanic({0x52eca0?, 0xc000018078?})\n\t/usr/local/go/src/runtime/panic.go:770 +0x132\nrebirth%2echeck_test.sort_array({0xc000058538, 0x0, 0x24?})\n\t/workspace/progs/javascript__go__HumanEval_88/prog_test.go:11 +0x13f\nrebirth%2echeck_test.TestSort_Array(0xc0000ae680)\n\t/workspace/progs/javascript__go__HumanEval_88/prog_test.go:32 +0x42\ntesting.tRunner(0xc0000ae680, 0x548760)\n\t/usr/local/go/src/testing/testing.go:1689 +0xfb\ncreated by testing.(*T).Run in goroutine 1\n\t/usr/local/go/src/testing/testing.go:1742 +0x390\n"
   },
   {
    "src": "javascript",
@@ -3594,7 +3596,7 @@
    "status": "compile_error",
    "exit": 90,
    "code": "func words_in_sentence(sentence string) string {\n    t := splitWords(sentence)\n    var p []string\n    for _, word := range t {\n        len := len(word)\n        if len == 1 || len == 0 {\n            continue\n        }\n        if isPrime(len) {\n            p = append(p, word)\n        }\n    }\n    return joinWords(p)\n}\n\nfunc splitWords(sentence string) []string {\n    import \"strings\"\n    return strings.Fields(sentence)\n}\n\nfunc isPrime(n int) bool {\n    if n <= 1 {\n        return false\n    }\n    for i := 2; i*i <= n; i++ {\n        if n%i == 0 {\n            return false\n        }\n    }\n    return true\n}\n\nfunc joinWords(words []string) string {\n    import \"strings\"\n    return strings.Join(words, \" \")\n}\n",
-   "log": "# rebirth.check\nprog_test.go:24:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
+   "log": "# rebirth.check\nprog_test.go:25:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
   },
   {
    "src": "javascript",
@@ -5349,7 +5351,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func sort_array(array: [Int]) -> [Int] {\n    var arr = array\n    let tot = arr[0] + arr[arr.count - 1]\n    \n    for j in 0..<arr.count {\n        var ind = j\n        for k in (j + 1)..<arr.count {\n            if ((tot % 2 == 1 && arr[k] < arr[ind]) || (tot % 2 == 0 && arr[k] > arr[ind])) {\n                ind = k\n            }\n        }\n        let tmp = arr[j]\n        arr[j] = arr[ind]\n        arr[ind] = tmp\n    }\n    \n    return arr\n}\n",
-   "log": " 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (11 omitted):\n\n0x0000628178119000–0x000062817811b9e8 <no build ID> prog                         /workspace/progs/javascript__swift__HumanEval_88/prog\n0x00007b69c4a15000–0x00007b69c502a2c0 <no build ID> libswiftCore.so              /usr/lib/swift/linux/libswiftCore.so\n0x00007b69c5084000–0x00007b69c50c3590 <no build ID> libswiftSwiftOnoneSupport.so /usr/lib/swift/linux/libswiftSwiftOnoneSupport.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (11 omitted):\n\n0x00006067637b1000–0x00006067637b39e8 <no build ID> prog                         /workspace/progs/javascript__swift__HumanEval_88/prog\n0x000072dae53a6000–0x000072dae59bb2c0 <no build ID> libswiftCore.so              /usr/lib/swift/linux/libswiftCore.so\n0x000072dae5a15000–0x000072dae5a54590 <no build ID> libswiftSwiftOnoneSupport.so /usr/lib/swift/linux/libswiftSwiftOnoneSupport.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "javascript",
@@ -5358,7 +5360,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func all_prefixes(string: String) -> [String] {\n    var result: [String] = []\n    for i in 0..<string.count {\n        let index = string.index(string.startIndex, offsetBy: i + 1)\n        result.append(String(string[...index]))\n    }\n    return result\n}\n",
-   "log": "ffcaec71828  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000079ef2c56319e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00005d5ee894b000–0x00005d5ee894d840 <no build ID> prog            /workspace/progs/javascript__swift__HumanEval_14/prog\n0x000079ef2c3fe000–0x000079ef2ca132c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "ffe4c271888  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007c8d38b4f19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000062330ebd1000–0x000062330ebd3840 <no build ID> prog            /workspace/progs/javascript__swift__HumanEval_14/prog\n0x00007c8d389ea000–0x00007c8d38fff2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "javascript",
@@ -7608,7 +7610,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc largest_prime_factor(n: Int) -> Int {\n    func isPrime(_ n: Int) -> Bool {\n        for i in 2...Int(sqrt(Double(n))) {\n            if n % i == 0 {\n                return false\n            }\n        }\n        return true\n    }\n\n    var largest = 1\n    for j in 2...n {\n        if n % j == 0 && isPrime(j) {\n            if j > largest {\n                largest = j\n            }\n        }\n    }\n    return largest\n}\n",
-   "log": " 0x00007ffdf5028728  02 00 00 00 00 00 00 00 0f 00 00 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007bd8db41e19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005b685dde1000–0x00005b685dde3370 <no build ID> prog            /workspace/progs/go__swift__HumanEval_59/prog\n0x00007bd8db2b9000–0x00007bd8db8ce2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 0x00007fff3ba125e8  02 00 00 00 00 00 00 00 0f 00 00 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000718db28d719e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00006049df77d000–0x00006049df77f370 <no build ID> prog            /workspace/progs/go__swift__HumanEval_59/prog\n0x0000718db2772000–0x0000718db2d872c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -7626,7 +7628,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc is_multiply_prime(a: Int) -> Bool {\n    func isPrime(_ n: Int) -> Bool {\n        for i in 2...Int(sqrt(Double(n))) {\n            if n % i == 0 {\n                return false\n            }\n        }\n        return true\n    }\n    \n    for i in 2..<101 {\n        guard isPrime(i) else { continue }\n        for j in 2..<101 {\n            guard isPrime(j) else { continue }\n            for k in 2..<101 {\n                guard isPrime(k) else { continue }\n                if i * j * k == a {\n                    return true\n                }\n            }\n        }\n    }\n    return false\n}\n",
-   "log": " 0x00007fffe9999628  02 00 00 00 00 00 00 00 65 00 00 00 00 00 00 00  ········e·······\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000070523383e19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005bfb5addd000–0x00005bfb5addf690 <no build ID> prog            /workspace/progs/go__swift__HumanEval_75/prog\n0x00007052336d9000–0x0000705233cee2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 0x00007fff1c76f678  02 00 00 00 00 00 00 00 65 00 00 00 00 00 00 00  ········e·······\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007a0cd947e19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005c33b1bd5000–0x00005c33b1bd7690 <no build ID> prog            /workspace/progs/go__swift__HumanEval_75/prog\n0x00007a0cd9319000–0x00007a0cd992e2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -7662,7 +7664,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc tri(n: Int) -> [Int] {\n    if n == 0 {\n        return [1]\n    }\n    var my_tri = [1, 3]\n    for i in 2...n {\n        if i & 1 == 0 {\n            my_tri.append(i / 2 + 1)\n        } else {\n            my_tri.append(my_tri[i - 1] + my_tri[i - 2] + (i + 3) / 2)\n        }\n    }\n    return my_tri\n}\n",
-   "log": "0x000058f7f3245440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000770c0795a19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000058f7f3244000–0x000058f7f3246948 <no build ID> prog            /workspace/progs/go__swift__HumanEval_130/prog\n0x0000770c077f5000–0x0000770c07e0a2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "0000625c7a7a1440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007e12bc8cc19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000625c7a7a0000–0x0000625c7a7a2948 <no build ID> prog            /workspace/progs/go__swift__HumanEval_130/prog\n0x00007e12bc767000–0x00007e12bcd7c2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -7743,7 +7745,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc odd_count(lst: [String]) -> [String] {\n    var res = [String]()\n    for arr in lst {\n        var n = 0\n        for d in arr {\n            if let digit = Int(String(d)), digit % 2 == 1 {\n                n += 1\n            }\n        }\n        res.append(\"the number of odd elements \\(n)n the str\\(n)ng \\(n) of the \\(n)input.\")\n    }\n    return res\n}\n",
-   "log": "3 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007e6f50bb86b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005fa5e244d000–0x00005fa5e244fe38 <no build ID> prog            /workspace/progs/go__swift__HumanEval_113/prog\n0x00007e6f50a54000–0x00007e6f510692c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "3 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x000076fdbf9ce6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005620993c6000–0x00005620993c8e38 <no build ID> prog            /workspace/progs/go__swift__HumanEval_113/prog\n0x000076fdbf86a000–0x000076fdbfe7f2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -7878,7 +7880,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func all_prefixes(string: String) -> [String] {\n    var prefixes = [String]()\n    for i in 0..<string.count {\n        let index = string.index(string.startIndex, offsetBy: i + 1)\n        prefixes.append(String(string[...index]))\n    }\n    return prefixes\n}\n",
-   "log": "x00007ffebd6b5a78  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007fcb7e38b19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00006191fb861000–0x00006191fb863890 <no build ID> prog            /workspace/progs/go__swift__HumanEval_14/prog\n0x00007fcb7e226000–0x00007fcb7e83b2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 0x00007fff1874b428  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007c248e2b419e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00005d015a678000–0x00005d015a67a890 <no build ID> prog            /workspace/progs/go__swift__HumanEval_14/prog\n0x00007c248e14f000–0x00007c248e7642c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -7923,7 +7925,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc words_in_sentence(sentence: String) -> String {\n    var new_lst = [String]()\n    for word in sentence.split(separator: \" \") {\n        var flg = 0\n        if word.count == 1 {\n            flg = 1\n        }\n        for i in 2..<word.count {\n            if word.count % i == 0 {\n                flg = 1\n            }\n        }\n        if flg == 0 || word.count == 2 {\n            new_lst.append(String(word))\n        }\n    }\n    return new_lst.joined(separator: \" \")\n}\n",
-   "log": "0x00007fff1da91260  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000702ebe5a219e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005590fe8f9000–0x00005590fe8fc2d0 <no build ID> prog            /workspace/progs/go__swift__HumanEval_143/prog\n0x0000702ebe43d000–0x0000702ebea522c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "00007fff263bf310  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000073cf2b48119e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000064f35b23b000–0x000064f35b23e2d0 <no build ID> prog            /workspace/progs/go__swift__HumanEval_143/prog\n0x000073cf2b31c000–0x000073cf2b9312c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "go",
@@ -8703,19 +8705,19 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_105",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func by_length(arr []int) []string {\n    sorted_arr := make([]int, len(arr))\n    copy(sorted_arr, arr)\n    sort.Sort(sort.Reverse(sort.IntSlice(sorted_arr)))\n\n    var new_arr []string\n    for _, varr := range sorted_arr {\n        if varr >= 1 && varr <= 9 {\n            switch varr {\n            case 1:\n                new_arr = append(new_arr, \"One\")\n            case 2:\n                new_arr = append(new_arr, \"Two\")\n            case 3:\n                new_arr = append(new_arr, \"Three\")\n            case 4:\n                new_arr = append(new_arr, \"Four\")\n            case 5:\n                new_arr = append(new_arr, \"Five\")\n            case 6:\n                new_arr = append(new_arr, \"Six\")\n            case 7:\n                new_arr = append(new_arr, \"Seven\")\n            case 8:\n                new_arr = append(new_arr, \"Eight\")\n            case 9:\n                new_arr = append(new_arr, \"Nine\")\n            }\n        }\n    }\n    return new_arr\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:11:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_34",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func unique(l []int) []int {\n    seen := make(map[int]bool)\n    var result []int\n\n    for _, value := range l {\n        if !seen[value] {\n            seen[value] = true\n            result = append(result, value)\n        }\n    }\n\n    sort.Ints(result)\n    return result\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:19:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8739,10 +8741,10 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    if k == 0 {\n        return []int{}\n    }\n    arr_sort := make([]int, len(arr))\n    copy(arr_sort, arr)\n    sort.Ints(arr_sort)\n    return arr_sort[len(arr_sort)-k:]\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:14:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8820,19 +8822,19 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_37",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_even(l []int) []int {\n    even := make([]int, 0)\n    for i := 0; i < len(l); i += 2 {\n        even = append(even, l[i])\n    }\n    sort.Ints(even)\n    result := make([]int, len(l))\n    copy(result, l)\n    for i := 0; i < len(l); i += 2 {\n        result[i] = even[i/2]\n    }\n    return result\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_20",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func find_closest_elements(numbers []float64) []interface{} {\n    if len(numbers) < 2 {\n        return nil\n    }\n\n    closest_pair := make([]interface{}, 2)\n    closest_pair[0] = numbers[0]\n    closest_pair[1] = numbers[1]\n    distance := math.Abs(numbers[1] - numbers[0])\n\n    for i := 0; i < len(numbers); i++ {\n        for j := i + 1; j < len(numbers); j++ {\n            if math.Abs(numbers[i]-numbers[j]) < distance {\n                closest_pair[0] = numbers[i]\n                closest_pair[1] = numbers[j]\n                distance = math.Abs(numbers[i] - numbers[j])\n            }\n        }\n    }\n\n    sort.Slice(closest_pair, func(i, j int) bool {\n        return closest_pair[i].(float64) < closest_pair[j].(float64)\n    })\n\n    return closest_pair\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:16:17: undefined: math\n./prog_test.go:20:16: undefined: math\n./prog_test.go:23:28: undefined: math\n./prog_test.go:28:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8856,10 +8858,10 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    var sb strings.Builder\n    for i := 0; i < n; i++ {\n        sb.WriteString(fmt.Sprintf(\"%d \", i))\n    }\n    sb.WriteString(fmt.Sprintf(\"%d\", n))\n    return sb.String()\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:9:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8874,19 +8876,19 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_145",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "fail",
+   "exit": 1,
    "code": "func order_by_points(nums []int) []int {\n    result := make([]int, len(nums))\n    copy(result, nums)\n\n    sort.Slice(result, func(i, j int) bool {\n        sum1 := digitSum(result[i])\n        sum2 := digitSum(result[j])\n\n        return sum1 < sum2\n    })\n\n    return result\n}\n\nfunc digitSum(num int) int {\n    sum := 0\n    strNum := fmt.Sprintf(\"%d\", num)\n    for i, char := range strNum {\n        if i != 0 || num >= 0 {\n            sum += int(char - '0')\n            if i == 1 && num < 0 {\n                sum = -sum\n            }\n        }\n    }\n    return sum\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:5: undefined: sort\n"
+   "log": "--- FAIL: TestOrder_By_Points (0.00s)\n    --- FAIL: TestOrder_By_Points/test_num__1 (0.00s)\n        prog_test.go:54: expected '[%!s(int=0) %!s(int=2) %!s(int=3) %!s(int=6) %!s(int=53) %!s(int=423) %!s(int=423) %!s(int=423) %!s(int=1234) %!s(int=145) %!s(int=37) %!s(int=46) %!s(int=56) %!s(int=463) %!s(int=3457)]', got '[%!s(int=0) %!s(int=2) %!s(int=3) %!s(int=6) %!s(int=53) %!s(int=423) %!s(int=423) %!s(int=423) %!s(int=145) %!s(int=37) %!s(int=1234) %!s(int=46) %!s(int=56) %!s(int=463) %!s(int=3457)]'\nFAIL\n"
   },
   {
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_64",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func vowels_count(s string) int {\n    vowels := \"aeiouAEIOU\"\n    n_vowels := 0\n    for _, c := range s {\n        if strings.ContainsRune(vowels, c) {\n            n_vowels++\n        }\n    }\n    if len(s) > 0 && (s[len(s)-1] == 'y' || s[len(s)-1] == 'Y') {\n        n_vowels++\n    }\n    return n_vowels\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8937,10 +8939,10 @@
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_88",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_array(array []int) []int {\n    if len(array) == 0 {\n        return array\n    }\n    result := make([]int, len(array))\n    copy(result, array)\n    if (result[0]+result[len(result)-1])%2 == 1 {\n        sort.Ints(result)\n    } else {\n        sort.Sort(sort.Reverse(sort.IntSlice(result)))\n    }\n    return result\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:15:9: undefined: sort\n./prog_test.go:17:9: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -8985,16 +8987,16 @@
    "status": "compile_error",
    "exit": 90,
    "code": "func is_bored(S string) int {\n    import \"regexp\"\n\n    sentences := regexp.MustCompile(`[.?!]\\s*`).Split(S, -1)\n    count := 0\n    for _, sentence := range sentences {\n        if len(sentence) >= 2 && sentence[:2] == \"I \" {\n            count++\n        }\n    }\n    return count\n}\n",
-   "log": "# rebirth.check\nprog_test.go:9:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
+   "log": "# rebirth.check\nprog_test.go:10:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
   },
   {
    "src": "java",
    "tgt": "go",
    "problem": "HumanEval_143",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func words_in_sentence(sentence string) string {\n    var new_lst []string\n    words := strings.Split(sentence, \" \")\n    for _, word := range words {\n        if len(word) == 1 {\n            continue\n        }\n        flg := true\n        for i := 2; i < len(word); i++ {\n            if len(word)%i == 0 {\n                flg = false\n                break\n            }\n        }\n        if flg {\n            new_lst = append(new_lst, word)\n        }\n    }\n    return strings.Join(new_lst, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:10:14: undefined: strings\n./prog_test.go:26:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "java",
@@ -10182,7 +10184,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc tri(n: Int) -> [Int] {\n    if n == 0 {\n        return [1]\n    }\n    var my_tri = [1, 3]\n    for i in 2...n {\n        if i % 2 == 0 {\n            my_tri.append(i / 2 + 1)\n        } else {\n            let lastIndex = my_tri.count - 1\n            my_tri.append(my_tri[lastIndex] + my_tri[lastIndex - 1] + (i + 3) / 2)\n        }\n    }\n    return my_tri\n}\n",
-   "log": "0059103022f490  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007a3ced58219e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000059103022e000–0x0000591030230a08 <no build ID> prog            /workspace/progs/java__swift__HumanEval_130/prog\n0x00007a3ced41d000–0x00007a3ceda322c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "00005bf55d276490  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000077e7bc5bb19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005bf55d275000–0x00005bf55d277a08 <no build ID> prog            /workspace/progs/java__swift__HumanEval_130/prog\n0x000077e7bc456000–0x000077e7bca6b2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "java",
@@ -10326,7 +10328,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc order_by_points(nums: [Int]) -> [Int] {\n    var result = nums\n    \n    result.sort { (o1, o2) -> Bool in\n        let sum1 = digitSum(o1)\n        let sum2 = digitSum(o2)\n        \n        return sum1 < sum2\n    }\n    \n    return result\n}\n\nprivate func digitSum(_ num: Int) -> Int {\n    var sum = 0\n    let strNum = String(abs(num))\n    \n    for (i, char) in strNum.enumerated() {\n        if i != 0 || num >= 0 {\n            sum += Int(String(char))!\n            if i == 1 && num < 0 {\n                sum = -sum\n            }\n        }\n    }\n    \n    return num < 0 ? -sum : sum\n}\n",
-   "log": "77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x0000703831fbc6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000567b1b581000–0x0000567b1b583eb8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_145/prog\n0x0000703831e58000–0x000070383246d2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007bf91cb6f6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000063d911a9c000–0x000063d911a9eeb8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_145/prog\n0x00007bf91ca0b000–0x00007bf91d0202c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "java",
@@ -10398,7 +10400,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc all_prefixes(string: String) -> [String] {\n    var result = [String]()\n    \n    for i in 1...string.count {\n        let index = string.index(string.startIndex, offsetBy: i)\n        result.append(String(string[..<index]))\n    }\n    \n    return result\n}\n",
-   "log": "x000055a62168f890  55 48 89 e5 41 55 48 81 ec a8 00 00 00 90 48 8d  UH·åAUH·ì¨····H·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007b5fc372719e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000055a62168e000–0x000055a6216908e8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_14/prog\n0x00007b5fc35c2000–0x00007b5fc3bd72c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "0005a7f33915890  55 48 89 e5 41 55 48 81 ec a8 00 00 00 90 48 8d  UH·åAUH·ì¨····H·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007388e2bfc19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005a7f33914000–0x00005a7f339168e8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_14/prog\n0x00007388e2a97000–0x00007388e30ac2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "java",
@@ -10407,7 +10409,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func can_arrange(arr: [Int]) -> Int {\n    var ind = -1\n    for i in 1..<arr.count {\n        if arr[i] < arr[i - 1] {\n            ind = i\n        }\n    }\n    return ind\n}\n",
-   "log": "005a30c7f30320  55 48 89 e5 41 55 48 83 ec 78 90 bf 05 00 00 00  UH·åAUH·ìx·¿····\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007e737156119e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00005a30c7f2f000–0x00005a30c7f30ff8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_135/prog\n0x00007e73713fc000–0x00007e7371a112c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "000063a1b19d0320  55 48 89 e5 41 55 48 83 ec 78 90 bf 05 00 00 00  UH·åAUH·ìx·¿····\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007470447d319e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000063a1b19cf000–0x000063a1b19d0ff8 <no build ID> prog            /workspace/progs/java__swift__HumanEval_135/prog\n0x000074704466e000–0x0000747044c832c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "java",
@@ -10434,7 +10436,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc is_bored(S: String) -> Int {\n    let sentences = S.split { \".?!\".contains($0) }\n    var count = 0\n    for sentence in sentences {\n        if sentence.starts(with: \"I \") {\n            count += 1\n        }\n    }\n    return count\n}\n",
-   "log": " 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x000078436044f6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000056a8e68a0000–0x000056a8e68a26c0 <no build ID> prog            /workspace/progs/java__swift__HumanEval_91/prog\n0x00007843602eb000–0x00007843609002c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007c4cd62146b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005ce962a6b000–0x00005ce962a6d6c0 <no build ID> prog            /workspace/progs/java__swift__HumanEval_91/prog\n0x00007c4cd60b0000–0x00007c4cd66c52c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "java",
@@ -11223,19 +11225,19 @@
    "src": "cpp",
    "tgt": "go",
    "problem": "HumanEval_105",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func by_length(arr []int) []string {\n    numto := map[int]string{\n        0: \"Zero\",\n        1: \"One\",\n        2: \"Two\",\n        3: \"Three\",\n        4: \"Four\",\n        5: \"Five\",\n        6: \"Six\",\n        7: \"Seven\",\n        8: \"Eight\",\n        9: \"Nine\",\n    }\n    \n    sort.Ints(arr)\n    var out []string\n    for i := len(arr) - 1; i >= 0; i-- {\n        if arr[i] >= 1 && arr[i] <= 9 {\n            out = append(out, numto[arr[i]])\n        }\n    }\n    return out\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:22:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "cpp",
    "tgt": "go",
    "problem": "HumanEval_34",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func unique(l []int) []int {\n    out := []int{}\n    for _, v := range l {\n        if !contains(out, v) {\n            out = append(out, v)\n        }\n    }\n    sort.Ints(out)\n    return out\n}\n\nfunc contains(slice []int, value int) bool {\n    for _, v := range slice {\n        if v == value {\n            return true\n        }\n    }\n    return false\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:15:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "cpp",
@@ -11259,10 +11261,10 @@
    "src": "cpp",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    sort.Ints(arr)\n    return arr[len(arr)-k:]\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:9:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "cpp",
@@ -11304,10 +11306,10 @@
    "src": "cpp",
    "tgt": "go",
    "problem": "HumanEval_151",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func double_the_difference(lst []float64) int {\n    sum := 0\n    for _, v := range lst {\n        if v-round(v) < 1e-4 {\n            rounded := int(round(v))\n            if v > 0 && rounded%2 == 1 {\n                sum += rounded * rounded\n            }\n        }\n    }\n    return sum\n}\n\nfunc round(x float64) float64 {\n    if x < 0 {\n        return math.Ceil(x - 0.5)\n    }\n    return math.Floor(x + 0.5)\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:23:16: undefined: math\n./prog_test.go:25:12: undefined: math\n"
+   "log": "PASS\n"
   },
   {
    "src": "cpp",
@@ -11457,10 +11459,10 @@
    "src": "cpp",
    "tgt": "go",
    "problem": "HumanEval_88",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_array(array []int) []int {\n    if len(array) == 0 {\n        return []int{}\n    }\n    if (array[0]+array[len(array)-1])%2 == 1 {\n        sort.Ints(array)\n        return array\n    } else {\n        sort.Ints(array)\n        out := make([]int, len(array))\n        for i := len(array) - 1; i >= 0; i-- {\n            out[len(array)-1-i] = array[i]\n        }\n        return out\n    }\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:9: undefined: sort\n./prog_test.go:16:9: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "cpp",
@@ -12702,7 +12704,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc tri(n: Int) -> [Int] {\n    var out = [1, 3]\n    if n == 0 { return [1] }\n    for i in 2...n {\n        if i % 2 == 0 {\n            out.append(1 + i / 2)\n        } else {\n            out.append(out[i - 1] + out[i - 2] + 1 + (i + 1) / 2)\n        }\n    }\n    return out\n}\n",
-   "log": "00060145edd2440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000072ecbb1b319e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000060145edd1000–0x000060145edd39a8 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_130/prog\n0x000072ecbb04e000–0x000072ecbb6632c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "00064d768a68440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007f31c249d19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000064d768a67000–0x000064d768a699a8 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_130/prog\n0x00007f31c2338000–0x00007f31c294d2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "cpp",
@@ -12828,7 +12830,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc string_sequence(n: Int) -> String {\n    var out = \"0\"\n    for i in 1...n {\n        out += \" \\(i)\"\n    }\n    return out\n}\n",
-   "log": "000059073e696610  55 48 89 e5 41 55 48 81 ec 98 00 00 00 90 31 c0  UH·åAUH·ì·····1À\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007091e545f19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000059073e695000–0x000059073e697220 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_15/prog\n0x00007091e52fa000–0x00007091e590f2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "0x00005a562bf23610  55 48 89 e5 41 55 48 81 ec 98 00 00 00 90 31 c0  UH·åAUH·ì·····1À\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000744f509db19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005a562bf22000–0x00005a562bf24220 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_15/prog\n0x0000744f50876000–0x0000744f50e8b2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "cpp",
@@ -12963,7 +12965,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc words_in_sentence(sentence: String) -> String {\n    var out = \"\"\n    var current = \"\"\n    let sentenceWithSpace = sentence + \" \"\n\n    for char in sentenceWithSpace {\n        if char != \" \" {\n            current.append(char)\n        } else {\n            if isPrime(current.count) {\n                out.append(current + \" \")\n            }\n            current = \"\"\n        }\n    }\n\n    if !out.isEmpty {\n        out.removeLast()\n    }\n    return out\n}\n\nfunc isPrime(_ number: Int) -> Bool {\n    if number < 2 { return false }\n    for i in 2...Int(sqrt(Double(number))) {\n        if number % i == 0 { return false }\n    }\n    return true\n}\n",
-   "log": "x00007ffd9e34fd68  54 68 69 73 20 69 73 20 61 20 74 65 73 74 20 ef  This is a test ï\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007b5fe5a3519e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005d28b6e9e000–0x00005d28b6ea1158 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_143/prog\n0x00007b5fe58d0000–0x00007b5fe5ee52c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "x00007ffc26986628  54 68 69 73 20 69 73 20 61 20 74 65 73 74 20 ef  This is a test ï\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007230b782019e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000062851a4ee000–0x000062851a4f1158 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_143/prog\n0x00007230b76bb000–0x00007230b7cd02c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "cpp",
@@ -12972,7 +12974,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc match_parens(lst: [String]) -> String {\n    let l1 = lst[0] + lst[1]\n    var count = 0\n    var can = true\n    \n    for char in l1 {\n        if char == \"(\" {\n            count += 1\n        } else if char == \")\" {\n            count -= 1\n        }\n        if count < 0 {\n            can = false\n        }\n    }\n    \n    if count != 0 || !can {\n        let l2 = lst[1] + lst[0]\n        count = 0\n        can = true\n        \n        for char in l2 {\n            if char == \"(\" {\n                count += 1\n            } else if char == \")\" {\n                count -= 1\n            }\n            if count < 0 {\n                can = false\n            }\n        }\n        \n        if !can {\n            return \"No\"\n        }\n    }\n    \n    return \"Yes\"\n}\n",
-   "log": " 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x0000788a53f6b6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000063b0eab2e000–0x000063b0eab31428 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_119/prog\n0x0000788a53e07000–0x0000788a5441c2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007688b9dde6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000055bcf8b7d000–0x000055bcf8b80428 <no build ID> prog            /workspace/progs/cpp__swift__HumanEval_119/prog\n0x00007688b9c7a000–0x00007688ba28f2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   }
  ]
 }

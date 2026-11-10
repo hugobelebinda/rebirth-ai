@@ -1,6 +1,6 @@
 # Rebirth AI — Production-Grade Roadmap
 
-> Last updated: 2026-11-07 (Phases **0–14 complete**, 16 offline done; Phase 15 local prep done, cloud part blocked on AWS quota; phases renumbered in execution order — see Phase map)  
+> Last updated: 2026-11-10 (Phases **0–15 complete** — 15 stopped at its S2 gate, the 7B adapters stay the same-language champions; 16 offline done; **17 stages 1–4 done** — the shared cross-language adapter `rebirth-xlang:14b-v1` is the `migrate --to` default; phases renumbered in execution order — see Phase map)  
 > Scope: take the **local-first JS/TS MVP** (Phases 0–5 + data interlude) to a **production-grade, multi-language** migration product.  
 > Constraint: **cloud GPU is optional** — required only for optional 14B LoRA specialization. Everything else runs on this machine (Ollama 14B + Docker + local PEFT 7B).  
 > **New agent:** start at [SESSION_HANDOFF.md](SESSION_HANDOFF.md).
@@ -19,7 +19,7 @@
 | Tag | `v0.2.0-mvp` on origin | JS/TS MVP; optional `v0.3.0-js-python-preview` after Phase 8 commit |
 | Language verticals | **All 8 v1.0 langs** | Registry + sandboxes + fixtures |
 | Agent brain | Ollama `qwen2.5-coder:14b-instruct-q6_K` | Default generator |
-| Local specialization | PEFT 7B LoRA (1-epoch, **JS/TS only** so far) | `data/models/lora_js_ts_7b` — Phase **11** extend per lang |
+| Local specialization | 8 × v2 7B LoRA (same-language, Ollama `rebirth-<lang>:7b`) + shared 14B cross-language LoRA (`rebirth-xlang:14b-v1`) | Phases 11, 16, 17 |
 | Eval | Sandbox-pass + AST/soft-exact + fixtures 8/8 | `training/eval_behavioral.py`, `eval_fixture_sandboxes.py` |
 | Dataset | **24640** multi-lang (**≥15K met**) | `data/datasets/corpus_manifest.json` |
 
@@ -75,9 +75,9 @@ Phase 11   Per-language LoRA — harness + v2 7B adapters (all 8)          ✅ 2
 Phase 12   Local tuning v3 + eval hardening                               ✅ 2026-11-06
 Phase 13   MLOps 1 — experiment tracking + model registry + YAML recipes   ✅ 2026-11-05
 Phase 14   MLOps 2 — reproducible pipelines + infra (DVC/S3, Terraform, vLLM)   ✅ 2026-11-05
-Phase 15   Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge)    local prep done; waits on AWS quota
-Phase 16   MLOps 3 — model CI/CD + packaging (Ollama adapters, rollback)
-Phase 17   Cross-language migration (any → any of 8) + unified adapter
+Phase 15   Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge)    ✅ 2026-11-08 (stopped at S2 gate: 14B ties 7B)
+Phase 16   MLOps 3 — model CI/CD + packaging (Ollama adapters, rollback)   offline part ✅ 2026-11-06
+Phase 17   Cross-language migration (any → any of 8) + unified adapter   stages 1–4 ✅ 2026-11-09 (adapter 208 → 265 / 420)
 Phase 18   MLOps 4 — monitoring + data flywheel
 Phase 19   Packaging, UX, official v1.0 launch
 ```
@@ -489,7 +489,7 @@ LoRA playbook (next): [phases/PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LOR
 
 ```
 Done         Phases 0–11 (8 langs; corpus 24640; fixtures 8/8; v2 LoRA per language)
-Now          Phase 15 blocked on AWS quota (local prep done 2026-11-07); Phase 17 stages 1–2 done (zero-shot 89.3 %) → stage 3 decisions
+Now          Phase 15 S0 approved, waiting for g6e capacity (quota approved 2026-11-08); Phase 17 stages 1–2 done (HumanEval 91.1 %, programs 31.2 %) → stage 3 data
 Then         Phase 13 — MLOps 1: MLflow tracking + registry + YAML recipes   (no GPU)
 Then         Phase 14 — MLOps 2: DVC/S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval
 Then         Phase 15 — cloud 14B adapters + DPO (AWS g6e.xlarge; needs quota)

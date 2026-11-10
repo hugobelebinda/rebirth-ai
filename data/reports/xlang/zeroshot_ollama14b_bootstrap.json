@@ -1,5 +1,6 @@
 {
  "model": "ollama:qwen2.5-coder:14b-instruct-q6_K",
+ "suite": "humaneval",
  "problems": "data/datasets/xlang/humaneval.jsonl",
  "limit": 40,
  "bootstrapped_sources": {
@@ -10,6 +11,7 @@
    "swift": 40
   }
  },
+ "fixups": true,
  "seed": 1337,
  "sources": [
   "rust",
@@ -39,10 +41,10 @@
   },
   "csharp->go": {
    "n": 39,
-   "pass": 29,
-   "pass_rate": 0.744,
-   "compile_error": 9,
-   "fail": 1,
+   "pass": 36,
+   "pass_rate": 0.923,
+   "compile_error": 1,
+   "fail": 2,
    "timeout": 0,
    "missing": 0,
    "excluded": 1
@@ -119,9 +121,9 @@
   },
   "rust->go": {
    "n": 39,
-   "pass": 29,
-   "pass_rate": 0.744,
-   "compile_error": 6,
+   "pass": 34,
+   "pass_rate": 0.872,
+   "compile_error": 1,
    "fail": 4,
    "timeout": 0,
    "missing": 0,
@@ -189,9 +191,9 @@
   },
   "swift->go": {
    "n": 38,
-   "pass": 27,
-   "pass_rate": 0.711,
-   "compile_error": 9,
+   "pass": 34,
+   "pass_rate": 0.895,
+   "compile_error": 2,
    "fail": 2,
    "timeout": 0,
    "missing": 0,
@@ -1017,10 +1019,10 @@
    "src": "rust",
    "tgt": "go",
    "problem": "HumanEval_34",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func unique(l []int) []int {\n    set := make(map[int]struct{})\n    for _, x := range l {\n        set[x] = struct{}{}\n    }\n    result := make([]int, 0, len(set))\n    for x := range set {\n        result = append(result, x)\n    }\n    sort.Ints(result)\n    return result\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:17:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "rust",
@@ -1044,10 +1046,10 @@
    "src": "rust",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    if k == 0 {\n        return []int{}\n    }\n    sort.Ints(arr)\n    return arr[len(arr)-k:]\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "rust",
@@ -1098,10 +1100,10 @@
    "src": "rust",
    "tgt": "go",
    "problem": "HumanEval_131",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func digits(n int) int {\n    product := 1\n    oddCount := 0\n\n    for _, digitChar := range fmt.Sprintf(\"%d\", n) {\n        digit, err := strconv.Atoi(string(digitChar))\n        if err == nil && digit%2 == 1 {\n            product *= digit\n            oddCount++\n        }\n    }\n\n    if oddCount == 0 {\n        return 0\n    } else {\n        return product\n    }\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:23: undefined: strconv\n"
+   "log": "PASS\n"
   },
   {
    "src": "rust",
@@ -1161,10 +1163,10 @@
    "src": "rust",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    var result []string\n    for i := 0; i <= n; i++ {\n        result = append(result, fmt.Sprintf(\"%d\", i))\n    }\n    return strings.Join(result, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "rust",
@@ -1296,10 +1298,10 @@
    "src": "rust",
    "tgt": "go",
    "problem": "HumanEval_143",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func words_in_sentence(sentence string) string {\n    var new_lst []string\n    words := strings.Fields(sentence)\n    for _, word := range words {\n        flg := false\n        if len(word) == 1 {\n            flg = true\n        }\n        for i := 2; i < len(word); i++ {\n            if len(word)%i == 0 {\n                flg = true\n            }\n        }\n        if !flg || len(word) == 2 {\n            new_lst = append(new_lst, word)\n        }\n    }\n    return strings.Join(new_lst, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:10:14: undefined: strings\n./prog_test.go:25:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "rust",
@@ -2478,7 +2480,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func tri(n: Int) -> [Int] {\n    if n == 0 {\n        return [1]\n    }\n    var my_tri = [1, 3]\n    for i in 2...n {\n        if i % 2 == 0 {\n            my_tri.append(i / 2 + 1)\n        } else {\n            let next_value = my_tri[i - 1] + my_tri[i - 2] + (i + 3) / 2\n            my_tri.append(next_value)\n        }\n    }\n    return my_tri\n}\n",
-   "log": "0061d73c7af3e0  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007dee6d2b819e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000061d73c7ae000–0x000061d73c7b0928 <no build ID> prog            /workspace/progs/rust__swift__HumanEval_130/prog\n0x00007dee6d153000–0x00007dee6d7682c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "00643c080463e0  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000751e6657619e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x0000643c08045000–0x0000643c08047928 <no build ID> prog            /workspace/progs/rust__swift__HumanEval_130/prog\n0x0000751e66411000–0x0000751e66a262c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "rust",
@@ -2622,7 +2624,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc order_by_points(nums: [Int]) -> [Int] {\n    let digitsSum = { (n: Int) -> Int in\n        var sum = 0\n        var neg = 1\n        let s = n < 0 ? String(-n) : String(n)\n        for (i, c) in s.enumerated() {\n            if let digit = Int(String(c)) {\n                if i == 0 {\n                    sum += digit * neg\n                } else {\n                    sum += digit\n                }\n            }\n        }\n        return sum\n    }\n\n    return nums.sorted { digitsSum($0) < digitsSum($1) }\n}\n",
-   "log": "77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x000070e73253f6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000058977d6a9000–0x000058977d6abd60 <no build ID> prog            /workspace/progs/rust__swift__HumanEval_145/prog\n0x000070e7323db000–0x000070e7329f02c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "77 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x000077eb725416b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005779e767d000–0x00005779e767fd60 <no build ID> prog            /workspace/progs/rust__swift__HumanEval_145/prog\n0x000077eb723dd000–0x000077eb729f22c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "rust",
@@ -3528,10 +3530,10 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_105",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func by_length(arr []int) []string {\n    dic := map[int]string{\n        1: \"One\", 2: \"Two\", 3: \"Three\", 4: \"Four\",\n        5: \"Five\", 6: \"Six\", 7: \"Seven\", 8: \"Eight\", 9: \"Nine\",\n    }\n    sortedArr := make([]int, len(arr))\n    copy(sortedArr, arr)\n    sort.Slice(sortedArr, func(i, j int) bool {\n        return sortedArr[i] > sortedArr[j]\n    })\n    var newArr []string\n    for _, num := range sortedArr {\n        if str, exists := dic[num]; exists {\n            newArr = append(newArr, str)\n        }\n    }\n    return newArr\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:15:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -3564,10 +3566,10 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    if k == 0 {\n        return []int{}\n    }\n    sort.Ints(arr)\n    ans := arr[len(arr)-k:]\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -3609,10 +3611,10 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_151",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func double_the_difference(lst []float64) int {\n    sum := 0\n    for _, v := range lst {\n        if v > 0 && v == float64(int(v)) && int(v)%2 != 0 {\n            sum += int(math.Pow(v, 2))\n        }\n    }\n    return sum\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:24: undefined: math\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -3645,19 +3647,19 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_37",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_even(l []int) []int {\n    var evens []int\n    var odds []int\n\n    for i, x := range l {\n        if i%2 == 0 {\n            evens = append(evens, x)\n        } else {\n            odds = append(odds, x)\n        }\n    }\n\n    sort.Ints(evens)\n\n    ans := make([]int, 0, len(l))\n    minLen := len(evens)\n    if len(odds) < minLen {\n        minLen = len(odds)\n    }\n\n    for i := 0; i < minLen; i++ {\n        ans = append(ans, evens[i])\n        ans = append(ans, odds[i])\n    }\n\n    if len(evens) > len(odds) {\n        ans = append(ans, evens[len(evens)-1])\n    }\n\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:20:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_20",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func find_closest_elements(numbers []float64) []interface{} {\n    var closestPair []interface{}\n    var distance *float64\n\n    for idx := 0; idx < len(numbers); idx++ {\n        elem := numbers[idx]\n        for idx2 := 0; idx2 < len(numbers); idx2++ {\n            if idx != idx2 {\n                elem2 := numbers[idx2]\n                newDistance := math.Abs(elem - elem2)\n                if distance == nil || newDistance < *distance {\n                    distance = &newDistance\n                    minVal := math.Min(elem, elem2)\n                    maxVal := math.Max(elem, elem2)\n                    closestPair = []interface{}{minVal, maxVal}\n                }\n            }\n        }\n    }\n\n    return closestPair\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:17:32: undefined: math\n./prog_test.go:20:31: undefined: math\n./prog_test.go:21:31: undefined: math\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -3681,10 +3683,10 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    result := make([]string, n+1)\n    for i := 0; i <= n; i++ {\n        result[i] = fmt.Sprintf(\"%d\", i)\n    }\n    return strings.Join(result, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -3699,10 +3701,10 @@
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_145",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "fail",
+   "exit": 1,
    "code": "func order_by_points(nums []int) []int {\n    for i := range nums {\n        nums[i] = digitsSum(nums[i])\n    }\n    sort.Slice(nums, func(i, j int) bool {\n        return nums[i] < nums[j]\n    })\n    return nums\n}\n\nfunc digitsSum(n int) int {\n    neg := 1\n    if n < 0 {\n        n = -n\n        neg = -1\n    }\n    sum := 0\n    for _, digit := range fmt.Sprintf(\"%d\", n) {\n        sum += int(digit - '0')\n    }\n    return sum * neg\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:12:5: undefined: sort\n"
+   "log": " TestOrder_By_Points/test_num__4 (0.00s)\n        prog_test.go:49: expected '[%!s(int=1) %!s(int=10) %!s(int=2) %!s(int=11) %!s(int=3) %!s(int=4) %!s(int=5) %!s(int=6) %!s(int=7) %!s(int=8) %!s(int=9)]', got '[%!s(int=1) %!s(int=1) %!s(int=2) %!s(int=2) %!s(int=3) %!s(int=4) %!s(int=5) %!s(int=6) %!s(int=7) %!s(int=8) %!s(int=9)]'\n    --- FAIL: TestOrder_By_Points/test_num__5 (0.00s)\n        prog_test.go:49: expected '[%!s(int=-76) %!s(int=-21) %!s(int=0) %!s(int=4) %!s(int=23) %!s(int=6) %!s(int=6)]', got '[%!s(int=-13) %!s(int=-3) %!s(int=0) %!s(int=4) %!s(int=5) %!s(int=6) %!s(int=6)]'\nFAIL\n"
   },
   {
    "src": "csharp",
@@ -3810,16 +3812,16 @@
    "status": "compile_error",
    "exit": 90,
    "code": "func is_bored(S string) int {\n    import (\n        \"regexp\"\n        \"strings\"\n    )\n\n    re := regexp.MustCompile(`[.?!]\\s*`)\n    sentences := re.Split(S, -1)\n    count := 0\n    for _, sentence := range sentences {\n        if strings.HasPrefix(sentence, \"I \") {\n            count++\n        }\n    }\n    return count\n}\n",
-   "log": "# rebirth.check\nprog_test.go:9:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
+   "log": "# rebirth.check\nprog_test.go:11:5: expected statement, found 'import'\nFAIL\trebirth.check [setup failed]\nFAIL\n"
   },
   {
    "src": "csharp",
    "tgt": "go",
    "problem": "HumanEval_143",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func words_in_sentence(sentence string) string {\n    var newLst []string\n    words := strings.Split(sentence, \" \")\n    for _, word := range words {\n        flg := 0\n        if len(word) == 1 {\n            flg = 1\n        }\n        for i := 2; i < len(word); i++ {\n            if len(word)%i == 0 {\n                flg = 1\n            }\n        }\n        if flg == 0 || len(word) == 2 {\n            newLst = append(newLst, word)\n        }\n    }\n    return strings.Join(newLst, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:10:14: undefined: strings\n./prog_test.go:25:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "csharp",
@@ -4998,7 +5000,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc tri(n: Int) -> [Int] {\n    if n == 0 {\n        return [1]\n    }\n    var myTri = [1, 3]\n    for i in 2...n {\n        if i % 2 == 0 {\n            myTri.append(i / 2 + 1)\n        } else {\n            let nextValue = myTri[i - 1] + myTri[i - 2] + (i + 3) / 2\n            myTri.append(nextValue)\n        }\n    }\n    return myTri\n}\n",
-   "log": "005a7bc6021440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x000079b5d458219e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005a7bc6020000–0x00005a7bc6022988 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_130/prog\n0x000079b5d441d000–0x000079b5d4a322c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "612024053440  55 48 89 e5 41 55 48 81 ec 38 01 00 00 90 bf 03  UH·åAUH·ì8····¿·\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000734ffa3ce19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000612024052000–0x0000612024054988 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_130/prog\n0x0000734ffa269000–0x0000734ffa87e2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -5052,7 +5054,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc double_the_difference(lst: [Double]) -> Int {\n    return lst.filter { $0 > 0 && $0.truncatingRemainder(dividingBy: 2) != 0 && !$0.description.contains(\".\") }\n              .map { Int(pow($0, 2)) }\n              .reduce(0, +)\n}\n",
-   "log": " 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007c1c240756b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x00005b1ee9a27000–0x00005b1ee9a29d48 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_151/prog\n0x00007c1c23f11000–0x00007c1c245262c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": " 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007caaf8a1d6b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000058e076bf4000–0x000058e076bf6d48 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_151/prog\n0x00007caaf88b9000–0x00007caaf8ece2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -5214,7 +5216,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func all_prefixes(string: String) -> [String] {\n    var result = [String]()\n    for i in 0..<string.count {\n        let index = string.index(string.startIndex, offsetBy: i + 1)\n        result.append(String(string[...index]))\n    }\n    return result\n}\n",
-   "log": "07ffd243b73d8  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007e899971c19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000055c951135000–0x000055c951137890 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_14/prog\n0x00007e89995b7000–0x00007e8999bcc2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "07ffebcb38fa8  61 73 64 66 67 68 00 00 00 00 00 00 00 00 00 e6  asdfgh·········æ\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007727fb6f719e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x00005c5810969000–0x00005c581096b890 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_14/prog\n0x00007727fb592000–0x00007727fbba72c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -5223,7 +5225,7 @@
    "status": "fail",
    "exit": 132,
    "code": "func can_arrange(arr: [Int]) -> Int {\n    var ind = -1\n    for i in 1..<arr.count {\n        if arr[i] < arr[i - 1] {\n            ind = i\n        }\n    }\n    return ind\n}\n",
-   "log": "60c4b789e320  55 48 89 e5 41 55 48 83 ec 78 90 bf 05 00 00 00  UH·åAUH·ìx·¿····\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x0000799fa9cb519e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010206  PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000060c4b789d000–0x000060c4b789eff8 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_135/prog\n0x0000799fa9b50000–0x0000799faa1652c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "0060832a58e320  55 48 89 e5 41 55 48 83 ec 78 90 bf 05 00 00 00  UH·åAUH·ìx·¿····\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007c860a8db19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (12 omitted):\n\n0x000060832a58d000–0x000060832a58eff8 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_135/prog\n0x00007c860a776000–0x00007c860ad8b2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -5250,7 +5252,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc is_bored(S: String) -> Int {\n    let sentences = S.split { \".?!\".contains($0) || $0.isWhitespace }\n    return sentences.filter { $0.hasPrefix(\"I \") }.count\n}\n",
-   "log": "7 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007cc5fb1356b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000624b8a89c000–0x0000624b8a89e5f8 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_91/prog\n0x00007cc5fafd1000–0x00007cc5fb5e62c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "7 69 66 74 00  prog/main.swift·\nr13 0x0000000000000000  0\nr14 0xe000000000000000  16140901064495857664\nr15 0x0000000000000010  16\nrip 0x00007361b79f16b0  0f 0b 48 83 ec 08 48 8d 05 03 29 35 00 48 8d 3d  ··H·ì·H···)5·H·=\n\nrflags 0x0000000000010286  SF PF\n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000603ef8279000–0x0000603ef827b5f8 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_91/prog\n0x00007361b788d000–0x00007361b7ea22c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -5259,7 +5261,7 @@
    "status": "fail",
    "exit": 132,
    "code": "import Foundation\n\nfunc words_in_sentence(sentence: String) -> String {\n    var newLst: [String] = []\n    for word in sentence.split(separator: \" \") {\n        var flg = 0\n        if word.count == 1 {\n            flg = 1\n        }\n        for i in 2..<word.count {\n            if word.count % i == 0 {\n                flg = 1\n            }\n        }\n        if flg == 0 || word.count == 2 {\n            newLst.append(String(word))\n        }\n    }\n    return newLst.joined(separator: \" \")\n}\n",
-   "log": "007ffcb236da50  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007f090199219e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000059161c22c000–0x000059161c22f2f0 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_143/prog\n0x00007f090182d000–0x00007f0901e422c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
+   "log": "007ffe50da2c30  07 01 08 00 00 00 00 00 07 01 09 00 00 00 00 00  ················\nr14 0x0000000000000001  1\nr15 0x0000000000000001  1\nrip 0x00007b743d07d19e  0f 0b 48 83 ec 08 48 8d 05 15 1e 35 00 48 8d 3d  ··H·ì·H····5·H·=\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x000059ec7b4db000–0x000059ec7b4de2f0 <no build ID> prog            /workspace/progs/csharp__swift__HumanEval_143/prog\n0x00007b743cf18000–0x00007b743d52d2c0 <no build ID> libswiftCore.so /usr/lib/swift/linux/libswiftCore.so\n\nBacktrace took 0.01s\n\ntimeout: the monitored command dumped core\n"
   },
   {
    "src": "csharp",
@@ -6084,10 +6086,10 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_120",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func maximum(arr []int, k int) []int {\n    if k == 0 {\n        return []int{}\n    }\n    sortedArr := make([]int, len(arr))\n    copy(sortedArr, arr)\n    sort.Ints(sortedArr)\n    ans := sortedArr[len(sortedArr)-k:]\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:14:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
@@ -6138,10 +6140,10 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_131",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func digits(n int) int {\n    product := 1\n    oddCount := 0\n\n    for _, digitRune := range fmt.Sprintf(\"%d\", n) {\n        digit, err := strconv.Atoi(string(digitRune))\n        if err != nil || digit%2 == 0 {\n            continue\n        }\n        product *= digit\n        oddCount++\n    }\n\n    if oddCount == 0 {\n        return 0\n    }\n    return product\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:23: undefined: strconv\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
@@ -6156,19 +6158,19 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_113",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func odd_count(lst []string) []string {\n    var res []string\n    for _, arr := range lst {\n        n := 0\n        for _, char := range arr {\n            if digit, err := strconv.Atoi(string(char)); err == nil && digit%2 == 1 {\n                n++\n            }\n        }\n        res = append(res, fmt.Sprintf(\"the number of odd elements %dn the str%dng %d of the %dnput.\", n, n, n, n))\n    }\n    return res\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:30: undefined: strconv\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_37",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_even(l []int) []int {\n    var evens []int\n    var odds []int\n\n    for i, v := range l {\n        if i%2 == 0 {\n            evens = append(evens, v)\n        } else {\n            odds = append(odds, v)\n        }\n    }\n\n    sortedEvens := make([]int, len(evens))\n    copy(sortedEvens, evens)\n    sort.Ints(sortedEvens)\n\n    var ans []int\n    for i := 0; i < len(odds); i++ {\n        ans = append(ans, sortedEvens[i])\n        ans = append(ans, odds[i])\n    }\n\n    if len(sortedEvens) > len(odds) {\n        ans = append(ans, sortedEvens[len(odds)])\n    }\n\n    return ans\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:22:5: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
@@ -6201,10 +6203,10 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_15",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func string_sequence(n int) string {\n    var result []string\n    for i := 0; i <= n; i++ {\n        result = append(result, fmt.Sprintf(\"%d\", i))\n    }\n    return strings.Join(result, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:13:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
@@ -6282,10 +6284,10 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_88",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func sort_array(array []int) []int {\n    if len(array) == 0 {\n        return []int{}\n    }\n\n    sorted := make([]int, len(array))\n    copy(sorted, array)\n\n    first := sorted[0]\n    last := sorted[len(sorted)-1]\n\n    if (first+last)%2 == 0 {\n        sort.Slice(sorted, func(i, j int) bool {\n            return sorted[i] > sorted[j]\n        })\n    } else {\n        sort.Slice(sorted, func(i, j int) bool {\n            return sorted[i] < sorted[j]\n        })\n    }\n\n    return sorted\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:20:9: undefined: sort\n./prog_test.go:24:9: undefined: sort\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",
@@ -6336,10 +6338,10 @@
    "src": "swift",
    "tgt": "go",
    "problem": "HumanEval_143",
-   "status": "compile_error",
-   "exit": 90,
+   "status": "pass",
+   "exit": 0,
    "code": "func words_in_sentence(sentence string) string {\n    var new_lst []string\n    words := strings.Split(sentence, \" \")\n    for _, word := range words {\n        if len(word) <= 1 {\n            continue\n        }\n        flg := true\n        for i := 2; i < len(word); i++ {\n            if len(word)%i == 0 {\n                flg = false\n                break\n            }\n        }\n        if flg {\n            new_lst = append(new_lst, word)\n        }\n    }\n    return strings.Join(new_lst, \" \")\n}\n",
-   "log": "# rebirth.check_test [rebirth.check.test]\n./prog_test.go:10:14: undefined: strings\n./prog_test.go:26:12: undefined: strings\n"
+   "log": "PASS\n"
   },
   {
    "src": "swift",

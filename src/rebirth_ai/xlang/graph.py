@@ -15,9 +15,10 @@ from typing import TypedDict
 from langgraph.graph import END, START, StateGraph
 
 from rebirth_ai.graph.nodes import classify_error
+from rebirth_ai.xlang.fixups import apply_fixups
 from rebirth_ai.xlang.languages import get_lang, target_relpath
 from rebirth_ai.xlang.prompts import build_translation_prompt, extract_code
-from rebirth_ai.xlang.translator import get_translator, max_new_tokens_for
+from rebirth_ai.xlang.translator import get_translator, max_new_tokens_for, retry_temperature
 from rebirth_ai.xlang.verify import verify_translation
 
 
@@ -49,11 +50,6 @@ def _trace(state: TranslationState, msg: str) -> list[str]:
     return list(state.get("trace") or []) + [msg]
 
 
-def retry_temperature(attempt: int) -> float:
-    """0.1 for the first translation, then 0.4, 0.7 (capped at 0.8)."""
-    return 0.1 if attempt == 0 else min(0.8, 0.1 + 0.3 * attempt)
-
-
 def translate_code(state: TranslationState) -> TranslationState:
     source, target = get_lang(state["source_lang"]), get_lang(state["target_lang"])
     retry = int(state.get("iteration_count") or 0) > 0
@@ -74,6 +70,9 @@ def translate_code(state: TranslationState) -> TranslationState:
         prompt, max_new_tokens=max_new_tokens_for(state["source_code"]), temperature=temperature
     )
     code = extract_code(out.raw, target)
+    fixed = apply_fixups(target, code)  # e.g. Go: missing stdlib imports (goimports-style)
+    fix_note = " (fixups applied)" if fixed != code else ""
+    code = fixed
     target_rel = state["target_rel"]
     if not state.get("target_rel_fixed"):
         target_rel = target_relpath(state["source_rel"], target, code)
@@ -85,7 +84,7 @@ def translate_code(state: TranslationState) -> TranslationState:
         "iteration_count": iteration,
         "model": out.model,
         "status": "running",
-        "trace": _trace(state, f"translate_code: iteration={iteration} model={out.model} chars={len(code)}"),
+        "trace": _trace(state, f"translate_code: iteration={iteration} model={out.model} chars={len(code)}{fix_note}"),
     }
 
 

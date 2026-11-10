@@ -1,0 +1,171 @@
+{
+  "backend": "vllm",
+  "suites": {
+    "synthetic": {
+      "suite": "evalset:go",
+      "backend": "vllm",
+      "lang": "go",
+      "n": 10,
+      "soft_exact": 1,
+      "soft_exact_rate": 0.1,
+      "parses": 10,
+      "parse_rate": 1.0,
+      "mean_symbol_jaccard": 0.9,
+      "mean_token_overlap": 0.7918000000000001,
+      "model": "vllm:Qwen/Qwen2.5-Coder-14B-Instruct",
+      "results": [
+        {
+          "i": 1,
+          "objective": "Rename test suite to follow with the object name of `TTLHashSet`",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.964
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo/v2\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Su",
+          "gold_preview": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite",
+          "pred": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo/v2\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite\")\n}\n",
+          "gold": "package ttl_hash_set_test\n\nimport (\n\t. \"github.com/onsi/ginkgo\"\n\t. \"github.com/onsi/gomega\"\n\n\t\"testing\"\n)\n\nfunc TestTTLHashSet(t *testing.T) {\n\tRegisterFailHandler(Fail)\n\tRunSpecs(t, \"TTLHashSet Suite\")\n}\n"
+        },
+        {
+          "i": 2,
+          "objective": "Add integration test for stack deploy with secrets.",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.705
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package client\n\nimport (\n\t\"context\"\n\t\"net/url\"\n\t\"strconv\"\n\n\t\"github.com/docker/docker/api/types/swarm\"\n)\n\n// SecretUpdate updates a Secret. Currently, the only part of a secret spec\n// which can be up",
+          "gold_preview": "package client\n\nimport (\n\t\"net/url\"\n\t\"strconv\"\n\n\t\"github.com/docker/docker/api/types/swarm\"\n\t\"golang.org/x/net/context\"\n)\n\n// SecretUpdate attempts to updates a Secret\nfunc (cli *Client) SecretUpdate(",
+          "pred": "package client\n\nimport (\n\t\"context\"\n\t\"net/url\"\n\t\"strconv\"\n\n\t\"github.com/docker/docker/api/types/swarm\"\n)\n\n// SecretUpdate updates a Secret. Currently, the only part of a secret spec\n// which can be updated is Labels.\nfunc (cli *Client) SecretUpdate(ctx context.Context, id string, version swarm.Version, secret swarm.SecretSpec) error {\n\tquery := url.Values{}\n\tquery.Set(\"version\", strconv.FormatUint(version.Index, 10))\n\tresp, err := cli.post(ctx, \"/secrets/\"+id+\"/update\", query, secret, nil)\n\tif err != nil {\n\t\treturn err\n\t}\n\tdefer resp.Body.Close()\n\treturn nil\n}\n",
+          "gold": "package client\n\nimport (\n\t\"net/url\"\n\t\"strconv\"\n\n\t\"github.com/docker/docker/api/types/swarm\"\n\t\"golang.org/x/net/context\"\n)\n\n// SecretUpdate attempts to updates a Secret\nfunc (cli *Client) SecretUpdate(ctx context.Context, id string, version swarm.Version, secret swarm.SecretSpec) error {\n\tquery := url.Values{}\n\tquery.Set(\"version\", strconv.FormatUint(version.Index, 10))\n\tresp, err := cli.post(ctx, \"/secrets/\"+id+\"/update\", query, secret, nil)\n\tensureReaderClosed(resp)\n\treturn err\n}\n"
+        },
+        {
+          "i": 3,
+          "objective": "Exit -1 on ERROR in non-global logger",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.874
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "// Copyright 2015 The Hugo Authors. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// Yo",
+          "gold_preview": "// Copyright 2015 The Hugo Authors. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// Yo",
+          "pred": "// Copyright 2015 The Hugo Authors. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n// http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage main\n\nimport (\n\t\"runtime\"\n\t\"os\"\n\n\t\"github.com/spf13/cobra\"\n\t\"github.com/spf13/hugo/commands\"\n\t\"github.com/spf13/viper\"\n)\n\nfunc main() {\n\truntime.GOMAXPROCS(runtime.NumCPU())\n\n\trootCmd := commands.NewRootCmd()\n\tif err := rootCmd.Execute(); err != nil {\n\t\tviper.Set(\"log.level\", \"error\")\n\t\tos.Exit(-1)\n\t}\n}\n",
+          "gold": "// Copyright 2015 The Hugo Authors. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n// http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage main\n\nimport (\n\t\"runtime\"\n\n\t\"os\"\n\n\t\"github.com/spf13/hugo/commands\"\n\tjww \"github.com/spf13/jwalterweatherman\"\n)\n\nfunc main() {\n\truntime.GOMAXPROCS(runtime.NumCPU())\n\tcommands.Execute()\n\n\tif jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {\n\t\tos.Exit(-1)\n\t}\n\n\tif commands.Hugo != nil {\n\t\tif commands.Hugo.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {\n\t\t\tos.Exit(-1)\n\t\t}\n\t}\n}\n"
+        },
+        {
+          "i": 4,
+          "objective": "Create world event type in debug event logging",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.879
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package observers\n\nimport (\n\t\"github.com/sirupsen/logrus\"\n\n\t\"github.com/ivan1993spb/snake-server/world\"\n)\n\ntype LoggerObserver struct{}\n\nfunc (LoggerObserver) Observe(stop <-chan struct{}, w *world.Wo",
+          "gold_preview": "package observers\n\nimport (\n\t\"github.com/sirupsen/logrus\"\n\n\t\"github.com/ivan1993spb/snake-server/world\"\n)\n\ntype LoggerObserver struct{}\n\nfunc (LoggerObserver) Observe(stop <-chan struct{}, w *world.Wo",
+          "pred": "package observers\n\nimport (\n\t\"github.com/sirupsen/logrus\"\n\n\t\"github.com/ivan1993spb/snake-server/world\"\n)\n\ntype LoggerObserver struct{}\n\nfunc (LoggerObserver) Observe(stop <-chan struct{}, w *world.World, logger logrus.FieldLogger) {\n\tgo func() {\n\t\tfor event := range w.Events(stop, world.ChanSnakeObserverEventsBuffer) {\n\t\t\tswitch event.Type {\n\t\t\tcase world.EventTypeError:\n\t\t\t\tif err, ok := event.Payload.(error); ok {\n\t\t\t\t\tlogger.WithError(err).Error(\"world error\")\n\t\t\t\t}\n\t\t\tcase world.EventTypeObjectCreate, world.EventTypeObjectDelete, world.EventTypeObjectUpdate, world.EventTypeObjectChecked:\n\t\t\t\tlogger.WithField(\"payload\", event.Payload).Debug(\"world event\")\n\t\t\tdefault:\n\t\t\t\tlogger.WithField(\"event_type\", event.Type).Debug(\"unhandled world event\")\n\t\t\t}\n\t\t}\n\t}()\n}\n",
+          "gold": "package observers\n\nimport (\n\t\"github.com/sirupsen/logrus\"\n\n\t\"github.com/ivan1993spb/snake-server/world\"\n)\n\ntype LoggerObserver struct{}\n\nfunc (LoggerObserver) Observe(stop <-chan struct{}, w *world.World, logger logrus.FieldLogger) {\n\tgo func() {\n\t\tfor event := range w.Events(stop, chanSnakeObserverEventsBuffer) {\n\t\t\tswitch event.Type {\n\t\t\tcase world.EventTypeError:\n\t\t\t\tif err, ok := event.Payload.(error); ok {\n\t\t\t\t\tlogger.WithError(err).Error(\"world error\")\n\t\t\t\t}\n\t\t\tcase world.EventTypeObjectCreate, world.EventTypeObjectDelete, world.EventTypeObjectUpdate, world.EventTypeObjectChecked:\n\t\t\t\tlogger.WithFields(logrus.Fields{\n\t\t\t\t\t\"payload\": event.Payload,\n\t\t\t\t\t\"type\":    event.Type,\n\t\t\t\t}).Debug(\"world event\")\n\t\t\t}\n\t\t}\n\t}()\n}\n"
+        },
+        {
+          "i": 5,
+          "objective": "Handle error in Debounce test",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 0.0,
+            "soft_exact": false,
+            "token_overlap": 0.549
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package Debounce\n\nimport (\n\t\"testing\"\n\t\"time\"\n)\n\nfunc TestDebounce(t *testing.T) {\n\ti := 1\n\tdue := []time.Duration{\n\t\t0,\n\t\t300 * time.Millisecond,\n\t\t80 * time.Millisecond, // 80ms < 100ms => '2' is ig",
+          "gold_preview": "package Debounce\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc Example_debounce() {\n\n\ti := 1\n\tdue := []time.Duration{\n\t\t0,\n\t\t300 * time.Millisecond,\n\t\t80 * time.Millisecond, // 80ms < 100ms => '2' is ignored\n\t\t110",
+          "pred": "package Debounce\n\nimport (\n\t\"testing\"\n\t\"time\"\n)\n\nfunc TestDebounce(t *testing.T) {\n\ti := 1\n\tdue := []time.Duration{\n\t\t0,\n\t\t300 * time.Millisecond,\n\t\t80 * time.Millisecond, // 80ms < 100ms => '2' is ignored\n\t\t110 * time.Millisecond,\n\t\t0,\n\t}\n\tsource := MakeTimedInt(due[0],\n\t\tfunc(Next func(int), Error func(error), Complete func()) time.Duration {\n\t\t\tif i < len(due) {\n\t\t\t\tNext(i)\n\t\t\t\ti++\n\t\t\t\treturn due[i-1]\n\t\t\t} else {\n\t\t\t\tComplete()\n\t\t\t\treturn 0\n\t\t\t}\n\t\t})\n\n\tdebounced := source.Debounce(100 * time.Millisecond)\n\n\texpectedOutput := []int{1, 3, 4}\n\tactualOutput := []int{}\n\n\tdebounced.OnNext(func(value int) {\n\t\tactualOutput = append(actualOutput, value)\n\t})\n\n\tdebounced.OnError(func(err error) {\n\t\tt.Errorf(\"Unexpected error: %v\", err)\n\t})\n\n\tdebounced.OnComplete(func() {\n\t\tif !slicesEqual(expectedOutput, actualOutput) {\n\t\t\tt.Errorf(\"Expected output %v, but got %v\", expectedOutput, actualOutput)\n\t\t}\n\t})\n\n\ttime.Sleep(500 * time.Millisecond) // Wait for all events to be processed\n}\n\nfunc slicesEqual(a, b []int) bool {\n\tif len(a) != len(b) {\n\t\treturn false\n\t}\n\tfor i := range a {\n\t\tif a[i] != b[i] {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n",
+          "gold": "package Debounce\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc Example_debounce() {\n\n\ti := 1\n\tdue := []time.Duration{\n\t\t0,\n\t\t300 * time.Millisecond,\n\t\t80 * time.Millisecond, // 80ms < 100ms => '2' is ignored\n\t\t110 * time.Millisecond,\n\t\t0,\n\t}\n\tsource := MakeTimedInt(due[0],\n\t\tfunc(Next func(int), Error func(error), Complete func()) time.Duration {\n\t\t\tif i < len(due) {\n\t\t\t\tNext(i)\n\t\t\t\ti++\n\t\t\t\treturn due[i-1]\n\t\t\t} else {\n\t\t\t\tComplete()\n\t\t\t\treturn 0\n\t\t\t}\n\t\t})\n\n\tdebounced := source.Debounce(100 * time.Millisecond)\n\n\tif err := debounced.Println(); err != nil {\n\t\tfmt.Println(err)\n\t}\n\n\t// Output:\n\t// 1\n\t// 3\n\t// 4\n}\n"
+        },
+        {
+          "i": 6,
+          "objective": "Adjust ProgressSpinner tick time to 110 ms",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.87
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package tuikit\n\nimport (\n\t\"time\"\n)\n\ntype ProgressSpinner struct {\n\t*TextView\n\n\tspinRunes []rune\n\tcurrent   int\n}\n\nfunc NewProgressSpinner() *ProgressSpinner {\n\tps := &ProgressSpinner{\n\t\tTextView:  New",
+          "gold_preview": "package tuikit\n\nimport \"time\"\n\ntype ProgressSpinner struct {\n\t*TextView\n\n\tspinRunes []rune\n\tcurrent   int\n}\n\nfunc NewProgressSpinner() *ProgressSpinner {\n\tps := &ProgressSpinner{\n\t\tTextView:  NewTextV",
+          "pred": "package tuikit\n\nimport (\n\t\"time\"\n)\n\ntype ProgressSpinner struct {\n\t*TextView\n\n\tspinRunes []rune\n\tcurrent   int\n}\n\nfunc NewProgressSpinner() *ProgressSpinner {\n\tps := &ProgressSpinner{\n\t\tTextView:  NewTextView(),\n\t\tspinRunes: []rune{'|', '/', '\u2014', '\\\\', '|', '/', '\u2014', '\\\\'},\n\t}\n\n\tgo func() {\n\t\tl := len(ps.spinRunes)\n\t\tticker := time.NewTicker(110 * time.Millisecond)\n\t\tdefer ticker.Stop()\n\n\t\tfor range ticker.C {\n\t\t\tps.current = (ps.current + 1) % l\n\t\t\tps.SetText(string(ps.spinRunes[ps.current]))\n\t\t}\n\t}()\n\n\treturn ps\n}\n",
+          "gold": "package tuikit\n\nimport \"time\"\n\ntype ProgressSpinner struct {\n\t*TextView\n\n\tspinRunes []rune\n\tcurrent   int\n}\n\nfunc NewProgressSpinner() *ProgressSpinner {\n\tps := &ProgressSpinner{\n\t\tTextView:  NewTextView(),\n\t\tspinRunes: []rune{'|', '/', '\u2014', '\\\\', '|', '/', '\u2014', '\\\\'},\n\t}\n\n\tgo func() {\n\t\tl := len(ps.spinRunes)\n\t\tfor _ = range time.Tick(110 * time.Millisecond) {\n\t\t\tps.current = (ps.current + 1) % l\n\t\t\tps.SetText(string(ps.spinRunes[ps.current]))\n\t\t}\n\t}()\n\n\treturn ps\n}\n"
+        },
+        {
+          "i": 7,
+          "objective": "Make sqlite-squish accept SQL on stdin",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.435
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tvar sqlQuery string\n\n\tfor scanner.Scan() {\n\t\tsqlQuery += scanner.Text() + \"\\n\"\n\t}\n\n\tif err := scan",
+          "gold_preview": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"log\"\n\t\"os\"\n\n\t\"github.com/griffithsh/sql-squish/database\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\n\tvar concatted string\n\tfor scanner.Scan() {\n\t",
+          "pred": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tvar sqlQuery string\n\n\tfor scanner.Scan() {\n\t\tsqlQuery += scanner.Text() + \"\\n\"\n\t}\n\n\tif err := scanner.Err(); err != nil {\n\t\tfmt.Fprintln(os.Stderr, \"Error reading from stdin:\", err)\n\t\tos.Exit(1)\n\t}\n\n\tfmt.Println(\"Received SQL Query:\")\n\tfmt.Println(sqlQuery)\n}\n",
+          "gold": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"log\"\n\t\"os\"\n\n\t\"github.com/griffithsh/sql-squish/database\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\n\tvar concatted string\n\tfor scanner.Scan() {\n\t\tconcatted = concatted + scanner.Text()\n\t}\n\td, err := database.FromString(concatted)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tfor _, t := range d.Tables {\n\t\tfmt.Println(t.String())\n\t}\n\t// files, err := db.AsSQL()\n\t// if err != nil {\n\t// \tlog.Fatal(err)\n\t// }\n\t// for file := range files {\n\t// \tfmt.Print(file)\n\t// }\n}\n"
+        },
+        {
+          "i": 8,
+          "objective": "Add case of escape branch for newMatcher",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.815
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package main\n\nimport (\n\t\"reflect\"\n\t\"regexp\"\n\t\"testing\"\n)\n\nvar genMatcherTests = []struct {\n\tsrc string\n\tdst *regexp.Regexp\n}{\n\t{\"abc\", regexp.MustCompile(`(abc)`)},\n\t{\"a,b\", regexp.MustCompile(`(a|b)`",
+          "gold_preview": "package main\n\nimport (\n\t\"reflect\"\n\t\"regexp\"\n\t\"testing\"\n)\n\nvar genMatcherTests = []struct {\n\tsrc string\n\tdst *regexp.Regexp\n}{\n\t{\"abc\", regexp.MustCompile(`(abc)`)},\n\n\t{\"a,b\", regexp.MustCompile(`(a|b)",
+          "pred": "package main\n\nimport (\n\t\"reflect\"\n\t\"regexp\"\n\t\"testing\"\n)\n\nvar genMatcherTests = []struct {\n\tsrc string\n\tdst *regexp.Regexp\n}{\n\t{\"abc\", regexp.MustCompile(`(abc)`)},\n\t{\"a,b\", regexp.MustCompile(`(a|b)`)},\n\t{\"\\\\d+\", regexp.MustCompile(`(\\d+)`)}, // New test case for escape branch\n}\n\nfunc TestGenMatcher(t *testing.T) {\n\tfor _, test := range genMatcherTests {\n\t\texpect := test.dst\n\t\tactual, err := newMatcher(test.src)\n\t\tif err != nil {\n\t\t\tt.Errorf(\"newMatcher(%q) returned error %q, want nil\",\n\t\t\t\ttest.src, err)\n\t\t}\n\t\tif !reflect.DeepEqual(actual, expect) {\n\t\t\tt.Errorf(\"newMatcher(%q): got %v, want %v\",\n\t\t\t\ttest.src, actual, expect)\n\t\t}\n\t}\n}\n",
+          "gold": "package main\n\nimport (\n\t\"reflect\"\n\t\"regexp\"\n\t\"testing\"\n)\n\nvar genMatcherTests = []struct {\n\tsrc string\n\tdst *regexp.Regexp\n}{\n\t{\"abc\", regexp.MustCompile(`(abc)`)},\n\n\t{\"a,b\", regexp.MustCompile(`(a|b)`)},\n\n\t{\"a\\\\,b\", regexp.MustCompile(`(a,b)`)},\n}\n\nfunc TestGenMatcher(t *testing.T) {\n\tfor _, test := range genMatcherTests {\n\t\texpect := test.dst\n\t\tactual, err := newMatcher(test.src)\n\t\tif err != nil {\n\t\t\tt.Errorf(\"NewSubvert(%q) returns %q, want nil\",\n\t\t\t\ttest.src, err)\n\t\t}\n\t\tif !reflect.DeepEqual(actual, expect) {\n\t\t\tt.Errorf(\"%q: got %q, want %q\",\n\t\t\t\ttest.src, actual, expect)\n\t\t}\n\t}\n}\n"
+        },
+        {
+          "i": 9,
+          "objective": "Return when nomad syslog command has invalid number of argument",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": false,
+            "token_overlap": 0.827
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package command\n\nimport (\n\t\"os\"\n\t\"strings\"\n\n\t\"github.com/hashicorp/go-plugin\"\n\n\t\"github.com/hashicorp/nomad/client/driver\"\n)\n\ntype SyslogPluginCommand struct {\n\tMeta\n}\n\nfunc (e *SyslogPluginCommand) H",
+          "gold_preview": "package command\n\nimport (\n\t\"os\"\n\t\"strings\"\n\n\t\"github.com/hashicorp/go-plugin\"\n\n\t\"github.com/hashicorp/nomad/client/driver\"\n)\n\ntype SyslogPluginCommand struct {\n\tMeta\n}\n\nfunc (e *SyslogPluginCommand) H",
+          "pred": "package command\n\nimport (\n\t\"os\"\n\t\"strings\"\n\n\t\"github.com/hashicorp/go-plugin\"\n\n\t\"github.com/hashicorp/nomad/client/driver\"\n)\n\ntype SyslogPluginCommand struct {\n\tMeta\n}\n\nfunc (e *SyslogPluginCommand) Help() string {\n\treturn strings.TrimSpace(`\n\tThis is a command used by Nomad internally to launch a syslog collector.\n\t`)\n}\n\nfunc (s *SyslogPluginCommand) Synopsis() string {\n\treturn \"internal - launch a syslog collector plugin\"\n}\n\nfunc (s *SyslogPluginCommand) Run(args []string) int {\n\tif len(args) != 1 {\n\t\ts.Ui.Error(\"Invalid number of arguments. Expected exactly one argument: the log output file.\")\n\t\treturn 1\n\t}\n\n\tlogFileName := args[0]\n\tstdo, err := os.OpenFile(logFileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)\n\tif err != nil {\n\t\ts.Ui.Error(err.Error())\n\t\treturn 1\n\t}\n\tdefer stdo.Close()\n\n\tplugin.Serve(&plugin.ServeConfig{\n\t\tHandshakeConfig: driver.HandshakeConfig,\n\t\tPlugins:         driver.GetPluginMap(stdo),\n\t})\n\n\treturn 0\n}\n",
+          "gold": "package command\n\nimport (\n\t\"os\"\n\t\"strings\"\n\n\t\"github.com/hashicorp/go-plugin\"\n\n\t\"github.com/hashicorp/nomad/client/driver\"\n)\n\ntype SyslogPluginCommand struct {\n\tMeta\n}\n\nfunc (e *SyslogPluginCommand) Help() string {\n\thelpText := `\n\tThis is a command used by Nomad internally to launch a syslog collector\"\n\t`\n\treturn strings.TrimSpace(helpText)\n}\n\nfunc (s *SyslogPluginCommand) Synopsis() string {\n\treturn \"internal - lanch a syslog collector plugin\"\n}\n\nfunc (s *SyslogPluginCommand) Run(args []string) int {\n\tif len(args) == 0 {\n\t\ts.Ui.Error(\"log output file isn't provided\")\n\t\treturn 1\n\t}\n\tlogFileName := args[0]\n\tstdo, err := os.OpenFile(logFileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)\n\tif err != nil {\n\t\ts.Ui.Error(err.Error())\n\t\treturn 1\n\t}\n\tplugin.Serve(&plugin.ServeConfig{\n\t\tHandshakeConfig: driver.HandshakeConfig,\n\t\tPlugins:         driver.GetPluginMap(stdo),\n\t})\n\n\treturn 0\n}\n"
+        },
+        {
+          "i": 10,
+          "objective": "Remove type annotations from packet.Handshake",
+          "ast": {
+            "parses": true,
+            "symbol_jaccard": 1.0,
+            "soft_exact": true,
+            "token_overlap": 1.0
+          },
+          "strict_ws_norm_was_misleading": false,
+          "pred_preview": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "gold_preview": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "pred": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n",
+          "gold": "package packet\n\ntype Handshake struct {\n\tProtocolVersion uint64\n\tServerAddress   string\n\tServerPort      uint16\n\tNextState       uint64\n}\n"
+        }
+      ],
+      "generation_seconds": 15.5
+    }
+  }
+}

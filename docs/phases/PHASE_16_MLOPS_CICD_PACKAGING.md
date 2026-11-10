@@ -1,6 +1,6 @@
 # Phase 16 — MLOps 3: model CI/CD + packaging
 
-> Status: **IN PROGRESS** — offline part done 2026-11-06 on the 7B champions (Phase 15 is blocked on the AWS quota); the 14B champions get packaged with the same command once they exist.
+> Status: **IN PROGRESS** — offline part done 2026-11-06 on the 7B champions. Phase 15 produced no 14B same-language champion (S2 gate, 2026-11-08), so the 7B adapters stay packaged. 2026-11-10: the Phase 17 cross-language adapter is packaged too — `scripts/ollama_xlang.sh` → `rebirth-xlang:14b-v1` (q6_K 14B + f16 GGUF LoRA, base chat template kept), served by `rebirth migrate --to` (`--backend auto`); its serving check is the program-suite run in [PHASE_17](PHASE_17_CROSS_LANGUAGE.md#stage-4--shared-adapter--eval-done-2026-11-09-aws--local-check) (265 / 420 vs 208 for the plain 14B).
 > Previous: [PHASE_15_CLOUD_14B.md](PHASE_15_CLOUD_14B.md) · Next: [PHASE_17_CROSS_LANGUAGE.md](PHASE_17_CROSS_LANGUAGE.md)
 > Estimated effort: ~2–3 days.
 

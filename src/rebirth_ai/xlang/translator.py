@@ -1,11 +1,20 @@
-"""Generation backends for translation (zero-shot until a cross-language adapter exists).
+"""Generation backends for translation (``rebirth migrate --to`` and the translation evals).
 
-- ``ollama`` (default; ``auto`` = this): plain Qwen2.5-Coder 14B in Ollama (``OLLAMA_MODEL``)
+- ``auto`` (``migrate --to`` default; also ``routed`` / ``rebirth``): the packaged cross-language
+  adapter in Ollama (``REBIRTH_XLANG_MODEL``, default ``rebirth-xlang:14b-v1``: the Phase 17 shared
+  adapter on the q6_K 14B, built by ``scripts/ollama_xlang.sh``) when it is installed, else the
+  plain 14B (``OLLAMA_MODEL``). ``REBIRTH_XLANG_MODEL=""`` turns the adapter off.
+- ``ollama``: always the plain Qwen2.5-Coder 14B in Ollama (``OLLAMA_MODEL``); the zero-shot
+  baseline the evals compare against.
 - ``peft``: base 7B with a chat prompt, no adapter (``REBIRTH_PEFT_BASE`` / ``REBIRTH_PEFT_ADAPTER``
   override; the per-language same-language adapters are *not* used — they were trained to
   modernize within one language)
 
-Instances are cached per backend so a retry loop or an eval run loads the 7B once.
+The cross-language adapter is served through the base model's chat template with the product
+prompt (the same request as the plain 14B), as it was evaluated: program suite, q6_K + GGUF in
+Ollama, 265 / 420 translations verified vs 208 for the plain 14B (2026-11-09).
+
+Instances are cached per backend so a retry loop or an eval run loads the model once.
 """
 
 from __future__ import annotations
@@ -14,6 +23,36 @@ import os
 from dataclasses import dataclass
 
 from rebirth_ai.xlang.prompts import TRANSLATE_SYSTEM_PROMPT
+
+DEFAULT_XLANG_MODEL = "rebirth-xlang:14b-v1"
+
+
+def xlang_model() -> str:
+    """Ollama tag of the packaged cross-language adapter ("" = do not use one)."""
+    return os.environ.get("REBIRTH_XLANG_MODEL", DEFAULT_XLANG_MODEL).strip()
+
+
+def installed_xlang_model(client) -> str | None:
+    """The packaged cross-language adapter's tag if Ollama has it, else None (also when Ollama
+    cannot be reached: the plain model is used and the request itself reports the error)."""
+    want = xlang_model()
+    if not want:
+        return None
+    try:
+        names = set(client.list_models())
+    except Exception:  # any connection / HTTP error: not available
+        return None
+    if want in names:
+        return want
+    if ":" not in want and f"{want}:latest" in names:
+        return f"{want}:latest"
+    return None
+
+
+def retry_temperature(attempt: int) -> float:
+    """0.1 for the first translation, then 0.4, 0.7 (capped at 0.8) — retries explore: near-greedy
+    decoding repeats the same wrong answer for a near-identical prompt."""
+    return 0.1 if attempt == 0 else min(0.8, 0.1 + 0.3 * attempt)
 
 
 @dataclass
@@ -31,17 +70,21 @@ def max_new_tokens_for(source_code: str) -> int:
 class Translator:
     def __init__(self, backend: str = "ollama") -> None:
         name = backend.strip().lower()
-        self.backend = "ollama" if name in {"auto", "routed", "rebirth", "ollama"} else name
-        if self.backend not in {"ollama", "peft"}:
-            raise ValueError(f"unknown translation backend {backend!r} (ollama | peft)")
+        self.backend = "auto" if name in {"auto", "routed", "rebirth"} else name
+        if self.backend not in {"auto", "ollama", "peft"}:
+            raise ValueError(f"unknown translation backend {backend!r} (auto | ollama | peft)")
         self._client = None
 
     def _get(self):
         if self._client is None:
-            if self.backend == "ollama":
+            if self.backend in {"auto", "ollama"}:
                 from rebirth_ai.generate.ollama_client import OllamaClient
 
                 self._client = OllamaClient()
+                if self.backend == "auto":
+                    packaged = installed_xlang_model(self._client)
+                    if packaged:
+                        self._client = OllamaClient(model=packaged)
             else:
                 from rebirth_ai.generate.peft_client import DEFAULT_BASE_7B, NO_ADAPTER, PeftClient
 
@@ -55,7 +98,7 @@ class Translator:
     @property
     def model_name(self) -> str:
         c = self._get()
-        if self.backend == "ollama":
+        if self.backend in {"auto", "ollama"}:
             return f"ollama:{c.model}"
         return f"peft:{c.base_model}@{c.adapter_path}"
 
@@ -64,7 +107,7 @@ class Translator:
     ) -> Completion:
         """``temperature`` applies to Ollama; the PEFT backend decodes greedily."""
         c = self._get()
-        if self.backend == "ollama":
+        if self.backend in {"auto", "ollama"}:
             raw = c.generate_raw(prompt, system=system, num_predict=max_new_tokens, temperature=temperature)
         else:
             c.max_new_tokens = max_new_tokens
@@ -76,7 +119,7 @@ _CACHE: dict[str, Translator] = {}
 
 
 def get_translator(backend: str | None = None) -> Translator:
-    key = (backend or os.environ.get("REBIRTH_TRANSLATOR", "ollama")).strip().lower()
+    key = (backend or os.environ.get("REBIRTH_TRANSLATOR", "auto")).strip().lower()
     if key not in _CACHE:
         _CACHE[key] = Translator(key)
     return _CACHE[key]

@@ -72,6 +72,7 @@ def build_translation_prompt(
     previous: str | None = None,
     error_class: str | None = None,
     logs: str | None = None,
+    is_program: bool = False,
 ) -> str:
     parts = [
         f"Translate this {source.label} file to {target.label}.",
@@ -81,6 +82,12 @@ def build_translation_prompt(
         "The result must be self-contained: other files of the source project are not translated, "
         f"so inline what you need from them or use the {target.label} standard library.",
     ]
+    if is_program:
+        parts.append(
+            f"This is a complete program: it reads standard input and writes standard output. The "
+            f"{target.label} version must be a complete program too (with its entry point) that prints "
+            "exactly the same output for every input, and is about as fast (keep the algorithm)."
+        )
     if target_tests:
         parts.append(
             f"The {target.label} translation must make these {target.label} tests pass. They are fixed "

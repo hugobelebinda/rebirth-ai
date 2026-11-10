@@ -1,0 +1,37 @@
+{
+ "source": "DeepMind CodeContests valid + test splits (CC BY 4.0), Codeforces problems",
+ "problems": 163,
+ "dropped": {
+  "no_short_solution_in_each_language": 68,
+  "float_or_few_tests": 5,
+  "interactive": 6,
+  "reference_failed": 30,
+  "no_incorrect_solution_rejected": 10
+ },
+ "without_incorrect_solution_check": 0,
+ "tests_per_problem": [
+  [
+   10,
+   160
+  ],
+  [
+   6,
+   2
+  ],
+  [
+   9,
+   1
+  ]
+ ],
+ "rating": {
+  "min": 800,
+  "median": 1500,
+  "max": 2600
+ },
+ "lines": {
+  "python": 41,
+  "cpp": 47,
+  "java": 76
+ },
+ "seed": 1337
+}

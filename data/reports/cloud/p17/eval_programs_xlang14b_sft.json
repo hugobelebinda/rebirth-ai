@@ -1,0 +1,56 @@
+{
+ "translations": 420,
+ "first_try": 237,
+ "verified": 268,
+ "first_try_pct": 56.4,
+ "verified_pct": 63.8,
+ "generations": 769,
+ "generation_seconds": 29478.2,
+ "by_target": {
+  "cpp": {
+   "n": 40,
+   "first_try": 26,
+   "verified": 29
+  },
+  "csharp": {
+   "n": 60,
+   "first_try": 45,
+   "verified": 49
+  },
+  "go": {
+   "n": 60,
+   "first_try": 28,
+   "verified": 36
+  },
+  "java": {
+   "n": 40,
+   "first_try": 30,
+   "verified": 31
+  },
+  "python": {
+   "n": 40,
+   "first_try": 25,
+   "verified": 28
+  },
+  "rust": {
+   "n": 60,
+   "first_try": 24,
+   "verified": 27
+  },
+  "swift": {
+   "n": 60,
+   "first_try": 31,
+   "verified": 37
+  },
+  "typescript": {
+   "n": 60,
+   "first_try": 28,
+   "verified": 31
+  }
+ },
+ "model": "vllm:xlang14b",
+ "problems": null,
+ "wall_hours": 0.29,
+ "retries": 2,
+ "cache": "data/datasets/xlang/stage3/eval/xlang14b_sft"
+}

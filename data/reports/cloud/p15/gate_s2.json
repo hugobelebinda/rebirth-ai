@@ -1,0 +1,18 @@
+{
+  "rule": "14B adapter >= v2 7B adapter + 3 soft-exact per 100 rows on every pilot language",
+  "langs": {
+    "go": {
+      "14b": 15,
+      "v2_7b": 14,
+      "n": 100,
+      "gain_per_100": 1.0
+    },
+    "python": {
+      "14b": 19,
+      "v2_7b": 20,
+      "n": 100,
+      "gain_per_100": -1.0
+    }
+  },
+  "pass": false
+}

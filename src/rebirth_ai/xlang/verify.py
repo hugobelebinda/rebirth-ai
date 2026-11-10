@@ -4,6 +4,8 @@
   any (``--target-project``), else a compile-only check in a scratch project
 - :func:`run_programs`       — many self-contained test programs (eval harness), batched: one
   container runs a whole chunk, chunks run in parallel
+- :func:`run_io_programs`    — many complete programs, each run on its stdin → stdout tests
+  (program-level eval); same batching
 """
 
 from __future__ import annotations
@@ -16,7 +18,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from rebirth_ai.adapters.registry import get_adapter
-from rebirth_ai.xlang.languages import COMPILE_FAILED, XLang, check_spec, program_spec
+from rebirth_ai.xlang.languages import (
+    COMPILE_FAILED,
+    XLang,
+    check_spec,
+    get_lang,
+    program_spec,
+    standalone_spec,
+)
 
 
 @dataclass(frozen=True)
@@ -194,6 +203,133 @@ def run_programs(
     merged: dict[str, ProgramResult] = {}
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         for part in pool.map(lambda c: _run_chunk(lang, c, timeout_sec, tail, extra_files or {}), chunks):
+            merged.update(part)
+    back = {v: k for k, v in ids.items()}
+    return {back[k]: ProgramResult(back[k], r.exit_code, r.status, r.log_tail) for k, r in merged.items()}
+
+
+# --------------------------------------------------------------------------- stdin → stdout programs
+
+# Output check per test: whitespace-insensitive, case-insensitive token comparison (what most
+# Codeforces checkers accept for these problems — "YES" / "Yes"); the first failing test is logged.
+_IO_SCRIPT = """set -u
+timeout -k 2 {compile_timeout} {compile} || exit {compile_failed}
+n=0
+for f in t/*.in; do
+  k=${{f%.in}}
+  timeout -k 2 {timeout} {run} < "$f" > "$k.got" 2> "$k.err"
+  rc=$?
+  if [ $rc -ne 0 ]; then
+    echo "test $(basename "$k"): exit code $rc"
+    tail -c 800 "$k.err"
+    if [ $rc -eq 124 ] || [ $rc -eq 137 ]; then exit 124; fi
+    exit 1
+  fi
+  got=$(tr -s '[:space:]' ' ' < "$k.got" | tr '[:upper:]' '[:lower:]' | sed 's/^ //; s/ $//')
+  exp=$(tr -s '[:space:]' ' ' < "$k.out" | tr '[:upper:]' '[:lower:]' | sed 's/^ //; s/ $//')
+  if [ "$got" != "$exp" ]; then
+    echo "test $(basename "$k"): wrong answer"
+    echo "input:    $(head -c 200 "$f")"
+    echo "expected: $(printf %s "$exp" | head -c 200)"
+    echo "got:      $(printf %s "$got" | head -c 200)"
+    exit 1
+  fi
+  n=$((n + 1))
+done
+[ "$n" -gt 0 ] || {{ echo "no tests"; exit 1; }}
+"""
+
+
+def io_script(spec, timeout_sec: int, compile_timeout_sec: int = 180) -> str:
+    compile_cmd = spec.compile or "true"
+    return _IO_SCRIPT.format(compile_timeout=compile_timeout_sec, compile=compile_cmd, compile_failed=COMPILE_FAILED,
+                             timeout=timeout_sec, run=spec.run)
+
+
+def _run_io_chunk(
+    lang: XLang, chunk: dict[str, tuple[str, list[tuple[str, str]]]], timeout_sec: int, tail: int
+) -> dict[str, ProgramResult]:
+    with tempfile.TemporaryDirectory(prefix="rebirth-io-") as tmp:
+        root = Path(tmp)
+        for pid, (source, tests) in chunk.items():
+            spec = standalone_spec(lang, source)
+            d = root / "progs" / pid
+            (d / "t").mkdir(parents=True)
+            for rel, text in spec.scaffold.items():
+                (d / rel).write_text(text, encoding="utf-8")
+            (d / spec.filename).write_text(source, encoding="utf-8")
+            for k, (inp, out) in enumerate(tests):
+                (d / "t" / f"{k:03d}.in").write_text(inp, encoding="utf-8")
+                (d / "t" / f"{k:03d}.out").write_text(out, encoding="utf-8")
+            (d / "run.sh").write_text(io_script(spec, timeout_sec), encoding="utf-8")
+        (root / "driver.sh").write_text(_DRIVER.replace("{tail}", str(tail)), encoding="utf-8")
+        res = _runner(lang).run_project(root, command="sh driver.sh")
+    out: dict[str, ProgramResult] = {}
+    for pid, rc, b64 in _RESULT_RE.findall(res.stdout or ""):
+        try:
+            log = base64.b64decode(b64).decode("utf-8", errors="replace") if b64 else ""
+        except ValueError:
+            log = ""
+        out[pid] = ProgramResult(pid, int(rc), status_for(int(rc)), log)
+    for pid in chunk:
+        out.setdefault(pid, ProgramResult(pid, -1, "missing", ((res.stderr or "") + (res.stdout or ""))[-tail:]))
+    return out
+
+
+_TS_TO_JS = """const {stripTypeScriptTypes} = require('node:module');
+const fs = require('fs');
+for (const id of fs.readdirSync('ts')) {
+  let js = '';
+  try { js = stripTypeScriptTypes(fs.readFileSync('ts/' + id, 'utf8'), {mode: 'transform'}); } catch (e) { js = ''; }
+  console.log('@@R ' + id + ' 0 ' + Buffer.from(js).toString('base64'));
+}
+"""
+
+
+def ts_to_js(codes: dict[str, str]) -> dict[str, str]:
+    """TypeScript sources (id → code) as JavaScript: types removed by Node's ``stripTypeScriptTypes``
+    in transform mode (also enums / namespaces), in the JS/TS sandbox. Ids that fail are left out.
+    Behavior is unchanged, but check the result anyway (``run_io_programs``) before trusting it."""
+    if not codes:
+        return {}
+    ids = {k: _SAFE_ID.sub("_", k) for k in codes}
+    if len(set(ids.values())) != len(ids):
+        raise ValueError("ids collide after sanitizing")
+    with tempfile.TemporaryDirectory(prefix="rebirth-ts2js-") as tmp:
+        root = Path(tmp)
+        (root / "ts").mkdir()
+        for k, code in codes.items():
+            (root / "ts" / ids[k]).write_text(code, encoding="utf-8")
+        (root / "strip.cjs").write_text(_TS_TO_JS, encoding="utf-8")
+        res = _runner(get_lang("typescript")).run_project(root, command="node --no-warnings strip.cjs")
+    back = {v: k for k, v in ids.items()}
+    out = {}
+    for sid, _rc, b64 in _RESULT_RE.findall(res.stdout or ""):
+        js = base64.b64decode(b64).decode("utf-8", errors="replace") if b64 else ""
+        if js.strip() and sid in back:
+            out[back[sid]] = js
+    return out
+
+
+def run_io_programs(
+    lang: XLang,
+    programs: dict[str, tuple[str, list[tuple[str, str]]]],
+    *,
+    timeout_sec: int = 10,
+    workers: int = 4,
+    chunk_size: int = 20,
+    tail: int = 1500,
+) -> dict[str, ProgramResult]:
+    """Build each complete program (id → (source, [(stdin, expected stdout), ...])) in ``lang``'s
+    sandbox and run it on every test; pass = every output matches."""
+    ids = {pid: _SAFE_ID.sub("_", pid) for pid in programs}
+    if len(set(ids.values())) != len(ids):
+        raise ValueError("program ids collide after sanitizing")
+    items = [(ids[pid], v) for pid, v in programs.items()]
+    chunks = [dict(items[i : i + chunk_size]) for i in range(0, len(items), chunk_size)]
+    merged: dict[str, ProgramResult] = {}
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        for part in pool.map(lambda c: _run_io_chunk(lang, c, timeout_sec, tail), chunks):
             merged.update(part)
     back = {v: k for k, v in ids.items()}
     return {back[k]: ProgramResult(back[k], r.exit_code, r.status, r.log_tail) for k, r in merged.items()}

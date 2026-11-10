@@ -1,0 +1,46 @@
+{
+  "language": "python",
+  "base_model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "adapter": "data/models/lora_python_14b/adapter",
+  "data": "data/datasets/p15/python_migration.jsonl",
+  "corpus_sha256": "6711105d1783e1a6277753ec1d9809fb8cf78551b58a259382a300eb597b2024",
+  "corpus_rows": 37214,
+  "train_rows": 35415,
+  "split_train_rows": 35415,
+  "recipe": {
+    "quant": "none",
+    "eos": true,
+    "completion_only": true,
+    "drop_overlong": true,
+    "features": {
+      "rows": 35415,
+      "kept": 35415,
+      "dropped_overlong": 0,
+      "truncated": 0,
+      "label_tokens": 7800556
+    }
+  },
+  "eval_rows": 1799,
+  "eval_frac": 0.05,
+  "split_seed": 1337,
+  "split_index": "data/models/lora_python_14b/split.json",
+  "global_steps": 4427,
+  "train_loss": 0.15499337541618113,
+  "hyperparams": {
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_targets": "all",
+    "epochs": 1,
+    "max_length": 1024,
+    "batch_size": 4,
+    "grad_accum": 2,
+    "max_steps": -1
+  },
+  "lr": 0.0002,
+  "recipe_name": "cloud_14b",
+  "recipe_file": "configs/recipes/cloud_14b.yaml",
+  "smoke": false,
+  "device": "NVIDIA L40S",
+  "torch": "2.9.1+cu128",
+  "trained_at": "2026-11-09T04:23:57+00:00"
+}

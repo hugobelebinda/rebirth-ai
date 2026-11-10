@@ -5,7 +5,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 need_host
 for p in data/reports data/models logs/train logs/cloud; do
   mkdir -p "$ROOT/$p"
-  run rsync -az --info=stats1 -e "ssh ${SSH_OPTS[*]}" --exclude 'runs/' \
+  # --update: never replace a file that is newer at home (the instance holds the upload-time
+  # copy of every report; a local run may have rewritten it since).
+  run rsync -az --update --info=stats1 -e "ssh ${SSH_OPTS[*]}" --exclude 'runs/' \
     "$RUSER@$HOST:~/$RDIR/$p/" "$ROOT/$p/"
 done
 [ "${DRY_RUN:-0}" = 1 ] || { cd "$ROOT" && .venv/bin/rebirth track backfill | tail -15; }

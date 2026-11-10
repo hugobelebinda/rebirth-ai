@@ -1,0 +1,616 @@
+{
+ "model": "ollama:qwen2.5-coder:14b-instruct-q6_K",
+ "suite": "programs",
+ "problems": "data/datasets/xlang/programs.jsonl",
+ "limit": 2,
+ "bootstrapped_sources": null,
+ "fixups": true,
+ "seed": 1337,
+ "sources": [
+  "python",
+  "cpp",
+  "java"
+ ],
+ "targets": [
+  "python",
+  "typescript",
+  "go",
+  "java",
+  "csharp",
+  "rust",
+  "cpp",
+  "swift"
+ ],
+ "directions": {
+  "cpp->csharp": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->go": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 2,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->java": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 1,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->python": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 0,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->rust": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 1,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->swift": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 2,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "cpp->typescript": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->cpp": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 2,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->csharp": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->go": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->python": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 0,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->rust": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->swift": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "java->typescript": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 0,
+   "fail": 2,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->cpp": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 1,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->csharp": {
+   "n": 2,
+   "pass": 1,
+   "pass_rate": 0.5,
+   "compile_error": 0,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->go": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->java": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->rust": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 2,
+   "fail": 0,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->swift": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  },
+  "python->typescript": {
+   "n": 2,
+   "pass": 0,
+   "pass_rate": 0.0,
+   "compile_error": 1,
+   "fail": 1,
+   "timeout": 0,
+   "missing": 0,
+   "excluded": 0
+  }
+ },
+ "rows": [
+  {
+   "src": "python",
+   "tgt": "typescript",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import * as readline from 'readline';\n\nfunction solve(nums: boolean[], n: number): void {\n    let notMiddleNode: number;\n    \n    for (let i = 0; i < n; i++) {\n        if (!nums[i]) {\n            notMiddleNode = i;\n            break;\n        }\n    }\n    \n    for (let i = 0; i < n; i++) {\n        if (i !== notMiddleNode) {\n            console.log(`${notMiddleNode + 1} ${i + 1}`);\n        }\n    }\n}\n\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.on('line', (line: string) => {\n    static t: number;\n    if (typeof t === 'undefined') {\n        t = parseInt(line, 10);\n    } else {\n        if (t > 0) {\n            const [n, m] = line.split(' ').map(Number);\n            const nums: boolean[] = new Array(n).fill(false);\n            \n            rl.on('line', (line: string) => {\n                const [, b, ] = line.split(' ').map(num => parseInt(num, 10) - 1);\n                nums[b] = true;\n                \n                m--;\n                if (m === 0) {\n                    solve(nums, n);\n                    t--;\n                    if (t === 0) {\n                        rl.close();\n                    }\n                }\n            });\n        }\n    }\n});\n",
+   "log": "peScript (node:internal/modules/typescript:67:36)\n    at processTypeScriptCode (node:internal/modules/typescript:133:42)\n    at Function.stripTypeScriptTypes (node:internal/modules/typescript:118:10)\n    at [eval]:1:98\n    at runScriptInThisContext (node:internal/vm:209:10)\n    at node:internal/process/execution:446:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:444:60)\n    at evalFunction (node:internal/process/execution:279:30)\n    at evalTypeScript (node:internal/process/execution:291:3) {\n  code: 'ERR_INVALID_TYPESCRIPT_SYNTAX'\n}\n\nNode.js v22.23.4\n"
+  },
+  {
+   "src": "python",
+   "tgt": "typescript",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import * as readline from 'readline';\n\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nconst R = () => rl.line.split(' ').map(Number);\nconst I = () => Number(rl.line);\nconst S = () => rl.line.trim();\nconst L = () => R();\nconst P = (x: any) => console.log(x);\n\nconst gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);\nconst lcm = (x: number, y: number): number => Math.floor((x * y) / gcd(x, y));\nconst sumx = (x: number): number => Math.floor((x ** 2 + x) / 2);\n\nconst N = 10 ** 9 + 7;\nconst mod = 998244353;\n\nconst inv = (x: number): number => {\n    let res = 1, pow = N - 2;\n    while (pow > 0) {\n        if (pow % 2 === 1) res = (res * x) % mod;\n        x = (x * x) % mod;\n        pow >>= 1;\n    }\n    return res;\n};\n\nconst nCr = (x: number, y: number): number => {\n    const f = Array(x + 1).fill(1);\n    for (let i = 2; i <= x; i++) f[i] = (f[i - 1] * i) % N;\n    return (f[x] * inv((f[y] * f[x - y]) % N)) % N;\n};\n\nrl.on('line', () => {\n    const t = I();\n    for (let _ = 0; _ < t; _++) {\n        const n = I();\n        const dp1 = Array(n + 2).fill(0);\n        const dp2 = Array(n + 2).fill(0);\n        dp1[0] = 1;\n        const inputNumbers = R();\n        for (const i of inputNumbers) {\n            dp1[i + 1] = ((dp1[i + 1] << 1) % mod + dp1[i]) % mod;\n            if (i > 0) {\n                dp2[i - 1] = ((dp2[i - 1] << 1) % mod + dp1[i - 1]) % mod;\n            }\n            dp2[i + 1] = ((dp2[i + 1] << 1) % mod) % mod;\n        }\n        let ans = 0;\n        for (let i = 0; i < n + 2; i++) {\n            ans = (ans + dp1[i] + dp2[i]) % mod;\n        }\n        P((ans - 1) % mod);\n    }\n    rl.close();\n});\n",
+   "log": "(node:188) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ntest 000: wrong answer\ninput:    4\n3\n0 2 1\n2\n1 0\n5\n0 0 0 0 0\n4\n0 1 2 3\nexpected: 4 2 31 7\ngot:      \n"
+  },
+  {
+   "src": "python",
+   "tgt": "go",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nfunc solve(nums []bool, n int) {\n\tvar notMiddleNode int\n\tfor i := 0; i < n; i++ {\n\t\tif !nums[i] {\n\t\t\tnotMiddleNode = i\n\t\t\tbreak\n\t\t}\n\t}\n\n\tfor i := 0; i < n; i++ {\n\t\tif i != notMiddleNode {\n\t\t\tfmt.Printf(\"%d %d\\n\", notMiddleNode+1, i+1)\n\t\t}\n\t}\n}\n\nfunc main() {\n\treader := bufio.NewReader(os.Stdin)\n\twriter := bufio.NewWriter(os.Stdout)\n\tdefer writer.Flush()\n\n\tt, _ := strconv.Atoi(readLine(reader))\n\n\tfor i := 0; i < t; i++ {\n\t\tline := readLine(reader)\n\t\tparts := strings.Fields(line)\n\t\tn, _ := strconv.Atoi(parts[0])\n\t\tm, _ := strconv.Atoi(parts[1])\n\n\t\tnums := make([]bool, n)\n\t\tfor j := 0; j < m; j++ {\n\t\t\tline = readLine(reader)\n\t\t\tparts = strings.Fields(line)\n\t\t\tb, _ := strconv.Atoi(parts[1]) - 1\n\t\t\tnums[b] = true\n\t\t}\n\n\t\tsolve(nums, n)\n\t}\n}\n\nfunc readLine(reader *bufio.Reader) string {\n\tstr, _, err := reader.ReadLine()\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn string(str)\n}\n",
+   "log": "# rebirth.check\n./main.go:44:12: multiple-value strconv.Atoi(parts[1]) (value of type (int, error)) in single-value context\n"
+  },
+  {
+   "src": "python",
+   "tgt": "go",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"math/big\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nconst mod = 998244353\n\nfunc main() {\n\treader := bufio.NewReader(os.Stdin)\n\twriter := bufio.NewWriter(os.Stdout)\n\tdefer writer.Flush()\n\n\tvar t int\n\tfmt.Fscanln(reader, &t)\n\n\tfor i := 0; i < t; i++ {\n\t\tvar n int\n\t\tfmt.Fscanln(reader, &n)\n\n\t\tdp1 := make([]int, n+2)\n\t\tdp2 := make([]int, n+2)\n\t\tdp1[0] = 1\n\n\t\tinput := strings.TrimSpace(readLine(reader))\n\t\tnums := strings.Split(input, \" \")\n\t\tfor _, numStr := range nums {\n\t\t\tnum, _ := strconv.Atoi(numStr)\n\t\t\tdp1[num+1] = (dp1[num+1]<<1)%mod\n\t\t\tdp1[num+1] = (dp1[num+1] + dp1[num]) % mod\n\t\t\tif num > 0 {\n\t\t\t\tdp2[num-1] = (dp2[num-1]<<1) % mod\n\t\t\t\tdp2[num-1] = (dp2[num-1] + dp1[num-1]) % mod\n\t\t\t}\n\t\t\tdp2[num+1] = (dp2[num+1]<<1) % mod\n\t\t}\n\n\t\tans := 0\n\t\tfor i := 0; i < n+2; i++ {\n\t\t\tans = (ans + dp1[i] + dp2[i]) % mod\n\t\t}\n\t\tfmt.Fprintln(writer, (ans-1)%mod)\n\t}\n}\n\nfunc readLine(reader *bufio.Reader) string {\n\tvar (\n\t\tisPrefix bool  = true\n\t\terr      error = nil\n\t\tline     []byte\n\t)\n\n\tfor isPrefix && err == nil {\n\t\tline, isPrefix, err = reader.ReadLine()\n\t}\n\treturn strings.TrimRight(string(line), \"\\r\\n\")\n}\n",
+   "log": "test 001: wrong answer\ninput:    1\n30\n0 0 0 2 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\nexpected: 998244352\ngot:      -1\n"
+  },
+  {
+   "src": "python",
+   "tgt": "java",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        \n        int t = scanner.nextInt();\n        \n        for (int _ = 0; _ < t; _++) {\n            int n = scanner.nextInt();\n            int m = scanner.nextInt();\n            \n            boolean[] nums = new boolean[n];\n            for (int i = 0; i < m; i++) {\n                int a = scanner.nextInt() - 1;\n                int b = scanner.nextInt() - 1;\n                int c = scanner.nextInt() - 1;\n                nums[b] = true;\n            }\n            \n            solve(nums, n);\n        }\n        \n        scanner.close();\n    }\n    \n    public static void solve(boolean[] nums, int n) {\n        int notMiddleNode = -1;\n        \n        for (int i = 0; i < n; i++) {\n            if (!nums[i]) {\n                notMiddleNode = i;\n                break;\n            }\n        }\n        \n        for (int i = 0; i < n; i++) {\n            if (i != notMiddleNode) {\n                System.out.println((notMiddleNode + 1) + \" \" + (i + 1));\n            }\n        }\n    }\n}\n",
+   "log": "Main.java:9: error: unnamed variables are a preview feature and are disabled by default.\n        for (int _ = 0; _ < t; _++) {\n                 ^\n  (use --enable-preview to enable unnamed variables)\nMain.java:9: error: as of release 9, '_' is a keyword, and may not be used as an identifier\n        for (int _ = 0; _ < t; _++) {\n                        ^\nMain.java:9: error: as of release 9, '_' is a keyword, and may not be used as an identifier\n        for (int _ = 0; _ < t; _++) {\n                               ^\n3 errors\n"
+  },
+  {
+   "src": "python",
+   "tgt": "java",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    private static final int MOD = 998244353;\n    private static final long N = (long) 1e9 + 7;\n\n    public static void main(String[] args) throws IOException {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));\n\n        int t = Integer.parseInt(br.readLine());\n        while (t-- > 0) {\n            int n = Integer.parseInt(br.readLine());\n            long[] dp1 = new long[n + 2];\n            long[] dp2 = new long[n + 2];\n            dp1[0] = 1;\n\n            String[] input = br.readLine().split(\" \");\n            for (String s : input) {\n                int i = Integer.parseInt(s);\n                dp1[i + 1] = (dp1[i + 1] << 1) % MOD;\n                dp1[i + 1] = (dp1[i + 1] + dp1[i]) % MOD;\n                if (i > 0) {\n                    dp2[i - 1] = (dp2[i - 1] << 1) % MOD;\n                    dp2[i - 1] = (dp2[i - 1] + dp1[i - 1]) % MOD;\n                }\n                dp2[i + 1] = (dp2[i + 1] << 1) % MOD;\n            }\n\n            long ans = 0;\n            for (int i = 0; i < n + 2; i++) {\n                ans = (ans + dp1[i] + dp2[i]) % MOD;\n            }\n            bw.write((ans - 1) % MOD + \"\\n\");\n        }\n\n        br.close();\n        bw.flush();\n        bw.close();\n    }\n}\n",
+   "log": "test 001: wrong answer\ninput:    1\n30\n0 0 0 2 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\nexpected: 998244352\ngot:      -1\n"
+  },
+  {
+   "src": "python",
+   "tgt": "csharp",
+   "problem": "CC_1586B",
+   "status": "pass",
+   "exit": 0,
+   "code": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        int t = int.Parse(Console.ReadLine());\n\n        for (int _ = 0; _ < t; _++)\n        {\n            string[] input = Console.ReadLine().Split();\n            int n = int.Parse(input[0]);\n            int m = int.Parse(input[1]);\n\n            bool[] nums = new bool[n];\n            for (int i = 0; i < m; i++)\n            {\n                input = Console.ReadLine().Split();\n                int b = int.Parse(input[1]) - 1;\n                nums[b] = true;\n            }\n\n            Solve(nums, n);\n        }\n    }\n\n    static void Solve(bool[] nums, int n)\n    {\n        int notMiddleNode = -1;\n\n        for (int i = 0; i < n; i++)\n        {\n            if (!nums[i])\n            {\n                notMiddleNode = i;\n                break;\n            }\n        }\n\n        for (int i = 0; i < n; i++)\n        {\n            if (i != notMiddleNode)\n            {\n                Console.WriteLine($\"{notMiddleNode + 1} {i + 1}\");\n            }\n        }\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "python",
+   "tgt": "csharp",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass Program\n{\n    static void Main()\n    {\n        int mod = 998244353;\n        int N = (int)1e9 + 7;\n        long[] f = new long[N + 1];\n        f[0] = 1;\n        for (int i = 1; i <= N; i++)\n            f[i] = (f[i - 1] * i) % mod;\n\n        int t = I();\n        while (t-- > 0)\n        {\n            int n = I();\n            long[] dp1 = new long[n + 2];\n            long[] dp2 = new long[n + 2];\n            dp1[0] = 1;\n            foreach (int i in R())\n            {\n                dp1[i + 1] = (dp1[i + 1] << 1) % mod;\n                dp1[i + 1] = (dp1[i + 1] + dp1[i]) % mod;\n                if (i > 0)\n                {\n                    dp2[i - 1] = (dp2[i - 1] << 1) % mod;\n                    dp2[i - 1] = (dp2[i - 1] + dp1[i - 1]) % mod;\n                }\n                dp2[i + 1] = (dp2[i + 1] << 1) % mod;\n            }\n\n            long ans = 0;\n            for (int i = 0; i <= n + 1; i++)\n                ans = (ans + dp1[i] + dp2[i]) % mod;\n\n            Console.WriteLine((ans - 1) % mod);\n        }\n    }\n\n    static int I()\n    {\n        return int.Parse(Console.ReadLine());\n    }\n\n    static IEnumerable<int> R()\n    {\n        return Console.ReadLine().Split().Select(int.Parse);\n    }\n}\n",
+   "log": "test 001: wrong answer\ninput:    1\n30\n0 0 0 2 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\nexpected: 998244352\ngot:      -1\n"
+  },
+  {
+   "src": "python",
+   "tgt": "rust",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "use std::io::{self, BufRead};\n\nfn solve(nums: Vec<bool>, n: usize) {\n    let mut not_middle_node = 0;\n    for i in 0..n {\n        if !nums[i] {\n            not_middle_node = i;\n            break;\n        }\n    }\n\n    for i in 0..n {\n        if i != not_middle_node {\n            println!(\"{} {}\", not_middle_node + 1, i + 1);\n        }\n    }\n}\n\nfn main() {\n    let stdin = io::stdin();\n    let mut lines = stdin.lock().lines();\n\n    let t: usize = lines.next().unwrap().expect(\"Failed to read line\").trim().parse().expect(\"Please type a number!\");\n\n    for _ in 0..t {\n        let line = lines.next().unwrap().expect(\"Failed to read line\");\n        let mut parts = line.split_whitespace();\n        let n: usize = parts.next().unwrap().parse().expect(\"Please type a number!\");\n        let m: usize = parts.next().unwrap().parse().expect(\"Please type a number!\");\n\n        let mut nums = vec![false; n];\n        for _ in 0..m {\n            let line = lines.next().unwrap().expect(\"Failed to read line\");\n            let mut parts = line.split_whitespace();\n            let _: usize = parts.next().unwrap().parse().expect(\"Please type a number!\");\n            let b: usize = parts.next().unwrap().parse().expect(\"Please type a number!\") - 1;\n            let _: usize = parts.next().unwrap().parse().expect(\"Please type a number!\");\n            nums[b] = true;\n        }\n\n        solve(nums, n);\n    }\n}\n",
+   "log": " usize = parts.next().unwrap().parse().expect(\"Please type a number!\") - 1;\n   |                                                  ^^^^^ cannot infer type of the type parameter `F` declared on the method `parse`\n   |\n   = note: cannot satisfy `<_ as FromStr>::Err == _`\nhelp: consider specifying the generic argument\n   |\n36 |             let b: usize = parts.next().unwrap().parse::<F>().expect(\"Please type a number!\") - 1;\n   |                                                       +++++\n\nerror: aborting due to 1 previous error\n\nFor more information about this error, try `rustc --explain E0284`.\n"
+  },
+  {
+   "src": "python",
+   "tgt": "rust",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "use std::io::{self, Write};\nuse std::collections::VecDeque;\nuse std::iter;\n\nconst MOD: usize = 998_244_353;\n\nfn main() {\n    let mut input = String::new();\n    io::stdin().read_to_string(&mut input).unwrap();\n    let mut lines = input.lines();\n\n    let t: usize = lines.next().unwrap().parse().unwrap();\n    for _ in 0..t {\n        let n: usize = lines.next().unwrap().parse().unwrap();\n        let numbers: Vec<usize> = lines.next().unwrap()\n            .split_whitespace()\n            .map(|s| s.parse().unwrap())\n            .collect();\n\n        let mut dp1 = vec![0; n + 2];\n        let mut dp2 = vec![0; n + 2];\n        dp1[0] = 1;\n\n        for &i in &numbers {\n            dp1[i + 1] = (dp1[i + 1] << 1) % MOD;\n            dp1[i + 1] = (dp1[i + 1] + dp1[i]) % MOD;\n            if i > 0 {\n                dp2[i - 1] = (dp2[i - 1] << 1) % MOD;\n                dp2[i - 1] = (dp2[i - 1] + dp1[i - 1]) % MOD;\n            }\n            dp2[i + 1] = (dp2[i + 1] << 1) % MOD;\n        }\n\n        let mut ans = 0;\n        for i in 0..=n + 1 {\n            ans = (ans + dp1[i] + dp2[i]) % MOD;\n        }\n        println!(\"{}\", (ans - 1) % MOD);\n    }\n}\n",
+   "log": "4f1dbea00d01b14/library/std/src/io/mod.rs:904:8\n  |\n  = note: the method is available for `Stdin` here\n  |\n  = help: items from traits can only be used if the trait is in scope\nhelp: trait `Read` which provides `read_to_string` is implemented but not in scope; perhaps you want to import it\n  |\n1 + use std::io::Read;\n  |\nhelp: there is a method `read_to_end` with a similar name\n  |\n9 |     io::stdin().read_to_end(&mut input).unwrap();\n  |                 ~~~~~~~~~~~\n\nerror: aborting due to 1 previous error; 3 warnings emitted\n\nFor more information about this error, try `rustc --explain E0599`.\n"
+  },
+  {
+   "src": "python",
+   "tgt": "cpp",
+   "problem": "CC_1586B",
+   "status": "pass",
+   "exit": 0,
+   "code": "#include <iostream>\n#include <vector>\n#include <string>\n\nusing namespace std;\n\nvoid solve(const vector<bool>& nums, int n) {\n    int not_middle_node = -1;\n    \n    for (int i = 0; i < n; ++i) {\n        if (!nums[i]) {\n            not_middle_node = i;\n            break;\n        }\n    }\n    \n    for (int i = 0; i < n; ++i) {\n        if (i != not_middle_node) {\n            cout << not_middle_node + 1 << \" \" << i + 1 << endl;\n        }\n    }\n}\n\nint main() {\n    int t;\n    cin >> t;\n    \n    while (t--) {\n        int n, m;\n        cin >> n >> m;\n        \n        vector<bool> nums(n, false);\n        for (int i = 0; i < m; ++i) {\n            int a, b, c;\n            cin >> a >> b >> c;\n            nums[b - 1] = true;\n        }\n        \n        solve(nums, n);\n    }\n    \n    return 0;\n}\n",
+   "log": ""
+  },
+  {
+   "src": "python",
+   "tgt": "cpp",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\n#include <numeric>\n#include <cmath>\n#include <ctime>\n\nusing namespace std;\n\ntypedef long long ll;\nconst ll mod = 998244353;\nconst ll N = 1e9 + 7;\n\nll gcd(ll a, ll b) {\n    while (b != 0) {\n        ll t = b;\n        b = a % b;\n        a = t;\n    }\n    return a;\n}\n\nll lcm(ll x, ll y) {\n    return (x * y) / gcd(x, y);\n}\n\nll inv(ll x) {\n    return pow(x, N - 2, N);\n}\n\nll nCr(ll x, ll y) {\n    static vector<ll> f(N + 1, 1);\n    for (ll i = 2; i <= N; ++i) {\n        f[i] = f[i - 1] * i % N;\n    }\n    return f[x] * inv((f[y] * f[x - y]) % N) % N;\n}\n\nll sumx(ll x) {\n    return (x * x + x) / 2;\n}\n\nint main() {\n    ios::sync_with_stdio(false);\n    cin.tie(nullptr);\n\n    int t;\n    cin >> t;\n    while (t--) {\n        int n;\n        cin >> n;\n        vector<ll> dp1(n + 2, 0);\n        vector<ll> dp2(n + 2, 0);\n        dp1[0] = 1;\n        for (int i; cin >> i;) {\n            dp1[i + 1] = (dp1[i + 1] << 1) % mod;\n            dp1[i + 1] = (dp1[i + 1] + dp1[i]) % mod;\n            if (i > 0) {\n                dp2[i - 1] = (dp2[i - 1] << 1) % mod;\n                dp2[i - 1] = (dp2[i - 1] + dp1[i - 1]) % mod;\n            }\n            dp2[i + 1] = (dp2[i + 1] << 1) % mod;\n        }\n        ll ans = 0;\n        for (int i = 0; i <= n + 1; ++i) {\n            ans = (ans + dp1[i] + dp2[i]) % mod;\n        }\n        cout << (ans - 1 + mod) % mod << '\\n';\n    }\n\n    return 0;\n}\n",
+   "log": "nux-gnu/bits/mathcalls.h:140:1: note:   candidate expects 2 arguments, 3 provided\n/usr/local/include/c++/14.3.0/cmath:380:3: note: candidate: 'constexpr long double std::pow(long double, long double)'\n  380 |   pow(long double __x, long double __y)\n      |   ^~~\n/usr/local/include/c++/14.3.0/cmath:380:3: note:   candidate expects 2 arguments, 3 provided\n/usr/local/include/c++/14.3.0/cmath:376:3: note: candidate: 'constexpr float std::pow(float, float)'\n  376 |   pow(float __x, float __y)\n      |   ^~~\n/usr/local/include/c++/14.3.0/cmath:376:3: note:   candidate expects 2 arguments, 3 provided\n"
+  },
+  {
+   "src": "python",
+   "tgt": "swift",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import Foundation\n\nfunc solve(_ nums: [Bool], _ n: Int) {\n    var notMiddleNode = -1\n    \n    for i in 0..<n {\n        if !nums[i] {\n            notMiddleNode = i\n            break\n        }\n    }\n    \n    for i in 0..<n {\n        if i != notMiddleNode {\n            print(\"\\(notMiddleNode + 1) \\(i + 1)\")\n        }\n    }\n}\n\nfunc main() {\n    let t = Int(readLine()!)!\n    \n    for _ in 0..<t {\n        let input = readLine()!.split(separator: \" \").compactMap { Int($0) }\n        let n = input[0]\n        let m = input[1]\n        \n        var nums = Array(repeating: false, count: n)\n        for _ in 0..<m {\n            let line = readLine()!.split(separator: \" \").compactMap { Int($0) - 1 }\n            let b = line[1]\n            nums[b] = true\n        }\n        \n        solve(nums, n)\n    }\n}\n\nmain()\n",
+   "log": "let line = readLine()!.split(separator: \" \").compactMap { Int($0) - 1 }\n                                                                      ^\n                                                                      (       ?? <#default value#>)\nmain.swift:30:71: note: force-unwrap using '!' to abort execution if the optional value contains 'nil'\n            let line = readLine()!.split(separator: \" \").compactMap { Int($0) - 1 }\n                                                                      ^\n                                                                             !\nerror: fatalError\n"
+  },
+  {
+   "src": "python",
+   "tgt": "swift",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import Foundation\n\nlet input = FileHandle.standardInput.readDataToEndOfFile().split(separator: 0x0A).map { String(data: $0, encoding: .utf8)! }\nvar index = 0\n\nfunc readInt() -> Int {\n    let number = Int(input[index])!\n    index += 1\n    return number\n}\n\nfunc readIntArray() -> [Int] {\n    let numbers = input[index].split(separator: \" \").map { Int($0)! }\n    index += 1\n    return numbers\n}\n\nfunc readString() -> String {\n    let string = input[index]\n    index += 1\n    return string\n}\n\nfunc print(_ value: Any) {\n    Swift.print(value, terminator: \"\\n\")\n}\n\nlet mod = 998244353\n\nfor _ in 0..<readInt() {\n    let n = readInt()\n    var dp1 = [Int](repeating: 0, count: n + 2)\n    var dp2 = [Int](repeating: 0, count: n + 2)\n    dp1[0] = 1\n    for i in readIntArray() {\n        dp1[i + 1] = (dp1[i + 1] * 2) % mod\n        dp1[i + 1] = (dp1[i + 1] + dp1[i]) % mod\n        if i > 0 {\n            dp2[i - 1] = (dp2[i - 1] * 2) % mod\n            dp2[i - 1] = (dp2[i - 1] + dp1[i - 1]) % mod\n        }\n        dp2[i + 1] = (dp2[i + 1] * 2) % mod\n    }\n    var ans = 0\n    for i in 0..<(n + 2) {\n        ans = (ans + dp1[i] + dp2[i]) % mod\n    }\n    print((ans - 1) % mod)\n}\n",
+   "log": "test 001: wrong answer\ninput:    1\n30\n0 0 0 2 0 0 0 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\nexpected: 998244352\ngot:      -1\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "python",
+   "problem": "CC_1586B",
+   "status": "pass",
+   "exit": 0,
+   "code": "import sys\n\nmaxn = 100005\ntag = [0] * maxn\ntim = 0\n\ndef solve():\n    global tim\n    tim += 1\n    n, m = map(int, input().split())\n    for _ in range(m):\n        a, b, c = map(int, input().split())\n        tag[b] = tim\n    for i in range(1, n + 1):\n        if tag[i] != tim:\n            for j in range(1, n + 1):\n                if i != j:\n                    print(i, j)\n            break\n\ndef main():\n    T = int(input())\n    while T > 0:\n        solve()\n        T -= 1\n\nif __name__ == \"__main__\":\n    main()\n",
+   "log": ""
+  },
+  {
+   "src": "cpp",
+   "tgt": "python",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import sys\nfrom collections import defaultdict\nfrom math import sqrt\n\ndef show(a):\n    if isinstance(a[0], list):\n        for i in a:\n            print(' '.join(map(str, i)))\n    elif isinstance(a[0], tuple):\n        for i in a:\n            print(i[0], i[1])\n    else:\n        print(' '.join(map(str, a)))\n\ndef take(a):\n    for i in range(len(a)):\n        a[i] = int(sys.stdin.readline().strip())\n\ndef digits(n):\n    k = 0\n    while n:\n        k += 1\n        n //= 10\n    return k\n\ndef isprime(n):\n    if n == 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(sqrt(n)) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n\ndef power(x, y, MOD):\n    ans = 1\n    x %= MOD\n    while y > 0:\n        if y % 2 == 1:\n            ans = (ans * x) % MOD\n        y //= 2\n        x = (x * x) % MOD\n    return ans\n\ndef sieve(a, n):\n    a[1] = False\n    a[0] = False\n    h = int(sqrt(n + 1))\n    for i in range(2, h):\n        if not a[i]:\n            continue\n        for j in range(2 * i, n + 1, i):\n            a[j] = False\n\ndef load(g):\n    g.max_load_factor(0.25)\n\ndef bits(n):\n    a = []\n    for i in range(33):\n        a.append(n % 2)\n        n //= 2\n    return a[::-1]\n\ndef sub():\n    pass\n\nN = int(1e9 + 7)\nM = 998244353\n\ndef solve():\n    n = int(sys.stdin.readline().strip())\n    a = [0] * n\n    take(a)\n    ans = sum(1 for x in a if x == 1)\n    ans = (power(2, ans, M) - 1 + M) % M\n    b = [0] * (n + 3)\n    c = [0] * (n + 3)\n    for i in range(n):\n        if a[i] == 0:\n            b[0] = (2 * b[0] + 1) % M\n        if a[i] == 1:\n            b[1] = (2 * b[1] + b[0]) % M\n        if a[i] > 1:\n            b[a[i]] = (2 * b[a[i]] + b[a[i] - 1]) % M\n        if a[i] > 1:\n            c[a[i] - 1] = (2 * c[a[i] - 1] + b[a[i] - 2]) % M\n        c[a[i] + 1] = (2 * c[a[i] + 1]) % M\n    for i in range(n + 1):\n        ans = (ans + b[i] + c[i]) % M\n    print(ans)\n\ndef main():\n    import time\n    start_time = time.time()\n    t = int(sys.stdin.readline().strip())\n    for _ in range(t):\n        solve()\n    end_time = time.time()\n    print(f\"Time: {((end_time - start_time) * 1000):.2f} ms\", file=sys.stderr)\n\nif __name__ == \"__main__\":\n    main()\n",
+   "log": "test 000: exit code 1\nTraceback (most recent call last):\n  File \"/workspace/progs/cpp__python__CC_1613D/main.py\", line 106, in <module>\n    main()\n  File \"/workspace/progs/cpp__python__CC_1613D/main.py\", line 101, in main\n    solve()\n  File \"/workspace/progs/cpp__python__CC_1613D/main.py\", line 77, in solve\n    take(a)\n  File \"/workspace/progs/cpp__python__CC_1613D/main.py\", line 17, in take\n    a[i] = int(sys.stdin.readline().strip())\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: invalid literal for int() with base 10: '0 2 1'\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "typescript",
+   "problem": "CC_1586B",
+   "status": "fail",
+   "exit": 1,
+   "code": "const maxn = 100005;\nlet n: number, m: number;\nconst tag: number[] = new Array(maxn).fill(0);\nlet tim: number = 0;\n\nfunction solve() {\n  ++tim;\n  const input = require('fs').readFileSync(0, 'utf-8').trim().split(/\\s+/);\n  let index = 0;\n  n = parseInt(input[index++]);\n  m = parseInt(input[index++]);\n\n  for (let i = 0; i < m; i++) {\n    const a = parseInt(input[index++]);\n    const b = parseInt(input[index++]);\n    const c = parseInt(input[index++]);\n    tag[b] = tim;\n  }\n\n  for (let i = 1; i <= n; i++) {\n    if (tag[i] !== tim) {\n      for (let j = 1; j <= n; j++) {\n        if (i !== j) console.log(`${i} ${j}`);\n      }\n      break;\n    }\n  }\n}\n\nfunction main() {\n  const input = require('fs').readFileSync(0, 'utf-8').trim().split(/\\s+/);\n  let index = 0;\n  const T = parseInt(input[index++]);\n  for (let i = 0; i < T; i++) {\n    solve();\n  }\n}\n\nmain();\n",
+   "log": "(node:19) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ntest 000: wrong answer\ninput:    2\n7 4\n1 2 3\n3 4 5\n5 6 7\n6 5 4\n5 3\n1 2 3\n2 3 4\n3 4 5\nexpected: 1 2 1 3 1 4 1 5 1 6 1 7 1 2 1 3 1 4 1 5\ngot:      \n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "typescript",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import * as readline from 'readline';\n\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nfunction show<T>(a: T[][]): void {\n    for (const i of a) {\n        console.log(i.join(' '));\n    }\n}\n\nfunction show<T>(a: T[]): void {\n    console.log(a.join(' '));\n}\n\nfunction show<T>(a: Array<[T, T]>): void {\n    for (const [first, second] of a) {\n        console.log(`${first} ${second}`);\n    }\n}\n\nfunction show<T>(p: [T, T]): void {\n    console.log(`${p[0]} ${p[1]}`);\n}\n\nfunction show(a: string[]): void {\n    for (const i of a) {\n        console.log(i);\n    }\n}\n\nfunction take<T>(a: T[]): void {\n    rl.on('line', (input) => {\n        const values = input.split(' ').map((value) => value as unknown as T);\n        for (let i = 0; i < a.length; i++) {\n            a[i] = values[i];\n        }\n        rl.close();\n    });\n}\n\nfunction digits(n: number): number {\n    let k = 0;\n    while (n) {\n        k++;\n        n = Math.floor(n / 10);\n    }\n    return k;\n}\n\nfunction isprime(n: number): boolean {\n    if (n === 1) return false;\n    if (n === 2) return true;\n    if (n % 2 === 0) return false;\n    for (let i = 3; i * i <= n; i += 2) {\n        if (n % i === 0) return false;\n    }\n    return true;\n}\n\nfunction power(x: number, y: number, MOD: number): number {\n    let ans = 1;\n    x %= MOD;\n    while (y > 0) {\n        if (y % 2 === 1) ans = (ans * x) % MOD;\n        y = Math.floor(y / 2);\n        x = (x * x) % MOD;\n    }\n    return ans;\n}\n\nfunction sieve(a: boolean[], n: number): void {\n    a[1] = false;\n    a[0] = false;\n    const h = Math.sqrt(n + 1);\n    for (let i = 2; i < h; i++) {\n        if (!a[i]) continue;\n        for (let j = 2 * i; j < n + 1; j += i) a[j] = false;\n    }\n}\n\nfunction load(g: Map<number, number>): void {\n    g.loadFactor(0.25);\n}\n\nfunction bits(n: number): number[] {\n    const a: number[] = [];\n    for (let i = 0; i < 33; i++) {\n        a.push(n % 2);\n        n = Math.floor(n / 2);\n    }\n    return a.reverse();\n}\n\nfunction sub(): void {}\n\nconst N = 1e9 + 7;\nconst M = 998244353;\n\nasync function solve() {\n    const input = await new Promise<number>((resolve) => rl.once('line', (input) => resolve(Number(input))));\n    const n = input;\n    const a: number[] = Array(n);\n    await take(a);\n    let ans = 0;\n    for (let i = 0; i < n; i++) {\n        if (a[i] === 1) ans++;\n    }\n    ans = (power(2, ans, M) - 1 + M) % M;\n    const b: number[] = Array(n + 3).fill(0);\n    const c: number[] = Array(n + 3).fill(0);\n    for (let i = 0; i < n; i++) {\n        if (a[i] === 0) b[0] = (2 * b[0] + 1) % M;\n        if (a[i] === 1) b[1] = (2 * b[1] + b[0]) % M;\n        if (a[i] > 1) b[a[i]] = (2 * b[a[i]] + b[a[i] - 1]) % M;\n        if (a[i] > 1) c[a[i] - 1] = (2 * c[a[i] - 1] + b[a[i] - 2]) % M;\n        c[a[i] + 1] = (2 * c[a[i] + 1]) % M;\n    }\n    for (let i = 0; i < n + 1; i++) {\n        ans = (ans + b[i] + c[i]) % M;\n    }\n    console.log(ans);\n}\n\nasync function main() {\n    rl.on('line', async (input) => {\n        const t = Number(input);\n        for (let s = 0; s < t; s++) {\n            await solve();\n        }\n        rl.close();\n    });\n}\n\nmain();\n",
+   "log": "(node:65) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n/tmp/rebirth_check.mjs:14\nfunction show   (a     )       {\n^\n\nSyntaxError: Identifier 'show' has already been declared\n    at checkSyntax (node:internal/main/check_syntax:74:5)\n\nNode.js v22.23.4\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "go",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "package main\n\nimport (\n\t\"fmt\"\n\t\"bufio\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nconst maxn = 100005\n\nvar n, m int\nvar tag [maxn]int\nvar tim int\n\nfunc solve(scanner *bufio.Scanner) {\n\ttim++\n\tscanner.Scan()\n\tinput := strings.Split(scanner.Text(), \" \")\n\tn, _ = strconv.Atoi(input[0])\n\tm, _ = strconv.Atoi(input[1])\n\n\tfor i := 0; i < m; i++ {\n\t\tscanner.Scan()\n\t\tinput := strings.Split(scanner.Text(), \" \")\n\t\ta, _ := strconv.Atoi(input[0])\n\t\tb, _ := strconv.Atoi(input[1])\n\t\tc, _ := strconv.Atoi(input[2])\n\t\ttag[b] = tim\n\t}\n\n\tfor i := 1; i <= n; i++ {\n\t\tif tag[i] != tim {\n\t\t\tfor j := 1; j <= n; j++ {\n\t\t\t\tif i != j {\n\t\t\t\t\tfmt.Printf(\"%d %d\\n\", i, j)\n\t\t\t\t}\n\t\t\t}\n\t\t\tbreak\n\t\t}\n\t}\n}\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tscanner.Scan()\n\tT, _ := strconv.Atoi(scanner.Text())\n\n\tfor T > 0 {\n\t\tsolve(scanner)\n\t\tT--\n\t}\n}\n",
+   "log": "# rebirth.check\n./main.go:27:3: a declared and not used\n./main.go:29:3: c declared and not used\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "go",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"math\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nconst (\n\tN = 1e9 + 7\n\tM = 998244353\n)\n\nfunc show[T any](a []T) {\n\tfor _, i := range a {\n\t\tfmt.Printf(\"%v \", i)\n\t}\n\tfmt.Println()\n}\n\nfunc showPairs[T any](a []struct{ first, second T }) {\n\tfor _, p := range a {\n\t\tfmt.Printf(\"%v %v\\n\", p.first, p.second)\n\t}\n}\n\nfunc showStrings(a []string) {\n\tfor _, s := range a {\n\t\tfmt.Println(s)\n\t}\n}\n\nfunc take[T any](a []T, scanner *bufio.Scanner) {\n\tfor i := range a {\n\t\tscanner.Scan()\n\t\tvar v T\n\t\tswitch any(v).(type) {\n\t\tcase int:\n\t\t\tv = T(strconv.Atoi(scanner.Text())[0])\n\t\tcase int64:\n\t\t\tv = T(strconv.ParseInt(scanner.Text(), 10, 64)[0])\n\t\tcase string:\n\t\t\tv = T(scanner.Text())\n\t\t}\n\t\ta[i] = v\n\t}\n}\n\nfunc digits(n int64) int {\n\tk := 0\n\tfor n != 0 {\n\t\tk++\n\t\tn /= 10\n\t}\n\treturn k\n}\n\nfunc isprime(n int64) bool {\n\tif n == 1 {\n\t\treturn false\n\t}\n\tif n == 2 {\n\t\treturn true\n\t}\n\tif n%2 == 0 {\n\t\treturn false\n\t}\n\tfor i := int64(3); i*i <= n; i += 2 {\n\t\tif n%i == 0 {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n\nfunc power(x, y, MOD int64) int64 {\n\tans := int64(1)\n\tx %= MOD\n\tfor y > 0 {\n\t\tif y%2 == 1 {\n\t\t\tans = (ans * x) % MOD\n\t\t}\n\t\ty /= 2\n\t\tx = (x * x) % MOD\n\t}\n\treturn ans\n}\n\nfunc sieve(a []bool, n int64) {\n\ta[1] = false\n\ta[0] = false\n\th := int64(math.Sqrt(float64(n + 1)))\n\tfor i := int64(2); i < h; i++ {\n\t\tif !a[i] {\n\t\t\tcontinue\n\t\t}\n\t\tfor j := 2 * i; j < n+1; j += i {\n\t\t\ta[j] = false\n\t\t}\n\t}\n}\n\nfunc bits(n int64) []int64 {\n\tvar a []int64\n\tfor i := int64(0); i < 33; i++ {\n\t\ta = append(a, n%2)\n\t\tn /= 2\n\t}\n\treverse(a)\n\treturn a\n}\n\nfunc reverse[T any](a []T) {\n\tfor i, j := 0, len(a)-1; i < j; i, j = i+1, j-1 {\n\t\ta[i], a[j] = a[j], a[i]\n\t}\n}\n\nfunc sub() {}\n\nfunc solve(scanner *bufio.Scanner) {\n\tvar n int64\n\tscanner.Scan()\n\tfmt.Sscanf(scanner.Text(), \"%d\", &n)\n\ta := make([]int64, n)\n\ttake(a, scanner)\n\n\tans := int64(0)\n\tfor _, i := range a {\n\t\tif i == 1 {\n\t\t\tans++\n\t\t}\n\t}\n\tans = (power(2, ans, M) - 1 + M) % M\n\n\tb := make([]int64, n+3)\n\tc := make([]int64, n+3)\n\tfor i, ai := range a {\n\t\tif ai == 0 {\n\t\t\tb[0] = (2*b[0] + 1) % M\n\t\t}\n\t\tif ai == 1 {\n\t\t\tb[1] = (2*b[1] + b[0]) % M\n\t\t}\n\t\tif ai > 1 {\n\t\t\tb[ai] = (2*b[ai] + b[ai-1]) % M\n\t\t}\n\t\tif ai > 1 {\n\t\t\tc[ai-1] = (2*c[ai-1] + b[ai-2]) % M\n\t\t}\n\t\tc[ai+1] = (2 * c[ai+1]) % M\n\t}\n\n\tfor i := int64(0); i < n+1; i++ {\n\t\tans = (ans + b[i] + c[i]) % M\n\t}\n\tfmt.Println(ans)\n}\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tsub()\n\tstart := time.Now()\n\n\tvar t int64\n\tscanner.Scan()\n\tfmt.Sscanf(scanner.Text(), \"%d\", &t)\n\n\tfor s := int64(1); s <= t; s++ {\n\t\tsolve(scanner)\n\t}\n\n\tduration := time.Since(start)\n\tfmt.Fprintf(os.Stderr, \"Time: %.3f ms\\n\", duration.Seconds()*1000)\n}\n",
+   "log": "# rebirth.check\n./main.go:42:10: multiple-value strconv.Atoi(scanner.Text()) (value of type (int, error)) in single-value context\n./main.go:44:10: multiple-value strconv.ParseInt(scanner.Text(), 10, 64) (value of type (i int64, err error)) in single-value context\n./main.go:46:10: cannot convert scanner.Text() (value of type string) to type T\n./main.go:141:6: i declared and not used\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "java",
+   "problem": "CC_1586B",
+   "status": "pass",
+   "exit": 0,
+   "code": "import java.util.Scanner;\n\npublic class Main {\n    private static final int MAXN = 100005;\n    private static int n, m;\n    private static int[] tag = new int[MAXN];\n    private static int tim;\n\n    public static void solve(Scanner scanner) {\n        ++tim;\n        n = scanner.nextInt();\n        m = scanner.nextInt();\n        for (int i = 0; i < m; i++) {\n            int a = scanner.nextInt();\n            int b = scanner.nextInt();\n            int c = scanner.nextInt();\n            tag[b] = tim;\n        }\n        for (int i = 1; i <= n; i++) {\n            if (tag[i] != tim) {\n                for (int j = 1; j <= n; j++) {\n                    if (i != j) {\n                        System.out.println(i + \" \" + j);\n                    }\n                }\n                break;\n            }\n        }\n    }\n\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int T = scanner.nextInt();\n        while (T-- > 0) {\n            solve(scanner);\n        }\n        scanner.close();\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "cpp",
+   "tgt": "java",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import java.io.*;\nimport java.util.*;\n\npublic class Main {\n    public static void main(String[] args) throws IOException {\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\n        PrintWriter out = new PrintWriter(System.out);\n        int t = Integer.parseInt(br.readLine());\n        for (int s = 1; s <= t; s++) {\n            solve(br, out);\n        }\n        out.close();\n    }\n\n    public static void show(List<List<?>> a) {\n        for (List<?> i : a) {\n            for (Object j : i) System.out.print(j + \" \");\n            System.out.println();\n        }\n    }\n\n    public static <T> void show(List<T> a) {\n        for (T i : a) System.out.print(i + \" \");\n        System.out.println();\n    }\n\n    public static <T> void show(List<Pair<T, T>> a) {\n        for (Pair<T, T> i : a) {\n            System.out.println(i.first + \" \" + i.second);\n        }\n    }\n\n    public static <T> void show(Pair<T, T> p) {\n        System.out.println(p.first + \" \" + p.second);\n    }\n\n    public static void show(List<String> a) {\n        for (String i : a) System.out.println(i);\n    }\n\n    public static <T> void take(List<T> a, BufferedReader br) throws IOException {\n        String[] input = br.readLine().split(\" \");\n        for (int i = 0; i < a.size(); i++) {\n            if (a.get(0) instanceof Integer) {\n                a.set(i, (T) Integer.valueOf(input[i]));\n            } else if (a.get(0) instanceof Long) {\n                a.set(i, (T) Long.valueOf(input[i]));\n            }\n        }\n    }\n\n    public static long digits(long n) {\n        long k = 0;\n        while (n != 0) {\n            k++;\n            n /= 10;\n        }\n        return k;\n    }\n\n    public static boolean isprime(long n) {\n        if (n == 1) return false;\n        if (n == 2) return true;\n        if (n % 2 == 0) return false;\n        for (long i = 3; i * i <= n; i += 2) {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n\n    public static long power(long x, long y, long MOD) {\n        long ans = 1;\n        x %= MOD;\n        while (y > 0) {\n            if ((y & 1) == 1) ans = (ans * x) % MOD;\n            y >>= 1;\n            x = (x * x) % MOD;\n        }\n        return ans;\n    }\n\n    public static void sieve(List<Boolean> a, long n) {\n        for (int i = 2; i < Math.sqrt(n + 1); i++) {\n            if (!a.get(i)) continue;\n            for (int j = 2 * i; j < n + 1; j += i) a.set(j, false);\n        }\n    }\n\n    public static void load(Map<Long, Long> g) {\n        g.loadFactor(0.25f);\n    }\n\n    public static List<Long> bits(long n) {\n        List<Long> a = new ArrayList<>();\n        for (int i = 0; i < 33; i++) {\n            a.add(n % 2);\n            n /= 2;\n        }\n        Collections.reverse(a);\n        return a;\n    }\n\n    public static void sub() {}\n\n    private static final long N = 1_000_000_007L;\n    private static final long M = 998_244_353L;\n\n    public static void solve(BufferedReader br, PrintWriter out) throws IOException {\n        int n = Integer.parseInt(br.readLine());\n        List<Long> a = new ArrayList<>(Collections.nCopies(n, 0L));\n        take(a, br);\n        long ans = 0;\n        for (long i : a) {\n            if (i == 1) ans++;\n        }\n        ans = (power(2, ans, M) - 1 + M) % M;\n        List<Long> b = new ArrayList<>(Collections.nCopies(n + 3, 0L));\n        List<Long> c = new ArrayList<>(Collections.nCopies(n + 3, 0L));\n        for (int i = 0; i < n; i++) {\n            if (a.get(i) == 0) b.set(0, (2 * b.get(0) + 1) % M);\n            if (a.get(i) == 1) b.set(1, (2 * b.get(1) + b.get(0)) % M);\n            if (a.get(i) > 1) b.set((int) a.get(i), (2 * b.get((int) a.get(i)) + b.get((int) a.get(i) - 1)) % M);\n            if (a.get(i) > 1) c.set((int) a.get(i) - 1, (2 * c.get((int) a.get(i) - 1) + b.get((int) a.get(i) - 2)) % M);\n            c.set((int) a.get(i) + 1, (2 * c.get((int) a.get(i) + 1)) % M);\n        }\n        for (int i = 0; i < n + 1; i++) {\n            ans = (ans + b.get(i) + c.get(i)) % M;\n        }\n        out.println(ans);\n    }\n\n    static class Pair<T, U> {\n        T first;\n        U second;\n\n        public Pair(T first, U second) {\n            this.first = first;\n            this.second = second;\n        }\n    }\n}\n",
+   "log": "                                                                                           ^\nMain.java:124: error: incompatible types: Long cannot be converted to int\n            c.set((int) a.get(i) + 1, (2 * c.get((int) a.get(i) + 1)) % M);\n                             ^\nMain.java:124: error: incompatible types: Long cannot be converted to int\n            c.set((int) a.get(i) + 1, (2 * c.get((int) a.get(i) + 1)) % M);\n                                                            ^\nNote: Main.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n12 errors\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "csharp",
+   "problem": "CC_1586B",
+   "status": "fail",
+   "exit": 1,
+   "code": "using System;\n\nclass Program\n{\n    const int maxn = 100005;\n    static int n, m;\n    static int[] tag = new int[maxn];\n    static int tim;\n\n    static void Solve()\n    {\n        ++tim;\n        Console.ReadLine().Split(' ').Select(int.Parse).ToArray();\n        for (int i = 0; i < m; i++)\n        {\n            var input = Console.ReadLine().Split(' ').Select(int.Parse).ToArray();\n            int a = input[0], b = input[1], c = input[2];\n            tag[b] = tim;\n        }\n        for (int i = 1; i <= n; i++)\n            if (tag[i] != tim)\n            {\n                for (int j = 1; j <= n; j++)\n                    if (i != j) Console.WriteLine($\"{i} {j}\");\n                break;\n            }\n    }\n\n    static void Main()\n    {\n        int T = int.Parse(Console.ReadLine());\n        while (T-- > 0) Solve();\n    }\n}\n",
+   "log": "on, run \"dotnet workload update\".\n/workspace/progs/cpp__csharp__CC_1586B/Program.cs(6,19): warning CS0649: Field 'Program.m' is never assigned to, and will always have its default value 0 [/workspace/progs/cpp__csharp__CC_1586B/Rebirth.csproj]\n/workspace/progs/cpp__csharp__CC_1586B/Program.cs(6,16): warning CS0649: Field 'Program.n' is never assigned to, and will always have its default value 0 [/workspace/progs/cpp__csharp__CC_1586B/Rebirth.csproj]\ntest 000: wrong answer\ninput:    2\n7 4\n1 2 3\n3 4 5\n5 6 7\n6 5 4\n5 3\n1 2 3\n2 3 4\n3 4 5\nexpected: 1 2 1 3 1 4 1 5 1 6 1 7 1 2 1 3 1 4 1 5\ngot:      \n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "csharp",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\nclass Program\n{\n    static void Main()\n    {\n        Console.InputEncoding = System.Text.Encoding.UTF8;\n        Console.OutputEncoding = System.Text.Encoding.UTF8;\n        \n        Sub();\n        var start1 = DateTime.Now;\n        long t = 1, s;\n        t = long.Parse(Console.ReadLine());\n        for (s = 1; s <= t; s++)\n        {\n            Solve();\n        }\n        var stop1 = DateTime.Now;\n        var duration = (stop1 - start1).TotalMilliseconds;\n        Console.Error.WriteLine($\"Time: {duration} ms\");\n    }\n\n    static void Sub() { }\n\n    const long N = 1_000_000_007;\n    const long M = 998_244_353;\n\n    static void Solve()\n    {\n        long n = long.Parse(Console.ReadLine());\n        List<long> a = Console.ReadLine().Split(' ').Select(long.Parse).ToList();\n        long ans = 0;\n        foreach (var x in a)\n        {\n            if (x == 1) ans++;\n        }\n        ans = (Power(2, ans, M) - 1 + M) % M;\n        List<long> b = new List<long>(new long[n + 3]);\n        List<long> c = new List<long>(new long[n + 3]);\n        for (long i = 0; i < n; i++)\n        {\n            if (a[(int)i] == 0) b[0] = (2 * b[0] + 1) % M;\n            if (a[(int)i] == 1) b[1] = (2 * b[1] + b[0]) % M;\n            if (a[(int)i] > 1) b[a[(int)i]] = (2 * b[a[(int)i]] + b[a[(int)i] - 1]) % M;\n            if (a[(int)i] > 1) c[a[(int)i] - 1] = (2 * c[a[(int)i] - 1] + b[a[(int)i] - 2]) % M;\n            c[a[(int)i] + 1] = (2 * c[a[(int)i] + 1]) % M;\n        }\n        for (long i = 0; i < n + 1; i++)\n        {\n            ans = (ans + b[(int)i] + c[(int)i]) % M;\n        }\n        Console.WriteLine(ans);\n    }\n\n    static long Power(long x, long y, long MOD)\n    {\n        long ans = 1;\n        x %= MOD;\n        while (y > 0)\n        {\n            if (y % 2 == 1) ans = (ans * x) % MOD;\n            y /= 2;\n            x = (x * x) % MOD;\n        }\n        return ans;\n    }\n\n    static void Show<T>(List<List<T>> a)\n    {\n        foreach (var i in a)\n        {\n            Console.WriteLine(string.Join(\" \", i));\n        }\n    }\n\n    static void Show<T>(List<T> a)\n    {\n        Console.WriteLine(string.Join(\" \", a));\n    }\n\n    static void Show<T>(List<(T, T)> a)\n    {\n        foreach (var i in a)\n        {\n            Console.WriteLine($\"{i.Item1} {i.Item2}\");\n        }\n    }\n\n    static void Show<T>(Tuple<T, T> p)\n    {\n        Console.WriteLine($\"{p.Item1} {p.Item2}\");\n    }\n\n    static void Show(List<string> a)\n    {\n        foreach (var i in a)\n        {\n            Console.WriteLine(i);\n        }\n    }\n\n    static void Take<T>(List<T> a) where T : IConvertible\n    {\n        var input = Console.ReadLine().Split(' ');\n        for (int i = 0; i < a.Count; i++)\n        {\n            a[i] = (T)Convert.ChangeType(input[i], typeof(T));\n        }\n    }\n\n    static long Digits(long n)\n    {\n        long k = 0;\n        while (n != 0)\n        {\n            k++;\n            n /= 10;\n        }\n        return k;\n    }\n\n    static bool IsPrime(long n)\n    {\n        if (n == 1) return false;\n        if (n == 2) return true;\n        if (n % 2 == 0) return false;\n        for (long i = 3; i * i <= n; i += 2)\n        {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n\n    static void Sieve(List<bool> a, long n)\n    {\n        a[1] = false;\n        a[0] = false;\n        long h = (long)Math.Sqrt(n + 1);\n        for (long i = 2; i < h; i++)\n        {\n            if (!a[(int)i]) continue;\n            for (long j = 2 * i; j < n + 1; j += i)\n            {\n                a[(int)j] = false;\n            }\n        }\n    }\n\n    static List<long> Bits(long n)\n    {\n        List<long> a = new List<long>();\n        long i;\n        for (i = 0; i < 33; i++)\n        {\n            a.Add(n % 2);\n            n /= 2;\n        }\n        a.Reverse();\n        return a;\n    }\n}\n",
+   "log": "'long' to 'int' [/workspace/progs/cpp__csharp__CC_1613D/Rebirth.csproj]\n/workspace/progs/cpp__csharp__CC_1613D/Program.cs(47,77): error CS1503: Argument 1: cannot convert from 'long' to 'int' [/workspace/progs/cpp__csharp__CC_1613D/Rebirth.csproj]\n/workspace/progs/cpp__csharp__CC_1613D/Program.cs(48,15): error CS1503: Argument 1: cannot convert from 'long' to 'int' [/workspace/progs/cpp__csharp__CC_1613D/Rebirth.csproj]\n/workspace/progs/cpp__csharp__CC_1613D/Program.cs(48,39): error CS1503: Argument 1: cannot convert from 'long' to 'int' [/workspace/progs/cpp__csharp__CC_1613D/Rebirth.csproj]\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "rust",
+   "problem": "CC_1586B",
+   "status": "pass",
+   "exit": 0,
+   "code": "const MAXN: usize = 100_005;\n\nfn solve(tag: &mut [i32], tim: &mut i32) {\n    *tim += 1;\n    let mut input = String::new();\n    std::io::stdin().read_line(&mut input).unwrap();\n    let mut iter = input.split_whitespace();\n    let n: usize = iter.next().unwrap().parse().unwrap();\n    let m: usize = iter.next().unwrap().parse().unwrap();\n\n    for _ in 0..m {\n        input.clear();\n        std::io::stdin().read_line(&mut input).unwrap();\n        let mut iter = input.split_whitespace();\n        let a: usize = iter.next().unwrap().parse().unwrap();\n        let b: usize = iter.next().unwrap().parse().unwrap();\n        let c: i32 = iter.next().unwrap().parse().unwrap();\n        tag[b] = *tim;\n    }\n\n    for i in 1..=n {\n        if tag[i] != *tim {\n            for j in 1..=n {\n                if i != j {\n                    println!(\"{} {}\", i, j);\n                }\n            }\n            break;\n        }\n    }\n}\n\nfn main() {\n    let mut input = String::new();\n    std::io::stdin().read_line(&mut input).unwrap();\n    let T: usize = input.trim().parse().unwrap();\n\n    let mut tag = vec![0; MAXN];\n    let mut tim = 0;\n\n    for _ in 0..T {\n        solve(&mut tag, &mut tim);\n    }\n}\n",
+   "log": "this is intentional, prefix it with an underscore: `_a`\n   |\n   = note: `#[warn(unused_variables)]` on by default\n\nwarning: unused variable: `c`\n  --> main.rs:17:13\n   |\n17 |         let c: i32 = iter.next().unwrap().parse().unwrap();\n   |             ^ help: if this is intentional, prefix it with an underscore: `_c`\n\nwarning: variable `T` should have a snake case name\n  --> main.rs:36:9\n   |\n36 |     let T: usize = input.trim().parse().unwrap();\n   |         ^ help: convert the identifier to snake case: `t`\n   |\n   = note: `#[warn(non_snake_case)]` on by default\n\nwarning: 3 warnings emitted\n\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "rust",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "use std::collections::HashMap;\nuse std::io::{self, Write};\nuse std::time::{Instant};\n\nfn show<T: std::fmt::Display>(a: &Vec<Vec<T>>) {\n    for i in a {\n        for j in i {\n            print!(\"{} \", j);\n        }\n        println!();\n    }\n}\n\nfn show<T: std::fmt::Display>(a: &Vec<T>) {\n    for i in a {\n        print!(\"{} \", i);\n    }\n    println!();\n}\n\nfn show<T: std::fmt::Display>(a: &Vec<(T, T)>) {\n    for (first, second) in a {\n        println!(\"{} {}\", first, second);\n    }\n}\n\nfn show<T: std::fmt::Display>(p: (T, T)) {\n    println!(\"{} {}\", p.0, p.1);\n}\n\nfn show(a: &Vec<String>) {\n    for i in a {\n        println!(\"{}\", i);\n    }\n}\n\nfn take<T: std::str::FromStr>(a: &mut Vec<T>) {\n    let mut input = String::new();\n    io::stdin().read_line(&mut input).unwrap();\n    let numbers: Vec<T> = input.trim().split_whitespace()\n                                .map(|s| s.parse().expect(\"parse error\"))\n                                .collect();\n    a.extend(numbers);\n}\n\nfn digits(mut n: i64) -> i64 {\n    let mut k = 0;\n    while n != 0 {\n        k += 1;\n        n /= 10;\n    }\n    k\n}\n\nfn isprime(n: i64) -> bool {\n    if n == 1 { return false; }\n    if n == 2 { return true; }\n    if n % 2 == 0 { return false; }\n    let mut i = 3;\n    while i * i <= n {\n        if n % i == 0 { return false; }\n        i += 2;\n    }\n    true\n}\n\nfn power(mut x: i64, mut y: i64, MOD: i64) -> i64 {\n    let mut ans = 1;\n    x %= MOD;\n    while y > 0 {\n        if y % 2 == 1 {\n            ans = (ans * x) % MOD;\n        }\n        y /= 2;\n        x = (x * x) % MOD;\n    }\n    ans\n}\n\nfn sieve(a: &mut Vec<bool>, n: i64) {\n    a[0] = false;\n    a[1] = false;\n    let h = (n as f64).sqrt() as usize + 1;\n    for i in 2..h {\n        if !a[i] { continue; }\n        for j in (i * 2..=n as usize).step_by(i) {\n            a[j] = false;\n        }\n    }\n}\n\nfn load(_g: &mut HashMap<i64, i64>) {}\n\nfn bits(mut n: i64) -> Vec<i64> {\n    let mut a = Vec::new();\n    for _ in 0..33 {\n        a.push(n % 2);\n        n /= 2;\n    }\n    a.reverse();\n    a\n}\n\nfn sub() {}\n\nconst N: i64 = 1_000_000_007;\nconst M: i64 = 998_244_353;\n\nfn solve() {\n    let mut input = String::new();\n    io::stdin().read_line(&mut input).unwrap();\n    let n: usize = input.trim().parse().expect(\"parse error\");\n    let mut a = vec![0; n];\n    take(&mut a);\n    let mut ans = 0;\n    for &i in &a {\n        if i == 1 { ans += 1; }\n    }\n    ans = (power(2, ans, M) - 1 + M) % M;\n    let mut b = vec![0; n + 3];\n    let mut c = vec![0; n + 3];\n    for &i in &a {\n        if i == 0 { b[0] = (2 * b[0] + 1) % M; }\n        if i == 1 { b[1] = (2 * b[1] + b[0]) % M; }\n        if i > 1 { b[i as usize] = (2 * b[i as usize] + b[(i - 1) as usize]) % M; }\n        if i > 1 { c[(i - 1) as usize] = (2 * c[(i - 1) as usize] + b[(i - 2) as usize]) % M; }\n        c[(i + 1) as usize] = (2 * c[(i + 1) as usize]) % M;\n    }\n    for i in 0..=n {\n        ans = (ans + b[i] + c[i]) % M;\n    }\n    println!(\"{}\", ans);\n}\n\nfn main() {\n    let start1 = Instant::now();\n    io::stdin().set_buf_size(1 << 24);\n    io::stdout().set_buf_size(1 << 24);\n    sub();\n    let mut input = String::new();\n    io::stdin().read_line(&mut input).unwrap();\n    let t: usize = input.trim().parse().expect(\"parse error\");\n    for _ in 0..t {\n        solve();\n    }\n    let stop1 = Instant::now();\n    let duration = stop1.duration_since(start1);\n    eprintln!(\"Time: {:.3} ms\", duration.as_micros() as f64 / 1000.0);\n}\n",
+   "log": "nd for struct `Stdin` in the current scope\n   --> main.rs:137:17\n    |\n137 |     io::stdin().set_buf_size(1 << 24);\n    |                 ^^^^^^^^^^^^ method not found in `Stdin`\n\nerror[E0599]: no method named `set_buf_size` found for struct `Stdout` in the current scope\n   --> main.rs:138:18\n    |\n138 |     io::stdout().set_buf_size(1 << 24);\n    |                  ^^^^^^^^^^^^ method not found in `Stdout`\n\nerror: aborting due to 7 previous errors; 1 warning emitted\n\nSome errors have detailed explanations: E0277, E0428, E0599.\nFor more information about an error, try `rustc --explain E0277`.\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "swift",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import Foundation\n\nlet maxn = 100005\nvar n: Int, m: Int\nvar tag = [Int](repeating: 0, count: maxn)\nvar tim = 0\n\nfunc solve() {\n    tim += 1\n    let input = readLine()!.split(separator: \" \").map { Int($0)! }\n    n = input[0]\n    m = input[1]\n    \n    for _ in 0..<m {\n        let line = readLine()!.split(separator: \" \").map { Int($0)! }\n        tag[line[1]] = tim\n    }\n    \n    for i in 1...n {\n        if tag[i] != tim {\n            for j in 1...n {\n                if i != j {\n                    print(\"\\(i) \\(j)\")\n                }\n            }\n            break\n        }\n    }\n}\n\nlet T = Int(readLine()!)!\nfor _ in 0..<T {\n    solve()\n}\n",
+   "log": "main.swift:8:6: error: variable 'n' used by function definition before being initialized\nfunc solve() {\n     ^\nmain.swift:4:5: note: variable defined here\nvar n: Int, m: Int\n    ^\nmain.swift:8:6: error: variable 'm' used by function definition before being initialized\nfunc solve() {\n     ^\nmain.swift:4:13: note: variable defined here\nvar n: Int, m: Int\n            ^\nerror: fatalError\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "swift",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import Foundation\n\nfunc show<T>(_ a: [[T]]) {\n    for i in a {\n        for j in i {\n            print(j, terminator: \" \")\n        }\n        print()\n    }\n}\n\nfunc show<T>(_ a: [T]) {\n    for i in a {\n        print(i, terminator: \" \")\n    }\n    print()\n}\n\nfunc show<T>(_ a: [(T, T)]) {\n    for i in a {\n        print(\"\\(i.0) \\(i.1)\")\n    }\n}\n\nfunc show<T>(_ p: (T, T)) {\n    print(\"\\(p.0) \\(p.1)\")\n}\n\nfunc show(_ a: [String]) {\n    for i in a {\n        print(i)\n    }\n}\n\nfunc take<T>(_ a: inout [T]) where T: LosslessStringConvertible {\n    let input = readLine()!.split(separator: \" \").compactMap { T($0) }\n    for (index, value) in input.enumerated() {\n        a[index] = value\n    }\n}\n\nfunc digits(_ n: Int64) -> Int64 {\n    var k: Int64 = 0\n    var nn = n\n    while nn != 0 {\n        k += 1\n        nn /= 10\n    }\n    return k\n}\n\nfunc isprime(_ n: Int64) -> Bool {\n    if n == 1 { return false }\n    if n == 2 { return true }\n    if n % 2 == 0 { return false }\n    var i = Int64(3)\n    while i * i <= n {\n        if n % i == 0 { return false }\n        i += 2\n    }\n    return true\n}\n\nfunc power(_ x: Int64, _ y: Int64, _ MOD: Int64) -> Int64 {\n    var ans: Int64 = 1\n    var xx = x % MOD\n    var yy = y\n    while yy > 0 {\n        if yy % 2 == 1 {\n            ans = (ans * xx) % MOD\n        }\n        yy /= 2\n        xx = (xx * xx) % MOD\n    }\n    return ans\n}\n\nfunc sieve(_ a: inout [Bool], _ n: Int64) {\n    let h = Int(sqrt(Double(n + 1)))\n    for i in 2..<h {\n        if !a[i] { continue }\n        for j in stride(from: 2 * i, through: n, by: i) {\n            a[Int(j)] = false\n        }\n    }\n}\n\nfunc load(_ g: inout [Int64: Int64]) {}\n\nfunc bits(_ n: Int64) -> [Int64] {\n    var a: [Int64] = []\n    var nn = n\n    for _ in 0..<33 {\n        a.append(nn % 2)\n        nn /= 2\n    }\n    return a.reversed()\n}\n\nfunc sub() {}\n\nlet N: Int64 = 1_000_000_007\nlet M: Int64 = 998_244_353\n\nfunc solve() {\n    let n = Int(readLine()!)!\n    var a = Array(repeating: Int64(0), count: n)\n    take(&a)\n    var ans: Int64 = 0\n    for i in 0..<n {\n        if a[i] == 1 { ans += 1 }\n    }\n    ans = (power(2, ans, M) - 1 + M) % M\n    var b = Array(repeating: Int64(0), count: n + 3)\n    var c = Array(repeating: Int64(0), count: n + 3)\n    for i in 0..<n {\n        if a[i] == 0 { b[0] = (2 * b[0] + 1) % M }\n        if a[i] == 1 { b[1] = (2 * b[1] + b[0]) % M }\n        if a[i] > 1 { b[Int(a[i])] = (2 * b[Int(a[i])] + b[Int(a[i]) - 1]) % M }\n        if a[i] > 1 { c[Int(a[i]) - 1] = (2 * c[Int(a[i]) - 1] + b[Int(a[i]) - 2]) % M }\n        c[Int(a[i]) + 1] = (2 * c[Int(a[i]) + 1]) % M\n    }\n    for i in 0..<n + 1 {\n        ans = (ans + b[i] + c[i]) % M\n    }\n    print(ans)\n}\n\nfunc main() {\n    let start1 = Date()\n    let t = Int(readLine()!)!\n    for _ in 1...t {\n        solve()\n    }\n    let stop1 = Date()\n    let duration = stop1.timeIntervalSince(start1) * 1000\n    print(\"Time: \\(duration) ms\", to: &stderr)\n}\n\nmain()\n",
+   "log": "main.swift:36:66: error: cannot convert value of type 'String.SubSequence' (aka 'Substring') to expected argument type 'String'\n    let input = readLine()!.split(separator: \" \").compactMap { T($0) }\n                                                                 ^\n                                                                 String( )\nmain.swift:82:9: error: failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)\n        for j in stride(from: 2 * i, through: n, by: i) {\n        ^\nerror: fatalError\n"
+  },
+  {
+   "src": "java",
+   "tgt": "python",
+   "problem": "CC_1586B",
+   "status": "fail",
+   "exit": 1,
+   "code": "import sys\n\nMOD = 1000000007\n\ndef ns():\n    return scan.next()\n\ndef ni():\n    return int(scan.next())\n\ndef nl():\n    return int(scan.next())\n\ndef nd():\n    return float(scan.next())\n\ndef nln():\n    return scan.nextLine()\n\ndef p(o):\n    sys.stdout.write(str(o))\n\ndef ps(o):\n    sys.stdout.write(str(o) + \" \")\n\ndef pn(o):\n    sys.stdout.write(str(o) + \"\\n\")\n\ndef iPA(arr):\n    print(\" \".join(map(str, arr)))\n\ndef lPA(arr):\n    print(\" \".join(map(str, arr)))\n\ndef sPA(arr):\n    print(\" \".join(arr))\n\ndef dPA(arr):\n    print(\" \".join(map(str, arr)))\n\ndef iIA(arr):\n    for i in range(len(arr)):\n        arr[i] = ni()\n\ndef lIA(arr):\n    for i in range(len(arr)):\n        arr[i] = nl()\n\ndef sIA(arr):\n    for i in range(len(arr)):\n        arr[i] = ns()\n\ndef dIA(arr):\n    for i in range(len(arr)):\n        arr[i] = nd()\n\nclass FastReader:\n    def __init__(self):\n        self.br = sys.stdin\n        self.st = None\n\n    def next(self):\n        while self.st is None or not self.st.hasMoreTokens():\n            try:\n                self.st = StringTokenizer(self.br.readline())\n            except Exception as e:\n                raise e\n        return self.st.nextToken()\n\n    def hasNextToken(self):\n        if self.st is None:\n            return False\n        return self.st.hasMoreTokens()\n\nclass StringTokenizer:\n    def __init__(self, line):\n        self.tokens = line.split()\n        self.index = 0\n\n    def hasMoreTokens(self):\n        return self.index < len(self.tokens)\n\n    def nextToken(self):\n        if not self.hasMoreTokens():\n            raise Exception(\"No more tokens\")\n        token = self.tokens[self.index]\n        self.index += 1\n        return token\n\ndef isPowerOfTwo(x):\n    return x != 0 and (x & (x - 1)) == 0\n\ndef gcd(a, b):\n    return b if a == 0 else gcd(b % a, a)\n\ndef countDigit(n):\n    return len(str(n))\n\ndef sort(arr):\n    arr.sort()\n\ndef isPrime(n):\n    if n <= 1:\n        return False\n    if n <= 3:\n        return True\n    if n % 2 == 0 or n % 3 == 0:\n        return False\n    i = 5\n    while i * i <= n:\n        if n % i == 0 or n % (i + 2) == 0:\n            return False\n        i += 6\n    return True\n\ndef main():\n    scan = FastReader()\n    t = ni()\n    while t > 0:\n        t -= 1\n        n = ni()\n        m = ni()\n        count = [0] * (n + 1)\n\n        for _ in range(m):\n            a = ni()\n            b = ni()\n            c = ni()\n            count[b] += 1\n\n        num = 1\n        for i in range(1, n + 1):\n            if count[i] == 0:\n                num = i\n                break\n\n        for i in range(1, n + 1):\n            if i != num:\n                pn(f\"{num} {i}\")\n\nif __name__ == \"__main__\":\n    main()\n",
+   "log": "test 000: exit code 1\nTraceback (most recent call last):\n  File \"/workspace/progs/java__python__CC_1586B/main.py\", line 142, in <module>\n    main()\n  File \"/workspace/progs/java__python__CC_1586B/main.py\", line 118, in main\n    t = ni()\n        ^^^^\n  File \"/workspace/progs/java__python__CC_1586B/main.py\", line 9, in ni\n    return int(scan.next())\n               ^^^^\nNameError: name 'scan' is not defined\n"
+  },
+  {
+   "src": "java",
+   "tgt": "python",
+   "problem": "CC_1613D",
+   "status": "pass",
+   "exit": 0,
+   "code": "import sys\n\nclass Main:\n    def __init__(self):\n        self.out = sys.stdout\n        self.inp = sys.stdin.read().split()\n        self.index = 0\n    \n    def next(self):\n        if self.index >= len(self.inp):\n            raise EOFError(\"No more tokens\")\n        token = self.inp[self.index]\n        self.index += 1\n        return token\n    \n    def ni(self):\n        return int(self.next())\n    \n    def nl(self):\n        return int(self.next())\n    \n    def na(self, n):\n        return [self.ni() for _ in range(n)]\n    \n    mod = 998244353\n    \n    def solve(self):\n        tc = self.ni()\n        while tc > 0:\n            n = self.ni()\n            A = self.na(n)\n            \n            D = [[0] * 3 for _ in range(n + 1)]\n            \n            for i in range(n - 1, -1, -1):\n                u = A[i]\n                zero = 1 + D[u][0]\n                if u + 1 <= n:\n                    zero += D[u + 1][0]\n                if u + 2 <= n:\n                    zero += D[u + 2][1]\n                one = 1 + D[u][1]\n                if u > 1:\n                    one += D[u - 2][2]\n                two = 1 + D[u][2]\n                if u + 2 <= n:\n                    two += D[u + 2][1]\n                \n                D[u][0] = (D[u][0] + zero) % self.mod\n                D[u][1] = (D[u][1] + one) % self.mod\n                D[u][2] = (D[u][2] + two) % self.mod\n            \n            ans = (D[0][0] + D[1][1]) % self.mod\n            print(ans)\n            tc -= 1\n\n    def dc(self, a):\n        r = 0\n        while a > 0:\n            r += 1\n            a //= 10\n        return r\n    \n    def gcd(self, a, b):\n        return a if b == 0 else self.gcd(b, a % b)\n    \n    def mp(self, a, p):\n        r = 1\n        while p > 0:\n            if p & 1 == 1:\n                r = (r * a) % self.mod\n            p >>= 1\n            a = (a * a) % self.mod\n        return r\n\nif __name__ == \"__main__\":\n    Main().solve()\n",
+   "log": ""
+  },
+  {
+   "src": "java",
+   "tgt": "typescript",
+   "problem": "CC_1586B",
+   "status": "fail",
+   "exit": 1,
+   "code": "import * as readline from 'readline';\n\nconst MOD = 1000000007;\n\nclass FastReader {\n    private rl: readline.Interface;\n    private buffer: string[] | null;\n\n    constructor() {\n        this.buffer = null;\n        this.rl = readline.createInterface({\n            input: process.stdin,\n            output: process.stdout\n        });\n    }\n\n    async next(): Promise<string> {\n        if (this.buffer === null || this.buffer.length === 0) {\n            this.buffer = (await new Promise(resolve => this.rl.once('line', resolve))).split(/\\s+/);\n        }\n        return this.buffer.shift()!;\n    }\n\n    async nextInt(): Promise<number> {\n        return parseInt(await this.next(), 10);\n    }\n\n    async nextLong(): Promise<number> {\n        return parseFloat(await this.next());\n    }\n\n    async nextDouble(): Promise<number> {\n        return parseFloat(await this.next());\n    }\n\n    async nextLine(): Promise<string> {\n        if (this.buffer !== null && this.buffer.length > 0) {\n            const line = this.buffer.join(' ');\n            this.buffer = null;\n            return line;\n        }\n        return new Promise(resolve => this.rl.once('line', resolve));\n    }\n}\n\nasync function ns(): Promise<string> {\n    return await scan.next();\n}\n\nasync function ni(): Promise<number> {\n    return await scan.nextInt();\n}\n\nasync function nl(): Promise<number> {\n    return await scan.nextLong();\n}\n\nasync function nd(): Promise<number> {\n    return await scan.nextDouble();\n}\n\nasync function nln(): Promise<string> {\n    return await scan.nextLine();\n}\n\nfunction p(o: any): void {\n    process.stdout.write(String(o));\n}\n\nfunction ps(o: any): void {\n    process.stdout.write(`${o} `);\n}\n\nfunction pn(o: any): void {\n    process.stdout.write(`${o}\\n`);\n}\n\nfunction iPA(arr: number[]): void {\n    pn(arr.join(' '));\n}\n\nfunction lPA(arr: number[]): void {\n    pn(arr.join(' '));\n}\n\nfunction sPA(arr: string[]): void {\n    pn(arr.join(' '));\n}\n\nfunction dPA(arr: number[]): void {\n    pn(arr.join(' '));\n}\n\nasync function iIA(arr: number[]): Promise<void> {\n    for (let i = 0; i < arr.length; i++) {\n        arr[i] = await ni();\n    }\n}\n\nasync function lIA(arr: number[]): Promise<void> {\n    for (let i = 0; i < arr.length; i++) {\n        arr[i] = await nl();\n    }\n}\n\nasync function sIA(arr: string[]): Promise<void> {\n    for (let i = 0; i < arr.length; i++) {\n        arr[i] = await ns();\n    }\n}\n\nasync function dIA(arr: number[]): Promise<void> {\n    for (let i = 0; i < arr.length; i++) {\n        arr[i] = await nd();\n    }\n}\n\nfunction isPowerOfTwo(x: number): boolean {\n    return x !== 0 && ((x & (x - 1)) === 0);\n}\n\nfunction gcd(a: number, b: number): number {\n    return a === 0 ? b : gcd(b % a, a);\n}\n\nfunction countDigit(n: number): number {\n    return Math.floor(Math.log10(n) + 1);\n}\n\nfunction sort(arr: number[]): void {\n    arr.sort((a, b) => a - b);\n}\n\nasync function main(): Promise<void> {\n    const scan = new FastReader();\n    const t = await ni();\n\n    for (let _ = 0; _ < t; _++) {\n        const n = await ni();\n        const m = await ni();\n        const count: number[] = new Array(n + 1).fill(0);\n\n        for (let i = 0; i < m; i++) {\n            const a = await ni();\n            const b = await ni();\n            const c = await ni();\n            count[b]++;\n        }\n\n        let num = 1;\n        for (let i = 1; i <= n; i++) {\n            if (count[i] === 0) {\n                num = i;\n                break;\n            }\n        }\n\n        for (let i = 1; i <= n; i++) {\n            if (i !== num) {\n                pn(`${num} ${i}`);\n            }\n        }\n    }\n}\n\nmain();\n",
+   "log": "s/java__typescript__CC_1586B/main.ts:51\n    return await scan.nextInt();\n    ^\n\nReferenceError: scan is not defined\n    at ni (file:///workspace/progs/java__typescript__CC_1586B/main.ts:51:5)\n    at main (file:///workspace/progs/java__typescript__CC_1586B/main.ts:136:21)\n    at file:///workspace/progs/java__typescript__CC_1586B/main.ts:166:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n\nNode.js v22.23.4\n"
+  },
+  {
+   "src": "java",
+   "tgt": "typescript",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import * as readline from 'readline';\n\nclass Main {\n    private out: NodeJS.WritableStream = process.stdout;\n    private in: readline.Interface = readline.createInterface({\n        input: process.stdin,\n        output: process.stdout\n    });\n    private tok: string[] = [];\n    \n    async next(): Promise<string> {\n        if (this.tok.length === 0) {\n            const line = await new Promise<string>((resolve) => this.in.on('line', resolve));\n            this.tok = line.split(/\\s+/);\n        }\n        return this.tok.shift()!;\n    }\n\n    async ni(): Promise<number> {\n        return parseInt(await this.next(), 10);\n    }\n\n    async nl(): Promise<number> {\n        return parseInt(await this.next(), 10);\n    }\n\n    async na(n: number): Promise<number[]> {\n        const A: number[] = [];\n        for (let i = 0; i < n; i++) {\n            A[i] = await this.ni();\n        }\n        return A;\n    }\n\n    private mod: number = 998244353;\n\n    async solve(): Promise<void> {\n        const tc = await this.ni();\n        for (let t = 0; t < tc; t++) {\n            const n = await this.ni();\n            const A = await this.na(n);\n\n            const D: number[][] = Array.from({ length: n + 1 }, () => [0, 0, 0]);\n\n            for (let i = n - 1; i >= 0; i--) {\n                const u = A[i];\n                let zero = 1 + D[u][0];\n                if (u + 1 <= n) zero += D[u + 1][0];\n                if (u + 2 <= n) zero += D[u + 2][1];\n                let one = 1 + D[u][1];\n                if (u > 1) one += D[u - 2][2];\n                let two = 1 + D[u][2];\n                if (u + 2 <= n) two += D[u + 2][1];\n\n                D[u][0] = (D[u][0] + zero) % this.mod;\n                D[u][1] = (D[u][1] + one) % this.mod;\n                D[u][2] = (D[u][2] + two) % this.mod;\n            }\n\n            const ans = (D[0][0] + D[1][1]) % this.mod;\n            this.out.write(`${ans}\\n`);\n        }\n        this.in.close();\n    }\n\n    dc(a: number): number {\n        let r = 0;\n        while (a > 0) {\n            r++;\n            a = Math.floor(a / 10);\n        }\n        return r;\n    }\n\n    gcd(a: number, b: number): number {\n        return b === 0 ? a : this.gcd(b, a % b);\n    }\n\n    mp(a: number, p: number): number {\n        let r = 1;\n        while (p > 0) {\n            if ((p & 1) === 1) r = (r * a) % this.mod;\n            p >>= 1;\n            a = (a * a) % this.mod;\n        }\n        return r;\n    }\n\n    public static async main(): Promise<void> {\n        const mainInstance = new Main();\n        await mainInstance.solve();\n    }\n}\n\nMain.main();\n",
+   "log": "(node:123) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\ntest 000: wrong answer\ninput:    4\n3\n0 2 1\n2\n1 0\n5\n0 0 0 0 0\n4\n0 1 2 3\nexpected: 4 2 31 7\ngot:      \n"
+  },
+  {
+   "src": "java",
+   "tgt": "go",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nconst MOD = 1000000007\n\nvar out *bufio.Writer\nvar scan *bufio.Scanner\n\nfunc init() {\n\tout = bufio.NewWriter(os.Stdout)\n\tscan = bufio.NewScanner(os.Stdin)\n}\n\nfunc ns() string {\n\tscan.Scan()\n\treturn scan.Text()\n}\n\nfunc ni() int {\n\tn, _ := strconv.Atoi(ns())\n\treturn n\n}\n\nfunc nl() int64 {\n\tn, _ := strconv.ParseInt(ns(), 10, 64)\n\treturn n\n}\n\nfunc nd() float64 {\n\tn, _ := strconv.ParseFloat(ns(), 64)\n\treturn n\n}\n\nfunc nln() string {\n\tscan.Scan()\n\treturn scan.Text()\n}\n\nfunc p(o interface{}) {\n\tfmt.Fprint(out, o)\n}\n\nfunc ps(o interface{}) {\n\tfmt.Fprint(out, o, \" \")\n}\n\nfunc pn(o interface{}) {\n\tfmt.Fprintln(out, o)\n}\n\nfunc iPA(arr []int) {\n\tfor _, v := range arr {\n\t\tp(v)\n\t\tps(\" \")\n\t}\n\tpn(\"\")\n}\n\nfunc lPA(arr []int64) {\n\tfor _, v := range arr {\n\t\tp(v)\n\t\tps(\" \")\n\t}\n\tpn(\"\")\n}\n\nfunc sPA(arr []string) {\n\tfor _, v := range arr {\n\t\tp(v)\n\t\tps(\" \")\n\t}\n\tpn(\"\")\n}\n\nfunc dPA(arr []float64) {\n\tfor _, v := range arr {\n\t\tp(v)\n\t\tps(\" \")\n\t}\n\tpn(\"\")\n}\n\nfunc iIA(arr []int) {\n\tfor i := range arr {\n\t\tarr[i] = ni()\n\t}\n}\n\nfunc lIA(arr []int64) {\n\tfor i := range arr {\n\t\tarr[i] = nl()\n\t}\n}\n\nfunc sIA(arr []string) {\n\tfor i := range arr {\n\t\tarr[i] = ns()\n\t}\n}\n\nfunc dIA(arr []float64) {\n\tfor i := range arr {\n\t\tarr[i] = nd()\n\t}\n}\n\nfunc isPowerOfTwo(x int) bool {\n\treturn x != 0 && (x&(x-1)) == 0\n}\n\nfunc gcd(a, b int) int {\n\tif a == 0 {\n\t\treturn b\n\t}\n\treturn gcd(b%a, a)\n}\n\nfunc countDigit(n int64) int {\n\treturn len(strconv.Itoa(int(n)))\n}\n\nfunc sortInts(a []int) {\n\tfor i := range a {\n\t\tfor j := i + 1; j < len(a); j++ {\n\t\t\tif a[i] > a[j] {\n\t\t\t\ta[i], a[j] = a[j], a[i]\n\t\t\t}\n\t\t}\n\t}\n}\n\nfunc sortInt64s(a []int64) {\n\tfor i := range a {\n\t\tfor j := i + 1; j < len(a); j++ {\n\t\t\tif a[i] > a[j] {\n\t\t\t\ta[i], a[j] = a[j], a[i]\n\t\t\t}\n\t\t}\n\t}\n}\n\nfunc isPrime(n int) bool {\n\tif n <= 1 {\n\t\treturn false\n\t}\n\tif n <= 3 {\n\t\treturn true\n\t}\n\tif n%2 == 0 || n%3 == 0 {\n\t\treturn false\n\t}\n\tfor i := 5; i*i <= n; i += 6 {\n\t\tif n%i == 0 || n%(i+2) == 0 {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n\nfunc main() {\n\tdefer out.Flush()\n\n\tt := ni()\n\tfor t > 0 {\n\t\tn, m := ni(), ni()\n\t\tcount := make([]int, n+1)\n\n\t\tfor i := 0; i < m; i++ {\n\t\t\ta, b, c := ni(), ni(), ni()\n\t\t\tcount[b]++\n\t\t}\n\n\t\tnum := 1\n\t\tfor i := 1; i <= n; i++ {\n\t\t\tif count[i] == 0 {\n\t\t\t\tnum = i\n\t\t\t\tbreak\n\t\t\t}\n\t\t}\n\n\t\tfor i := 1; i <= n; i++ {\n\t\t\tif i != num {\n\t\t\t\tpn(fmt.Sprintf(\"%d %d\", num, i))\n\t\t\t}\n\t\t}\n\t\tt--\n\t}\n}\n",
+   "log": "# rebirth.check\n./main.go:175:4: a declared and not used\n./main.go:175:10: c declared and not used\n"
+  },
+  {
+   "src": "java",
+   "tgt": "go",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n\t\"strconv\"\n\t\"strings\"\n)\n\nconst mod = 998244353\n\ntype Main struct {\n\tout *bufio.Writer\n\tin  *bufio.Scanner\n}\n\nfunc (m *Main) next() string {\n\tif !m.in.Scan() {\n\t\tpanic(\"No more tokens\")\n\t}\n\treturn m.in.Text()\n}\n\nfunc (m *Main) ni() int {\n\tn, err := strconv.Atoi(m.next())\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn n\n}\n\nfunc (m *Main) nl() int64 {\n\tn, err := strconv.ParseInt(m.next(), 10, 64)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\treturn n\n}\n\nfunc (m *Main) na(n int) []int {\n\tA := make([]int, n)\n\tfor i := range A {\n\t\tA[i] = m.ni()\n\t}\n\treturn A\n}\n\nfunc (m *Main) solve() {\n\ttc := m.ni()\n\tfor tc > 0 {\n\t\tn := m.ni()\n\t\tA := m.na(n)\n\n\t\tD := make([][3]int64, n+1)\n\n\t\tfor i := n - 1; i >= 0; i-- {\n\t\t\tu := A[i]\n\t\t\tzero := int64(1) + D[u][0]\n\t\t\tif u+1 <= n {\n\t\t\t\tzero += D[u+1][0]\n\t\t\t}\n\t\t\tif u+2 <= n {\n\t\t\t\tzero += D[u+2][1]\n\t\t\t}\n\t\t\tone := int64(1) + D[u][1]\n\t\t\tif u > 1 {\n\t\t\t\tone += D[u-2][2]\n\t\t\t}\n\t\t\ttwo := int64(1) + D[u][2]\n\t\t\tif u+2 <= n {\n\t\t\t\ttwo += D[u+2][1]\n\t\t\t}\n\n\t\t\tD[u][0] = (D[u][0] + zero) % mod\n\t\t\tD[u][1] = (D[u][1] + one) % mod\n\t\t\tD[u][2] = (D[u][2] + two) % mod\n\t\t}\n\n\t\tans := (D[0][0] + D[1][1]) % mod\n\t\tfmt.Fprintln(m.out, ans)\n\t\ttc--\n\t}\n\tm.out.Flush()\n}\n\nfunc main() {\n\tin := bufio.NewScanner(os.Stdin)\n\tout := bufio.NewWriter(os.Stdout)\n\tdefer out.Flush()\n\n\tmainObj := &Main{out: out, in: in}\n\tmainObj.solve()\n}\n",
+   "log": "test 000: exit code 2\npanic: strconv.Atoi: parsing \"0 2 1\": invalid syntax\n\ngoroutine 1 [running]:\nmain.(*Main).ni(0xc00009cf18)\n\t/workspace/progs/java__go__CC_1613D/main.go:27 +0x65\nmain.(*Main).na(...)\n\t/workspace/progs/java__go__CC_1613D/main.go:43\nmain.(*Main).solve(0xc00009cf18)\n\t/workspace/progs/java__go__CC_1613D/main.go:52 +0x13f\nmain.main()\n\t/workspace/progs/java__go__CC_1613D/main.go:92 +0x13d\n"
+  },
+  {
+   "src": "java",
+   "tgt": "csharp",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static int MOD = 1000000007;\n\n    /*-------- I/O using short named function ---------*/\n    public static string ns() => scan.next();\n    public static int ni() => scan.nextInt();\n    public static long nl() => scan.nextLong();\n    public static double nd() => scan.nextDouble();\n    public static string nln() => scan.nextLine();\n    public static void p(object o) => Console.Write(o);\n    public static void ps(object o) => Console.Write(o + \" \");\n    public static void pn(object o) => Console.WriteLine(o);\n\n    /*-------- for output of an array ---------------------*/\n    static void iPA(int[] arr)\n    {\n        StringBuilder output = new StringBuilder();\n        foreach (int i in arr) output.Append(i + \" \");\n        pn(output);\n    }\n    static void lPA(long[] arr)\n    {\n        StringBuilder output = new StringBuilder();\n        foreach (long i in arr) output.Append(i + \" \");\n        pn(output);\n    }\n    static void sPA(string[] arr)\n    {\n        StringBuilder output = new StringBuilder();\n        foreach (string i in arr) output.Append(i + \" \");\n        pn(output);\n    }\n    static void dPA(double[] arr)\n    {\n        StringBuilder output = new StringBuilder();\n        foreach (double i in arr) output.Append(i + \" \");\n        pn(output);\n    }\n\n    /*-------------- for input in an array ---------------------*/\n    static void iIA(int[] arr)\n    {\n        for (int i = 0; i < arr.Length; i++) arr[i] = ni();\n    }\n    static void lIA(long[] arr)\n    {\n        for (int i = 0; i < arr.Length; i++) arr[i] = nl();\n    }\n    static void sIA(string[] arr)\n    {\n        for (int i = 0; i < arr.Length; i++) arr[i] = ns();\n    }\n    static void dIA(double[] arr)\n    {\n        for (int i = 0; i < arr.Length; i++) arr[i] = nd();\n    }\n\n    /*------------ for taking input faster ----------------*/\n    static class FastReader\n    {\n        System.IO.StreamReader br;\n        string[] st;\n        int index;\n\n        public FastReader()\n        {\n            br = new System.IO.StreamReader(Console.OpenStandardInput());\n        }\n\n        string next()\n        {\n            if (st == null || index >= st.Length)\n            {\n                st = br.ReadLine().Split();\n                index = 0;\n            }\n            return st[index++];\n        }\n\n        int nextInt() => int.Parse(next());\n        long nextLong() => long.Parse(next());\n        double nextDouble() => double.Parse(next());\n        string nextLine() => br.ReadLine();\n    }\n\n    // Method to check if x is power of 2\n    static bool isPowerOfTwo(int x) => x != 0 && ((x & (x - 1)) == 0);\n\n    // Method to return gcd of two numbers\n    static int gcd(int a, int b) => a == 0 ? b : gcd(b % a, a);\n\n    // Method to count digit of a number\n    static int countDigit(long n) => (int)Math.Floor(Math.Log10(n) + 1);\n\n    // Method for sorting\n    static void sort(int[] a)\n    {\n        List<int> l = new List<int>(a);\n        l.Sort();\n        for (int i = 0; i < a.Length; i++) a[i] = l[i];\n    }\n\n    // Method for sorting\n    static void sort(long[] a)\n    {\n        List<long> l = new List<long>(a);\n        l.Sort();\n        for (int i = 0; i < a.Length; i++) a[i] = l[i];\n    }\n\n    // Method for checking if a number is prime or not\n    static bool isPrime(int n)\n    {\n        if (n <= 1) return false;\n        if (n <= 3) return true;\n        if (n % 2 == 0 || n % 3 == 0) return false;\n        for (int i = 5; i * i <= n; i += 6)\n            if (n % i == 0 || n % (i + 2) == 0) return false;\n        return true;\n    }\n\n    static void Main()\n    {\n        FastReader scan = new FastReader();\n        int t = ni();\n        while (t-- > 0)\n        {\n            int n = ni(), m = ni();\n            int[] count = new int[n + 1];\n\n            for (int i = 0; i < m; i++)\n            {\n                int a = ni(), b = ni(), c = ni();\n                count[b]++;\n            }\n\n            int num = 1;\n            for (int i = 1; i <= n; i++)\n            {\n                if (count[i] == 0)\n                {\n                    num = i;\n                    break;\n                }\n            }\n\n            for (int i = 1; i <= n; i++)\n            {\n                if (i != num)\n                {\n                    pn(num + \" \" + i);\n                }\n            }\n        }\n    }\n}\n",
+   "log": "1586B/Rebirth.csproj]\n/workspace/progs/java__csharp__CC_1586B/Program.cs(85,14): error CS0708: 'nextLong': cannot declare instance members in a static class [/workspace/progs/java__csharp__CC_1586B/Rebirth.csproj]\n/workspace/progs/java__csharp__CC_1586B/Program.cs(86,16): error CS0708: 'nextDouble': cannot declare instance members in a static class [/workspace/progs/java__csharp__CC_1586B/Rebirth.csproj]\n/workspace/progs/java__csharp__CC_1586B/Program.cs(87,16): error CS0708: 'nextLine': cannot declare instance members in a static class [/workspace/progs/java__csharp__CC_1586B/Rebirth.csproj]\n"
+  },
+  {
+   "src": "java",
+   "tgt": "csharp",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "using System;\nusing System.IO;\n\nclass Program\n{\n    private readonly StreamWriter _out = new StreamWriter(Console.OpenStandardOutput());\n    private readonly StreamReader _in = new StreamReader(Console.OpenStandardInput());\n    private string[] _tok = Array.Empty<string>();\n\n    private string Next()\n    {\n        if (_tok.Length == 0) _tok = _in.ReadLine().Split();\n        return _tok[0];\n    }\n\n    private int Ni() => int.Parse(Next());\n    private long Nl() => long.Parse(Next());\n    private int[] Na(int n)\n    {\n        int[] A = new int[n];\n        for (int i = 0; i < n; i++) A[i] = Ni();\n        return A;\n    }\n\n    private const long Mod = 998244353;\n\n    private void Solve()\n    {\n        int tc = Ni();\n        while (tc-- > 0)\n        {\n            int n = Ni();\n            int[] A = Na(n);\n\n            long[,] D = new long[n + 1, 3];\n\n            for (int i = n - 1; i >= 0; i--)\n            {\n                int u = A[i];\n                long zero = 1L + D[u, 0];\n                if (u + 1 <= n) zero += D[u + 1, 0];\n                if (u + 2 <= n) zero += D[u + 2, 1];\n                long one = 1L + D[u, 1];\n                if (u > 1) one += D[u - 2, 2];\n                long two = 1L + D[u, 2];\n                if (u + 2 <= n) two += D[u + 2, 1];\n\n                D[u, 0] = (D[u, 0] + zero) % Mod;\n                D[u, 1] = (D[u, 1] + one) % Mod;\n                D[u, 2] = (D[u, 2] + two) % Mod;\n            }\n\n            long ans = (D[0, 0] + D[1, 1]) % Mod;\n            _out.WriteLine(ans);\n        }\n        _out.Flush();\n    }\n\n    private int Dc(long a)\n    {\n        int r = 0;\n        while (a > 0) { r++; a /= 10; }\n        return r;\n    }\n\n    private int Gcd(int a, int b) => b == 0 ? a : Gcd(b, a % b);\n    private long Gcd(long a, long b) => b == 0 ? a : Gcd(b, a % b);\n    private long Mp(long a, long p)\n    {\n        long r = 1;\n        while (p > 0)\n        {\n            if ((p & 1) == 1) r = (r * a) % Mod;\n            p >>= 1;\n            a = (a * a) % Mod;\n        }\n        return r;\n    }\n\n    static void Main(string[] args)\n    {\n        new Program().Solve();\n    }\n}\n",
+   "log": "test 000: wrong answer\ninput:    4\n3\n0 2 1\n2\n1 0\n5\n0 0 0 0 0\n4\n0 1 2 3\nexpected: 4 2 31 7\ngot:      0 0 0 0\n"
+  },
+  {
+   "src": "java",
+   "tgt": "rust",
+   "problem": "CC_1586B",
+   "status": "fail",
+   "exit": 1,
+   "code": "use std::io::{self, BufRead, Write};\n\nconst MOD: usize = 1_000_000_007;\n\nstruct FastReader {\n    reader: io::BufReader<io::Stdin>,\n    buffer: String,\n}\n\nimpl FastReader {\n    fn new() -> Self {\n        FastReader {\n            reader: io::BufReader::new(io::stdin()),\n            buffer: String::new(),\n        }\n    }\n\n    fn next(&mut self) -> Option<String> {\n        if self.buffer.is_empty() {\n            let mut line = String::new();\n            self.reader.read_line(&mut line).expect(\"Failed to read line\");\n            self.buffer = line;\n        }\n        let pos = self.buffer.find(' ')?;\n        let token = self.buffer[..pos].to_string();\n        self.buffer.drain(..=pos);\n        Some(token)\n    }\n\n    fn next_int(&mut self) -> i32 {\n        self.next().unwrap().parse().expect(\"Failed to parse integer\")\n    }\n\n    fn next_long(&mut self) -> i64 {\n        self.next().unwrap().parse().expect(\"Failed to parse long\")\n    }\n\n    fn next_double(&mut self) -> f64 {\n        self.next().unwrap().parse().expect(\"Failed to parse double\")\n    }\n\n    fn next_line(&mut self) -> String {\n        let line = self.buffer.clone();\n        self.buffer.clear();\n        line.trim_end().to_string()\n    }\n}\n\nfn is_power_of_two(x: i32) -> bool {\n    x != 0 && (x & (x - 1)) == 0\n}\n\nfn gcd(mut a: i32, mut b: i32) -> i32 {\n    while b != 0 {\n        let temp = b;\n        b = a % b;\n        a = temp;\n    }\n    a\n}\n\nfn count_digit(n: i64) -> usize {\n    if n == 0 {\n        return 1;\n    }\n    (n as f64).log10().floor() as usize + 1\n}\n\nfn sort_ints(arr: &mut [i32]) {\n    arr.sort_unstable();\n}\n\nfn sort_longs(arr: &mut [i64]) {\n    arr.sort_unstable();\n}\n\nfn is_prime(n: i32) -> bool {\n    if n <= 1 {\n        return false;\n    }\n    if n <= 3 {\n        return true;\n    }\n    if n % 2 == 0 || n % 3 == 0 {\n        return false;\n    }\n    let mut i = 5;\n    while i * i <= n {\n        if n % i == 0 || n % (i + 2) == 0 {\n            return false;\n        }\n        i += 6;\n    }\n    true\n}\n\nfn main() {\n    let mut reader = FastReader::new();\n    let mut stdout = io::stdout().lock();\n\n    let t = reader.next_int();\n    for _ in 0..t {\n        let n = reader.next_int();\n        let m = reader.next_int();\n        let mut count = vec![0; (n + 1) as usize];\n\n        for _ in 0..m {\n            let a = reader.next_int();\n            let b = reader.next_int();\n            let c = reader.next_int();\n            count[b as usize] += 1;\n        }\n\n        let mut num = 1;\n        for i in 1..=n {\n            if count[i as usize] == 0 {\n                num = i;\n                break;\n            }\n        }\n\n        for i in 1..=n {\n            if i != num {\n                writeln!(stdout, \"{} {}\", num, i).unwrap();\n            }\n        }\n    }\n}\n",
+   "log": "^^^^^^^^^^\n\nwarning: function `sort_ints` is never used\n  --> main.rs:69:4\n   |\n69 | fn sort_ints(arr: &mut [i32]) {\n   |    ^^^^^^^^^\n\nwarning: function `sort_longs` is never used\n  --> main.rs:73:4\n   |\n73 | fn sort_longs(arr: &mut [i64]) {\n   |    ^^^^^^^^^^\n\nwarning: function `is_prime` is never used\n  --> main.rs:77:4\n   |\n77 | fn is_prime(n: i32) -> bool {\n   |    ^^^^^^^^\n\nwarning: 10 warnings emitted\n\ntest 000: exit code 101\nthread 'main' panicked at main.rs:31:21:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+  },
+  {
+   "src": "java",
+   "tgt": "rust",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "use std::io::{self, BufRead, Write};\n\nconst MOD: i64 = 998244353;\n\nstruct Main {\n    out: Vec<u8>,\n    in_buffer: String,\n    tok_iter: std::str::SplitWhitespace<'static>,\n}\n\nimpl Main {\n    fn new() -> Self {\n        let mut in_buffer = String::new();\n        io::stdin().read_to_string(&mut in_buffer).unwrap();\n        let tok_iter = in_buffer.split_whitespace();\n        Main {\n            out: Vec::new(),\n            in_buffer,\n            tok_iter,\n        }\n    }\n\n    fn next(&mut self) -> &str {\n        if let Some(token) = self.tok_iter.next() {\n            token\n        } else {\n            self.in_buffer.clear();\n            io::stdin().read_to_string(&mut self.in_buffer).unwrap();\n            self.tok_iter = self.in_buffer.split_whitespace();\n            self.tok_iter.next().unwrap()\n        }\n    }\n\n    fn ni(&mut self) -> i32 {\n        self.next().parse().unwrap()\n    }\n\n    fn nl(&mut self) -> i64 {\n        self.next().parse().unwrap()\n    }\n\n    fn na(&mut self, n: usize) -> Vec<i32> {\n        (0..n).map(|_| self.ni()).collect()\n    }\n\n    fn solve(&mut self) {\n        let tc = self.ni();\n        for _ in 0..tc {\n            let n = self.ni() as usize;\n            let a: Vec<_> = self.na(n);\n\n            let mut d = vec![vec![0; 3]; n + 1];\n\n            for i in (0..n).rev() {\n                let u = a[i] as usize;\n                let zero = 1 + d[u][0];\n                if u + 1 <= n {\n                    d[u][0] = (d[u][0] + zero) % MOD;\n                }\n                if u + 2 <= n {\n                    d[u][0] = (d[u][0] + d[u + 2][1]) % MOD;\n                }\n                let one = 1 + d[u][1];\n                if u > 1 {\n                    d[u][1] = (d[u][1] + d[u - 2][2]) % MOD;\n                }\n                let two = 1 + d[u][2];\n                if u + 2 <= n {\n                    d[u][2] = (d[u][2] + d[u + 2][1]) % MOD;\n                }\n            }\n\n            let ans = (d[0][0] + d[1][1]) % MOD;\n            writeln!(self.out, \"{}\", ans).unwrap();\n        }\n    }\n\n    fn dc(&mut self, mut a: i64) -> usize {\n        let mut r = 0;\n        while a > 0 {\n            r += 1;\n            a /= 10;\n        }\n        r\n    }\n\n    fn gcd(mut a: i32, mut b: i32) -> i32 {\n        while b != 0 {\n            let t = b;\n            b = a % b;\n            a = t;\n        }\n        a\n    }\n\n    fn gcd_l(mut a: i64, mut b: i64) -> i64 {\n        while b != 0 {\n            let t = b;\n            b = a % b;\n            a = t;\n        }\n        a\n    }\n\n    fn mp(&mut self, mut a: i64, mut p: i64) -> i64 {\n        let mut r = 1;\n        while p > 0 {\n            if p & 1 == 1 {\n                r = (r * a) % MOD;\n            }\n            p >>= 1;\n            a = (a * a) % MOD;\n        }\n        r\n    }\n}\n\nfn main() {\n    let mut main = Main::new();\n    main.solve();\n    io::stdout().write_all(&main.out).unwrap();\n}\n",
+   "log": "   ~~~~~~~~~~~\n\nwarning: unused variable: `one`\n  --> main.rs:63:21\n   |\n63 |                 let one = 1 + d[u][1];\n   |                     ^^^ help: if this is intentional, prefix it with an underscore: `_one`\n   |\n   = note: `#[warn(unused_variables)]` on by default\n\nwarning: unused variable: `two`\n  --> main.rs:67:21\n   |\n67 |                 let two = 1 + d[u][2];\n   |                     ^^^ help: if this is intentional, prefix it with an underscore: `_two`\n\nerror: aborting due to 2 previous errors; 3 warnings emitted\n\nFor more information about this error, try `rustc --explain E0599`.\n"
+  },
+  {
+   "src": "java",
+   "tgt": "cpp",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "#include <iostream>\n#include <sstream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nconst int MOD = 1000000007;\n\nclass FastReader {\n    istream* is;\n    string line;\n    stringstream ss;\npublic:\n    FastReader(istream& in = cin) : is(&in) {}\n    string next() {\n        if (!ss || ss.peek() == -1) {\n            getline(*is, line);\n            ss.str(line);\n            ss.clear();\n        }\n        string word;\n        ss >> word;\n        return word;\n    }\n    int nextInt() { return stoi(next()); }\n    long long nextLong() { return stoll(next()); }\n    double nextDouble() { return stod(next()); }\n    string nextLine() {\n        if (ss && ss.peek() != -1) {\n            string rest;\n            getline(ss, rest);\n            return rest.empty() ? next() : rest;\n        } else {\n            getline(*is, line);\n            return line;\n        }\n    }\n};\n\nvoid p(const auto& o) { cout << o; }\nvoid ps(const auto& o) { cout << o << \" \"; }\nvoid pn(const auto& o) { cout << o << \"\\n\"; }\n\ntemplate<typename T>\nvoid iPA(const vector<T>& arr) {\n    for (const auto& x : arr) cout << x << \" \";\n    cout << \"\\n\";\n}\n\ntemplate<typename T>\nvoid lPA(const vector<T>& arr) {\n    for (const auto& x : arr) cout << x << \" \";\n    cout << \"\\n\";\n}\n\ntemplate<typename T>\nvoid sPA(const vector<T>& arr) {\n    for (const auto& x : arr) cout << x << \" \";\n    cout << \"\\n\";\n}\n\ntemplate<typename T>\nvoid dPA(const vector<T>& arr) {\n    for (const auto& x : arr) cout << x << \" \";\n    cout << \"\\n\";\n}\n\ntemplate<typename T>\nvoid iIA(vector<T>& arr) {\n    for (auto& x : arr) x = nextInt();\n}\n\ntemplate<typename T>\nvoid lIA(vector<T>& arr) {\n    for (auto& x : arr) x = nextLong();\n}\n\ntemplate<typename T>\nvoid sIA(vector<T>& arr) {\n    for (auto& x : arr) x = next();\n}\n\ntemplate<typename T>\nvoid dIA(vector<T>& arr) {\n    for (auto& x : arr) x = nextDouble();\n}\n\nbool isPowerOfTwo(int x) { return x != 0 && ((x & (x - 1)) == 0); }\nint gcd(int a, int b) { return a == 0 ? b : gcd(b % a, a); }\nint countDigit(long long n) { return to_string(n).length(); }\n\ntemplate<typename T>\nvoid sort(vector<T>& a) {\n    sort(a.begin(), a.end());\n}\n\nbool isPrime(int n) {\n    if (n <= 1) return false;\n    if (n <= 3) return true;\n    if (n % 2 == 0 || n % 3 == 0) return false;\n    for (int i = 5; i * i <= n; i += 6)\n        if (n % i == 0 || n % (i + 2) == 0) return false;\n    return true;\n}\n\nFastReader scan(cin);\nint nextInt() { return scan.nextInt(); }\nlong long nextLong() { return scan.nextLong(); }\ndouble nextDouble() { return scan.nextDouble(); }\nstring nextLine() { return scan.nextLine(); }\n\nint main() {\n    int t = nextInt();\n    while (t--) {\n        int n = nextInt(), m = nextInt();\n        vector<int> count(n + 1, 0);\n\n        for (int i = 0; i < m; ++i) {\n            int a = nextInt(), b = nextInt(), c = nextInt();\n            count[b]++;\n        }\n\n        int num = 1;\n        for (int i = 1; i <= n; ++i) {\n            if (count[i] == 0) {\n                num = i;\n                break;\n            }\n        }\n\n        for (int i = 1; i <= n; ++i) {\n            if (i != num) {\n                pn(num << \" \" << i);\n            }\n        }\n    }\n    return 0;\n}\n",
+   "log": "tion 'void dIA(std::vector<T>&)':\nmain.cpp:87:29: error: there are no arguments to 'nextDouble' that depend on a template parameter, so a declaration of 'nextDouble' must be available [-fpermissive]\n   87 |     for (auto& x : arr) x = nextDouble();\n      |                             ^~~~~~~~~~\nmain.cpp: In function 'int main()':\nmain.cpp:135:24: error: invalid operands of types 'int' and 'const char [2]' to binary 'operator<<'\n  135 |                 pn(num << \" \" << i);\n      |                    ~~~ ^~ ~~~\n      |                    |      |\n      |                    int    const char [2]\n"
+  },
+  {
+   "src": "java",
+   "tgt": "cpp",
+   "problem": "CC_1613D",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "#include <iostream>\n#include <sstream>\n#include <vector>\n#include <string>\n#include <algorithm>\n\nusing namespace std;\n\nclass Main {\npublic:\n    void solve() {\n        int tc;\n        cin >> tc;\n        while (tc--) {\n            int n;\n            cin >> n;\n            vector<int> A(n);\n            for (int i = 0; i < n; ++i) {\n                cin >> A[i];\n            }\n\n            vector<vector<long long>> D(n + 1, vector<long long>(3, 0));\n            const long long mod = 998244353;\n\n            for (int i = n - 1; i >= 0; --i) {\n                int u = A[i];\n                long long zero = 1LL + D[u][0];\n                if (u + 1 <= n) zero += D[u + 1][0];\n                if (u + 2 <= n) zero += D[u + 2][1];\n                long long one = 1LL + D[u][1];\n                if (u > 1) one += D[u - 2][2];\n                long long two = 1LL + D[u][2];\n                if (u + 2 <= n) two += D[u + 2][1];\n\n                D[u][0] = (D[u][0] + zero) % mod;\n                D[u][1] = (D[u][1] + one) % mod;\n                D[u][2] = (D[u][2] + two) % mod;\n            }\n\n            long long ans = (D[0][0] + D[1][1]) % mod;\n            cout << ans << endl;\n        }\n    }\n\n    int dc(long long a) {\n        int r = 0;\n        while (a > 0) {\n            ++r;\n            a /= 10;\n        }\n        return r;\n    }\n\n    int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }\n    long long gcd(long long a, long long b) { return b == 0 ? a : gcd(b, a % b); }\n    long long mp(long long a, long long p) {\n        long long r = 1;\n        while (p > 0) {\n            if (p & 1) r = (r * a) % mod;\n            p >>= 1;\n            a = (a * a) % mod;\n        }\n        return r;\n    }\n};\n\nint main() {\n    Main().solve();\n    return 0;\n}\n",
+   "log": "main.cpp: In member function 'long long int Main::mp(long long int, long long int)':\nmain.cpp:59:38: error: 'mod' was not declared in this scope\n   59 |             if (p & 1) r = (r * a) % mod;\n      |                                      ^~~\nmain.cpp:61:27: error: 'mod' was not declared in this scope\n   61 |             a = (a * a) % mod;\n      |                           ^~~\n"
+  },
+  {
+   "src": "java",
+   "tgt": "swift",
+   "problem": "CC_1586B",
+   "status": "compile_error",
+   "exit": 90,
+   "code": "import Foundation\n\nlet MOD = 1000000007\n\nclass FastReader {\n    private var buffer: [String] = []\n    \n    init() {\n        let input = FileHandle.standardInput.readDataToEndOfFile()\n        if let string = String(data: input, encoding: .utf8) {\n            buffer = string.split(separator: \"\\n\").map { String($0) }\n        }\n    }\n    \n    func next() -> String {\n        return buffer.removeFirst().split(separator: \" \").first!\n    }\n    \n    func nextInt() -> Int {\n        return Int(next())!\n    }\n    \n    func nextLong() -> Int64 {\n        return Int64(next())!\n    }\n    \n    func nextDouble() -> Double {\n        return Double(next())!\n    }\n    \n    func nextLine() -> String {\n        return buffer.removeFirst()\n    }\n}\n\nfunc ns() -> String { return scan.next() }\nfunc ni() -> Int { return scan.nextInt() }\nfunc nl() -> Int64 { return scan.nextLong() }\nfunc nd() -> Double { return scan.nextDouble() }\nfunc nln() -> String { return scan.nextLine() }\n\nfunc p(_ o: Any) { print(o, terminator: \"\") }\nfunc ps(_ o: Any) { print(o, terminator: \" \") }\nfunc pn(_ o: Any) { print(o) }\n\nfunc iPA(_ arr: [Int]) {\n    let output = arr.map { String($0) }.joined(separator: \" \")\n    pn(output)\n}\n\nfunc lPA(_ arr: [Int64]) {\n    let output = arr.map { String($0) }.joined(separator: \" \")\n    pn(output)\n}\n\nfunc sPA(_ arr: [String]) {\n    let output = arr.joined(separator: \" \")\n    pn(output)\n}\n\nfunc dPA(_ arr: [Double]) {\n    let output = arr.map { String($0) }.joined(separator: \" \")\n    pn(output)\n}\n\nfunc iIA(_ arr: inout [Int]) {\n    for i in 0..<arr.count {\n        arr[i] = ni()\n    }\n}\n\nfunc lIA(_ arr: inout [Int64]) {\n    for i in 0..<arr.count {\n        arr[i] = nl()\n    }\n}\n\nfunc sIA(_ arr: inout [String]) {\n    for i in 0..<arr.count {\n        arr[i] = ns()\n    }\n}\n\nfunc dIA(_ arr: inout [Double]) {\n    for i in 0..<arr.count {\n        arr[i] = nd()\n    }\n}\n\nfunc isPowerOfTwo(_ x: Int) -> Bool { return x != 0 && (x & (x - 1)) == 0 }\n\nfunc gcd(_ a: Int, _ b: Int) -> Int { return a == 0 ? b : gcd(b % a, a) }\n\nfunc countDigit(_ n: Int64) -> Int {\n    return String(n).count\n}\n\nfunc sort(_ a: inout [Int]) {\n    a.sort()\n}\n\nfunc sort(_ a: inout [Int64]) {\n    a.sort()\n}\n\nfunc isPrime(_ n: Int) -> Bool {\n    if n <= 1 { return false }\n    if n <= 3 { return true }\n    if n % 2 == 0 || n % 3 == 0 { return false }\n    var i = 5\n    while i * i <= n {\n        if n % i == 0 || n % (i + 2) == 0 { return false }\n        i += 6\n    }\n    return true\n}\n\nvar scan = FastReader()\n\nfunc main() {\n    let t = ni()\n    for _ in 0..<t {\n        let n = ni(), m = ni()\n        var count = Array(repeating: 0, count: n + 1)\n        \n        for _ in 0..<m {\n            let a = ni(), b = ni(), c = ni()\n            count[b] += 1\n        }\n        \n        var num = 1\n        for i in 1...n {\n            if count[i] == 0 {\n                num = i\n                break\n            }\n        }\n        \n        for i in 1...n {\n            if i != num {\n                pn(\"\\(num) \\(i)\")\n            }\n        }\n    }\n}\n\nmain()\n",
+   "log": "rst().split(separator: \" \").first!\n               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n               String(                                          )\nmain.swift:127:17: warning: immutable value 'a' was never used; consider replacing with '_' or removing it\n            let a = ni(), b = ni(), c = ni()\n                ^\n                _\nmain.swift:127:37: warning: immutable value 'c' was never used; consider replacing with '_' or removing it\n            let a = ni(), b = ni(), c = ni()\n                                    ^\n                                    _\nerror: fatalError\n"
+  },
+  {
+   "src": "java",
+   "tgt": "swift",
+   "problem": "CC_1613D",
+   "status": "fail",
+   "exit": 1,
+   "code": "import Foundation\n\nclass Main {\n    let out = FileHandle.standardOutput\n    var inBuffer: String = \"\"\n    var tok: [String] = []\n    \n    func next() throws -> String {\n        if tok.isEmpty {\n            inBuffer = try String(data: FileHandle.standardInput.readDataToEndOfFile(), encoding: .utf8) ?? \"\"\n            tok = inBuffer.split(separator: \" \").map { String($0) }\n        }\n        return tok.removeFirst()\n    }\n    \n    func ni() throws -> Int {\n        return Int(try next())!\n    }\n    \n    func nl() throws -> Int64 {\n        return Int64(try next())!\n    }\n    \n    func na(_ n: Int) throws -> [Int] {\n        var A = [Int]()\n        for _ in 0..<n {\n            A.append(try ni())\n        }\n        return A\n    }\n    \n    let mod: Int64 = 998244353\n    \n    func solve() throws {\n        let tc = try ni()\n        for _ in 1...tc {\n            let n = try ni()\n            let A = try na(n)\n            \n            var D = Array(repeating: Array(repeating: Int64(0), count: 3), count: n + 1)\n            \n            for i in stride(from: n - 1, through: 0, by: -1) {\n                let u = A[i]\n                let zero = (1 + D[u][0]) % mod\n                if u + 1 <= n { D[u][0] = (D[u][0] + zero + D[u + 1][0]) % mod }\n                if u + 2 <= n { D[u][0] = (D[u][0] + zero + D[u + 2][1]) % mod }\n                let one = (1 + D[u][1]) % mod\n                if u > 1 { D[u][1] = (D[u][1] + one + D[u - 2][2]) % mod }\n                let two = (1 + D[u][2]) % mod\n                if u + 2 <= n { D[u][2] = (D[u][2] + two + D[u + 2][1]) % mod }\n            }\n            \n            let ans = (D[0][0] + D[1][1]) % mod\n            out.write(\"\\(ans)\\n\".data(using: .utf8)!)\n        }\n    }\n    \n    func dc(_ a: Int64) -> Int {\n        var r = 0\n        var aa = a\n        while aa > 0 {\n            r += 1\n            aa /= 10\n        }\n        return r\n    }\n    \n    func gcd(_ a: Int, _ b: Int) -> Int {\n        return b == 0 ? a : gcd(b, a % b)\n    }\n    \n    func gcd(_ a: Int64, _ b: Int64) -> Int64 {\n        return b == 0 ? a : gcd(b, a % b)\n    }\n    \n    func mp(_ a: Int64, _ p: Int64) -> Int64 {\n        var r = Int64(1)\n        var aa = a\n        var pp = p\n        while pp > 0 {\n            if pp & 1 == 1 { r = (r * aa) % mod }\n            pp >>= 1\n            aa = (aa * aa) % mod\n        }\n        return r\n    }\n}\n\ndo {\n    try Main().solve()\n} catch {\n    print(error)\n}\n",
+   "log": "0 48 83 3f 00 74 48 48 89 fb e8  UH·åSPH·?·tHH·ûè\nr12 0x0000000000000000  0\nr13 0x0000609aecb559c0  a0 31 8a af 9a 60 00 00 03 00 00 00 00 00 00 00   1·¯·`··········\nr14 0xe500000000000000  16501189034685497344\nr15 0x0000000000000000  0\nrip 0x0000609aaf89e9d9  0f 0b ba 0a 00 00 00 48 89 c7 4c 89 f6 e8 c5 15  ··º····H·ÇL·öèÅ·\n\nrflags 0x0000000000010202  \n\ncs 0x0033  fs 0x0000  gs 0x0000\n\n\nImages (17 omitted):\n\n0x0000609aaf89c000–0x0000609aaf8a1830 <no build ID> prog /workspace/progs/java__swift__CC_1613D/prog\n\nBacktrace took 0.00s\n\ntimeout: the monitored command dumped core\nIllegal instruction\n"
+  }
+ ]
+}

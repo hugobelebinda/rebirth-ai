@@ -1,9 +1,9 @@
 # Phase 17 — Cross-language migration (all 8 languages)
 
-> Status: **IN PROGRESS** — stage 1 (pipeline + eval harness) and stage 2 (zero-shot baseline: Ollama 14B **89.3 %** pass@1 over all 56 directions on HumanEval) done 2026-11-07, started early while Phase 15 waits on the AWS quota. Next: stage 3 decisions (see "Next" below). Decided 2026-11-05; was "Phase 15" before the renumbering.
+> Status: **IN PROGRESS — stages 1–4 done.** Stage 1 (pipeline + eval harness) and stage 2 (zero-shot baseline, 14B **91.1 %** on HumanEval over 56 directions) done 2026-11-07. Stages 3–4 ran on AWS on 2026-11-09: the shared adapter `lora_xlang_14b` lifts the 14B from **208 → 265 / 420** verified translations on the program suite (q6_K + GGUF in Ollama, the shipped runtime; cloud bf16: 215 → 274). Since 2026-11-10 it is the default engine for `rebirth migrate --to` (`rebirth-xlang:14b-v1`). Open: the 35 bootstrapped directions + HumanEval regression check with the adapter (stage 5), optional fix-up round (stage 6). Decided 2026-11-05; was "Phase 15" before the renumbering.
 > Previous: [PHASE_16_MLOPS_CICD_PACKAGING.md](PHASE_16_MLOPS_CICD_PACKAGING.md) · Next: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)
 > Owner decision: do it, local first, AWS GPU for the heavy stages.
-> Cloud setup, access model and budget split: [../CLOUD_GPU_PLAN.md](../CLOUD_GPU_PLAN.md) — Phase 17 now uses the 14B base, a 32B teacher on g6e.xlarge (L40S 48 GB) and ~$60 of the $120 credit.
+> Cloud setup, access model and budget split: [../CLOUD_GPU_PLAN.md](../CLOUD_GPU_PLAN.md) — stages 3–4 ran on one g6e.xlarge (L40S 48 GB) session, 2026-11-08 23:32 → 2026-11-09 16:32 EST (~$32); the 14B generated its own training data (no teacher model got through the pilot, see Stage 3).
 
 ## Goal
 
@@ -130,48 +130,61 @@ temperature 0.1, **one try per translation** — no retry loop, unlike `migrate 
    language), 836 translations, 38 + 4 min → `zeroshot_ollama14b_bootstrap.json`.
 
 Every direction uses the same seeded problem order, so cells are comparable. Pass = every MultiPL-E
-(or HumanEval) assert holds. 7 rows of Go `HumanEval_87` are excluded (broken test).
+(or HumanEval) assert holds. 7 rows of Go `HumanEval_87` are excluded (broken test). Numbers below
+include the Go import fix-up added 2026-11-08 (`src/rebirth_ai/xlang/fixups.py`, also applied by
+`migrate --to`); raw model output (`--no-fixups`) scored Go 73.5 % and 89.3 % overall.
 
 | src \ tgt | py | ts | go | java | c# | rust | c++ | swift | all |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **py** | – | 39/40 | 27/39 | 36/40 | 38/40 | 36/40 | 40/40 | 34/40 | 90 % |
-| **js** | 35/40 | – | 33/39 | 37/40 | 37/40 | 34/40 | 38/40 | 35/40 | 89 % |
+| **py** | – | 39/40 | 32/39 | 36/40 | 38/40 | 36/40 | 40/40 | 34/40 | 91 % |
+| **js** | 35/40 | – | 35/39 | 37/40 | 37/40 | 34/40 | 38/40 | 35/40 | 90 % |
 | **go** | 38/40 | 36/40 | – | 37/40 | 38/40 | 37/40 | 39/40 | 34/40 | 92 % |
-| **java** | 36/40 | 37/40 | 25/39 | – | 38/40 | 36/40 | 40/40 | 32/40 | 87 % |
-| **c#** | 40/40 | 37/40 | 29/39 | 36/40 | – | 35/40 | 37/40 | 33/40 | 89 % |
-| **rust** | 39/40 | 39/40 | 29/39 | 35/40 | 36/40 | – | 38/40 | 33/40 | 89 % |
-| **c++** | 35/40 | 37/40 | 30/39 | 39/40 | 40/40 | 35/40 | – | 35/40 | 90 % |
-| **swift** | 39/40 | 38/40 | 27/38 | 34/39 | 36/39 | 30/39 | 37/40 | – | 88 % |
+| **java** | 36/40 | 37/40 | 34/39 | – | 38/40 | 36/40 | 40/40 | 32/40 | 91 % |
+| **c#** | 40/40 | 37/40 | 36/39 | 36/40 | – | 35/40 | 37/40 | 33/40 | 91 % |
+| **rust** | 39/40 | 39/40 | 34/39 | 35/40 | 36/40 | – | 38/40 | 33/40 | 91 % |
+| **c++** | 35/40 | 37/40 | 35/39 | 39/40 | 40/40 | 35/40 | – | 35/40 | 92 % |
+| **swift** | 39/40 | 38/40 | 34/38 | 34/39 | 36/39 | 30/39 | 37/40 | – | 90 % |
 
 (js → ts is skipped: TypeScript accepts the JavaScript as is.)
 
-| Target | Pass | Compile error | Wrong answer |
-|--------|-----:|--------------:|-------------:|
-| C++ | **96.1 %** (269 / 280) | 5 | 6 |
-| C# | 94.3 % (263 / 279) | 7 | 9 |
-| TypeScript | 93.9 % (263 / 280) | 1 | 16 |
-| Python | 93.6 % (262 / 280) | 0 | 18 |
-| Java | 91.0 % (254 / 279) | 12 | 13 |
-| Rust | 87.1 % (243 / 279) | 17 | 19 |
-| Swift | 84.3 % (236 / 280) | 15 | 29 |
-| Go | **73.5 %** (200 / 272) | 55 | 17 |
-| **All** | **89.3 % (1,990 / 2,229)** | 112 | 127 |
+| Target | 14B pass | Compile error | Wrong answer | Base 7B pass (2026-11-08) |
+|--------|-----:|--------------:|-------------:|------:|
+| C++ | **96.1 %** (269 / 280) | 5 | 6 | 90.0 % |
+| C# | 94.3 % (263 / 279) | 7 | 9 | 91.4 % |
+| TypeScript | 93.9 % (263 / 280) | 1 | 16 | 90.0 % |
+| Python | 93.6 % (262 / 280) | 0 | 18 | 93.2 % |
+| Java | 91.0 % (254 / 279) | 12 | 13 | 87.1 % |
+| Go | 88.2 % (240 / 272) — raw 73.5 % | 13 | 19 | 84.9 % |
+| Rust | 87.1 % (243 / 279) | 17 | 19 | 80.6 % |
+| Swift | 84.3 % (236 / 280) | 15 | 29 | **63.9 %** |
+| **All** | **91.1 % (2,030 / 2,229)** | 70 | 129 | **85.2 % (1,898 / 2,229)** |
 
 No timeouts. By source the spread is small (Go 92.5 % … Java 87.5 %): the target language decides.
 
 What it says:
 
-- **The 14B is already good at short functions in every direction.** The 6 weakest directions are
-  all *into Go* (64–77 %); every other direction is ≥ 75 %, four are 40 / 40.
-- **Go: most failures are missing imports.** 42 of 55 Go compile errors are `undefined: sort /
-  strings / math / strconv` — the model calls `sort.Ints` but does not write `import "sort"`
-  (the prompt asks it to). A deterministic goimports-style fix-up of standard-library imports would
-  lift Go to roughly 89 % without any training; `migrate --to` already recovers these through its
-  retry loop (the compiler error is fed back).
+- **The 14B is already good at short functions in every direction.** Every direction is ≥ 77 %,
+  four are 40 / 40; the weakest are now into Swift / Rust.
+- **Go: most raw failures were missing imports.** 42 of 55 Go compile errors were `undefined: sort /
+  strings / math / strconv` — the model calls `sort.Ints` but does not write `import "sort"` (the
+  prompt asks it to). The fix-up (add missing / drop unused standard-library imports, what
+  `goimports` does) turned 40 of them into passes and 2 into wrong answers: Go 73.5 % → 88.2 %,
+  all 89.3 % → 91.1 %. No other row changed.
 - **Swift and Rust** fail on type / API details (`String.Index` subscripts, `Character` vs
   `CharacterSet`, integer casts, a `regex` crate that is not in the standard library).
 - C# looked like the weakest target (66 %) until the harness bug above was fixed: 56 rows moved
   from fail to pass on re-scoring, no other row changed.
+
+**Base 7B (2026-11-08)** — Ollama `qwen2.5-coder:7b-instruct` (q4_K_M, the base the per-language
+`rebirth-<lang>:7b` adapters run on), same 2,229 items, same Rust / C# / Swift sources as the 14B
+(`--add-sources-from` the 14B pass-1 report), 1.6 s per translation, one run
+(`data/reports/xlang/zeroshot_ollama7b.json`): **85.2 %** vs the 14B's 91.1 %. Paired: 197 items
+only the 14B passes, 65 only the 7B — a clear, not noisy, gap. Close to the 14B on Python / C# /
+TypeScript (−0.4 to −3.9), behind on Rust / C++ (−6), far behind on **Swift (63.9 %, −20)**: 49 of
+its 73 Swift compile errors are the function renamed to camelCase (`isMultiplyPrime`) against the
+required `is_multiply_prime` signature. **Verdict: the 7B works for most directions but the 14B is
+the translator** (Swift especially); the 7B is a low-memory fallback. Quantization differs (q4_K_M
+vs q6_K) — both as they run locally.
 
 Caveats:
 
@@ -183,15 +196,179 @@ Caveats:
 - Rust / C# / Swift sources are model-written (verified) translations, so those 21 directions
   start from code in the model's own style — slightly easier than human-written sources.
 
-### Next — stage 3 decisions (the user's call)
+Also fixed on 2026-11-08: Ollama runs with a **4,096-token window by default and silently drops the
+start of a longer prompt**; neither the translator nor the same-language `migrate` set `num_ctx`.
+`OllamaClient.generate_raw` now sizes it to prompt + output (4K / 8K / 16K / 32K buckets, shared with
+the Phase 16 adapter client; `REBIRTH_OLLAMA_NUM_CTX` pins one value for a whole run). HumanEval
+prompts fit in 4K, so stage-2 numbers are unaffected; long files and retry prompts were not.
 
-- **Go import fix-up first** (CPU, no training): add missing standard-library imports for Go before
-  verification, in both `migrate --to` and the eval, then `--rescore`.
-- **Base 7B baseline** (`--backend peft`, ~2–3 h GPU): tells whether the local 7B is usable for
-  translation or the product needs the 14B for it.
-- **A harder eval before generating training data:** HumanEval leaves little headroom
-  (89 % zero-shot). Stage 3 data should target file-level translation (multi-function files,
-  classes), and needs an eval that can show a gain there.
+### Program-level suite — harder eval (built and baselined 2026-11-08)
+
+At 91 % HumanEval leaves little room to show what a trained adapter adds, and its ~10-line famous
+functions are not what file migration looks like. The program suite translates **whole programs**
+(imports, stdin parsing, helpers, types, 20–150 lines) and judges them like an online judge.
+
+- **Problems** (`training/build_xlang_programs.py` → `data/datasets/xlang/programs.jsonl`, frozen):
+  Codeforces problems from the DeepMind CodeContests **valid + test** splits (CC BY 4.0; attribution
+  in [DATASET.md](../DATASET.md)). Kept when not interactive, stdin → stdout, no floating-point
+  output, and a Python 3, a C++ and a Java reference solution each pass all 10 chosen tests in our
+  sandboxes **and** a known-incorrect solution from the dataset fails them. 282 → **163 problems**,
+  rating 800 / 1500 / 2600 (min / median / max), median 41 / 47 / 76 non-blank lines (py / cpp / java).
+- **Judge** (`verify.run_io_programs`): optimized builds (`-O2`, `-O`, Release), 10 s per test,
+  token-wise case-insensitive output comparison (like Codeforces checkers). One test set judges a
+  translation into any of the 8 targets. Oracle fixture `fixtures/xlang_oracle/programs.json`: a
+  correct program in all 9 languages passes, three wrong ones (`int` overflow, i32, wrong parity)
+  are rejected.
+- **Eval:** `training/eval_translate.py --suite programs` — same directions / cache / `--rescore` as
+  HumanEval; the prompt adds that the target must be a complete program with the same output and
+  the same algorithm.
+
+**Baseline (pass 1):** Ollama 14B q6_K, the three sources with human-written solutions (Python,
+C++, Java) → all 8 targets = 21 directions × the first 20 problems of the seeded order (median
+rating 1700), with Go fix-ups; 13.5 s / translation, ~95 min
+(`data/reports/xlang/programs_ollama14b.json`):
+
+| source ↓ / target → | py | ts | go | java | c# | rust | c++ | swift | all |
+|---|---|---|---|---|---|---|---|---|---|
+| python | – | 2/20 | 6/20 | 9/20 | 8/20 | 5/20 | 8/20 | 4/20 | 30 % |
+| cpp | 9/20 | 3/20 | 6/20 | 13/20 | 5/20 | 2/20 | – | 4/20 | 30 % |
+| java | 13/20 | 5/20 | 5/20 | – | 6/20 | 4/20 | 10/20 | 4/20 | 34 % |
+
+**Overall 31.2 % (131 / 420)** — vs 91.1 % on HumanEval with the same model, prompts and fix-ups.
+
+| Target | Pass | HumanEval | Compile error | Runtime error | Wrong / empty output |
+|---|---|---|---|---|---|
+| Python | 55 % (22/40) | 93.6 % | 0 | 15 | 3 |
+| Java | 55 % (22/40) | 91.0 % | 9 | 5 | 4 |
+| C++ | 45 % (18/40) | 96.1 % | 16 | 2 | 4 |
+| C# | 32 % (19/60) | 94.3 % | 22 | 10 | 9 |
+| Go | 28 % (17/60) | 88.2 % | 24 | 8 | 11 |
+| Swift | 20 % (12/60) | 84.3 % | 29 | 11 + 1 timeout | 7 |
+| Rust | 18 % (11/60) | 87.1 % | 32 | 11 + 1 timeout | 5 |
+| TypeScript | 17 % (10/60) | 93.9 % | 6 | 20 | 24 |
+
+What fails (all checked to be model errors, not harness ones — no CR line endings in the tests, the
+references pass the same judge):
+
+- **Input parsing is the #1 failure.** C++ `cin >>` / Java `StringTokenizer` read tokens across
+  lines; the translations read lines (`int(input())` on `"0 2 1"` → `ValueError`, `EOFError`;
+  C# `FormatException`). TypeScript is the worst: no standard way to read stdin, so the model
+  invents one — a global `readline()` (Codeforces' V8 runtime), `process.stdin.webidlConverter()`,
+  a function named `process` shadowing Node's, `static` inside an arrow function.
+- **Compile errors are 138 of the 289 failures** — strictness the short functions never hit: Go
+  unused variables and `strconv.Atoi`'s two results; Rust `use std::io::Read` missing, ambiguous
+  numeric types; Swift `let` vs `var`, Optional binding on non-optionals; C# instance members in a
+  `static class`; Java `_` as a name (preview in 21), `long → int` narrowing.
+- **Integer width** (`long long` → `int`/i32 overflow) and index-out-of-range panics in the rest.
+- Problems range from 1 / 21 to 12 / 21 directions passing — none trivial, none impossible; rating
+  is a weak predictor (CC_1548D1 at 2300 passes 12, CC_1613D at 1900 passes 1).
+
+Caveats: 20 problems per cell → ± ~10 points per cell, ± ~7 per target row, ± ~2.3 overall; every
+direction uses the same 20 problems, so paired comparisons (adapter vs baseline) are much tighter
+than the cell SE suggests. Pass@1 without the compile-feedback retry that `rebirth migrate --to`
+does, so this is a floor for the product, not its number. CodeContests problems and solutions are
+public too: the suite is harder, not contamination-free.
+
+**Implications for stage 3:**
+
+- **Data source: the CodeContests *train* split** (~13K problems, 39 parquet files ≈ 7.5 GB,
+  disjoint from the valid + test problems used here). Translate its Python / C++ / Java solutions
+  into the other targets and keep only translations that pass the problem's own tests — verification
+  with real judge tests instead of generated inputs, on exactly the failure modes above (I/O idioms,
+  integer widths, strict compilers). Mix with corpus snippets so file-level `migrate` (classes,
+  project idioms) is not forgotten.
+- **Report both suites**: HumanEval guards against regressions, the program suite shows the gain.
+- Follow-up runs (user's go 2026-11-08, queue `scripts/xlang_programs_queue.sh`): the 14B with the
+  product retry loop (`eval_translate.py --retries 2`: the compiler output or first failing test is
+  fed back, temperature 0.1 → 0.4 → 0.7, like `migrate --to`), the 35 directions from JS / Go / C# /
+  Rust / Swift sources (bootstrapped from passing translations; JS = passing TypeScript with its
+  types stripped by Node, re-judged), and the base 7B. Results (2026-11-08, Ollama, local):
+
+  | Run | Directions | First try | After ≤ 2 retries |
+  |-----|-----------:|----------:|------------------:|
+  | 14B, Python / C++ / Java sources | 21 | 131 / 420 (31.2 %) | **208 / 420 (49.5 %)** |
+  | 14B, JS / Go / C# / Rust / Swift sources (bootstrapped) | 35 | 279 / 511 (54.6 %) | 343 / 511 (67.1 %) |
+  | base 7B, Python / C++ / Java sources | 21 | 78 / 420 (18.6 %) | 122 / 420 (29.0 %) |
+
+  The retry loop is worth +18 points; the bootstrapped directions score higher because their
+  sources are programs the 14B already translated correctly once (an easier subset). The 7B is far
+  behind (Go 5 / 60, TypeScript 2 / 60) → the 14B stays the translator.
+
+## Stage 3 — data generation (done 2026-11-09, AWS)
+
+`training/gen_xlang_pairs.py`, three resumable steps (outputs in `data/datasets/xlang/stage3/`,
+git-ignored until final):
+
+1. **`pool`** (CPU, ~150 s per shard, ~1.6 h for all 39): CodeContests **train** split, same
+   filters as the program suite, one reference solution per problem (preferred language rotates
+   Python 3 / C++ / Java), kept only if it passes the problem's 10 tests. Leak guard: titles and
+   statements of every valid / test problem are skipped (Div. 1 / Div. 2 copies share a title).
+   Shard 1: 251 candidates → 238 kept (C++ 110, Java 70, Python 58) → ~9K problems expected.
+2. **`generate`** (GPU, `rebirth-gpu-job`): the 14B translates each program into the 7 other
+   targets with the product prompt and retry loop; every generation and judge verdict is cached.
+   1-problem smoke: 4/7 first try, 7/7 after retries, ~9 s per generation.
+3. **`pairs`** (CPU): every two verified versions of one program form a pair — **forward**
+   (reference → translation), **reverse** (translation → human-written reference), **cross**
+   (translation → translation). JavaScript joins as a source (stripped TypeScript). 3 % of problems
+   held out as `val`. A fully verified problem gives 63 rows; cross pairs dominate (48 / 63), so
+   stage 4 subsamples them.
+
+Why this data: it targets exactly what the program suite shows failing (input parsing, strict
+compilers, integer widths), verification uses real judge tests, and reverse pairs give human-written
+targets for Python / C++ / Java. Programs only teach competitive-programming style — mix with
+corpus snippets in stage 4 so file-level `migrate` (classes, project idioms) is not forgotten.
+
+**Run (AWS g6e.xlarge, vLLM, `scripts/cloud/session_p17.sh`, 2026-11-08 23:32 → 2026-11-09 09:27 EST):**
+
+- **Teacher pilot** (40 pool problems × 7 targets, product prompt + 2 retries): the 14B verified
+  **61.1 %** (47.9 % first try). Neither teacher got measured: Qwen3-Coder-30B-A3B-FP8 hit the
+  10-minute vLLM readiness timeout (a cold ~30 GB load runs at ~45 MB/s from gp3, ~12 min) and
+  Qwen3.6-27B-FP8 found no disk (the HF hub's shared blob store kept the "deleted" 30B). Both fixed
+  (`READY_MIN=30` in `vllm_serve.sh`; `drop()` in `scripts/cloud/hub.sh` also deletes unreferenced
+  blobs) → stage 3 ran with the 14B, as planned when no teacher clearly wins.
+- **Generation:** 7,870 pool problems; 9.3 h cap → **9,387 translations** (20,553 generations with
+  retries): **34.7 %** first try, **50.1 %** verified. Verified per target: C# 821, Go 672,
+  Java 628, Python 605, C++ 508, Rust 500, TypeScript 500, Swift 470.
+- **Pairs:** 1,194 problems with ≥ 2 verified versions → **30,211 rows** over 63 directions (forward
+  4,704 · reverse 5,204 · cross 20,303; 927 val rows); 256–867 rows per direction, median ~680
+  tokens, 97 % ≤ 2,048. Data in `data/datasets/xlang/stage3/` (git-ignored, also in S3).
+
+## Stage 4 — shared adapter + eval (done 2026-11-09, AWS + local check)
+
+**Training** (`training/train_xlang.py`, `scripts/cloud/session_p17_stage4.sh`): mix = 12,000
+translation rows (≤ 190 per direction, 63 directions) + 2,000 same-language corpus rows → 13,616
+rows ≤ 2,048 tokens; 14B bf16 LoRA r16 / α32, all linear layers, 2 epochs, 3,404 steps, **4 h 38 min**
+on the L40S. Train loss 0.10 → 0.02 in epoch 2 (memorizing), but held-out problems still improve a lot.
+Adapter: `data/models/lora_xlang_14b/` (DVC).
+
+**Program suite** (same 20 problems × 21 directions as above, product prompt + ≤ 2 retries; CodeContests
+valid / test problems, disjoint from the train-split pool; the 3 verbatim overlaps found were all a
+shared fast-I/O header, not solutions):
+
+| Model | Runtime | First try | After ≤ 2 retries |
+|-------|---------|----------:|------------------:|
+| base 14B | vLLM bf16 (cloud) | 147 (35.0 %) | 215 (51.2 %) |
+| 14B + `lora_xlang_14b`, product prompt | vLLM bf16 (cloud) | 208 (49.5 %) | 274 (65.2 %) |
+| 14B + `lora_xlang_14b`, SFT prompt | vLLM bf16 (cloud) | **237 (56.4 %)** | 268 (63.8 %) |
+| Qwen3-Coder-30B-A3B-FP8, zero-shot | vLLM (cloud) | 209 (49.8 %) | **282 (67.1 %)** |
+| Qwen3.6-27B-FP8 | — | vLLM engine failed to start (root cause cut from the log); not rerun | |
+| base 14B | **Ollama q6_K (local)** | 131 (31.2 %) | 208 (49.5 %) |
+| 14B + `lora_xlang_14b` | **Ollama q6_K + f16 GGUF (local)** | **207 (49.3 %)** | **265 (63.1 %)** |
+
+Verified per target, local (base → adapter): TypeScript 14 → 27, Rust 21 → 32, Swift 22 → 32,
+C# 36 → 49, Go 29 → 36, Java 29 → 32, Python 28 → 28, C++ 29 → 29. Per direction: 17 of 21 better,
+3 equal, 1 worse (Java → Python 16 → 15).
+
+- **The gain survives the shipped runtime**: q6_K + GGUF matches the cloud's first try (207 vs 208);
+  after retries it is within sampling noise (265 vs 274).
+- **Qwen3-Coder-30B zero-shot ≈ our adapter** (282 vs 274, within noise; it leads on Rust 41 vs 31).
+  It does not fit the 16 GB target GPU (~19 GB at 4-bit), so it is a reference point, and the best
+  candidate teacher for a stage-6 round, not the product model.
+- **Product**: `scripts/ollama_xlang.sh` packages the adapter as `rebirth-xlang:14b-v1` (FROM the q6_K
+  14B + ADAPTER, the base chat template kept: the adapter is served with the product prompt it was
+  evaluated with). `rebirth migrate --to` (`--backend auto`) uses it when installed, else the plain
+  14B; `--backend ollama` stays the plain 14B; `REBIRTH_XLANG_MODEL` overrides / turns it off.
+  Reports: `data/reports/cloud/p17/eval_programs_*.json`, `data/reports/xlang/programs_xlang14b_q6k.json`.
 
 ## Design decisions
 
@@ -226,10 +403,10 @@ Estimates use measured throughput (2026-11-05): ~9 s / optimizer step (8 rows @ 
 |---|-------|------|------|-------|-----------------|
 | 1 | Pipeline | ✅ **Done 2026-11-07** — `rebirth migrate --to <lang>`, target-sandbox verification, MultiPL-E eval harness (see Stage 1 above) | 1 day | Local | Done |
 | 2 | Zero-shot baseline | ✅ **Done 2026-11-07** — Ollama 14B, 56 directions × 40 HumanEval problems: **89.3 %** pass@1 (see Stage 2 above) | ~2 h | Local | Done |
-| 3a | Teacher pilot | **First cloud session of Phase 17 (~$2–4):** ~200 identical source snippets translated by the 14B and by the 32B teacher (vLLM), both verified the same way → measured verified-pass rate per model. Use the 32B for stage 3 only if it clearly wins (my estimate: +10–20 points, unmeasured) | ~1–2 h | **AWS** | Go to launch |
-| 3 | Data generation | Translate snippets from the existing per-language corpus into each target; ~20K candidates → expect 40–60 % verified → **~8–10K pairs** | ~1.5–2 days local, or ~10–20 h on AWS with vLLM | **AWS** (generation) + local (verification) | No |
-| 4 | Train | One shared adapter, ~8–10K pairs, 2 epochs, seq ~1024 | ~5–8 h | **AWS** (or local if the 1024 probe passes) | No |
-| 5 | Eval | 56 directions vs the stage-2 baseline | ~6–8 h | Either | No |
+| 3a | Teacher pilot | ✅ **Done 2026-11-09** — 14B 61.1 % verified; both teachers failed to load (fixed), 14B kept. Planned: **first cloud session of Phase 17 (~$2–4):** ~200 identical source snippets translated by the 14B and by the 32B teacher (vLLM), both verified the same way → measured verified-pass rate per model. Use the 32B for stage 3 only if it clearly wins (my estimate: +10–20 points, unmeasured) | ~1–2 h | **AWS** | Go to launch |
+| 3 | Data generation | ✅ **Done 2026-11-09 (AWS, 9.3 h)** — 9,387 translations, 50.1 % verified → 30,211 pairs. Plan: CodeContests train programs translated by the 14B with the retry loop, judged by their own tests (see Stage 3 above); target ~1–2K fully processed problems → ~8–10K+ pairs | ~1.5–2 days local (~9–14 s / generation), or ~10–20 h on AWS with vLLM | Local (generation + verification) | No |
+| 4 | Train | ✅ **Done 2026-11-09 (AWS, 4.6 h)** — `lora_xlang_14b`, 14K rows, 2 epochs, seq 2048; program suite 208 → 265 / 420 locally | ~5–8 h | **AWS** (or local if the 1024 probe passes) | No |
+| 5 | Eval | 21 / 56 directions done (stage 4); open: the 35 bootstrapped directions + HumanEval regression check with the adapter (local, ~5–7 h) | ~6–8 h | Either | No |
 | 6 | Fix-up round | More data for weak directions (likely Swift, Rust), retrain | ~1 day | Either | Mostly no |
 
 **Total ≈ 1 week calendar, ~2–3 days of hands-on work, ~60–80 GPU-hours** (fewer on AWS with batched vLLM generation).
@@ -300,6 +477,9 @@ broken on ROCm), and vLLM batches generation. The same-language adapters stay lo
 - Per-direction eval table (compile rate, equivalence rate) vs the zero-shot baseline. (Baseline
   ✅ 2026-11-07: Stage 2 above.)
 - Adapter (if trained) beats zero-shot on the directions it covers; otherwise ship zero-shot.
+  (2026-11-09, program suite, 21 directions: 17 better, 3 equal, 1 worse by one problem; 208 → 265
+  verified. Shipped as the `migrate --to` default. Remaining: the 35 bootstrapped directions and
+  HumanEval.)
 
 ## Sources (AWS facts, checked 2026-11-05)
 

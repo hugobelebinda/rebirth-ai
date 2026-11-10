@@ -8,7 +8,15 @@ from pathlib import Path
 import pytest
 
 from rebirth_ai.xlang import graph as G
-from rebirth_ai.xlang.languages import get_lang, lang_for_path, program_spec, target_relpath
+from rebirth_ai.xlang.fixups import fix_go_imports
+from rebirth_ai.xlang.languages import (
+    get_lang,
+    java_classes,
+    lang_for_path,
+    program_spec,
+    standalone_spec,
+    target_relpath,
+)
 from rebirth_ai.xlang.multipl_e import (
     assemble,
     fix_cs_equality,
@@ -51,6 +59,16 @@ def test_program_script_marks_compile_failures() -> None:
     assert [status_for(c) for c in (0, 90, 124, 1)] == ["pass", "compile_error", "timeout", "fail"]
 
 
+def test_complete_programs_build_and_run_like_a_judge() -> None:
+    java = 'import java.util.*;\npublic class Main {\n    static class FastReader { String s = "}"; }\n    public static void main(String[] a) {}\n}\n'
+    assert java_classes(java) == ("Main", "Main")
+    assert java_classes("public class Sol {}\nclass B { public static void main(String[] x) {} }\n") == ("Sol", "B")
+    spec = standalone_spec(get_lang("java"), java)
+    assert spec.filename == "Main.java" and spec.run.endswith("-cp out Main")
+    assert "-O2" in standalone_spec(get_lang("cpp")).compile and "-O" in standalone_spec(get_lang("rust")).compile
+    assert standalone_spec(get_lang("swift"), "@main\nstruct App { static func main() {} }\n").filename == "prog.swift"
+
+
 # --------------------------------------------------------------------------- prompts / extraction
 
 
@@ -59,6 +77,15 @@ def test_extract_code_prefers_target_fence() -> None:
     assert extract_code(raw, get_lang("go")) == "package x\n"
     assert extract_code("```rust\nfn f() {}\n", get_lang("rust")) == "fn f() {}\n"  # truncated reply
     assert extract_code("fn f() {}", get_lang("rust")) == "fn f() {}\n"
+
+
+def test_program_prompt_asks_for_same_output() -> None:
+    p = build_translation_prompt(source=get_lang("cpp"), target=get_lang("go"), source_code="int main() {}",
+                                 source_path="main.cpp", target_path="main.go", is_program=True)
+    assert "complete program" in p and "exactly the same output" in p
+    plain = build_translation_prompt(source=get_lang("cpp"), target=get_lang("go"), source_code="int f();",
+                                     source_path="a.cpp", target_path="a.go")
+    assert "complete program" not in plain
 
 
 def test_retry_prompt_carries_previous_draft_and_logs() -> None:
@@ -105,6 +132,26 @@ def test_csharp_list_asserts_compare_by_value() -> None:
                                          "tests": "    }\n    public static void Main(string[] args) {\n    Debug.Assert(F(1L).Equals(1L));\n    }\n}\n"},
                     "public static long F(long x) { return x; }")
     assert "RebirthEq.Same(F(1L), 1L)" in prog and "static class RebirthEq" in prog
+
+
+def test_go_fixup_adds_only_missing_stdlib_imports() -> None:
+    prog = 'package f_test\n\nimport (\n    "testing"\n    "fmt"\n)\n\nfunc f(a []int) string {\n    sort.Ints(a)\n    return strings.Repeat("x", 2) + fmt.Sprint(a)\n}\n'
+    out = fix_go_imports(prog)
+    assert '\t"sort"\n' in out and '\t"strings"\n' in out and out.count('"fmt"') == 1
+    assert fix_go_imports(out) == out  # idempotent
+    # not imported when it is a local name, only mentioned in a string / comment, or a field
+    for body in ('func f(list []int) int { return list.Len() }',
+                 'func f() string { return "sort.Ints" } // math.Abs',
+                 'func f(t T) int { return t.heap.Len() }'):
+        code = "package main\n\n" + body + "\n"
+        assert fix_go_imports(code) == code
+    single = 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println(math.Sqrt(2), bits.OnesCount(3)) }\n'
+    fixed = fix_go_imports(single)
+    assert '"math"' in fixed and '"math/bits"' in fixed and fixed.index('"math"') < fixed.index("func main")
+    # unused stdlib imports are dropped (Go will not compile them); blank / dot / non-stdlib imports stay
+    unused = 'package main\n\nimport (\n\t"fmt"\n\t"strings"\n\t_ "embed"\n\t"github.com/x/y"\n)\n\nfunc main() { fmt.Println("strings.Repeat") }\n'
+    kept = fix_go_imports(unused)
+    assert '"strings"' not in kept and '_ "embed"' in kept and '"github.com/x/y"' in kept and '"fmt"' in kept
 
 
 # --------------------------------------------------------------------------- target-project guards
@@ -169,3 +216,79 @@ def test_oracle_covers_every_target() -> None:
     oracle = json.loads((ROOT / "fixtures/xlang_oracle/humaneval.json").read_text())
     assert set(oracle) == {"python", "javascript", "typescript", "go", "java", "csharp", "rust", "cpp", "swift"}
     assert all(any(k.endswith("!wrong") for k in v) for v in oracle.values())
+
+
+def _training_module(name: str):
+    import importlib.util
+    import sys
+
+    sys.path.insert(0, str(ROOT / "training"))
+    spec = importlib.util.spec_from_file_location(name, ROOT / "training" / f"{name}.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_stage3_leak_guard_matches_div1_div2_copies() -> None:
+    g = _training_module("gen_xlang_pairs")
+    assert g.title_key("1566_A. Median Maximization") == g.title_key("1567_C.  Median  maximization") == "median maximization"
+    assert g.statement_key("You are given\n an array.") == g.statement_key("you are given an array.")
+    assert g.error_class_for("compile_error", "") == "CompileError"
+    assert g.error_class_for("fail", "test 000: wrong answer\n...") == "WrongAnswer"
+    assert g.error_class_for("fail", "Traceback ... IndexError") == "RuntimeError"
+    assert g.error_class_for("timeout", "") == "Timeout"
+
+
+# ── translation backend: `migrate --to` (auto) serves the packaged cross-language adapter ────────
+
+
+@pytest.fixture
+def ollama_tags(monkeypatch):
+    """Fake Ollama tag list (None = server unreachable); fresh translator cache per test."""
+    from rebirth_ai.generate import ollama_client
+    from rebirth_ai.xlang import translator as T
+
+    state = {"tags": []}
+
+    def list_models(self):
+        if state["tags"] is None:
+            raise ConnectionError("ollama down")
+        return list(state["tags"])
+
+    monkeypatch.setattr(ollama_client.OllamaClient, "list_models", list_models)
+    monkeypatch.delenv("REBIRTH_XLANG_MODEL", raising=False)
+    monkeypatch.delenv("OLLAMA_MODEL", raising=False)
+    monkeypatch.setattr(T, "_CACHE", {})
+    return state
+
+
+def test_auto_backend_serves_the_installed_xlang_adapter(ollama_tags) -> None:
+    from rebirth_ai.xlang.translator import DEFAULT_XLANG_MODEL, Translator
+
+    ollama_tags["tags"] = ["qwen2.5-coder:14b-instruct-q6_K", DEFAULT_XLANG_MODEL]
+    assert Translator("auto").model_name == f"ollama:{DEFAULT_XLANG_MODEL}"
+    assert Translator("routed").model_name == f"ollama:{DEFAULT_XLANG_MODEL}"
+    # explicit `ollama` stays the plain 14B: the zero-shot baseline the evals compare against
+    assert Translator("ollama").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
+
+
+@pytest.mark.parametrize("tags", [["qwen2.5-coder:14b-instruct-q6_K"], None])
+def test_auto_backend_falls_back_to_plain_14b(ollama_tags, tags) -> None:
+    from rebirth_ai.xlang.translator import Translator
+
+    ollama_tags["tags"] = tags  # adapter not installed, or Ollama unreachable
+    assert Translator("auto").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
+
+
+def test_xlang_model_env_override_and_off(ollama_tags, monkeypatch) -> None:
+    from rebirth_ai.xlang.translator import Translator, get_translator
+
+    ollama_tags["tags"] = ["rebirth-xlang:14b-v2", "rebirth-xlang:14b-v1"]
+    monkeypatch.setenv("REBIRTH_XLANG_MODEL", "rebirth-xlang:14b-v2")
+    assert Translator("auto").model_name == "ollama:rebirth-xlang:14b-v2"
+    monkeypatch.setenv("REBIRTH_XLANG_MODEL", "")
+    assert Translator("auto").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
+    monkeypatch.setenv("REBIRTH_XLANG_MODEL", "rebirth-xlang:14b-v1")
+    assert get_translator().backend == "auto"  # the default (REBIRTH_TRANSLATOR unset)
+    with pytest.raises(ValueError):
+        Translator("vllm")

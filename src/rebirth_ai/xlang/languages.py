@@ -234,5 +234,81 @@ def program_spec(lang: XLang) -> ProgramSpec:
     raise ValueError(lang.id)
 
 
+_JAVA_CLASS = re.compile(r"\b(public\s+)?(?:(?:final|abstract|static)\s+)*class\s+(\w+)[^{;]*\{")
+_JAVA_MAIN = re.compile(r"\bstatic\s+void\s+main\s*\(")
+
+
+def _brace_end(code: str, i: int) -> int:
+    """Index just past the ``}`` closing the block whose ``{`` is at ``i - 1`` (skips literals)."""
+    depth = 1
+    while i < len(code) and depth:
+        c = code[i]
+        if c in "\"'":
+            j = i + 1
+            while j < len(code) and code[j] != c and code[j] != "\n":
+                j += 2 if code[j] == "\\" else 1
+            i = j + 1
+            continue
+        if code.startswith("//", i):
+            j = code.find("\n", i)
+            i = len(code) if j < 0 else j
+            continue
+        depth += (c == "{") - (c == "}")
+        i += 1
+    return i
+
+
+def java_classes(code: str) -> tuple[str, str]:
+    """(file class, main class) of a complete Java program: javac wants the file named after the
+    public top-level class; ``java`` runs the top-level class whose body holds ``main``."""
+    top: list[tuple[int, int, str, bool]] = []
+    for m in _JAVA_CLASS.finditer(code):
+        if any(a < m.start() < b for a, b, _, _ in top):
+            continue  # nested class
+        top.append((m.start(), _brace_end(code, m.end()), m.group(2), bool(m.group(1))))
+    main = _JAVA_MAIN.search(code)
+    holder = next((name for a, b, name, _ in top if main and a < main.start() < b), None)
+    public = next((name for _, _, name, pub in top if pub), None)
+    file_class = public or holder or "Main"
+    return file_class, holder or file_class
+
+
+def standalone_spec(lang: XLang, code: str = "") -> ProgramSpec:
+    """How to build and run a complete program (stdin → stdout) — the program-level eval.
+
+    Optimized builds (competitive-programming tests need the speed); ``run`` reads stdin."""
+    if lang.id == "python":
+        return ProgramSpec("main.py", {}, "python3 -m py_compile main.py", "python3 main.py")
+    if lang.id == "javascript":
+        return ProgramSpec("main.js", {}, "node --check main.js", "node main.js")
+    if lang.id == "typescript":
+        _, check = check_spec(lang, "main.ts")
+        return ProgramSpec("main.ts", {}, f"sh -c {_sh_quote(check)}", "node --experimental-strip-types --no-warnings main.ts")
+    if lang.id == "go":
+        return ProgramSpec("main.go", {"go.mod": _GO_MOD}, "go build -o prog .", "./prog")
+    if lang.id == "java":
+        file_class, main_class = java_classes(code)
+        return ProgramSpec(
+            f"{file_class}.java", {}, f"javac -encoding UTF-8 -d out {file_class}.java",
+            f"java -Xss64m -XX:+UseSerialGC -cp out {main_class}",
+        )
+    if lang.id == "csharp":
+        return ProgramSpec(
+            "Program.cs",
+            {"Rebirth.csproj": _CSPROJ.format(kind="Exe", implicit="enable")},
+            "dotnet build -c Release -nologo -v q -clp:NoSummary -o out",
+            "dotnet out/Rebirth.dll",
+        )
+    if lang.id == "rust":
+        return ProgramSpec("main.rs", {}, "rustc --edition 2021 -O -o prog main.rs", "./prog")
+    if lang.id == "cpp":
+        return ProgramSpec("main.cpp", {}, "g++ -std=gnu++17 -O2 -o prog main.cpp", "./prog")
+    if lang.id == "swift":
+        if re.search(r"^\s*@main\b", code, re.MULTILINE):  # @main type: no top-level code allowed
+            return ProgramSpec("prog.swift", {}, "swiftc -O -parse-as-library -o prog prog.swift", "./prog")
+        return ProgramSpec("main.swift", {}, "swiftc -O -o prog main.swift", "./prog")
+    raise ValueError(lang.id)
+
+
 def _sh_quote(s: str) -> str:
     return "'" + s.replace("'", "'\"'\"'") + "'"

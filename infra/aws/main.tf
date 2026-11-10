@@ -114,6 +114,7 @@ resource "aws_instance" "gpu" {
   count                                = var.launch_instance ? 1 : 0
   ami                                  = data.aws_ami.dlami.id
   instance_type                        = var.instance_type
+  availability_zone                    = var.availability_zone
   key_name                             = data.aws_key_pair.gpu.key_name
   vpc_security_group_ids               = [data.aws_security_group.gpu.id]
   iam_instance_profile                 = aws_iam_instance_profile.gpu.name

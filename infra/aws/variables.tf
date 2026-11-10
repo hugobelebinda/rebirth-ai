@@ -16,6 +16,12 @@ variable "instance_type" {
   default     = "g6e.xlarge"
 }
 
+variable "availability_zone" {
+  description = "Pin the AZ (e.g. us-east-1b) when the default one has no capacity (InsufficientInstanceCapacity); null = AWS picks. g6e.xlarge is offered in us-east-1a-d"
+  type        = string
+  default     = null
+}
+
 variable "use_spot" {
   description = "Spot (~half price, can be interrupted): evals/generation only, not long trainings"
   type        = bool
