@@ -35,16 +35,115 @@ def version() -> None:
 
 
 @app.command()
-def doctor() -> None:
-    """Check local prerequisites (Docker, Ollama, sandbox images, Python)."""
+def install(
+    pack: str = typer.Option("both", "--pack", help="both | modernize (7B, 8 languages) | migrate (14B, --to)"),
+    from_dir: Path | None = typer.Option(None, "--from", help="folder with the release files (mirror / USB)"),
+    from_local: bool = typer.Option(False, "--from-local", help="use this repo's own build outputs"),
+    force: bool = typer.Option(False, "--force", help="re-create models that are already installed"),
+    keep_files: bool = typer.Option(False, "--keep-files", help="keep downloaded files after ollama create"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show the plan only"),
+) -> None:
+    """Download, verify (sha256) and register the model packs in Ollama (configs/models.json)."""
+    from rebirth_ai.install import InstallError
+    from rebirth_ai.install import install as run_install
+
+    try:
+        steps = run_install(pack, from_dir=from_dir, from_local=from_local, force=force,
+                            keep_files=keep_files, dry_run=dry_run)
+    except InstallError as exc:
+        print(f"[red]install failed:[/red] {exc}")
+        raise typer.Exit(1) from exc
+    if dry_run:
+        for s in steps:
+            print(f"{s.action:7s} {s.pack:9s} {s.tag:24s} ← {s.source}")
+    else:
+        print(f"[green]{sum(s.action == 'install' for s in steps)} installed, "
+              f"{sum(s.action == 'skip' for s in steps)} already present[/green] — run `rebirth doctor`")
+
+
+def _gpu_vram_gb() -> tuple[str, float] | None:
+    """(name, total VRAM GB) of the first GPU from nvidia-smi or rocm-smi, else None."""
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("nvidia-smi"):
+        r = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"],
+                           capture_output=True, text=True, timeout=10, check=False)
+        if r.returncode == 0 and r.stdout.strip():
+            name, mib = r.stdout.splitlines()[0].rsplit(",", 1)
+            return name.strip(), float(mib) / 1024
+    if shutil.which("rocm-smi"):
+        r = subprocess.run(["rocm-smi", "--showmeminfo", "vram", "--json"], capture_output=True, text=True,
+                           timeout=10, check=False)
+        try:
+            card = next(iter(json.loads(r.stdout).values()))
+            total = next(v for k, v in card.items() if "Total Memory" in k)
+            return "AMD GPU", float(total) / 1e9
+        except Exception:
+            pass
+    # amdgpu kernel driver, no ROCm tools needed (ROCm may come from pip wheels only)
+    sizes = []
+    for f in Path("/sys/class/drm").glob("card*/device/mem_info_vram_total"):
+        try:
+            sizes.append(int(f.read_text().strip()))
+        except (OSError, ValueError):
+            continue
+    if sizes:
+        return "AMD GPU (amdgpu)", max(sizes) / 2**30
+    return None
+
+
+@app.command()
+def doctor(
+    strict: bool = typer.Option(False, "--strict", help="exit 1 if a requirement for the installed packs is missing"),
+) -> None:
+    """Check local prerequisites (Python, Docker, Ollama, model packs, sandbox images, GPU, disk)."""
     import shutil
     import subprocess
     import sys
 
-    print(f"[bold]Python[/bold]: {sys.version.split()[0]}")
-    print(f"[bold]docker[/bold]: {'ok' if shutil.which('docker') else 'MISSING'}")
-    print(f"[bold]ollama[/bold]: {'ok' if shutil.which('ollama') else 'MISSING'}")
-    print(f"[bold]node[/bold]: {'ok' if shutil.which('node') else 'MISSING'}")
+    problems: list[str] = []
+    py_ok = sys.version_info >= (3, 11)
+    print(f"[bold]Python[/bold]: {sys.version.split()[0]}" + ("" if py_ok else " — needs ≥ 3.11"))
+    if not py_ok:
+        problems.append("Python < 3.11")
+    for tool in ("docker", "ollama", "git"):
+        ok = bool(shutil.which(tool))
+        print(f"[bold]{tool}[/bold]: {'ok' if ok else 'MISSING'}")
+        if not ok:
+            problems.append(f"{tool} missing")
+    print(f"[bold]node[/bold]: {'ok' if shutil.which('node') else 'missing (only needed for host-side JS tools)'}")
+
+    free = shutil.disk_usage(Path.cwd()).free / 1e9
+    print(f"[bold]Disk free[/bold]: {free:.0f} GB" + (" — low (packs need ~17 GB)" if free < 20 else ""))
+    gpu = _gpu_vram_gb()
+    if gpu:
+        name, vram = gpu
+        note = "" if vram >= 15 else (" — migrate pack (14B q6_K) needs ~16 GB; modernize (7B) fits"
+                                      if vram >= 7 else " — below 8 GB: models run partly on CPU (slow)")
+        print(f"[bold]GPU[/bold]: {name}, {vram:.0f} GB VRAM{note}")
+    else:
+        print("[bold]GPU[/bold]: not detected (nvidia-smi / rocm-smi missing) — Ollama may still use one")
+
+    try:
+        from rebirth_ai.install import status as pack_status
+
+        packs = pack_status()
+        for name, st in packs.items():
+            ok = st["installed"] == st["total"]
+            line = f"{st['installed']}/{st['total']} models"
+            if not ok:
+                line += f" — missing {', '.join(st['missing'][:3])}{' …' if len(st['missing']) > 3 else ''}"
+                line += f" (rebirth install --pack {name})"
+            print(f"[bold]Pack {name}[/bold]: {'ok, ' if ok else ''}{line}")
+            if 0 < st["installed"] < st["total"]:
+                problems.append(f"pack {name} incomplete")
+        if not any(st["installed"] for st in packs.values()):
+            problems.append("no model pack installed (rebirth install)")
+    except Exception as exc:
+        print(f"[bold]Model packs[/bold]: error ({exc})")
+        problems.append("model packs not checked (Ollama not reachable?)")
 
     try:
         r = subprocess.run(
@@ -54,8 +153,11 @@ def doctor() -> None:
             timeout=15,
         )
         print(f"[bold]Docker daemon[/bold]: {'ok' if r.returncode == 0 else 'NOT RUNNING'}")
+        if r.returncode != 0:
+            problems.append("Docker daemon not reachable (running? user in the docker group?)")
     except Exception as exc:
         print(f"[bold]Docker daemon[/bold]: error ({exc})")
+        problems.append("Docker daemon not reachable")
 
     try:
         from docker.errors import ImageNotFound
@@ -73,8 +175,10 @@ def doctor() -> None:
             except ImageNotFound:
                 hint = row.get("dockerfile_dir") or "docker/<lang>_sandbox"
                 print(f"[bold]{label}[/bold]: MISSING ({image}) — docker build -t {image} {hint}")
+                problems.append(f"sandbox image {image} missing (bash scripts/bootstrap.sh builds all 8)")
     except Exception as exc:
         print(f"[bold]Sandbox images[/bold]: error ({exc})")
+        problems.append("sandbox images not checked (Docker not reachable?)")
 
     try:
         import httpx
@@ -87,6 +191,7 @@ def doctor() -> None:
                 print(f"  - {name}")
         else:
             print(f"[bold]Ollama[/bold]: HTTP {resp.status_code}")
+            problems.append(f"Ollama server answered HTTP {resp.status_code}")
 
         ps = httpx.get("http://127.0.0.1:11434/api/ps", timeout=5.0)
         if ps.status_code == 200:
@@ -134,6 +239,16 @@ def doctor() -> None:
                 )
     except Exception as exc:
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
+        problems.append("Ollama server not reachable (ollama serve / systemctl start ollama)")
+
+    if problems:
+        print(f"[yellow]{len(problems)} problem(s):[/yellow]")
+        for p in dict.fromkeys(problems):
+            print(f"  - {p}")
+    else:
+        print("[green]all checks passed[/green]")
+    if strict and problems:
+        raise typer.Exit(1)
 
 
 @app.command("adapters")

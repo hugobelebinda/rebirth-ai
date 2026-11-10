@@ -242,17 +242,73 @@ def serve_status() -> None:
             "pass" if (e.get("gate") or {}).get("passed") else "?",
             ", ".join(f"v{v}" for v in (e.get("history") or {})),
         )
+    x = data.get("translation")
+    if x:
+        ev = x.get("eval") or {}
+        score = " · ".join(f"{k} {v['pass']}/{v['n']}" for k, v in ev.items())
+        t.add_row("--to (xlang)", x["tag"], str(x["version"]), score, "", "",
+                  "pass" if (x.get("gate") or {}).get("passed") else "?",
+                  ", ".join(f"v{v}" for v in (x.get("history") or {})))
+    else:
+        t.add_row("--to (xlang)", "[dim]rebirth-xlang:14b-v1 / plain 14B (no route)[/dim]", "", "", "", "", "", "")
     print(t)
 
 
 @serve_app.command("rollback")
-def serve_rollback_cmd(lang: str = typer.Option(..., "--lang", "-l")) -> None:
-    """Roll back champion ↔ previous in the registry AND re-point the served Ollama alias."""
+def serve_rollback_cmd(lang: str = typer.Option(..., "--lang", "-l", help="language id, or xlang (--to model)")) -> None:
+    """Roll back champion ↔ previous in the registry AND re-point the served Ollama alias.
+    ``--lang xlang``: swap the cross-language model with its previous version (again = roll forward)."""
+    if lang.strip().lower() in {"xlang", "translation", "to"}:
+        from rebirth_ai.packaging import rollback_translation
+
+        try:
+            rollback_translation()
+        except RuntimeError as exc:
+            print(f"[red]{exc}[/red]")
+            raise typer.Exit(1) from exc
+        return
     _need_tracking()
     from rebirth_ai.packaging import serve_rollback
 
     try:
         serve_rollback(lang)
     except (RuntimeError, ValueError) as exc:
+        print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+
+@serve_app.command("publish-xlang")
+def serve_publish_xlang(
+    tag: str = typer.Option(..., "--tag", help="candidate Ollama tag, e.g. rebirth-xlang:14b-v2"),
+    version: str = typer.Option(..., "--version"),
+    reports: list[Path] = typer.Option(..., "--report", exists=True, help="candidate eval_translate reports"),
+    baseline: list[Path] = typer.Option(..., "--baseline", exists=True,
+                                        help="reports of the model it replaces, same translations"),
+    note: str = typer.Option("", "--note", help="what changed (goes into the route)"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show the gate only"),
+) -> None:
+    """Gate a cross-language model against the one it replaces, then serve it as rebirth-xlang:14b."""
+    from rebirth_ai.packaging import publish_translation, xlang_gate, xlang_scores
+
+    new, old = xlang_scores(reports), xlang_scores(baseline)
+    g = xlang_gate(new, old)
+    for k, ok in g.checks.items():
+        print(f"  {'[green]✓[/green]' if ok else '[red]✗[/red]'} {k}")
+    for w in g.warnings:
+        print(f"  [yellow]note[/yellow] {w}")
+    if not g.passed:
+        print("[red]gate failed — not published[/red]")
+        raise typer.Exit(1)
+    if dry_run:
+        print("[green]gate passed[/green] (dry run, nothing changed)")
+        return
+    from rebirth_ai.lora import rel_to_root
+
+    entry = {"tag": tag, "version": str(version), "eval": new, "baseline": old,
+             "gate": {"passed": g.passed, "checks": g.checks, "warnings": g.warnings},
+             "reports": [rel_to_root(Path(r).resolve()) for r in reports], **({"note": note} if note else {})}
+    try:
+        publish_translation(entry)
+    except RuntimeError as exc:
         print(f"[red]{exc}[/red]")
         raise typer.Exit(1) from exc

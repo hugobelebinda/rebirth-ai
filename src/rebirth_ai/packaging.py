@@ -367,3 +367,84 @@ def serve_rollback(lang: str, log=print) -> dict:
 
 def _strip_history(entry: dict) -> dict:
     return {k: v for k, v in entry.items() if k != "history"}
+
+
+# --------------------------------------------------------------------------- cross-language model
+#
+# `rebirth migrate --to` serves one model for all 56 directions (Phase 17). Its route lives under
+# ``translation:`` in configs/routing.yaml, with the same history / rollback scheme as the
+# per-language routes. There is no frozen soft-exact set for translation: the gate compares the
+# candidate's eval_translate reports (program suite verified, HumanEval first try) with those of the
+# model it replaces, on exactly the same translations.
+
+XLANG_ALIAS = "rebirth-xlang:14b"
+XLANG_SLACK = {"programs": 0.02, "humaneval": 0.01}  # allowed drop, fraction of n (≈ run-to-run noise)
+
+
+def xlang_scores(reports: list[Path]) -> dict[str, dict[str, int]]:
+    """Sum eval_translate reports per suite: programs → verified (after retries), humaneval → first try."""
+    out: dict[str, dict[str, int]] = {}
+    for p in reports:
+        rep = json.loads(Path(p).read_text(encoding="utf-8"))
+        suite = "programs" if rep.get("suite") == "programs" else "humaneval"
+        key = "pass" if suite == "programs" else "pass_first"
+        acc = out.setdefault(suite, {"pass": 0, "n": 0})
+        for d in rep["directions"].values():
+            acc["pass"] += int(d.get(key, d["pass"]))
+            acc["n"] += int(d["n"])
+    return out
+
+
+def xlang_gate(new: dict, old: dict | None, *, slack: dict[str, float] | None = None) -> ServeGate:
+    """Pass if every suite the old model was measured on is covered identically and does not drop
+    by more than ``slack`` × n."""
+    slack = slack or XLANG_SLACK
+    if not old:
+        return ServeGate(passed=False, checks={}, warnings=["no baseline reports — nothing to compare with"])
+    checks: dict[str, bool] = {}
+    warnings: list[str] = []
+    for suite, o in old.items():
+        n = new.get(suite)
+        if n is None or n["n"] != o["n"]:
+            checks[f"{suite}: same {o['n']} translations"] = False
+            continue
+        allow = int(slack.get(suite, 0.0) * o["n"])
+        checks[f"{suite}: {n['pass']} >= {o['pass']} - {allow}"] = n["pass"] >= o["pass"] - allow
+        if n["pass"] < o["pass"]:
+            warnings.append(f"{suite}: {n['pass']} < {o['pass']} (within the {allow} allowed)")
+    return ServeGate(passed=bool(checks) and all(checks.values()), checks=checks, warnings=warnings)
+
+
+def publish_translation(entry: dict, log=print) -> dict:
+    """Point the ``rebirth-xlang:14b`` alias at ``entry['tag']`` and record the route (+ history)."""
+    from rebirth_ai import routing
+
+    if not ollama_has(entry["tag"]):
+        raise RuntimeError(f"{entry['tag']} is not in Ollama")
+    cur = routing.translation_route()
+    hist = dict((cur or {}).get("history") or {})
+    if cur and cur.get("version") != entry["version"]:
+        hist[cur["version"]] = _strip_history(cur)
+    hist.pop(entry["version"], None)
+    entry = {"model": XLANG_ALIAS, **_strip_history(entry), **({"history": hist} if hist else {})}
+    ollama_alias(entry["tag"], entry["model"])
+    routing.set_translation_route(entry)
+    log(f"[serve] translation: {entry['model']} → {entry['tag']} (v{entry['version']})")
+    return entry
+
+
+def rollback_translation(log=print) -> dict:
+    """Swap the served cross-language model with the newest version in its history (run it again to
+    roll forward). Refuses if that version's Ollama tag is gone."""
+    from rebirth_ai import routing
+
+    cur = routing.translation_route()
+    hist = (cur or {}).get("history") or {}
+    if not hist:
+        raise RuntimeError("the translation route has no previous version to roll back to")
+    prev_ver = max(hist, key=lambda v: int(v) if str(v).isdigit() else 0)
+    prev = dict(hist[prev_ver])
+    if not ollama_has(prev["tag"]):
+        raise RuntimeError(f"previous version v{prev_ver} ({prev['tag']}) is not in Ollama — re-create it first")
+    prev["history"] = {k: v for k, v in hist.items() if k != prev_ver}
+    return publish_translation(prev, log=log)

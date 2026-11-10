@@ -38,7 +38,19 @@ Phase numbers follow execution order (renumbered 2026-11-05 — map in [`docs/PR
 
 Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Same-language: v2 7B adapter per language, served from Ollama as `rebirth-<lang>:7b` (`--backend auto`, the default; `--backend peft` runs them in-process). Cross-language (`--to`): `rebirth-xlang:14b-v1` (q6_K 14B + shared adapter; build it with `bash scripts/ollama_xlang.sh`), plain Ollama 14B when it is not installed.
 
-## Quick start
+## Install
+
+Linux with Docker and [Ollama](https://ollama.com) running; a 16 GB GPU for both packs (8 GB for the
+modernize pack only). Everything runs locally; nothing is sent anywhere.
+
+```bash
+git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai
+bash scripts/bootstrap.sh            # venv, 8 sandbox images, both model packs (sha256-checked), rebirth doctor
+```
+
+Details, offline install, troubleshooting: [`docs/INSTALL.md`](docs/INSTALL.md).
+
+## Quick start (development)
 
 ```bash
 python3 -m venv .venv

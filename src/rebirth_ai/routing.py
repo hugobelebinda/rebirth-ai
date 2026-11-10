@@ -68,6 +68,17 @@ def set_route(lang: str, entry: dict, path: Path | None = None) -> Path:
     return save_routing(data, path)
 
 
+def translation_route(path: Path | None = None) -> dict | None:
+    """The cross-language model ``rebirth migrate --to`` serves (``translation:`` in routing.yaml)."""
+    return load_routing(path).get("translation")
+
+
+def set_translation_route(entry: dict, path: Path | None = None) -> Path:
+    data = load_routing(path)
+    data["translation"] = entry
+    return save_routing(data, path)
+
+
 def routed_generator(language: str | None, *, path: Path | None = None):
     """``OllamaAdapterClient`` for a routed language, or ``None`` (caller falls back)."""
     entry = route(language, path)
