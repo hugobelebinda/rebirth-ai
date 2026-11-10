@@ -102,3 +102,8 @@ data/reports/xlang/*.gen.jsonl
 
 # Phase 17 stage 3 generation (pool / generations / verdicts / pairs — large; DVC when final)
 data/datasets/xlang/stage3*/
+
+# Phase 18: flywheel rows are the user's own code from real use — never in this public repo
+data/datasets/flywheel/*
+!data/datasets/flywheel/.gitkeep
+data/reports/dashboard.html

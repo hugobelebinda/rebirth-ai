@@ -21,6 +21,12 @@ app.add_typer(serve_app, name="serve")  # Phase 16
 app.command("mlflow-ui")(mlflow_ui)
 app.command("package")(package_cmd)  # Phase 16
 
+from rebirth_ai.monitor_cli import dashboard_cmd, monitor_app, review_app  # noqa: E402
+
+app.command("dashboard")(dashboard_cmd)  # Phase 18
+app.add_typer(monitor_app, name="monitor")
+app.add_typer(review_app, name="review")
+
 
 @app.command()
 def version() -> None:
@@ -495,11 +501,17 @@ def migrate_file(
         max_iterations=max_iterations,
         adapter_id=lang,
     )
-    from rebirth_ai.runs import write_run_log
+    import time as _time
 
+    from rebirth_ai.runs import new_run_id, runs_dir, write_run_log
+
+    source_path = project / file
+    source_text = source_path.read_text(encoding="utf-8", errors="replace") if source_path.is_file() else None
     graph = build_migration_graph()
     print("[dim]running migration graph…[/dim]")
+    t0 = _time.time()
     final = graph.invoke(state)
+    wall = _time.time() - t0
 
     status = final.get("status", "unknown")
     color = {
@@ -521,13 +533,20 @@ def migrate_file(
         target.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {target}")
 
+    from rebirth_ai.monitor import telemetry
+    from rebirth_ai.monitor.flywheel import save_artifacts
+
+    rid = new_run_id()
+    run_lang = final.get("adapter_id") or lang
     run_path = write_run_log(
         kind="migrate",
+        run_id=rid,
         payload={
             "project": str(project),
             "file": file,
             "test": test,
-            "lang": final.get("adapter_id") or lang,
+            "objective": objective,
+            "lang": run_lang,
             "language": final.get("language"),
             "backend": backend,
             "status": status,
@@ -535,6 +554,12 @@ def migrate_file(
             "error_class": final.get("error_class"),
             "trace": final.get("trace") or [],
             "test_logs": (final.get("test_logs") or "")[:4000],
+            "artifacts": save_artifacts(runs_dir() / rid, source_name=file, source=source_text,
+                                        draft_name=file, draft=draft or None),
+            "telemetry": telemetry.build(
+                task="modernize", source_lang=run_lang, target_lang=None, backend=backend, model=None,
+                status=status, iterations=final.get("iteration_count"), trace=final.get("trace"),
+                wall_seconds=wall, source_code=source_text, draft=draft or None),
         },
     )
     print(f"[dim]run log[/dim] {run_path}")
@@ -582,8 +607,14 @@ def _translate_file(
     except ValueError as exc:
         print(f"[red]{exc}[/red]")
         raise typer.Exit(2) from exc
+    import time as _time
+
     print(f"[dim]translating {file} ({state['source_lang']} → {target.id}) …[/dim]")
+    source_path = project / file
+    source_text = source_path.read_text(encoding="utf-8", errors="replace") if source_path.is_file() else None
+    t0 = _time.time()
     final = build_translation_graph().invoke(state)
+    wall = _time.time() - t0
 
     status = final.get("status", "unknown")
     color = {"success": "green", "human_review": "yellow"}.get(status, "red")
@@ -604,8 +635,14 @@ def _translate_file(
         (target_project / target_file).write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {target_project / target_file}")
 
+    from rebirth_ai.monitor import telemetry
+    from rebirth_ai.monitor.flywheel import save_artifacts
+    from rebirth_ai.runs import new_run_id, runs_dir
+
+    rid = new_run_id()
     run_path = write_run_log(
         kind="translate",
+        run_id=rid,
         payload={
             "project": str(project),
             "file": file,
@@ -623,6 +660,13 @@ def _translate_file(
             "error_class": final.get("error_class"),
             "trace": final.get("trace") or [],
             "test_logs": (final.get("test_logs") or "")[:4000],
+            "artifacts": save_artifacts(runs_dir() / rid, source_name=file, source=source_text,
+                                        draft_name=str(dest.name), draft=draft or None),
+            "telemetry": telemetry.build(
+                task="translate", source_lang=final.get("source_lang"), target_lang=target.id, backend=backend,
+                model=final.get("model"), status=status, iterations=final.get("iteration_count"),
+                trace=final.get("trace"), wall_seconds=wall, source_code=source_text, draft=draft or None,
+                verify_mode=final.get("verify_mode")),
         },
     )
     print(f"[dim]run log[/dim] {run_path}")
@@ -751,6 +795,7 @@ def migrate_repo(
                 print(r.draft_preview.replace("[", "\\["))
     print(f"[green]report[/green] {report}")
 
+    from rebirth_ai.monitor import telemetry as _telemetry
     from rebirth_ai.runs import write_run_log
 
     run_path = write_run_log(
@@ -770,6 +815,12 @@ def migrate_repo(
                     "error_class": r.error_class,
                 }
                 for r in batch.results
+            ],
+            "telemetry_files": [
+                _telemetry.build(task="modernize", source_lang=lang, target_lang=None, backend=backend, model=None,
+                                 status=r.status, iterations=r.iterations, trace=r.trace)
+                for r in batch.results
+                if not r.status.startswith("skipped") and r.status != "planned"
             ],
         },
     )

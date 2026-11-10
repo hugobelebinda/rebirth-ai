@@ -1,6 +1,6 @@
 # Rebirth AI — Production-Grade Roadmap
 
-> Last updated: 2026-11-10 (Phases **0–15 complete** — 15 stopped at its S2 gate, the 7B adapters stay the same-language champions; 16 offline done; **17 stages 1–4 done** — the shared cross-language adapter `rebirth-xlang:14b-v1` is the `migrate --to` default; phases renumbered in execution order — see Phase map)  
+> Last updated: 2026-11-10 (Phases **0–15 complete** — 15 stopped at its S2 gate, the 7B adapters stay the same-language champions; 16 offline done; **17 complete**, 18 tooling done — the shared cross-language adapter `rebirth-xlang:14b-v1` is the `migrate --to` default; phases renumbered in execution order — see Phase map)  
 > Scope: take the **local-first JS/TS MVP** (Phases 0–5 + data interlude) to a **production-grade, multi-language** migration product.  
 > Constraint: **cloud GPU is optional** — required only for optional 14B LoRA specialization. Everything else runs on this machine (Ollama 14B + Docker + local PEFT 7B).  
 > **New agent:** start at [SESSION_HANDOFF.md](SESSION_HANDOFF.md).
@@ -77,8 +77,8 @@ Phase 13   MLOps 1 — experiment tracking + model registry + YAML recipes   ✅
 Phase 14   MLOps 2 — reproducible pipelines + infra (DVC/S3, Terraform, vLLM)   ✅ 2026-11-05
 Phase 15   Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge)    ✅ 2026-11-08 (stopped at S2 gate: 14B ties 7B)
 Phase 16   MLOps 3 — model CI/CD + packaging (Ollama adapters, rollback)   offline part ✅ 2026-11-06
-Phase 17   Cross-language migration (any → any of 8) + unified adapter   stages 1–4 ✅ 2026-11-09 (adapter 208 → 265 / 420)
-Phase 18   MLOps 4 — monitoring + data flywheel
+Phase 17   Cross-language migration (any → any of 8) + unified adapter   ✅ 2026-11-10 (adapter 551 → 672 / 931, 56 directions; stage 6 not run)
+Phase 18   MLOps 4 — monitoring + data flywheel   tooling ✅ 2026-11-10
 Phase 19   Packaging, UX, official v1.0 launch
 ```
 
@@ -488,15 +488,10 @@ LoRA playbook (next): [phases/PHASE_11_LORA_PER_LANGUAGE.md](phases/PHASE_11_LOR
 ## Execution order
 
 ```
-Done         Phases 0–11 (8 langs; corpus 24640; fixtures 8/8; v2 LoRA per language)
-Now          Phase 15 S0 approved, waiting for g6e capacity (quota approved 2026-11-08); Phase 17 stages 1–2 done (HumanEval 91.1 %, programs 31.2 %) → stage 3 data
-Then         Phase 13 — MLOps 1: MLflow tracking + registry + YAML recipes   (no GPU)
-Then         Phase 14 — MLOps 2: DVC/S3, Docker CUDA image, Terraform, cloud scripts, vLLM eval
-Then         Phase 15 — cloud 14B adapters + DPO (AWS g6e.xlarge; needs quota)
-Then         Phase 16 — MLOps 3: CI gates, champion/challenger, Ollama packaging, rollback
-Then         Phase 17 — cross-language migration + unified adapter (AWS for data gen + training)
-Then         Phase 18 — MLOps 4: monitoring + data flywheel
-Then         Phase 19 — bootstrap + docs + v1.0.0 tag
+Done         Phases 0–15 + 17 (8 langs; corpus 24640; v2 7B adapter per language; 14B cross-language adapter)
+Done         Phase 16 offline part (CI, packaging, routing) · Phase 18 tooling (dashboard, checks, review → flywheel)
+Now          Phase 19 — merge the xlang LoRA before quantizing, two install packs, bootstrap + docs + v1.0.0 tag
+After launch Phase 18 flywheel retrain (needs real use) · Phase 16 rollback live demo at the first real promotion if not done in 19
 ```
 
 ---

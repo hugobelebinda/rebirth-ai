@@ -26,14 +26,14 @@ It runs a **Plan → Execute → Verify** loop as a LangGraph Markov Decision Pr
 | 14 | MLOps 2 — reproducible pipelines + infra (DVC, pinned CUDA env, Terraform, cloud scripts, vLLM eval) | **Complete** (2026-11-05) |
 | 15 | Cloud — 14B per-language adapters + DPO (AWS g6e.xlarge) | **Complete** (2026-11-08) — stopped at the S2 gate: 14B adapters tie the 7B ones, so the 7B adapters stay |
 | 16 | MLOps 3 — model CI/CD + packaging (gates in CI, Ollama adapters, rollback) | Offline part complete (2026-11-06) |
-| 17 | Cross-language migration (any → any of 8) + unified adapter | Stages 1–4 done 2026-11-09 — `rebirth migrate --to` with the shared cross-language adapter: whole-program translations verified **208 → 265 / 420** vs the plain 14B |
-| 18 | MLOps 4 — monitoring + data flywheel | Planned |
+| 17 | Cross-language migration (any → any of 8) + unified adapter | ✅ Complete 2026-11-10 — `rebirth migrate --to` with the shared cross-language adapter: whole-program translations verified **551 → 672 / 931** over all 56 directions vs the plain 14B; HumanEval 91.1 → 92.6 % |
+| 18 | MLOps 4 — monitoring + data flywheel | Tooling done 2026-11-10 — `rebirth dashboard`, `rebirth monitor check`, `rebirth review` (first flywheel retrain after launch: needs real use) |
 | 19 | Packaging, UX & official **v1.0** launch | Planned (last) |
 
 Phase numbers follow execution order (renumbered 2026-11-05 — map in [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-**Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — Phases **0–15 complete** (8 langs + **24640** pairs + fixtures 8/8 + v2 LoRA per language); Phase 17 stages 1–4 done.  
-**Now:** Phase 17 — `rebirth migrate --to <lang>` translates between any of the 8 languages with a shared cross-language adapter trained on AWS (2026-11-09) on 30K test-verified translation pairs. On 420 whole-program translations (Codeforces problems, judged by their tests) it lifts the local q6_K 14B from 208 to 265 verified ([`PHASE_17_CROSS_LANGUAGE.md`](docs/phases/PHASE_17_CROSS_LANGUAGE.md)). Phase 15 (14B same-language adapters) ended at its gate: they tie the 7B adapters, which stay ([`PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md)). Cloud plan + spend: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
+**Handoff:** [`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) — Phases **0–15 complete** (8 langs + **24640** pairs + fixtures 8/8 + v2 LoRA per language); Phase 17 complete; 18 tooling done.  
+**Now:** Phase 19 (v1.0 launch). Phase 17, done: `rebirth migrate --to <lang>` translates between any of the 8 languages with a shared cross-language adapter trained on AWS (2026-11-09) on 30K test-verified translation pairs. On 931 whole-program translations over all 56 directions (Codeforces problems, judged by their tests) it lifts the local q6_K 14B from 551 to 672 verified ([`PHASE_17_CROSS_LANGUAGE.md`](docs/phases/PHASE_17_CROSS_LANGUAGE.md)). Phase 15 (14B same-language adapters) ended at its gate: they tie the 7B adapters, which stay ([`PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md)). Cloud plan + spend: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
 **Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md)
 
 Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Same-language: v2 7B adapter per language, served from Ollama as `rebirth-<lang>:7b` (`--backend auto`, the default; `--backend peft` runs them in-process). Cross-language (`--to`): `rebirth-xlang:14b-v1` (q6_K 14B + shared adapter; build it with `bash scripts/ollama_xlang.sh`), plain Ollama 14B when it is not installed.

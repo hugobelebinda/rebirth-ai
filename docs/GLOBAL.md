@@ -1,7 +1,7 @@
 # Rebirth AI — Global System Bible
 
 > Living document. **Update after every phase** and whenever chat context hits ~90% (full `.md` refresh).  
-> Last updated: 2026-11-10 (Phases **0–15 complete**, 16 offline done, **17 stages 1–4 done**; phases renumbered in execution order — [map](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).  
+> Last updated: 2026-11-10 (Phases **0–15 and 17 complete**, 16 offline done, 18 tooling done; phases renumbered in execution order — [map](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).  
 > Repo: https://github.com/hugobelebinda/rebirth-ai  
 > Roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)  
 > **Handoff for new agents:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
@@ -16,7 +16,7 @@
 **Now (2026-11-10):** the AWS round is done (≈ $43 of the $120 credit, instance terminated). **Phase 15** stopped at its S2 gate on 2026-11-08: the 14B Go / Python adapters only tie the v2 7B ones (15 vs 14, 19 vs 20 per 100) → the 7B adapters stay the same-language champions. **Phase 17 stages 3–4** ran on the same instance on 2026-11-09: the 14B translated 9,387 CodeContests programs (50.1 % verified by the problems' tests) → 30,211 pairs → shared cross-language adapter `lora_xlang_14b`. Program suite (420 translations, ≤ 2 retries), on the shipped q6_K Ollama runtime: plain 14B **208** → 14B + adapter **265** (cloud bf16: 215 → 274; Qwen3-Coder-30B zero-shot 282, too big for 16 GB). The adapter is now the `rebirth migrate --to` default (`rebirth-xlang:14b-v1`, `scripts/ollama_xlang.sh`). Earlier: Phase 17 stages 1–2 (2026-11-07/08) — `migrate --to`, HumanEval harness in 9 languages, zero-shot 14B 91.1 % on HumanEval; Phase 12 (2026-11-06) — v2 stays champion everywhere. GPU queue only runs when the user says go.  
 **Phase 13 complete (2026-11-05):** MLflow tracking + registry + YAML recipes ([PHASE_13](phases/PHASE_13_MLOPS_TRACKING_REGISTRY.md)).  
 **Phase 14 complete (2026-11-05):** DVC, Terraform, cloud scripts, vLLM eval ([PHASE_14](phases/PHASE_14_MLOPS_REPRO_INFRA.md)).  
-**Then:** finish 17 (35 bootstrapped directions + HumanEval with the adapter; optional data round with a bigger teacher) → 16 (remaining CI/CD) → 18 (monitoring) → 19 (v1.0 launch).
+**Then:** Phase 19 (v1.0 launch: merge the xlang LoRA before quantizing, two install packs, bootstrap). Open before launch: the Phase 16 rollback live demo (first real promotion = the merged xlang model). After launch: the Phase 18 flywheel retrain (needs real use).
 
 ---
 
@@ -205,8 +205,8 @@ rebirth doctor
 | 14 MLOps 2 — repro + infra | [PHASE_14_MLOPS_REPRO_INFRA.md](phases/PHASE_14_MLOPS_REPRO_INFRA.md) | **Complete** (2026-11-05; S3 push + `terraform apply` need your credentials) | DVC pipeline + data/adapters; pinned CUDA venv + vLLM image; Terraform; cloud scripts; vLLM eval |
 | 15 Cloud 14B adapters | [PHASE_15_CLOUD_14B.md](phases/PHASE_15_CLOUD_14B.md) | ✅ 2026-11-08 — stopped at the S2 gate (14B ties 7B); S3/S4 skipped | 14B per-lang adapters + DPO on g6e.xlarge — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
 | 16 MLOps 3 — CI/CD + packaging | [PHASE_16_MLOPS_CICD_PACKAGING.md](phases/PHASE_16_MLOPS_CICD_PACKAGING.md) | Offline part ✅ 2026-11-06; xlang adapter packaged 2026-11-10 | CI gates, champion/challenger, model cards, Ollama adapters, rollback |
-| 17 Cross-language | [PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md) | Stages 1–4 ✅ 2026-11-09 (programs 208 → 265 / 420 with the shared adapter; `migrate --to` default) | `--to <lang>`, MultiPL-E harness, unified adapter |
-| 18 MLOps 4 — monitoring | [PHASE_18_MLOPS_MONITORING.md](phases/PHASE_18_MLOPS_MONITORING.md) | Planned | Run telemetry dashboard, drift, data flywheel |
+| 17 Cross-language | [PHASE_17_CROSS_LANGUAGE.md](phases/PHASE_17_CROSS_LANGUAGE.md) | ✅ Complete 2026-11-10, stage 6 not run (programs 551 → 672 / 931 over 56 directions with the shared adapter; HumanEval 91.1 → 92.6 %; `migrate --to` default) | `--to <lang>`, MultiPL-E harness, unified adapter |
+| 18 MLOps 4 — monitoring | [PHASE_18_MLOPS_MONITORING.md](phases/PHASE_18_MLOPS_MONITORING.md) | Tooling ✅ 2026-11-10 (dashboard, regression + drift checks, review → flywheel → DVC mix) | Run telemetry dashboard, drift, data flywheel |
 | 19 Official launch | [PHASE_19_LAUNCH.md](phases/PHASE_19_LAUNCH.md) | Planned (last) | Bootstrap + docs + **v1.0.0** |
 
 ---
@@ -252,6 +252,8 @@ rebirth doctor
 | 2026-11-04 | 4-bit QLoRA validated | bitsandbytes ROCm: NF4 train OK @512 (8.75 GB); NF4 cached generate broken → train 4-bit, infer bf16; recipe v2 |
 | 2026-11-04 | Go seq-256 test | GPU reset at step 1 (memory pressure, not thermal); base-7B ablation shows seq-128 LoRA adds nothing → fix recipe / free VRAM before more trains |
 | 2026-11-04 | Python 7B LoRA | 624 steps, loss 1.121; fixture PEFT PASS 1 iter; held-out soft-exact 4/24 vs Ollama 8/24 → experimental; decode leak fix (fence + `<|…|>` tokens) |
+| 2026-11-10 | No more cloud rounds | Owner: no further cloud spend unless a jump is guaranteed; Phase 17 stage 6 (30B-teacher data round, ~$22–28, expected gain modest) not run; v1 adapter stays |
+| 2026-11-10 | Two models, not one | Owner kept the specialists: v2 7B adapters for modernize, 14B cross-language adapter for `--to`; no unified 14B adapter ([ADR-001](research/ADR-001_UNIFIED_VS_SPECIALISTS.md)) |
 
 ---
 
@@ -286,12 +288,12 @@ Full detail: **[PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)** · LoRA plan: **
 
 | Now | Do this |
 |-----|---------|
-| **Now** | Phase 17 stage 5 (local, needs a go): the adapter on the 35 bootstrapped directions + HumanEval regression check; then decide unified vs specialist adapters and an optional cloud data round (~$77 credit left) |
+| **Now** | Phase 17 stage 5 ✅ 2026-11-10 and two-model decision ✅ ([ADR-001](research/ADR-001_UNIFIED_VS_SPECIALISTS.md)); Ollama 7B↔14B switch measured (11–17 s warm); next: Phase 19 (two install packs, merge the xlang LoRA before quantizing). No more cloud spend (~$77 credit unspent) |
 | ✅ | **Phase 13** — MLOps 1: MLflow tracking + model registry + YAML recipes (done 2026-11-05) |
 | ✅ | **Phase 14** — MLOps 2: DVC pipeline, pinned CUDA env, Terraform, cloud scripts, vLLM eval (done 2026-11-05) |
 | ✅ | **Phase 15** — cloud 14B per-language adapters (2026-11-08: S2 gate failed, 7B adapters stay) — [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) |
 | **5** | **Phase 16** — MLOps 3: model CI/CD + Ollama packaging + rollback |
-| **6** | **Phase 17** — cross-language migration (any → any of 8): stages 1–4 ✅, shared adapter shipped; stage 5–6 open |
+| ✅ | **Phase 17** — cross-language migration (any → any of 8): complete 2026-11-10, shared adapter shipped; stage 6 not run (no more cloud spend) |
 | **7** | **Phase 18** — MLOps 4: monitoring + data flywheel |
 | **8** | **Phase 19** — bootstrap + docs + **v1.0.0** |
 

@@ -323,3 +323,35 @@ stages:
       md5: 5158d4c1383f2ed98415b027d9fff55f.dir
       size: 328246109
       nfiles: 16
+  flywheel_mix@swift:
+    cmd: bash scripts/with_env.sh python training/build_flywheel_mix.py --lang 
+      swift --base data/datasets/p15/swift_migration.jsonl --out 
+      data/datasets/flywheel_mix/swift_migration.jsonl --repeat 2
+    deps:
+    - path: data/datasets/evalsets
+      hash: md5
+      md5: 0d89d1bd6ba0bfdaac9b8b6b8047c199.dir
+      size: 1919454
+      nfiles: 10
+    - path: data/datasets/flywheel
+      hash: md5
+      md5: 6ffbaaad7b4ac6e1afabed19a80b2560.dir
+      size: 0
+      nfiles: 1
+    - path: data/datasets/p15/swift_migration.jsonl
+      hash: md5
+      md5: fd478d1045a971b15aadab1ff1573d11
+      size: 9499905
+    - path: training/build_flywheel_mix.py
+      hash: md5
+      md5: 25652030dff69e95b0fc648b5fe608a0
+      size: 4218
+    outs:
+    - path: data/datasets/flywheel_mix/swift_migration.jsonl
+      hash: md5
+      md5: fd478d1045a971b15aadab1ff1573d11
+      size: 9499905
+    - path: data/datasets/flywheel_mix/swift_migration.stats.json
+      hash: md5
+      md5: e7102267370d76393c2adb8de3f44e2f
+      size: 190

@@ -219,12 +219,12 @@ through the same closed loop (generate → sandbox tests → classify error → 
 Routing is recorded per language/direction in `rebirth_meta.json` from the eval tables, so
 `rebirth migrate` picks the winner automatically.
 
-**Where the evidence points (2026-11-09) — option B for now:** the 14B same-language adapters only
+**Decided 2026-11-10 — option B (owner's call, [ADR-001](research/ADR-001_UNIFIED_VS_SPECIALISTS.md)):** the 14B same-language adapters only
 tie the 7B ones (Phase 15 S2: Go 15 vs 14, Python 19 vs 20 per 100), while the 14B cross-language
 adapter is a clear win (program suite 208 → 265 / 420 on the q6_K runtime). Shipped today:
 8 × `rebirth-<lang>:7b` (same-language) + `rebirth-xlang:14b-v1` (`migrate --to`), Ollama swaps
 them on the 16 GB card. A unified 14B adapter (A) would cost a cloud round and likely lose
-same-language quality; open decision for the user.
+same-language quality, so it is not trained.
 
 - **Disk:** the ~12 GB base already in Ollama + ~0.15–0.3 GB per adapter (≤ ~3 GB total even with
   option B). No merged 12 GB models unless the GGUF-adapter path fails (risk table).

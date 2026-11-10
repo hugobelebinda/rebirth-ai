@@ -1,6 +1,6 @@
 # Phase 17 — Cross-language migration (all 8 languages)
 
-> Status: **IN PROGRESS — stages 1–4 done.** Stage 1 (pipeline + eval harness) and stage 2 (zero-shot baseline, 14B **91.1 %** on HumanEval over 56 directions) done 2026-11-07. Stages 3–4 ran on AWS on 2026-11-09: the shared adapter `lora_xlang_14b` lifts the 14B from **208 → 265 / 420** verified translations on the program suite (q6_K + GGUF in Ollama, the shipped runtime; cloud bf16: 215 → 274). Since 2026-11-10 it is the default engine for `rebirth migrate --to` (`rebirth-xlang:14b-v1`). Open: the 35 bootstrapped directions + HumanEval regression check with the adapter (stage 5), optional fix-up round (stage 6). Decided 2026-11-05; was "Phase 15" before the renumbering.
+> Status: **COMPLETE (2026-11-10) — stages 1–5 done, stage 6 not run.** Stage 1 (pipeline + eval harness) and stage 2 (zero-shot baseline, 14B **91.1 %** on HumanEval over 56 directions) done 2026-11-07. Stages 3–4 ran on AWS on 2026-11-09: the shared adapter `lora_xlang_14b` lifts the 14B from **208 → 265 / 420** verified translations on the program suite (q6_K + GGUF in Ollama, the shipped runtime; cloud bf16: 215 → 274). Since 2026-11-10 it is the default engine for `rebirth migrate --to` (`rebirth-xlang:14b-v1`). Stage 5 (2026-11-10, local): on the other 35 directions the adapter lifts the program suite **343 → 407 / 511**, and HumanEval over all 56 directions goes **91.1 → 92.6 %** first try (no regression). Stage 6 (a second, cloud-teacher data round) **not run**: the owner decided on 2026-11-10 to spend no more cloud credit without a guaranteed jump, and the 30B teacher is only on par with the adapter (282 vs 274), so v1 stays. Decided 2026-11-05; was "Phase 15" before the renumbering.
 > Previous: [PHASE_16_MLOPS_CICD_PACKAGING.md](PHASE_16_MLOPS_CICD_PACKAGING.md) · Next: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)
 > Owner decision: do it, local first, AWS GPU for the heavy stages.
 > Cloud setup, access model and budget split: [../CLOUD_GPU_PLAN.md](../CLOUD_GPU_PLAN.md) — stages 3–4 ran on one g6e.xlarge (L40S 48 GB) session, 2026-11-08 23:32 → 2026-11-09 16:32 EST (~$32); the 14B generated its own training data (no teacher model got through the pilot, see Stage 3).
@@ -370,6 +370,49 @@ C# 36 → 49, Go 29 → 36, Java 29 → 32, Python 28 → 28, C++ 29 → 29. Per
   14B; `--backend ollama` stays the plain 14B; `REBIRTH_XLANG_MODEL` overrides / turns it off.
   Reports: `data/reports/cloud/p17/eval_programs_*.json`, `data/reports/xlang/programs_xlang14b_q6k.json`.
 
+## Stage 5 — the other 35 directions + HumanEval regression check (done 2026-11-10, local)
+
+`scripts/xlang_stage5.sh`, on the shipped runtime (`rebirth-xlang:14b-v1`, Ollama q6_K + f16 GGUF
+adapter), same settings as the plain-14B baselines (product prompt, ≤ 2 retries on programs). Run time
+5 h 37 min on the 7800 XT.
+
+**Program suite, the 35 directions with a bootstrapped source** (JavaScript, Go, C#, Rust, Swift as
+sources; 511 translations, same problems as `programs_ollama14b_bootstrap.json`):
+
+| Model | First try | After ≤ 2 retries |
+|-------|----------:|------------------:|
+| base 14B (q6_K) | 279 (54.6 %) | 343 (67.1 %) |
+| 14B + `lora_xlang_14b` (q6_K + GGUF) | **371 (72.6 %)** | **407 (79.6 %)** |
+
+Verified per target (base → adapter): TypeScript 21 → 41, Swift 25 → 39, Java 57 → 68, C# 45 → 50,
+Go 40 → 46, Rust 38 → 44, C++ 55 → 57, Python 62 → 62. Per direction: 23 of 35 better, 5 equal, 7 worse
+(C# → C++ −3, C# → Swift −2, Rust → Go −2, four more −1). **All 56 directions together: 551 → 672 / 931
+verified.**
+
+**HumanEval, all 56 directions** (2,229 short functions, first try, no retries):
+
+| Model | Pass |
+|-------|-----:|
+| base 14B (q6_K) | 2,030 (91.1 %) |
+| 14B + `lora_xlang_14b` | **2,064 (92.6 %)** |
+
+28 directions better, 13 equal, 15 worse, none by more than 2 of ~40 → **no regression** on short
+functions (the adapter was trained on whole programs). Per target (base → adapter, of ~280): Go 240 → 250,
+Rust 243 → 253, the rest within ±4 (C# 263 → 260).
+
+**One defect found — a Go input idiom.** 17 of the adapter's 115 first-try Go drafts on the program
+suite build a `bufio.Scanner` and pass it to `fmt.Fscan*` (does not compile: a Scanner is not an
+`io.Reader`); the plain q6_K 14B did it 0 times on the same 55 drafts. It costs Rust → Go most (6 fewer
+first-try passes; retries recover most, 11 → 9 verified). The training data never does this (3,586 Go
+targets: 2,000 use `bufio.NewReader` + `fmt.Fscan`, 1,197 use a Scanner alone, 0 mix them), and in the
+cloud bf16 eval it was rare for both models (adapter 3 / 123, base 4 / 134). So it is mostly the local
+runtime: an f16 LoRA applied on top of a q6_K base. The planned fix is the Phase 19 step **merge the LoRA
+into the bf16 weights, then quantize** (ADR-001 item 4); re-check this count after merging. If it
+persists, a one-line hint in the Go target notes or a stage-6 data round would cover it.
+
+Reports: `data/reports/xlang/programs_xlang14b_q6k_bootstrap.json`, `zeroshot_xlang14b_q6k.json`,
+`zeroshot_xlang14b_q6k_bootstrap.json` (+ `.gen.jsonl` drafts); logs `logs/exp/xlang/stage5_*.log`.
+
 ## Design decisions
 
 - **One shared cross-language adapter**, not 56. 8 languages = 56 directed pairs; the prompt names
@@ -406,8 +449,8 @@ Estimates use measured throughput (2026-11-05): ~9 s / optimizer step (8 rows @ 
 | 3a | Teacher pilot | ✅ **Done 2026-11-09** — 14B 61.1 % verified; both teachers failed to load (fixed), 14B kept. Planned: **first cloud session of Phase 17 (~$2–4):** ~200 identical source snippets translated by the 14B and by the 32B teacher (vLLM), both verified the same way → measured verified-pass rate per model. Use the 32B for stage 3 only if it clearly wins (my estimate: +10–20 points, unmeasured) | ~1–2 h | **AWS** | Go to launch |
 | 3 | Data generation | ✅ **Done 2026-11-09 (AWS, 9.3 h)** — 9,387 translations, 50.1 % verified → 30,211 pairs. Plan: CodeContests train programs translated by the 14B with the retry loop, judged by their own tests (see Stage 3 above); target ~1–2K fully processed problems → ~8–10K+ pairs | ~1.5–2 days local (~9–14 s / generation), or ~10–20 h on AWS with vLLM | Local (generation + verification) | No |
 | 4 | Train | ✅ **Done 2026-11-09 (AWS, 4.6 h)** — `lora_xlang_14b`, 14K rows, 2 epochs, seq 2048; program suite 208 → 265 / 420 locally | ~5–8 h | **AWS** (or local if the 1024 probe passes) | No |
-| 5 | Eval | 21 / 56 directions done (stage 4); open: the 35 bootstrapped directions + HumanEval regression check with the adapter (local, ~5–7 h) | ~6–8 h | Either | No |
-| 6 | Fix-up round | More data for weak directions (likely Swift, Rust), retrain | ~1 day | Either | Mostly no |
+| 5 | Eval | ✅ **Done 2026-11-10 (local, 5.6 h)** — 35 bootstrapped directions 343 → 407 / 511; HumanEval 91.1 → 92.6 % over 56 directions, no regression; one Go idiom defect (see Stage 5) | ~6–8 h | Either | No |
+| 6 | Fix-up round | ⏭ **Not run (owner, 2026-11-10)** — no further cloud spend without a guaranteed jump; Qwen3-Coder-30B as teacher is only on par with the adapter (282 vs 274 / 420). Scripts kept (`scripts/cloud/session_p17*.sh`) if a much stronger teacher appears. Planned: more data for weak directions (likely Swift, Rust), retrain | ~1 day | Either | Mostly no |
 
 **Total ≈ 1 week calendar, ~2–3 days of hands-on work, ~60–80 GPU-hours** (fewer on AWS with batched vLLM generation).
 
@@ -474,12 +517,12 @@ broken on ROCm), and vLLM batches generation. The same-language adapters stay lo
 - ✅ (stage 1, 2026-11-07: 53 / 56 fixture directions, failures documented above) `rebirth migrate
   <repo> --lang python --to go` produces a Go file that passes the target sandbox on the fixture
   samples, for all 56 directions or a documented subset.
-- Per-direction eval table (compile rate, equivalence rate) vs the zero-shot baseline. (Baseline
-  ✅ 2026-11-07: Stage 2 above.)
+- ✅ Per-direction eval table (compile rate, equivalence rate) vs the zero-shot baseline. (Baseline
+  2026-11-07: Stage 2 above; with the adapter: Stages 4–5, per-direction rows in the reports.)
 - Adapter (if trained) beats zero-shot on the directions it covers; otherwise ship zero-shot.
-  (2026-11-09, program suite, 21 directions: 17 better, 3 equal, 1 worse by one problem; 208 → 265
-  verified. Shipped as the `migrate --to` default. Remaining: the 35 bootstrapped directions and
-  HumanEval.)
+  ✅ (2026-11-09, program suite, 21 directions: 17 better, 3 equal, 1 worse by one problem; 208 → 265
+  verified. Shipped as the `migrate --to` default. 2026-11-10, stage 5: the other 35 directions 343 →
+  407, all 56 together 551 → 672 / 931; HumanEval 91.1 → 92.6 %, no direction down by more than 2 / 40.)
 
 ## Sources (AWS facts, checked 2026-11-05)
 
