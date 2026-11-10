@@ -1,0 +1,46 @@
+{
+  "language": null,
+  "base_model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "adapter": "data/models/lora_xlang_14b/adapter",
+  "data": "data/datasets/xlang/stage4_mix.jsonl",
+  "corpus_sha256": "2fa377bbd94fc463ffd8b4b8aceecf0685121c358d9e50d26e3f3d2b4fc236f3",
+  "corpus_rows": 14000,
+  "train_rows": 13616,
+  "split_train_rows": 14000,
+  "recipe": {
+    "quant": "none",
+    "eos": true,
+    "completion_only": true,
+    "drop_overlong": true,
+    "features": {
+      "rows": 14000,
+      "kept": 13616,
+      "dropped_overlong": 384,
+      "truncated": 0,
+      "label_tokens": 4759666
+    }
+  },
+  "eval_rows": 0,
+  "eval_frac": 0.0,
+  "split_seed": 1337,
+  "split_index": null,
+  "global_steps": 3404,
+  "train_loss": 0.06469344161450863,
+  "hyperparams": {
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_targets": "all",
+    "epochs": 2,
+    "max_length": 2048,
+    "batch_size": 2,
+    "grad_accum": 4,
+    "max_steps": -1
+  },
+  "lr": 0.0002,
+  "recipe_name": "cloud_14b",
+  "recipe_file": "configs/recipes/cloud_14b.yaml",
+  "smoke": false,
+  "device": "NVIDIA L40S",
+  "torch": "2.9.1+cu128",
+  "trained_at": "2026-11-09T19:12:06+00:00"
+}

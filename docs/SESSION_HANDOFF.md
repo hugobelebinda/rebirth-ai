@@ -1,43 +1,38 @@
-# Session handoff — 2026-11-05 (restart here)
+# Session handoff — 2026-11-10 (restart here)
 
 > **Read this first** in a new agent window. Then sync [GLOBAL.md](GLOBAL.md) + [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).
 > Phases were **renumbered in execution order** on 2026-11-05 (map: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-## Where we are — Phase 12 ✅ (2026-11-06); Phase 15 blocked on AWS quota → offline Phase 16 work
+## Where we are — Phases 0–15 ✅, 16 (offline) ✅, 17 stages 1–4 ✅ (2026-11-09); AWS round done, no instance running
 
 | Item | State |
 |------|--------|
-| Phases **0–11** | **Complete.** Phase 11 (per-language LoRA) finished 2026-11-05 — **not committed yet** (user has not asked) |
-| Live languages | **All 8** — adapters + Docker sandboxes + fixtures; fixture gate 8/8 |
-| v2 LoRA adapters | `data/models/lora_<lang>_7b` for all 8 — 4-bit QLoRA @512, EOS + completion-only loss, 1 epoch. All pass the gate vs base 7B (24 shortest held-out rows) and beat or tie Ollama 14B on soft-exact |
-| Eval token-cap bug | **Fixed** — `_sft_max_new_tokens` floor 64 → 256 (`SFT_MIN_NEW_TOKENS`); the 64 floor truncated additive rewrites and caused every parse failure. Old reports kept as `*_cap64.json` |
-| Expanded corpus | `data/datasets/expanded/<lang>_migration.jsonl` (all CommitPackFT rows passing filters; originals untouched). Rows ≤512 tokens: Go 2.1×, C# 2.8×, Java 2.6×, Python 4.6×, Swift 1.5×, C++ 1.2×, Rust 1.0× (pool exhausted) |
-| Frozen eval sets | `data/datasets/evalsets/<lang>.jsonl` — 100 random held-out rows (Rust 56, C++ 93), `training/eval_behavioral.py --eval-file` |
-| Go recipe experiment | Frozen 100 rows: base 7B **5** · Ollama 14B **6** · v2 **14** · C (2.1× data) **15** · D (all-linear r16, 2 epochs) **12** (overfit). D1 (all-linear r16, 1 epoch) scored tonight → `logs/exp/wave_v3/status.jsonl` |
-| MLOps (Phase 13) | MLflow store `mlruns/mlflow.db`; 8 `rebirth-<lang>` champions = v2 adapters; Go C/D/D1 all kept-champion by the gate (strict +1 soft-exact). Training/eval auto-tracked; UI via `.venv-mlflow` |
-| GPU queue | `scripts/gpu_job.sh` → `scripts/wave_v3.sh` (restartable: skips finished stages, `train_lora.py --resume`). **Runs only when the user says go in chat.** Next stage: Swift v2 eval → Swift v3 train → … |
-| GPU hours | User starts/stops by hand: ~06:00–23:00 (Fri/Sat until 01:00) |
-| Cloud | AWS $120 credit, G/VT quota (8 vCPU) **case open** — plan: [CLOUD_GPU_PLAN.md](CLOUD_GPU_PLAN.md) = Phase 15 |
-| End product | One offline tool: modernize in-language **and** migrate between any of the 8 languages ([CLOUD_GPU_PLAN.md §7](CLOUD_GPU_PLAN.md#7-the-final-product)) |
+| Phases **0–15, 16 (offline)** | **Complete.** Phase 15 ended at its S2 gate (2026-11-08): 14B Go / Python adapters 15 / 19 vs v2 7B 14 / 20 soft-exact per 100 → S3/S4 skipped ([PHASE_15 § Results](phases/PHASE_15_CLOUD_14B.md#results-s1s2-2026-11-08)) |
+| Phase 17 | Stages 1–4 done. Shared cross-language adapter `lora_xlang_14b` (14B, trained on AWS on 14K rows of test-verified translations). Program suite, local q6_K Ollama: plain 14B **208 / 420** → adapter **265 / 420** (17 / 21 directions better, 1 worse by one problem). Cloud bf16: 215 → 274; Qwen3-Coder-30B zero-shot 282 (too big for 16 GB) ([PHASE_17 § Stage 4](phases/PHASE_17_CROSS_LANGUAGE.md#stage-4--shared-adapter--eval-done-2026-11-09-aws--local-check)) |
+| Serving | Same-language: Ollama `rebirth-<lang>:7b` (v2 7B adapters, `configs/routing.yaml`). Cross-language (`migrate --to`, `--backend auto`): **`rebirth-xlang:14b-v1`** (q6_K 14B + f16 GGUF LoRA, built by `scripts/ollama_xlang.sh`), plain 14B if missing; `--backend ollama` = plain 14B (eval baseline); `REBIRTH_XLANG_MODEL` overrides |
+| Adapters | `data/models/lora_<lang>_7b` (8, champions) · `lora_{go,python}_14b` (Phase 15, not promoted) · `lora_xlang_14b` (Phase 17) — all DVC-tracked; the three 14B ones are **not pushed to S3 yet** (`scripts/dvc.sh push` needs the user's go) |
+| Frozen eval sets | `data/datasets/evalsets/<lang>.jsonl` (+ `rust_v2` / `cpp_v2`); translation: `data/datasets/xlang/humaneval.jsonl` (56 directions) and `programs.jsonl` (163 CodeContests programs) |
+| Stage-3 data | `data/datasets/xlang/stage3/` (30,211 pairs, git-ignored, copy in S3) |
+| GPU queue | systemd unit `rebirth-gpu-job` (user stops it by hand); idle since 2026-11-09 23:26. **Runs only when the user says go in chat.** |
+| Cloud | g6e.xlarge in us-east-1 (4-vCPU quota). Spend ≈ **$43 of $120** (S0 + Phase 15 S1–S2 + Phase 17 stages 3–4); instance terminated 2026-11-09 16:32 EST; bucket + IAM remain. Any launch needs the user's go |
+| End product | One offline tool: modernize in-language **and** migrate between any of the 8 languages ([CLOUD_GPU_PLAN.md §7](CLOUD_GPU_PLAN.md#7-the-final-product)); evidence currently favors specialists (7B same-language + 14B cross-language) over one unified 14B adapter — user decision pending |
 
 ## Git / GitHub
 
 | Item | Value |
 |------|--------|
-| Branch | `main` (Phases 8–10 landed) |
-| Prior merge | PR #2 @ `5f1540e` (Phases 6–7) |
+| Branch | `main` |
+| Last merge | PR #4 (Phase 15 + Phase 17 stages 1–4, 2026-11-10) |
 | Tag | `v0.2.0-mvp` on origin (JS/TS MVP) |
 
-## Exact next step
+## Exact next step (plan the day with the user)
 
-1. **Phase 12 — done 2026-11-06.** v3 tied/lost for Go, Python, C# → v2 stays champion everywhere; user decided no v3 for Swift/Java/JS/TS. Base-7B + v2 frozen-set refs for all 8 languages and the GGUF→Ollama test (Q4_K_M 13/99 vs PEFT 14/99) in [phases/PHASE_12_LOCAL_TUNING_V3.md](phases/PHASE_12_LOCAL_TUNING_V3.md). Rust/C++ data options: [research/RUST_CPP_DATA_SOURCES.md](research/RUST_CPP_DATA_SOURCES.md)
-2. **Phase 16 (offline part) — done 2026-11-06.** All 8 7B champions served from Ollama (`rebirth-<lang>:7b`, Q4_K_M + GGUF LoRA, serving gate 8/8 pass; served 107 vs PEFT 112 soft-exact in total); `rebirth migrate` defaults to `--backend auto` via `configs/routing.yaml`; `rebirth package` / `rebirth serve status|rollback`; CI workflow (not yet run on GitHub — needs a push). Details: [phases/PHASE_16_MLOPS_CICD_PACKAGING.md](phases/PHASE_16_MLOPS_CICD_PACKAGING.md)
-2. ✅ **Phase 13** done (2026-11-05) — `rebirth track backfill`, `rebirth registry list`, `rebirth mlflow-ui`; store `mlruns/` (SQLite). Promotions go through `rebirth registry gate`.
-3. ✅ **Phase 14** done (2026-11-05) — DVC (`bash scripts/dvc.sh`), `dvc.yaml`, Terraform (`infra/aws`, `.tools/terraform_1.17.1`), `scripts/cloud/*`, `training/eval_vllm.py`. AWS (us-east-1): bucket + IAM applied, DVC pushed; GPU quota requested in us-east-1 (and ca-central-1 as fallback).
-4. **Phase 15** — cloud 14B adapters + DPO, once the AWS quota is approved.
-5. **Phase 16** — model CI/CD + Ollama packaging · **17** cross-language · **18** monitoring · **19** v1.0 launch.
+1. **Phase 17 stage 5 — local GPU, needs a go (~5–7 h):** the adapter (`OLLAMA_MODEL=rebirth-xlang:14b-v1`) on the 35 bootstrapped directions (`eval_translate.py --suite programs --sources javascript go csharp rust swift --add-sources-from data/reports/xlang/programs_ollama14b_retry.json --retries 2`, baseline `programs_ollama14b_bootstrap.json` 343 / 511) and HumanEval (`--suite humaneval`, baseline 91.1 %) as a regression check.
+2. **Decide unified vs specialists** (CLOUD_GPU_PLAN §7): the 14B same-language adapters only tied the 7B ones.
+3. **Optional cloud round (~$15–25, needs a go + capacity):** Qwen3-Coder-30B-A3B-FP8 as the teacher for a second translation-data round (its zero-shot 282 / 420 ≈ our adapter) → `lora_xlang_14b` v2. Scripts: `scripts/cloud/session_p17*.sh`, `hub.sh` (teacher loading fixed: `READY_MIN`, shared-blob `drop()`).
+4. **Phase 18** (monitoring + flywheel, no GPU) → **Phase 19** (installer, docs, v1.0.0).
 
-Never start the GPU queue or commit/push without the user's explicit go-ahead.
+Never start the GPU queue, launch cloud instances, or commit/push without the user's explicit go-ahead.
 
 ## Phase 10 evidence (locked)
 
@@ -63,6 +58,6 @@ Phases 0–10 adapters / golden JS benches / 15K mine / Phase 11.1 harness.
 
 ## Tests
 
-Full suite green (**102/102**, 2026-11-04). Fixed: stale `language_hint` call in `test_mine_filters.py`; `migrate-repo` precheck now reports `skipped_secret` before `skipped_wrong_language`.
+Full suite green (**194 passed**, 2026-11-10; `ruff check .` clean).
 
  Prefer `REBIRTH_EMBEDDER=hash` with Ollama 14B resident; unload Ollama before PEFT train/migrate.

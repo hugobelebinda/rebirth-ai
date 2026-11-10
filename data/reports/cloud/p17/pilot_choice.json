@@ -1,0 +1,23 @@
+{
+ "rule": "teacher only if verified rate >= 14B + 5.0 points (same 1 models, same problems)",
+ "models": {
+  "Qwen/Qwen2.5-Coder-14B-Instruct": {
+   "translations": 280,
+   "first_try_pct": 47.9,
+   "verified_pct": 61.1,
+   "generations": 548,
+   "wall_hours": 0.27,
+   "by_target_verified": {
+    "cpp": 22,
+    "csharp": 31,
+    "go": 25,
+    "java": 24,
+    "python": 18,
+    "rust": 19,
+    "swift": 15,
+    "typescript": 17
+   }
+  }
+ },
+ "choice": "Qwen/Qwen2.5-Coder-14B-Instruct"
+}

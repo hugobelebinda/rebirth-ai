@@ -1,0 +1,19 @@
+{
+  "base_model": "Qwen/Qwen2.5-Coder-14B-Instruct",
+  "examples": 4432,
+  "smoke": false,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_targets": "all",
+  "epochs": 1,
+  "max_length": 1024,
+  "batch_size": 4,
+  "grad_accum": 2,
+  "max_steps": -1,
+  "gradient_checkpointing": true,
+  "attn_eager": false,
+  "data": "data/datasets/p15/go_migration.jsonl",
+  "device": "NVIDIA L40S",
+  "torch": "2.9.1+cu128",
+  "dtype": "torch.bfloat16"
+}

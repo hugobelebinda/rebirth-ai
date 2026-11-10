@@ -1,0 +1,56 @@
+{
+ "translations": 420,
+ "first_try": 147,
+ "verified": 215,
+ "first_try_pct": 35.0,
+ "verified_pct": 51.2,
+ "generations": 916,
+ "generation_seconds": 52170.2,
+ "by_target": {
+  "cpp": {
+   "n": 40,
+   "first_try": 19,
+   "verified": 29
+  },
+  "csharp": {
+   "n": 60,
+   "first_try": 27,
+   "verified": 43
+  },
+  "go": {
+   "n": 60,
+   "first_try": 20,
+   "verified": 29
+  },
+  "java": {
+   "n": 40,
+   "first_try": 23,
+   "verified": 29
+  },
+  "python": {
+   "n": 40,
+   "first_try": 22,
+   "verified": 28
+  },
+  "rust": {
+   "n": 60,
+   "first_try": 14,
+   "verified": 25
+  },
+  "swift": {
+   "n": 60,
+   "first_try": 15,
+   "verified": 21
+  },
+  "typescript": {
+   "n": 60,
+   "first_try": 7,
+   "verified": 11
+  }
+ },
+ "model": "vllm:Qwen/Qwen2.5-Coder-14B-Instruct",
+ "problems": null,
+ "wall_hours": 0.41,
+ "retries": 2,
+ "cache": "data/datasets/xlang/stage3/eval/base14b"
+}

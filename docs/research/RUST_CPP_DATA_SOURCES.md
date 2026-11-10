@@ -1,6 +1,39 @@
 # Rust / C++ training-data sources (Phase 12 note → Phase 15/17)
 
-> Written 2026-11-06. Status: research only — nothing downloaded or installed yet.
+> Written 2026-11-06. **Status: options 1 + 2 done 2026-11-07** (results below). Option 3 not pursued.
+
+## Result (2026-11-07)
+
+| | Rust | C++ |
+|---|---:|---:|
+| Full CommitPack scanned | all 30 shards, 315,837 commits | 60 of 365 shards (seeded sample), 388,253 commits |
+| Kept, **modern** tier (modernization / refactor keywords) | 4,838 | 2,223 |
+| Kept, **generic** tier (clean, focused edit) | 40,584 | 30,184 |
+| Tool pairs (compile-checked before + after) | **2,767** (`cargo fix --edition` 2015→2021, idioms, `try!`→`?`, `clippy --fix`) | **2,827** (`clang-tidy` `modernize-*`, C++20) |
+| … of which fit 1,024 tokens (usable for training) | 1,258 modern · 1,187 tool · 11,387 generic | 566 modern · 1,005 tool · 7,055 generic |
+| **Phase 15 corpus** `data/datasets/p15/<lang>_migration.jsonl` | **8,000** = 1,987 expanded + 1,258 modern + 1,187 tool + 3,568 generic | **8,000** = 2,885 expanded + 566 modern + 1,000 tool + 3,549 generic |
+| Frozen eval set | `rust_v2.jsonl`: 56 old + 44 new = **100** | `cpp_v2.jsonl`: 93 old + 7 new = **100** |
+
+- Real modernization-style rows went from 24 → ~2,400 (Rust) and 20 → ~1,600 (C++).
+- About 70 % of mined rows are longer than 1,024 tokens (whole files up to 6,000 characters on both
+  sides) and are dropped; the full pool is kept (`data/datasets/pool`, DVC) for longer sequence
+  lengths and as Phase 17 source snippets.
+- Two tool bugs caught and guarded: clang-tidy's `modernize-use-using` turned `typedef const T& X`
+  into `using X = T&` (drops `const`, still compiles) → every new `using` must match its typedef
+  exactly (39 files rejected); and a compile check that silently passed (clang-tidy refuses to run
+  with zero checks) → fixed with `--allow-no-checks`, all kept pairs re-verified (15 dropped).
+- Generic rows only fill up to the 8,000 target (`params.yaml: p15.target`): Phase 12 showed more
+  generic edits stop helping at 7B. Tool pairs are ≤ 25 % of a corpus and no single check is
+  > 20 % of the tool rows (the most common Rust fixes are `needless_return` and `redundant_field_names`).
+- Leak guard (all 8 languages): 2–23 of every 100 frozen eval rows had their file (another commit) in
+  training. It did **not** inflate past scores: those rows score lower for every model (v2 adapters
+  7.7 % vs 15.9 % on clean rows, base 7B 2.8 % vs 5.9 %), i.e. they are harder, not memorized. The
+  Phase 15 corpora drop those training rows anyway.
+
+Commands: `training/mine_commitpack_full.py` (`--standalone` collects tool inputs),
+`training/make_tool_pairs.py`, `training/build_p15_corpus.py` (DVC stage `p15_corpus`).
+Tools: rustup (stable 1.99, user install, `~/.cargo/bin`) and the `clang-tidy` pip wheel (LLVM 23,
+extra `datagen`).
 
 ## Where we are
 
@@ -30,7 +63,7 @@ correct by construction and is *exactly* the modernization task.
 - Input code: pre-2018 crates from crates.io (MIT/Apache in `Cargo.toml`), and old C++ file
   versions (`old_contents`) from CommitPack with permissive licenses.
 - Cost: local CPU only. Needs `clang-tidy` (distro `clang-tools` package) and `rustup`
-  (stable + old toolchains), and neither is installed yet. C++ needs a compile database per
+  (stable + old toolchains); both installed 2026-11-07 (see Result above). C++ needs a compile database per
   project, so start with single-file snippets that compile on their own.
 - Risk: the model only learns what the tools know. Mix it with real commits, cap each check's
   share, and keep the frozen eval sets unchanged so we can see the effect.

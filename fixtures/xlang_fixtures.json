@@ -1,0 +1,11 @@
+{
+ "_doc": "Cross-language fixture matrix (Phase 17 stage 1): every sample project translated into every other one, judged by the target project's own tests. 'source' = file translated from; 'target_file' / 'target_test' = where a translation goes and which tests must pass. The samples implement the same small API (add / multiply / summarize; Python and JS also a Calculator class, C# no summarize), so some directions need the model to fill a gap from the target tests it is shown.",
+ "python": {"project": "fixtures/python_sample", "source": "src/math_ops.py", "target_file": "src/math_ops.py", "target_test": "tests/test_math_ops.py"},
+ "javascript": {"project": "fixtures/js_ts_sample", "source": "src/math.js", "target_file": "src/math.js", "target_test": "test/math.test.js"},
+ "go": {"project": "fixtures/go_sample", "source": "src/mathops.go", "target_file": "src/mathops.go", "target_test": "src/mathops_test.go"},
+ "java": {"project": "fixtures/java_sample", "source": "src/main/java/rebirth/math/MathOps.java", "target_file": "src/main/java/rebirth/math/MathOps.java", "target_test": "src/test/java/rebirth/math/MathOpsTest.java"},
+ "csharp": {"project": "fixtures/csharp_sample", "source": "MathOps/Calculator.cs", "target_file": "MathOps/Calculator.cs", "target_test": "MathOps.Tests/CalculatorTests.cs"},
+ "rust": {"project": "fixtures/rust_sample", "source": "src/lib.rs", "target_file": "src/lib.rs", "target_test": "src/lib.rs"},
+ "cpp": {"project": "fixtures/cpp_sample", "source": "src/math_ops.cpp", "target_file": "src/math_ops.cpp", "target_test": "tests/math_ops_test.cpp"},
+ "swift": {"project": "fixtures/swift_sample", "source": "Sources/MathOps/MathOps.swift", "target_file": "Sources/MathOps/MathOps.swift", "target_test": "Tests/MathOpsTests/MathOpsTests.swift"}
+}

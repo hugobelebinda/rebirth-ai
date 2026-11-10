@@ -1,0 +1,56 @@
+{
+ "translations": 9387,
+ "first_try": 3253,
+ "verified": 4704,
+ "first_try_pct": 34.7,
+ "verified_pct": 50.1,
+ "generations": 20553,
+ "generation_seconds": 1425720.7,
+ "by_target": {
+  "cpp": {
+   "n": 741,
+   "first_try": 366,
+   "verified": 508
+  },
+  "csharp": {
+   "n": 1341,
+   "first_try": 499,
+   "verified": 821
+  },
+  "go": {
+   "n": 1341,
+   "first_try": 469,
+   "verified": 672
+  },
+  "java": {
+   "n": 947,
+   "first_try": 478,
+   "verified": 628
+  },
+  "python": {
+   "n": 994,
+   "first_try": 475,
+   "verified": 605
+  },
+  "rust": {
+   "n": 1341,
+   "first_try": 325,
+   "verified": 500
+  },
+  "swift": {
+   "n": 1341,
+   "first_try": 336,
+   "verified": 470
+  },
+  "typescript": {
+   "n": 1341,
+   "first_try": 305,
+   "verified": 500
+  }
+ },
+ "model": "vllm:Qwen/Qwen2.5-Coder-14B-Instruct",
+ "problems": null,
+ "wall_hours": 9.28,
+ "retries": 2,
+ "cache": "/home/ubuntu/rebirth/data/datasets/xlang/stage3"
+}

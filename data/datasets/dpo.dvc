@@ -1,0 +1,6 @@
+outs:
+- md5: d9bfa0e82fddd24180b744bb51da29c1.dir
+  size: 393181
+  nfiles: 3
+  hash: md5
+  path: dpo

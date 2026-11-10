@@ -18,14 +18,11 @@ import os
 
 import httpx
 
-from rebirth_ai.generate.ollama_client import GenerateResult
+from rebirth_ai.generate.ollama_client import GenerateResult, num_ctx_for
 from rebirth_ai.generate.peft_client import _clean_sft_completion, plan_generation
 from rebirth_ai.generate.prompts import extract_code_block
 
 IM_END = "<|im_end|>"
-_CTX_BUCKETS = (4096, 8192, 16384, 32768)  # few distinct num_ctx values → few model reloads
-
-
 def chatml(system: str, user: str) -> str:
     """Qwen2.5 chat template with a generation prompt (matches the HF tokenizer)."""
     return (
@@ -33,11 +30,6 @@ def chatml(system: str, user: str) -> str:
         f"<|im_start|>user\n{user}{IM_END}\n"
         "<|im_start|>assistant\n"
     )
-
-
-def num_ctx_for(prompt: str, max_new_tokens: int) -> int:
-    need = len(prompt) // 3 + max_new_tokens + 64  # ~3 chars / token for code (conservative)
-    return next((b for b in _CTX_BUCKETS if b >= need), _CTX_BUCKETS[-1])
 
 
 class OllamaAdapterClient:

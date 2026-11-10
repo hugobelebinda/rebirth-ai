@@ -113,7 +113,10 @@ def test_eval_vllm_matches_shared_schema_and_requests(fake_vllm, tmp_path, style
     body = _FakeVLLM.seen[0][1]
     assert body["temperature"] == 0.0 and body["model"] == "js14b"
     if style == "sft":
-        assert paths == {"/v1/completions"} and body["stop"] == _SFT_STOP_STRINGS
+        # vLLM's OpenAI API takes at most 4 stops; every SFT stop must still fire (via a kept prefix)
+        assert paths == {"/v1/completions"} and len(body["stop"]) <= 4
+        assert all(any(s.startswith(k) for k in body["stop"]) for s in _SFT_STOP_STRINGS)
+        assert set(body["stop"]) <= set(_SFT_STOP_STRINGS)
         assert body["max_tokens"] == 256
     else:
         assert paths == {"/v1/chat/completions"}

@@ -56,9 +56,41 @@ Note: `js_ts_migration.jsonl` currently has **9105** valid rows vs **9103** in `
 
 Mining: extend `training/mine_migration_pairs.py` (or per-lang filters) over CommitPackFT / language-appropriate Hub corpora with the same keyword + parse gates. Record running totals in `*.stats.json` and this file after each mine.
 
+### Phase 15 corpora + data pool (2026-11-07)
+
+| Path | What | Tracked |
+|------|------|---------|
+| `data/datasets/pool/<lang>_commitpack.jsonl` | Full `bigcode/commitpack` rows (Rust: all 30 shards, C++: 60 of 365), license + size + parse + commit-quality filters, `tier` = `modern` / `generic` | DVC (`pool.dvc`) |
+| `data/datasets/pool/<lang>_toolpairs.jsonl` | Tool-generated pairs, compile-checked before and after (`cargo fix`/`clippy --fix`; `clang-tidy modernize-*`), `tier` = `tool`, `checks` = fixes applied | DVC |
+| `data/datasets/pool/cpp_standalone.jsonl` | Standard-library-only C++ files (tool-pair inputs only) | DVC |
+| `data/datasets/p15/<lang>_migration.jsonl` | **Phase 15 training corpus**, all 8 languages: the expanded corpus minus rows from frozen eval-set files; Rust / C++ = 8,000 rows with new data (see [research/RUST_CPP_DATA_SOURCES.md](research/RUST_CPP_DATA_SOURCES.md)) | DVC stage `p15_corpus` |
+| `data/datasets/evalsets/{rust,cpp}_v2.jsonl` | Bigger frozen eval sets: every old row + new held-out rows (100 each) | git (frozen) |
+| `data/datasets/dpo/` | DPO prompts / preference pairs (`training/build_dpo_pairs.py`) | DVC |
+
+```bash
+python training/mine_commitpack_full.py --lang rust                    # or: --lang cpp --sample 60
+python training/mine_commitpack_full.py --lang cpp --sample 60 --seed 7 --standalone
+python training/make_tool_pairs.py --lang rust                          # needs rustup / clang-tidy
+bash scripts/dvc.sh repro p15_corpus                                    # build_p15_corpus.py
+```
+
+### Cross-language eval problems (Phase 17, 2026-11-07)
+
+| Path | What | Tracked |
+|------|------|---------|
+| `data/datasets/xlang/humaneval.jsonl` | 164 HumanEval problems: unit tests in 9 languages (MultiPL-E, MIT; Python: OpenAI HumanEval, MIT) + reference solutions in Python / C++ / Go / Java / JS (HumanEval-X, Apache-2.0) as translation sources. Built by `training/build_xlang_eval.py --download` (raw files in `data/cache/multipl_e/`, git-ignored); frozen once written | git (frozen, 2.2 MB) |
+| `fixtures/xlang_oracle/humaneval.json` | Hand-written correct + wrong solutions (3–4 problems × 9 languages, incl. a list-returning C# one) — harness self-check | git |
+| `fixtures/xlang_fixtures.json` | The 8 sample projects as translation sources / targets (fixture matrix) | git |
+| `data/datasets/xlang/programs.jsonl` | **Program-level suite (2026-11-08):** 163 complete Codeforces programs (20–150 lines; median 41 Python / 47 C++ / 76 Java lines, rating 800–2600) with one validated reference solution each in Python 3 / C++ / Java and 10 stdin → stdout tests. Subset of **DeepMind CodeContests** valid + test splits (Li et al. 2022, "Competition-Level Code Generation with AlphaCode"; [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); Codeforces materials from codeforces.com). Changes: problems filtered (no interactive / file I/O / float outputs), up to 10 tests picked per problem, one solution per language chosen and re-validated in our sandboxes, problems kept only if a known-incorrect solution fails. Built by `training/build_xlang_programs.py --download` (raw parquet in `data/cache/code_contests/`, git-ignored); frozen once written | git (frozen, 1.1 MB) |
+| `data/datasets/xlang/stage3/` | **Stage 3 translation data (Phase 17, generated on AWS 2026-11-09 — 7,870 pool problems, 9,387 translations, 30,211 pairs over 63 directions; numbers in PHASE_17 § Stage 3):** `pool.jsonl` = CodeContests **train** problems (Codeforces, AtCoder, Aizu, CodeChef, …; same license and attribution as the row above) with one reference solution (Python 3 / C++ / Java, rotating) that passes 10 of the problem's tests in our sandboxes; problems whose title or statement matches a valid / test problem (the program suite) are skipped. `gens.jsonl` / `verdicts.jsonl` = Qwen2.5-Coder-14B (vLLM) translations into the other targets and their judge verdicts (product retry loop, 2 retries); `pairs.jsonl` = verified pairs in the shared adapter format (forward / reverse / cross, 3 % of problems held out as `val`). Changes to the source data: filtered, tests subsampled, solutions translated by a model. Built by `training/gen_xlang_pairs.py pool | generate | pairs` (raw parquet in `data/cache/code_contests/train/`); `data/datasets/xlang/stage4_mix.jsonl` = the 14,000-row training mix (`training/train_xlang.py build-mix`) | local + S3 copy (git-ignored; DVC when final) |
+| `fixtures/xlang_oracle/programs.json` | One stdin → stdout program per language (+ int-overflow bugs that must fail) — program-runner self-check | git |
+
+Eval only — never trained on. MBPP (MultiPL-E has it for the same languages) is the candidate
+source for stage 3 training-data generation, so HumanEval stays clean.
+
 ### Upstream corpus
 
-- Hub: [`bigcode/commitpackft`](https://huggingface.co/datasets/bigcode/commitpackft) (MIT / permissive subset)
+- Hub: [`bigcode/commitpackft`](https://huggingface.co/datasets/bigcode/commitpackft) (MIT / permissive subset); since 2026-11-07 also the full [`bigcode/commitpack`](https://huggingface.co/datasets/bigcode/commitpack) for Rust / C++ (streamed shard by shard, permissive repo licenses only)
 - Local cache (gitignored): `data/cache/commitpackft/`
 - Filters: migration/upgrade keywords, permissive license, size bounds, Tree-sitter parse (`--require-parse`)
 

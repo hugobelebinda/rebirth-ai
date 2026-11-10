@@ -1,0 +1,56 @@
+{
+ "translations": 420,
+ "first_try": 209,
+ "verified": 282,
+ "first_try_pct": 49.8,
+ "verified_pct": 67.1,
+ "generations": 789,
+ "generation_seconds": 21199.8,
+ "by_target": {
+  "cpp": {
+   "n": 40,
+   "first_try": 24,
+   "verified": 33
+  },
+  "csharp": {
+   "n": 60,
+   "first_try": 32,
+   "verified": 46
+  },
+  "go": {
+   "n": 60,
+   "first_try": 28,
+   "verified": 33
+  },
+  "java": {
+   "n": 40,
+   "first_try": 24,
+   "verified": 29
+  },
+  "python": {
+   "n": 40,
+   "first_try": 22,
+   "verified": 32
+  },
+  "rust": {
+   "n": 60,
+   "first_try": 31,
+   "verified": 41
+  },
+  "swift": {
+   "n": 60,
+   "first_try": 25,
+   "verified": 35
+  },
+  "typescript": {
+   "n": 60,
+   "first_try": 23,
+   "verified": 33
+  }
+ },
+ "model": "vllm:Qwen/Qwen3-Coder-30B-A3B-Instruct-FP8",
+ "problems": null,
+ "wall_hours": 0.25,
+ "retries": 2,
+ "cache": "data/datasets/xlang/stage3/eval/qwen3-coder-30b-a3b-instruct-fp8"
+}

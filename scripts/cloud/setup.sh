@@ -7,10 +7,14 @@ mkdir -p logs/cloud
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader | tee logs/cloud/gpu.txt
 command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
+# the watchdog copies results to S3 with the instance role (the fallback when the home PC is off)
+command -v aws >/dev/null || uv tool install -q awscli
 [ -d .venv ] || uv venv .venv --python 3.12
 # shellcheck disable=SC1091
 source .venv/bin/activate
-uv pip install -q -r requirements-cuda.txt
+# Exact pins live on two indexes (PyPI + the cu128 torch index): let uv take each pin from
+# whichever has it (default first-index stops at the torch index, e.g. for certifi).
+uv pip install -q --index-strategy unsafe-best-match -r requirements-cuda.txt
 uv pip install -q --no-deps -e .
 python - <<'PY' | tee logs/cloud/torch.txt
 import torch, transformers, peft

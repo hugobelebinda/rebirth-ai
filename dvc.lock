@@ -11,14 +11,14 @@ stages:
       nfiles: 18
     - path: training/make_eval_sets.py
       hash: md5
-      md5: 98476f5ebac4f7a72be8ec92a5b3b50d
-      size: 2685
+      md5: 1a8ea02051024ed302a1d534f3779b1d
+      size: 2684
     outs:
     - path: data/datasets/evalsets
       hash: md5
-      md5: ecb3175f52271695f6edc97aae6c5027.dir
-      size: 1542371
-      nfiles: 8
+      md5: 0d89d1bd6ba0bfdaac9b8b6b8047c199.dir
+      size: 1919454
+      nfiles: 10
   eval_v2@python:
     cmd: REBIRTH_PEFT_BASE=Qwen/Qwen2.5-Coder-7B-Instruct 
       REBIRTH_PEFT_ADAPTER=data/models/lora_python_7b/adapter bash 
@@ -290,3 +290,36 @@ stages:
       hash: md5
       md5: 9ff68ae1e79652bcda19a730ed7d6756
       size: 219607
+  p15_corpus:
+    cmd: bash scripts/with_env.sh python training/build_p15_corpus.py --langs 
+      rust cpp go python java csharp swift js_ts --target 8000
+    deps:
+    - path: data/datasets/evalsets
+      hash: md5
+      md5: 0d89d1bd6ba0bfdaac9b8b6b8047c199.dir
+      size: 1919454
+      nfiles: 10
+    - path: data/datasets/expanded
+      hash: md5
+      md5: d30942ee3331df5343a5ab6d8ad133ec.dir
+      size: 294884845
+      nfiles: 18
+    - path: data/datasets/pool
+      hash: md5
+      md5: b74ca8bc0f9301cd7015825979cda10a.dir
+      size: 589971446
+      nfiles: 10
+    - path: training/build_p15_corpus.py
+      hash: md5
+      md5: f731477155d5fc28d2dd9e53a04d7c6c
+      size: 9706
+    params:
+      params.yaml:
+        p15:
+          target: 8000
+    outs:
+    - path: data/datasets/p15
+      hash: md5
+      md5: 5158d4c1383f2ed98415b027d9fff55f.dir
+      size: 328246109
+      nfiles: 16

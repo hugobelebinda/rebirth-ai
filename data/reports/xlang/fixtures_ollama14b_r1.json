@@ -1,0 +1,912 @@
+{
+ "model": "ollama:qwen2.5-coder:14b-instruct-q6_K",
+ "max_iterations": 3,
+ "pairs": 56,
+ "success": 52,
+ "rows": [
+  {
+   "src": "python",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 4.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=556",
+    "verify_target: target_tests PASS exit=0 in 0.25s",
+    "success: target tests passed"
+   ],
+   "code": "export function add(a, b) {\n    return a + b;\n}\n\nexport function multiply(a, b) {\n    const product = a * b;\n    return product;\n}\n\nexport function summarize(a, b) {\n    const total = add(a, b);\n    return `sum=${total}`;\n}\n\nexport class Calculator {\n    constructor(initial = 0) {\n        this.value = initial || 0;\n    }\n\n    add(n) {\n        this.value = add(this.value, n);\n        return this.value;\n    }\n\n    multiply(n) {\n        this.value = multiply(this.value, n);\n        return this.value;\n    }\n\n    reset() {\n        this.value = 0;\n    }\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.582443\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.083639\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.100249\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.087729\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.934325\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 37.566906\n"
+  },
+  {
+   "src": "python",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 19.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=1156",
+    "verify_target: target_tests FAIL exit=1 in 1.98s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=1170",
+    "verify_target: target_tests PASS exit=0 in 2.07s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport \"fmt\"\n\n// Add returns the sum of two integers.\nfunc Add(a, b int) int {\n\treturn a + b\n}\n\n// Multiply returns the product of two integers.\nfunc Multiply(a, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\n// Summarize returns a string summarizing the sum of two integers.\nfunc Summarize(a, b int) string {\n\ttotal := Add(a, b)\n\treturn fmt.Sprintf(\"sum=%d\", total)\n}\n\n// Calculator is a struct that holds a value and provides methods to manipulate it.\ntype Calculator struct {\n\tvalue int\n}\n\n// NewCalculator creates a new instance of Calculator with an initial value.\nfunc NewCalculator(initial int) *Calculator {\n\tif initial == 0 {\n\t\treturn &Calculator{value: 0}\n\t}\n\treturn &Calculator{value: initial}\n}\n\n// Add adds a number to the calculator's current value and returns the new value.\nfunc (c *Calculator) Add(n int) int {\n\tc.value = Add(c.value, n)\n\treturn c.value\n}\n\n// Multiply multiplies the calculator's current value by a number and returns the new value.\nfunc (c *Calculator) Multiply(n int) int {\n\tc.value = Multiply(c.value, n)\n\treturn c.value\n}\n\n// Reset sets the calculator's value to 0.\nfunc (c *Calculator) Reset() {\n\tc.value = 0\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "python",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 15.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=898",
+    "verify_target: target_tests PASS exit=0 in 9.99s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        int total = add(a, b);\n        return \"sum=\" + total;\n    }\n\n    public static class Calculator {\n        private int value;\n\n        public Calculator() {\n            this(0);\n        }\n\n        public Calculator(int initial) {\n            this.value = initial;\n        }\n\n        public int add(int n) {\n            this.value = MathOps.add(this.value, n);\n            return this.value;\n        }\n\n        public int multiply(int n) {\n            this.value = MathOps.multiply(this.value, n);\n            return this.value;\n        }\n\n        public void reset() {\n            this.value = 0;\n        }\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "python",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 11.2,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=994",
+    "verify_target: target_tests PASS exit=0 in 5.21s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\n\nnamespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            int total = Add(a, b);\n            return $\"sum={total}\";\n        }\n    }\n\n    public class CalculatorInstance\n    {\n        private int value;\n\n        public CalculatorInstance(int initial = 0)\n        {\n            this.value = initial;\n        }\n\n        public int Add(int n)\n        {\n            this.value = Calculator.Add(this.value, n);\n            return this.value;\n        }\n\n        public int Multiply(int n)\n        {\n            this.value = Calculator.Multiply(this.value, n);\n            return this.value;\n        }\n\n        public void Reset()\n        {\n            this.value = 0;\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "python",
+   "tgt": "rust",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 7.1,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=772",
+    "verify_target: target_tests PASS exit=0 in 0.32s",
+    "success: target tests passed"
+   ],
+   "code": "/// Legacy-style math helpers for Python migration demos.\n\npub fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\npub fn multiply(a: i32, b: i32) -> i32 {\n    let product = a * b;\n    product\n}\n\npub fn summarize(a: i32, b: i32) -> String {\n    let total = add(a, b);\n    format!(\"sum={}\", total)\n}\n\npub struct Calculator {\n    value: i32,\n}\n\nimpl Calculator {\n    pub fn new(initial: Option<i32>) -> Self {\n        Calculator {\n            value: initial.unwrap_or(0),\n        }\n    }\n\n    pub fn add(&mut self, n: i32) -> i32 {\n        self.value = add(self.value, n);\n        self.value\n    }\n\n    pub fn multiply(&mut self, n: i32) -> i32 {\n        self.value = multiply(self.value, n);\n        self.value\n    }\n\n    pub fn reset(&mut self) {\n        self.value = 0;\n    }\n}\n",
+   "log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  {
+   "src": "python",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=257",
+    "verify_target: target_tests PASS exit=0 in 0.66s",
+    "success: target tests passed"
+   ],
+   "code": "#include \"math_ops.hpp\"\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    int total = add(a, b);\n    return \"sum=\" + std::to_string(total);\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "python",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 9.8,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=847",
+    "verify_target: target_tests PASS exit=0 in 3.56s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic struct MathOps {\n    \n    public static func add(_ a: Int, _ b: Int) -> Int {\n        return a + b\n    }\n    \n    public static func multiply(_ a: Int, _ b: Int) -> Int {\n        let product = a * b\n        return product\n    }\n    \n    public static func summarize(_ a: Int, _ b: Int) -> String {\n        let total = add(a, b)\n        return \"sum=\\(total)\"\n    }\n}\n\npublic class Calculator {\n    \n    private var value: Int\n    \n    public init(initial: Int = 0) {\n        self.value = initial\n    }\n    \n    public func add(_ n: Int) -> Int {\n        self.value = MathOps.add(self.value, n)\n        return self.value\n    }\n    \n    public func multiply(_ n: Int) -> Int {\n        self.value = MathOps.multiply(self.value, n)\n        return self.value\n    }\n    \n    public func reset() {\n        self.value = 0\n    }\n}\n",
+   "log": "at 2026-11-07 19:08:37.856\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:08:37.857\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:08:37.857\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Compiling MathOps MathOps.swift\n[5/15] Emitting module MathOps\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Emitting module MathOpsTests\n[9/18] Compiling MathOpsTests MathOpsTests.swift\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[15/22] Emitting module MathOpsPackageDiscoveredTests\n[16/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Compiling MathOpsPackageTests runner.swift\n[22/25] Emitting module MathOpsPackageTests\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.92s)\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "python",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 9.1,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=525",
+    "verify_target: target_tests FAIL exit=2 in 0.42s",
+    "classify_error: DependencyMissing conf=0.99",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=551",
+    "verify_target: target_tests PASS exit=0 in 0.27s",
+    "success: target tests passed"
+   ],
+   "code": "def format_result(key, value):\n    return f\"{key}={value}\"\n\ndef add(a, b):\n    return a + b\n\ndef multiply(a, b):\n    product = a * b\n    return product\n\ndef summarize(a, b):\n    total = add(a, b)\n    return format_result('sum', total)\n\nclass Calculator:\n    def __init__(self, initial=0):\n        self.value = initial\n\n    def add(self, n):\n        self.value = add(self.value, n)\n        return self.value\n\n    def multiply(self, n):\n        self.value = multiply(self.value, n)\n        return self.value\n\n    def reset(self):\n        self.value = 0\n",
+   "log": "....                                                                     [100%]\n4 passed in 0.00s\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 10.5,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=1285",
+    "verify_target: target_tests PASS exit=0 in 2.05s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport (\n\t\"fmt\"\n)\n\n// Add returns the sum of two integers.\nfunc Add(a, b int) int {\n\treturn a + b\n}\n\n// Multiply returns the product of two integers.\nfunc Multiply(a, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\n// Summarize returns a formatted string with the sum of two integers.\nfunc Summarize(a, b int) string {\n\ttotal := Add(a, b)\n\treturn formatResult(\"sum\", total)\n}\n\n// Calculator represents a simple calculator with basic operations.\ntype Calculator struct {\n\tvalue int\n}\n\n// NewCalculator creates a new instance of Calculator with an initial value.\nfunc NewCalculator(initial int) *Calculator {\n\treturn &Calculator{value: initial}\n}\n\n// Add adds a number to the calculator's current value and returns the new value.\nfunc (c *Calculator) Add(n int) int {\n\tc.value = Add(c.value, n)\n\treturn c.value\n}\n\n// Multiply multiplies the calculator's current value by a number and returns the new value.\nfunc (c *Calculator) Multiply(n int) int {\n\tc.value = Multiply(c.value, n)\n\treturn c.value\n}\n\n// Reset sets the calculator's value to zero.\nfunc (c *Calculator) Reset() {\n\tc.value = 0\n}\n\n// formatResult formats the result with a given operation and total.\nfunc formatResult(operation string, total int) string {\n\treturn fmt.Sprintf(\"%s=%d\", operation, total)\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 16.0,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=1029",
+    "verify_target: target_tests PASS exit=0 in 9.66s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        int total = add(a, b);\n        return formatResult(\"sum\", total);\n    }\n\n    public static class Calculator {\n        private int value;\n\n        public Calculator() {\n            this(0);\n        }\n\n        public Calculator(int initial) {\n            this.value = initial;\n        }\n\n        public int add(int n) {\n            this.value = MathOps.add(this.value, n);\n            return this.value;\n        }\n\n        public int multiply(int n) {\n            this.value = MathOps.multiply(this.value, n);\n            return this.value;\n        }\n\n        public void reset() {\n            this.value = 0;\n        }\n    }\n\n    private static String formatResult(String operation, int result) {\n        return operation + \"=\" + result;\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "javascript",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.0,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=1344",
+    "verify_target: target_tests PASS exit=0 in 4.50s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\n\nnamespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            var product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            const string operation = \"sum\";\n            int total = Add(a, b);\n            return FormatResult(operation, total);\n        }\n\n        private static string FormatResult(string operation, int result)\n        {\n            // Assuming formatResult is implemented in another file or library\n            // For demonstration, we'll just return a simple formatted string\n            return $\"{operation}: {result}\";\n        }\n    }\n\n    public class CalculatorClass\n    {\n        private int value;\n\n        public CalculatorClass(int initial = 0)\n        {\n            this.value = initial;\n        }\n\n        public int Add(int n)\n        {\n            this.value = Calculator.Add(this.value, n);\n            return this.value;\n        }\n\n        public int Multiply(int n)\n        {\n            this.value = Calculator.Multiply(this.value, n);\n            return this.value;\n        }\n\n        public void Reset()\n        {\n            this.value = 0;\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "rust",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 7.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=891",
+    "verify_target: target_tests PASS exit=0 in 0.29s",
+    "success: target tests passed"
+   ],
+   "code": "// src/lib.rs\n\npub fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\npub fn multiply(a: i32, b: i32) -> i32 {\n    let product = a * b;\n    product\n}\n\npub fn summarize(a: i32, b: i32) -> String {\n    let total = add(a, b);\n    format_result(\"sum\", total)\n}\n\npub struct Calculator {\n    value: i32,\n}\n\nimpl Calculator {\n    pub fn new(initial: Option<i32>) -> Self {\n        Calculator {\n            value: initial.unwrap_or(0),\n        }\n    }\n\n    pub fn add(&mut self, n: i32) -> i32 {\n        self.value = add(self.value, n);\n        self.value\n    }\n\n    pub fn multiply(&mut self, n: i32) -> i32 {\n        self.value = multiply(self.value, n);\n        self.value\n    }\n\n    pub fn reset(&mut self) {\n        self.value = 0;\n    }\n}\n\n// Assuming formatResult is defined in another module\npub fn format_result(operation: &str, result: i32) -> String {\n    format!(\"{}={}\", operation, result)\n}\n",
+   "log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=292",
+    "verify_target: target_tests PASS exit=0 in 0.64s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include \"math_ops.hpp\"\n#include <string>\n\nint add(int a, int b) {\n  return a + b;\n}\n\nint multiply(int a, int b) {\n  int product = a * b;\n  return product;\n}\n\nstd::string summarize(int a, int b) {\n  const int total = add(a, b);\n  return \"sum=\" + std::to_string(total);\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "javascript",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 18.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=897",
+    "verify_target: target_tests FAIL exit=1 in 1.75s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=976",
+    "verify_target: target_tests PASS exit=0 in 2.83s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\n// Legacy-style math helpers (intentionally old patterns for migration demos).\n\npublic func add(_ a: Int, _ b: Int) -> Int {\n    return a + b\n}\n\npublic func multiply(_ a: Int, _ b: Int) -> Int {\n    let product = a * b\n    return product\n}\n\npublic func summarize(_ a: Int, _ b: Int) -> String {\n    let total = add(a, b)\n    return formatResult(\"sum\", total)\n}\n\npublic class Calculator {\n    private var value: Int\n    \n    public init(initial: Int = 0) {\n        self.value = initial\n    }\n    \n    public func add(_ n: Int) -> Int {\n        self.value = MathOps.add(self.value, n)\n        return self.value\n    }\n    \n    public func multiply(_ n: Int) -> Int {\n        self.value = MathOps.multiply(self.value, n)\n        return self.value\n    }\n    \n    public func reset() {\n        self.value = 0\n    }\n}\n\n// Helper function from format.js\npublic func formatResult(_ operation: String, _ result: Int) -> String {\n    return \"\\(operation)=\\(result)\"\n}\n",
+   "log": "s' passed at 2026-11-07 19:09:55.635\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:09:55.635\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:09:55.635\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Compiling MathOps MathOps.swift\n[5/15] Emitting module MathOps\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Emitting module MathOpsTests\n[9/18] Compiling MathOpsTests MathOpsTests.swift\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Emitting module MathOpsPackageDiscoveredTests\n[15/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[16/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Emitting module MathOpsPackageTests\n[22/25] Compiling MathOpsPackageTests runner.swift\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.57s)\n"
+  },
+  {
+   "src": "go",
+   "tgt": "python",
+   "status": "human_review",
+   "iterations": 3,
+   "error_class": "TypeMismatch",
+   "seconds": 19.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=695",
+    "verify_target: target_tests FAIL exit=1 in 0.27s",
+    "classify_error: TypeMismatch conf=0.34 (Unknown/low-confidence telemetry)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=695",
+    "verify_target: target_tests FAIL exit=1 in 0.27s",
+    "classify_error: TypeMismatch conf=0.34 (Unknown/low-confidence telemetry)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=695",
+    "verify_target: target_tests FAIL exit=1 in 0.26s",
+    "classify_error: TypeMismatch conf=0.34 (Unknown/low-confidence telemetry)",
+    "halt_human_review: iterations=3 error=TypeMismatch"
+   ],
+   "code": "class Calculator:\n    def __init__(self, initial_value: int):\n        self.value = initial_value\n\n    def add(self, a: int) -> int:\n        return self.value + a\n\n    def multiply(self, b: int) -> int:\n        return self.value * b\n\n\ndef add(a: int, b: int) -> int:\n    return a + b\n\n\ndef multiply(a: int, b: int) -> int:\n    product = a * b\n    return product\n\n\ndef summarize(a: int, b: int) -> str:\n    return \"sum=\" + itoa(add(a, b))\n\n\ndef itoa(n: int) -> str:\n    if n == 0:\n        return \"0\"\n    sign = \"\"\n    if n < 0:\n        sign = \"-\"\n        n = -n\n    digits = []\n    while n > 0:\n        digits.append(chr('0' + n % 10))\n        n //= 10\n    return sign + ''.join(reversed(digits))\n",
+   "log": "_ test_summarize ________________________________\n\n    def test_summarize() -> None:\n>       assert summarize(1, 2) == \"sum=3\"\n               ^^^^^^^^^^^^^^^\n\ntests/test_math_ops.py:13: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/math_ops.py:22: in summarize\n    return \"sum=\" + itoa(add(a, b))\n                    ^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nn = 3\n\n    def itoa(n: int) -> str:\n        if n == 0:\n            return \"0\"\n        sign = \"\"\n        if n < 0:\n            sign = \"-\"\n            n = -n\n        digits = []\n        while n > 0:\n>           digits.append(chr('0' + n % 10))\n                              ^^^^^^^^^^^^\nE           TypeError: can only concatenate str (not \"int\") to str\n\nsrc/math_ops.py:34: TypeError\n_______________________________ test_calculator ________________________________\n\n    def test_calculator() -> None:\n        calc = Calculator(10)\n        assert calc.add(5) == 15\n>       assert calc.multiply(2) == 30\nE       assert 20 == 30\nE        +  where 20 = multiply(2)\nE        +    where multiply = <math_ops.Calculator object at 0x7955986ebbf0>.multiply\n\ntests/test_math_ops.py:19: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_math_ops.py::test_summarize - TypeError: can only concatena...\nFAILED tests/test_math_ops.py::test_calculator - assert 20 == 30\n2 failed, 2 passed in 0.02s\n"
+  },
+  {
+   "src": "go",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.8,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=487",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export function add(a, b) {\n    return a + b;\n}\n\nexport function multiply(a, b) {\n    const product = a * b;\n    return product;\n}\n\nexport function summarize(a, b) {\n    return `sum=${add(a, b)}`;\n}\n\nclass Calculator {\n    constructor(initialValue) {\n        this.value = initialValue;\n    }\n\n    add(amount) {\n        this.value += amount;\n        return this.value;\n    }\n\n    multiply(factor) {\n        this.value *= factor;\n        return this.value;\n    }\n}\n\nexport { Calculator };\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.332975\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.073109\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.097569\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.077179\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.57433\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 33.416141\n"
+  },
+  {
+   "src": "go",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 14.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=750",
+    "verify_target: target_tests PASS exit=0 in 8.89s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        return \"sum=\" + itoa(add(a, b));\n    }\n\n    private static String itoa(int n) {\n        if (n == 0) {\n            return \"0\";\n        }\n        String sign = \"\";\n        if (n < 0) {\n            sign = \"-\";\n            n = -n;\n        }\n        StringBuilder digits = new StringBuilder();\n        while (n > 0) {\n            digits.insert(0, Character.toString((char) ('0' + n % 10)));\n            n /= 10;\n        }\n        return sign + digits.toString();\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "go",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.2,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=919",
+    "verify_target: target_tests PASS exit=0 in 6.26s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\nusing System.Text;\n\nnamespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b) => a + b;\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            return \"sum=\" + Itoa(Add(a, b));\n        }\n\n        private static string Itoa(int n)\n        {\n            if (n == 0)\n            {\n                return \"0\";\n            }\n            string sign = \"\";\n            if (n < 0)\n            {\n                sign = \"-\";\n                n = -n;\n            }\n            StringBuilder digits = new StringBuilder();\n            while (n > 0)\n            {\n                digits.Insert(0, (char)('0' + n % 10));\n                n /= 10;\n            }\n            return sign + digits.ToString();\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "go",
+   "tgt": "rust",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.2,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=210",
+    "verify_target: target_tests PASS exit=0 in 0.31s",
+    "success: target tests passed"
+   ],
+   "code": "pub fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\npub fn multiply(a: i32, b: i32) -> i32 {\n    let product = a * b;\n    product\n}\n\npub fn summarize(a: i32, b: i32) -> String {\n    format!(\"sum={}\", add(a, b))\n}\n",
+   "log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  {
+   "src": "go",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=292",
+    "verify_target: target_tests PASS exit=0 in 0.70s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include \"math_ops.hpp\"\n#include <string>\n#include <sstream>\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    return \"sum=\" + std::to_string(add(a, b));\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "go",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 6.0,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=353",
+    "verify_target: target_tests PASS exit=0 in 2.86s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic struct MathOps {\n    public static func add(_ a: Int, _ b: Int) -> Int {\n        return a + b\n    }\n\n    public static func multiply(_ a: Int, _ b: Int) -> Int {\n        let product = a * b\n        return product\n    }\n\n    public static func summarize(_ a: Int, _ b: Int) -> String {\n        return \"sum=\\(add(a, b))\"\n    }\n}\n",
+   "log": "s' passed at 2026-11-07 19:10:58.504\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:10:58.504\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:10:58.504\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Compiling MathOps MathOps.swift\n[5/15] Emitting module MathOps\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Emitting module MathOpsTests\n[9/18] Compiling MathOpsTests MathOpsTests.swift\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[15/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[16/22] Emitting module MathOpsPackageDiscoveredTests\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Emitting module MathOpsPackageTests\n[22/25] Compiling MathOpsPackageTests runner.swift\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.61s)\n"
+  },
+  {
+   "src": "java",
+   "tgt": "python",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.5,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=411",
+    "verify_target: target_tests PASS exit=0 in 0.26s",
+    "success: target tests passed"
+   ],
+   "code": "class Calculator:\n    def __init__(self, initial_value):\n        self.value = initial_value\n\n    def add(self, number):\n        self.value += number\n        return self.value\n\n    def multiply(self, number):\n        self.value *= number\n        return self.value\n\n\ndef add(a, b):\n    return a + b\n\n\ndef multiply(a, b):\n    product = a * b\n    return product\n\n\ndef summarize(a, b):\n    return f\"sum={add(a, b)}\"\n",
+   "log": "....                                                                     [100%]\n4 passed in 0.00s\n"
+  },
+  {
+   "src": "java",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=430",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export class Calculator {\n  constructor(initialValue) {\n    this.value = initialValue;\n  }\n\n  add(amount) {\n    this.value += amount;\n    return this.value;\n  }\n\n  multiply(factor) {\n    this.value *= factor;\n    return this.value;\n  }\n}\n\nexport function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  const product = a * b;\n  return product;\n}\n\nexport function summarize(a, b) {\n  return `sum=${add(a, b)}`;\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.319196\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.07071\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.096299\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.075729\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.459442\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 31.293998\n"
+  },
+  {
+   "src": "java",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 3,
+   "error_class": null,
+   "seconds": 12.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=197",
+    "verify_target: target_tests FAIL exit=1 in 2.08s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=201",
+    "verify_target: target_tests FAIL exit=1 in 2.03s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=215",
+    "verify_target: target_tests PASS exit=0 in 2.07s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport \"fmt\"\n\nfunc Add(a, b int) int {\n\treturn a + b\n}\n\nfunc Multiply(a, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\nfunc Summarize(a, b int) string {\n\treturn \"sum=\" + fmt.Sprint(Add(a, b))\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "java",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 14.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=437",
+    "verify_target: target_tests FAIL exit=1 in 3.89s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=403",
+    "verify_target: target_tests PASS exit=0 in 4.38s",
+    "success: target tests passed"
+   ],
+   "code": "namespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            return \"sum=\" + Add(a, b);\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "java",
+   "tgt": "rust",
+   "status": "human_review",
+   "iterations": 3,
+   "error_class": "CompileError",
+   "seconds": 15.1,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=240",
+    "verify_target: target_tests FAIL exit=101 in 0.22s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=544",
+    "verify_target: target_tests FAIL exit=101 in 0.19s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=536",
+    "verify_target: target_tests FAIL exit=101 in 0.20s",
+    "classify_error: CompileError (target compiler output)",
+    "halt_human_review: iterations=3 error=CompileError"
+   ],
+   "code": "pub mod math {\n    pub fn add(a: i32, b: i32) -> i32 {\n        a + b\n    }\n\n    pub fn multiply(a: i32, b: i32) -> i32 {\n        a * b\n    }\n\n    pub fn summarize(a: i32, b: i32) -> String {\n        format!(\"sum={}\", add(a, b))\n    }\n}\n\n#[cfg(test)]\nmod tests {\n    use crate::math::*;\n\n    #[test]\n    fn test_add() {\n        assert_eq!(add(2, 3), 5);\n    }\n\n    #[test]\n    fn test_multiply() {\n        assert_eq!(multiply(4, 5), 20);\n    }\n\n    #[test]\n    fn test_summarize() {\n        assert_eq!(summarize(1, 2), \"sum=3\");\n    }\n}\n",
+   "log": "\nerror[E0425]: cannot find function `add` in this scope\n  --> src/lib.rs:21:20\n   |\n21 |         assert_eq!(add(2, 3), 5);\n   |                    ^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n17 +     use crate::math::add;\n   |\n\nerror[E0425]: cannot find function `multiply` in this scope\n  --> src/lib.rs:26:20\n   |\n26 |         assert_eq!(multiply(4, 5), 20);\n   |                    ^^^^^^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n17 +     use crate::math::multiply;\n   |\n\nerror[E0425]: cannot find function `summarize` in this scope\n  --> src/lib.rs:31:20\n   |\n31 |         assert_eq!(summarize(1, 2), \"sum=3\");\n   |                    ^^^^^^^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n17 +     use crate::math::summarize;\n   |\n\nwarning: unused import: `super::*`\n  --> src/lib.rs:17:9\n   |\n17 |     use super::*;\n   |         ^^^^^^^^\n   |\n   = note: `#[warn(unused_imports)]` on by default\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `rust_sample` (lib test) due to 3 previous errors; 1 warning emitted\n"
+  },
+  {
+   "src": "java",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=255",
+    "verify_target: target_tests PASS exit=0 in 0.64s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include \"math_ops.hpp\"\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    return \"sum=\" + std::to_string(add(a, b));\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "java",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 6.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=393",
+    "verify_target: target_tests PASS exit=0 in 2.99s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic final class MathOps {\n    private init() {}\n    \n    public static func add(_ a: Int, _ b: Int) -> Int {\n        return a + b\n    }\n    \n    public static func multiply(_ a: Int, _ b: Int) -> Int {\n        let product = a * b\n        return product\n    }\n    \n    public static func summarize(_ a: Int, _ b: Int) -> String {\n        return \"sum=\\(add(a, b))\"\n    }\n}\n",
+   "log": " 2026-11-07 19:11:57.259\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:11:57.259\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:11:57.259\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Emitting module MathOps\n[5/15] Compiling MathOps MathOps.swift\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Emitting module MathOpsTests\n[9/18] Compiling MathOpsTests MathOpsTests.swift\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[15/22] Emitting module MathOpsPackageDiscoveredTests\n[16/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Emitting module MathOpsPackageTests\n[22/25] Compiling MathOpsPackageTests runner.swift\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.65s)\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "python",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 4.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=490",
+    "verify_target: target_tests PASS exit=0 in 0.27s",
+    "success: target tests passed"
+   ],
+   "code": "# src/math_ops.py\n\ndef add(a: int, b: int) -> int:\n    return a + b\n\n\ndef multiply(a: int, b: int) -> int:\n    product = a * b\n    return product\n\n\nclass Calculator:\n    def __init__(self, initial_value: int):\n        self.value = initial_value\n\n    def add(self, a: int) -> int:\n        self.value += a\n        return self.value\n\n    def multiply(self, a: int) -> int:\n        self.value *= a\n        return self.value\n\n\ndef summarize(a: int, b: int) -> str:\n    return f\"sum={add(a, b)}\"\n",
+   "log": "....                                                                     [100%]\n4 passed in 0.00s\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=454",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export const add = (a, b) => a + b;\n\nexport const multiply = (a, b) => {\n    const product = a * b;\n    return product;\n};\n\nexport const summarize = (a, b) => `sum=${add(a, b)}`;\n\nexport class Calculator {\n    constructor(initialValue = 0) {\n        this.value = initialValue;\n    }\n\n    add(amount) {\n        this.value += amount;\n        return this.value;\n    }\n\n    multiply(factor) {\n        this.value *= factor;\n        return this.value;\n    }\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.321316\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.069599\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.097169\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.087788\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.456101\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 31.12265\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 3,
+   "error_class": null,
+   "seconds": 12.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=221",
+    "verify_target: target_tests FAIL exit=1 in 2.01s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=225",
+    "verify_target: target_tests FAIL exit=1 in 2.00s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=241",
+    "verify_target: target_tests PASS exit=0 in 2.04s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport \"fmt\"\n\nfunc Add(a int, b int) int {\n\treturn a + b\n}\n\nfunc Multiply(a int, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\nfunc Summarize(a int, b int) string {\n\tsum := Add(a, b)\n\treturn fmt.Sprintf(\"sum=%d\", sum)\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.1,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=317",
+    "verify_target: target_tests PASS exit=0 in 9.39s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        return \"sum=\" + (a + b);\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "csharp",
+   "tgt": "rust",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 2.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=210",
+    "verify_target: target_tests PASS exit=0 in 0.31s",
+    "success: target tests passed"
+   ],
+   "code": "pub fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\npub fn multiply(a: i32, b: i32) -> i32 {\n    let product = a * b;\n    product\n}\n\npub fn summarize(a: i32, b: i32) -> String {\n    format!(\"sum={}\", add(a, b))\n}\n",
+   "log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 2.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=251",
+    "verify_target: target_tests PASS exit=0 in 0.63s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include \"math_ops.hpp\"\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    return \"sum=\" + std::to_string(a + b);\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "csharp",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 6.0,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=362",
+    "verify_target: target_tests PASS exit=0 in 2.94s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic struct MathOps {\n    \n    public static func add(_ a: Int, _ b: Int) -> Int {\n        return a + b\n    }\n    \n    public static func multiply(_ a: Int, _ b: Int) -> Int {\n        let product = a * b\n        return product\n    }\n    \n    public static func summarize(_ a: Int, _ b: Int) -> String {\n        return \"sum=\\(a + b)\"\n    }\n}\n",
+   "log": "assed at 2026-11-07 19:12:42.213\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:12:42.213\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:12:42.214\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Emitting module MathOps\n[5/15] Compiling MathOps MathOps.swift\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Emitting module MathOpsTests\n[9/18] Compiling MathOpsTests MathOpsTests.swift\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Emitting module MathOpsPackageDiscoveredTests\n[15/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[16/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Emitting module MathOpsPackageTests\n[22/25] Compiling MathOpsPackageTests runner.swift\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.63s)\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "python",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 4.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=471",
+    "verify_target: target_tests PASS exit=0 in 0.27s",
+    "success: target tests passed"
+   ],
+   "code": "class Calculator:\n    def __init__(self, initial_value: int):\n        self.value = initial_value\n\n    def add(self, a: int) -> int:\n        self.value += a\n        return self.value\n\n    def multiply(self, a: int) -> int:\n        self.value *= a\n        return self.value\n\n\ndef add(a: int, b: int) -> int:\n    return a + b\n\n\ndef multiply(a: int, b: int) -> int:\n    product = a * b\n    return product\n\n\ndef summarize(a: int, b: int) -> str:\n    return f\"sum={add(a, b)}\"\n",
+   "log": "....                                                                     [100%]\n4 passed in 0.00s\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=430",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  const product = a * b;\n  return product;\n}\n\nexport function summarize(a, b) {\n  return `sum=${add(a, b)}`;\n}\n\nexport class Calculator {\n  constructor(initialValue) {\n    this.value = initialValue;\n  }\n\n  add(amount) {\n    this.value += amount;\n    return this.value;\n  }\n\n  multiply(factor) {\n    this.value *= factor;\n    return this.value;\n  }\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.317726\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.072479\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.093958\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.080329\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.457021\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 29.882096\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 9.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=231",
+    "verify_target: target_tests FAIL exit=1 in 2.00s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=245",
+    "verify_target: target_tests PASS exit=0 in 2.06s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport \"fmt\"\n\nfunc Add(a int32, b int32) int32 {\n\treturn a + b\n}\n\nfunc Multiply(a int32, b int32) int32 {\n\tproduct := a * b\n\treturn product\n}\n\nfunc Summarize(a int32, b int32) string {\n\treturn fmt.Sprintf(\"sum=%d\", Add(a, b))\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.5,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=319",
+    "verify_target: target_tests PASS exit=0 in 9.78s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        return \"sum=\" + add(a, b);\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "rust",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 7.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=418",
+    "verify_target: target_tests PASS exit=0 in 4.89s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\n\nnamespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            return $\"sum={Add(a, b)}\";\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 2.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=249",
+    "verify_target: target_tests PASS exit=0 in 0.65s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include <string>\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    return \"sum=\" + std::to_string(add(a, b));\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  },
+  {
+   "src": "rust",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 6.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=369",
+    "verify_target: target_tests PASS exit=0 in 2.87s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic struct MathOps {\n    public static func add(_ a: Int32, _ b: Int32) -> Int32 {\n        return a + b\n    }\n\n    public static func multiply(_ a: Int32, _ b: Int32) -> Int32 {\n        let product = a * b\n        return product\n    }\n\n    public static func summarize(_ a: Int32, _ b: Int32) -> String {\n        return \"sum=\\(add(a, b))\"\n    }\n}\n",
+   "log": "sts' passed at 2026-11-07 19:13:29.013\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:13:29.013\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:13:29.013\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Compiling MathOps MathOps.swift\n[5/15] Emitting module MathOps\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Compiling MathOpsTests MathOpsTests.swift\n[9/18] Emitting module MathOpsTests\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[15/22] Emitting module MathOpsPackageDiscoveredTests\n[16/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Emitting module MathOpsPackageTests\n[22/25] Compiling MathOpsPackageTests runner.swift\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.63s)\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "python",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.5,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=411",
+    "verify_target: target_tests PASS exit=0 in 0.26s",
+    "success: target tests passed"
+   ],
+   "code": "class Calculator:\n    def __init__(self, initial_value):\n        self.value = initial_value\n\n    def add(self, number):\n        self.value += number\n        return self.value\n\n    def multiply(self, number):\n        self.value *= number\n        return self.value\n\n\ndef add(a, b):\n    return a + b\n\n\ndef multiply(a, b):\n    product = a * b\n    return product\n\n\ndef summarize(a, b):\n    return f\"sum={add(a, b)}\"\n",
+   "log": "....                                                                     [100%]\n4 passed in 0.00s\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=430",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  const product = a * b;\n  return product;\n}\n\nexport function summarize(a, b) {\n  return `sum=${add(a, b)}`;\n}\n\nexport class Calculator {\n  constructor(initialValue) {\n    this.value = initialValue;\n  }\n\n  add(amount) {\n    this.value += amount;\n    return this.value;\n  }\n\n  multiply(factor) {\n    this.value *= factor;\n    return this.value;\n  }\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.322396\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.070809\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.098519\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.073289\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.491671\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 30.206172\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 2,
+   "error_class": null,
+   "seconds": 8.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=203",
+    "verify_target: target_tests FAIL exit=1 in 2.05s",
+    "classify_error: TestLogicFailure conf=0.30 (Unknown/low-confidence telemetry)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=226",
+    "verify_target: target_tests PASS exit=0 in 2.15s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport (\n\t\"strconv\"\n)\n\nfunc Add(a, b int) int {\n\treturn a + b\n}\n\nfunc Multiply(a, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\nfunc Summarize(a, b int) string {\n\treturn \"sum=\" + strconv.Itoa(Add(a, b))\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.8,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=337",
+    "verify_target: target_tests PASS exit=0 in 10.00s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        return \"sum=\" + Integer.toString(add(a, b));\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "cpp",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 7.4,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=429",
+    "verify_target: target_tests PASS exit=0 in 4.58s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\n\nnamespace MathOps\n{\n    public static class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            return \"sum=\" + Add(a, b).ToString();\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "rust",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 2.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=210",
+    "verify_target: target_tests PASS exit=0 in 0.36s",
+    "success: target tests passed"
+   ],
+   "code": "pub fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\npub fn multiply(a: i32, b: i32) -> i32 {\n    let product = a * b;\n    product\n}\n\npub fn summarize(a: i32, b: i32) -> String {\n    format!(\"sum={}\", add(a, b))\n}\n",
+   "log": "\nrunning 3 tests\n...\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  {
+   "src": "cpp",
+   "tgt": "swift",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 6.2,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=353",
+    "verify_target: target_tests PASS exit=0 in 3.12s",
+    "success: target tests passed"
+   ],
+   "code": "import Foundation\n\npublic struct MathOps {\n    public static func add(_ a: Int, _ b: Int) -> Int {\n        return a + b\n    }\n\n    public static func multiply(_ a: Int, _ b: Int) -> Int {\n        let product = a * b\n        return product\n    }\n\n    public static func summarize(_ a: Int, _ b: Int) -> String {\n        return \"sum=\\(add(a, b))\"\n    }\n}\n",
+   "log": "026-11-07 19:14:14.291\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'debug.xctest' passed at 2026-11-07 19:14:14.291\n\t Executed 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\nTest Suite 'All tests' passed at 2026-11-07 19:14:14.291\nExecuted 3 tests, with 0 failures (0 unexpected) in 0.101 (0.101) seconds\n\nBuilding for debugging...\n[0/13] Write sources\n[2/13] Write swift-version-24593BA9C3E375BF.txt\n[4/15] Emitting module MathOps\n[5/15] Compiling MathOps MathOps.swift\n[6/16] Wrapping AST for MathOps for debugging\n[8/18] Compiling MathOpsTests MathOpsTests.swift\n[9/18] Emitting module MathOpsTests\n[10/19] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageDiscoveredTests.derived/all-discovered-tests.swift\n[11/19] Write sources\n[12/19] Wrapping AST for MathOpsTests for debugging\n[14/22] Compiling MathOpsPackageDiscoveredTests all-discovered-tests.swift\n[15/22] Compiling MathOpsPackageDiscoveredTests MathOpsTests.swift\n[16/22] Emitting module MathOpsPackageDiscoveredTests\n[17/23] /workspace/.build/x86_64-unknown-linux-gnu/debug/MathOpsPackageTests.derived/runner.swift\n[18/23] Write sources\n[19/23] Wrapping AST for MathOpsPackageDiscoveredTests for debugging\n[21/25] Compiling MathOpsPackageTests runner.swift\n[22/25] Emitting module MathOpsPackageTests\n[23/26] Wrapping AST for MathOpsPackageTests for debugging\n[24/26] Write Objects.LinkFileList\n[25/26] Linking MathOpsPackageTests.xctest\nBuild complete! (2.73s)\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "python",
+   "status": "human_review",
+   "iterations": 3,
+   "error_class": "TestLogicFailure",
+   "seconds": 12.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=431",
+    "verify_target: target_tests FAIL exit=1 in 0.33s",
+    "classify_error: TestLogicFailure conf=0.31 (Unknown/low-confidence telemetry)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=431",
+    "verify_target: target_tests FAIL exit=1 in 0.27s",
+    "classify_error: TestLogicFailure conf=0.31 (Unknown/low-confidence telemetry)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=431",
+    "verify_target: target_tests FAIL exit=1 in 0.26s",
+    "classify_error: TestLogicFailure conf=0.31 (Unknown/low-confidence telemetry)",
+    "halt_human_review: iterations=3 error=TestLogicFailure"
+   ],
+   "code": "class Calculator:\n    def __init__(self, initial_value: int):\n        self.value = initial_value\n\n    def add(self, a: int) -> int:\n        return self.value + a\n\n    def multiply(self, a: int) -> int:\n        return self.value * a\n\n\ndef add(a: int, b: int) -> int:\n    return a + b\n\n\ndef multiply(a: int, b: int) -> int:\n    product = a * b\n    return product\n\n\ndef summarize(a: int, b: int) -> str:\n    return f\"sum={add(a, b)}\"\n",
+   "log": "...F                                                                     [100%]\n=================================== FAILURES ===================================\n_______________________________ test_calculator ________________________________\n\n    def test_calculator() -> None:\n        calc = Calculator(10)\n        assert calc.add(5) == 15\n>       assert calc.multiply(2) == 30\nE       assert 20 == 30\nE        +  where 20 = multiply(2)\nE        +    where multiply = <math_ops.Calculator object at 0x74df852b4530>.multiply\n\ntests/test_math_ops.py:19: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_math_ops.py::test_calculator - assert 20 == 30\n1 failed, 3 passed in 0.01s\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "javascript",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.8,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=434",
+    "verify_target: target_tests PASS exit=0 in 0.17s",
+    "success: target tests passed"
+   ],
+   "code": "export class Calculator {\n  constructor(initialValue = 0) {\n    this.value = initialValue;\n  }\n\n  add(amount) {\n    this.value += amount;\n    return this.value;\n  }\n\n  multiply(factor) {\n    this.value *= factor;\n    return this.value;\n  }\n}\n\nexport function add(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  const product = a * b;\n  return product;\n}\n\nexport function summarize(a, b) {\n  return `sum=${add(a, b)}`;\n}\n",
+   "log": "TAP version 13\n# Subtest: math\n    # Subtest: adds numbers\n    ok 1 - adds numbers\n      ---\n      duration_ms: 0.319716\n      type: 'test'\n      ...\n    # Subtest: multiplies numbers\n    ok 2 - multiplies numbers\n      ---\n      duration_ms: 0.078549\n      type: 'test'\n      ...\n    # Subtest: summarizes with formatter\n    ok 3 - summarizes with formatter\n      ---\n      duration_ms: 0.096169\n      type: 'test'\n      ...\n    # Subtest: calculator accumulates\n    ok 4 - calculator accumulates\n      ---\n      duration_ms: 0.074749\n      type: 'test'\n      ...\n    1..4\nok 1 - math\n  ---\n  duration_ms: 1.451841\n  type: 'suite'\n  ...\n1..1\n# tests 4\n# suites 1\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 30.667166\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "go",
+   "status": "success",
+   "iterations": 3,
+   "error_class": null,
+   "seconds": 12.9,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=209",
+    "verify_target: target_tests FAIL exit=1 in 2.05s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=213",
+    "verify_target: target_tests FAIL exit=1 in 2.05s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=229",
+    "verify_target: target_tests PASS exit=0 in 2.06s",
+    "success: target tests passed"
+   ],
+   "code": "package mathops\n\nimport \"fmt\"\n\nfunc Add(a int, b int) int {\n\treturn a + b\n}\n\nfunc Multiply(a int, b int) int {\n\tproduct := a * b\n\treturn product\n}\n\nfunc Summarize(a int, b int) string {\n\treturn fmt.Sprintf(\"sum=%d\", Add(a, b))\n}\n",
+   "log": "ok  \trebirth.ai/go_sample/src\t0.001s\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "java",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 12.7,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=319",
+    "verify_target: target_tests PASS exit=0 in 9.97s",
+    "success: target tests passed"
+   ],
+   "code": "package rebirth.math;\n\npublic class MathOps {\n\n    public static int add(int a, int b) {\n        return a + b;\n    }\n\n    public static int multiply(int a, int b) {\n        int product = a * b;\n        return product;\n    }\n\n    public static String summarize(int a, int b) {\n        return \"sum=\" + add(a, b);\n    }\n}\n",
+   "log": ""
+  },
+  {
+   "src": "swift",
+   "tgt": "csharp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 8.0,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=411",
+    "verify_target: target_tests PASS exit=0 in 4.93s",
+    "success: target tests passed"
+   ],
+   "code": "using System;\n\nnamespace MathOps\n{\n    public class Calculator\n    {\n        public static int Add(int a, int b)\n        {\n            return a + b;\n        }\n\n        public static int Multiply(int a, int b)\n        {\n            int product = a * b;\n            return product;\n        }\n\n        public static string Summarize(int a, int b)\n        {\n            return $\"sum={Add(a, b)}\";\n        }\n    }\n}\n",
+   "log": "An issue was encountered verifying workloads. For more information, run \"dotnet workload update\".\nTest run for /workspace/MathOps.Tests/bin/Debug/net8.0/MathOps.Tests.dll (.NETCoreApp,Version=v8.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 1 ms - MathOps.Tests.dll (net8.0)\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "rust",
+   "status": "human_review",
+   "iterations": 3,
+   "error_class": "CompileError",
+   "seconds": 15.6,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=271",
+    "verify_target: target_tests FAIL exit=101 in 0.24s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=2 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=575",
+    "verify_target: target_tests FAIL exit=101 in 0.21s",
+    "classify_error: CompileError (target compiler output)",
+    "translate_code: iteration=3 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=575",
+    "verify_target: target_tests FAIL exit=101 in 0.20s",
+    "classify_error: CompileError (target compiler output)",
+    "halt_human_review: iterations=3 error=CompileError"
+   ],
+   "code": "pub mod math_ops {\n    pub fn add(a: i32, b: i32) -> i32 {\n        a + b\n    }\n\n    pub fn multiply(a: i32, b: i32) -> i32 {\n        let product = a * b;\n        product\n    }\n\n    pub fn summarize(a: i32, b: i32) -> String {\n        format!(\"sum={}\", add(a, b))\n    }\n}\n\n#[cfg(test)]\nmod tests {\n    use crate::math_ops::*;\n\n    #[test]\n    fn test_add() {\n        assert_eq!(add(2, 3), 5);\n    }\n\n    #[test]\n    fn test_multiply() {\n        assert_eq!(multiply(4, 5), 20);\n    }\n\n    #[test]\n    fn test_summarize() {\n        assert_eq!(summarize(1, 2), \"sum=3\");\n    }\n}\n",
+   "log": "\nerror[E0425]: cannot find function `add` in this scope\n  --> src/lib.rs:22:20\n   |\n22 |         assert_eq!(add(2, 3), 5);\n   |                    ^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n18 +     use crate::math_ops::add;\n   |\n\nerror[E0425]: cannot find function `multiply` in this scope\n  --> src/lib.rs:27:20\n   |\n27 |         assert_eq!(multiply(4, 5), 20);\n   |                    ^^^^^^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n18 +     use crate::math_ops::multiply;\n   |\n\nerror[E0425]: cannot find function `summarize` in this scope\n  --> src/lib.rs:32:20\n   |\n32 |         assert_eq!(summarize(1, 2), \"sum=3\");\n   |                    ^^^^^^^^^ not found in this scope\n   |\nhelp: consider importing this function\n   |\n18 +     use crate::math_ops::summarize;\n   |\n\nwarning: unused import: `super::*`\n  --> src/lib.rs:18:9\n   |\n18 |     use super::*;\n   |         ^^^^^^^^\n   |\n   = note: `#[warn(unused_imports)]` on by default\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `rust_sample` (lib test) due to 3 previous errors; 1 warning emitted\n"
+  },
+  {
+   "src": "swift",
+   "tgt": "cpp",
+   "status": "success",
+   "iterations": 1,
+   "error_class": null,
+   "seconds": 3.3,
+   "trace": [
+    "translate_code: iteration=1 model=ollama:qwen2.5-coder:14b-instruct-q6_K chars=249",
+    "verify_target: target_tests PASS exit=0 in 0.70s",
+    "success: target tests passed"
+   ],
+   "code": "// src/math_ops.cpp\n\n#include <string>\n\nint add(int a, int b) {\n    return a + b;\n}\n\nint multiply(int a, int b) {\n    int product = a * b;\n    return product;\n}\n\nstd::string summarize(int a, int b) {\n    return \"sum=\" + std::to_string(add(a, b));\n}\n",
+   "log": "-- The CXX compiler identification is GNU 14.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/local/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n-- Generating done\n-- Build files have been written to: /workspace/build\n[ 25%] Building CXX object CMakeFiles/math_ops.dir/src/math_ops.cpp.o\n[ 50%] Linking CXX static library libmath_ops.a\n[ 50%] Built target math_ops\n[ 75%] Building CXX object CMakeFiles/math_ops_test.dir/tests/math_ops_test.cpp.o\n[100%] Linking CXX executable math_ops_test\n[100%] Built target math_ops_test\nInternal ctest changing into directory: /workspace/build\nTest project /workspace/build\n    Start 1: math_ops_test\n1/1 Test #1: math_ops_test ....................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.00 sec\n"
+  }
+ ]
+}

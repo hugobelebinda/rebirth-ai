@@ -49,10 +49,25 @@ def _post(url: str, payload: dict, *, timeout: float, retries: int = 3) -> dict:
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:  # server answered: a 4xx will not change on retry
+            detail = exc.read().decode("utf-8", "replace")[:500]
+            if exc.code < 500:
+                raise RuntimeError(f"vLLM rejected the request (HTTP {exc.code}): {detail}") from exc
+            last = RuntimeError(f"HTTP {exc.code}: {detail}")
+            time.sleep(2 * (attempt + 1))
         except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
             last = exc
             time.sleep(2 * (attempt + 1))
     raise RuntimeError(f"vLLM request failed after {retries} tries: {last}")
+
+
+def minimal_stops(stops: tuple[str, ...] | list[str]) -> list[str]:
+    """Drop stop strings that start with another stop (that one always fires first) — same output,
+    and the OpenAI API vLLM implements accepts at most 4 (the SFT plan has 5, 3 of them redundant)."""
+    keep = [s for s in dict.fromkeys(stops) if not any(t != s and s.startswith(t) for t in stops)]
+    if len(keep) > 4:
+        raise ValueError(f"more than 4 independent stop strings: {keep}")
+    return keep
 
 
 def generate(server: str, model: str, row: dict, *, style: str, max_new_tokens: int, timeout: float) -> str:
@@ -67,7 +82,7 @@ def generate(server: str, model: str, row: dict, *, style: str, max_new_tokens: 
     )
     common = {"model": model, "max_tokens": plan.max_new_tokens, "temperature": 0.0, "seed": 0}
     if plan.style == "sft":
-        out = _post(f"{server}/completions", {**common, "prompt": plan.prompt, "stop": list(plan.stop)}, timeout=timeout)
+        out = _post(f"{server}/completions", {**common, "prompt": plan.prompt, "stop": minimal_stops(plan.stop)}, timeout=timeout)
         text = out["choices"][0]["text"]
     else:
         messages = [{"role": "system", "content": plan.system}, {"role": "user", "content": plan.prompt}]

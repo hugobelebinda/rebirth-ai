@@ -49,7 +49,7 @@ is slow and fragile. Instead:
 
 | Piece | Files | Notes |
 |-------|-------|-------|
-| Data/adapters versioning | `.dvc/`, `data/datasets/expanded.dvc`, `data/models/lora_*_7b/adapter.dvc`, `scripts/dvc.sh` | DVC 3.67 in `.venv-tools` (full DVC would downgrade `python-dateutil` in `.venv`); analytics off; cache type copy (training rewrites adapters in place — hardlinks would break) |
+| Data/adapters versioning | `.dvc/`, `data/datasets/expanded.dvc`, `data/models/lora_*_7b/adapter.dvc`, `data/models/lora_{go,python,xlang}_14b/adapter.dvc` (added 2026-11-10, local cache only until the next `scripts/dvc.sh push`), `scripts/dvc.sh` | DVC 3.67 in `.venv-tools` (full DVC would downgrade `python-dateutil` in `.venv`); analytics off; cache type copy (training rewrites adapters in place — hardlinks would break) |
 | Pipeline | `dvc.yaml`, `params.yaml`, `scripts/with_env.sh` | `evalsets` (**frozen** — never re-run), `train_v3@<lang>`, `eval_v2@<lang>`, `eval_v3@<lang>` |
 | Shared generation plan | `peft_client.plan_generation()` | One source of truth for style / prompt / token budget (PEFT and vLLM) |
 | Shared scoring | `eval_behavioral.score_row()` / `summarize()` | Re-scoring the stored Go v2 report gives identical numbers |
@@ -71,6 +71,10 @@ bash scripts/cloud/status.sh s0                                  # progress; ins
 bash scripts/cloud/sync_down.sh                                  # results home + MLflow
 cd infra/aws && terraform apply -var launch_instance=false       # GPU instance gone, bucket kept
 ```
+
+If the launch hangs, AWS is answering `InsufficientInstanceCapacity` (the provider retries it for
+~10 min; seen 2026-11-08 in all four g6e zones of us-east-1). Pin a zone with
+`-var availability_zone=us-east-1a` (… `1b` / `1c` / `1d`) and retry later — failed launches cost nothing.
 
 ### Known issues
 

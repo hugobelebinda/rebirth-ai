@@ -96,3 +96,9 @@ infra/aws/.terraform/
 *.tfplan
 .tools/
 .cloud_host
+
+# Phase 17 translation eval: raw generation caches (the reports keep every translation)
+data/reports/xlang/*.gen.jsonl
+
+# Phase 17 stage 3 generation (pool / generations / verdicts / pairs — large; DVC when final)
+data/datasets/xlang/stage3*/

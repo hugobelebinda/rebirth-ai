@@ -1,0 +1,12 @@
+{
+ "rule": "roll DPO out if mean gain >= +2 soft-exact/100 on go + rust_v2 and neither < -1",
+ "sets": {
+  "go": {
+   "error": "[Errno 2] No such file or directory: 'data/reports/cloud/p15/go__14b_dpo.json'"
+  },
+  "rust_v2": {
+   "error": "[Errno 2] No such file or directory: 'data/reports/cloud/p15/rust_v2__14b_dpo.json'"
+  }
+ },
+ "pass": false
+}

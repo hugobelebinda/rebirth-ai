@@ -9,6 +9,13 @@ import httpx
 
 from rebirth_ai.generate.prompts import SYSTEM_PROMPT, build_migration_prompt, extract_code_block
 
+_CTX_BUCKETS = (4096, 8192, 16384, 32768)  # few distinct num_ctx values → few model reloads
+
+
+def num_ctx_for(prompt: str, max_new_tokens: int) -> int:
+    need = len(prompt) // 3 + max_new_tokens + 64  # ~3 chars / token for code (conservative)
+    return next((b for b in _CTX_BUCKETS if b >= need), _CTX_BUCKETS[-1])
+
 
 @dataclass(frozen=True)
 class GenerateResult:
@@ -54,15 +61,21 @@ class OllamaClient:
         *,
         system: str = SYSTEM_PROMPT,
         num_predict: int = 4096,
+        temperature: float = 0.1,
     ) -> str:
+        # Ollama's default window is 4096 tokens and it silently drops the start of a longer prompt:
+        # size the window to prompt + output (REBIRTH_OLLAMA_NUM_CTX pins one value for a whole run).
+        pinned = os.environ.get("REBIRTH_OLLAMA_NUM_CTX", "").strip()
+        num_ctx = int(pinned) if pinned else num_ctx_for(system + prompt, num_predict)
         payload = {
             "model": self.model,
             "prompt": prompt,
             "system": system,
             "stream": False,
             "options": {
-                "temperature": 0.1,
+                "temperature": temperature,
                 "num_predict": num_predict,
+                "num_ctx": num_ctx,
             },
         }
         with httpx.Client(timeout=self.timeout_sec) as client:
