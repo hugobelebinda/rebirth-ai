@@ -83,3 +83,22 @@ stages:
       - p15
     outs:
       - data/datasets/p15
+
+  flywheel_mix:
+    # Phase 18: reviewed real-world rows (`rebirth review accept`, own code only, train split)
+    # appended to the Phase 15 corpus → the next same-language training round reads this file.
+    foreach: ${flywheel.langs}
+    do:
+      cmd: >-
+        bash scripts/with_env.sh python training/build_flywheel_mix.py --lang ${item}
+        --base data/datasets/p15/${item}_migration.jsonl
+        --out data/datasets/flywheel_mix/${item}_migration.jsonl --repeat ${flywheel.repeat}
+      deps:
+        - data/datasets/flywheel
+        - data/datasets/p15/${item}_migration.jsonl
+        - data/datasets/evalsets
+        - training/build_flywheel_mix.py
+      outs:
+        - data/datasets/flywheel_mix/${item}_migration.jsonl
+        - data/datasets/flywheel_mix/${item}_migration.stats.json:
+            cache: false

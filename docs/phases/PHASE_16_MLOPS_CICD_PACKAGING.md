@@ -59,7 +59,7 @@ End-to-end check: `rebirth migrate fixtures/python_sample … --lang python` →
 
 ## Exit criteria
 
-- [ ] CI green on main; PRs blocked on failing tests or model gate — workflow written and checked locally; runs once pushed (branch protection is a GitHub setting)
+- [ ] CI green on main; PRs blocked on failing tests or model gate — CI ✅ green on main and on PRs #3 / #4 (`ci.yml`, 2026-11-07 / 11-10); **blocking not on**: `main` has no branch protection yet (a GitHub repo setting, the owner's call)
 - [x] All 8 champions packaged as Ollama models; served-model scores recorded (7B, 2026-11-06; repeat for 14B)
 - [ ] Rollback demonstrated on one language — implemented + unit-tested; live demo at the first real promotion (no language has a second packaged champion yet)
 - [x] `rebirth migrate` routes through `configs/routing.yaml` (default `--backend auto`)

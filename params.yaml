@@ -11,3 +11,7 @@ v3:
 # Phase 15 corpora (training/build_p15_corpus.py): rows per language for Rust / C++.
 p15:
   target: 8000
+# Phase 18 flywheel: reviewed rows appended to these base corpora (training/build_flywheel_mix.py).
+flywheel:
+  langs: [go, python, java, csharp, rust, cpp, swift, js_ts]
+  repeat: 2

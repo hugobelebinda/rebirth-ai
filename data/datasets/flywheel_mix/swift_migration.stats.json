@@ -1,0 +1,10 @@
+{
+ "lang": "swift",
+ "base": "data/datasets/p15/swift_migration.jsonl",
+ "base_rows": 3620,
+ "flywheel_train_rows": 0,
+ "dropped_frozen_eval": 0,
+ "added": 0,
+ "repeat": 2,
+ "total": 3620
+}
