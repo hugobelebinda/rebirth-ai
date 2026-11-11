@@ -10,6 +10,7 @@ from rebirth_ai.adapters.registry import get_adapter
 from rebirth_ai.classify.model import ErrorClassifier
 from rebirth_ai.generate.factory import get_generator
 from rebirth_ai.graph.state import MigrationState
+from rebirth_ai.paths import DEFAULT_DB
 from rebirth_ai.rag.retrieve import Retriever
 from rebirth_ai.sandbox.deps import install_decision
 from rebirth_ai.sandbox.runner import SandboxRunner
@@ -45,7 +46,7 @@ def _trace(state: MigrationState, message: str) -> list[str]:
 
 def retrieve_context(state: MigrationState) -> MigrationState:
     path = Path(state["file_path"])
-    db = Path(state.get("db_path") or "data/embeddings.db")
+    db = Path(state.get("db_path") or DEFAULT_DB)
     context: list[str] = []
     if db.exists():
         # One index per project (`rebirth index <project>`): chunks of another project are not context

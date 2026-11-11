@@ -8,10 +8,49 @@ from typing import NoReturn
 import typer
 from rich import print
 from rich.table import Table
+from typer.core import TyperGroup
 
 from rebirth_ai import __version__
+from rebirth_ai.paths import CLASSIFIER_DIR, DEFAULT_DB, DEFAULT_REPORT, ERROR_LOGS
 
-app = typer.Typer(help="Rebirth AI — autonomous migration agent", no_args_is_help=True)
+# `rebirth --help`: commands grouped by who needs them, in this order (assigned at the end of the file).
+PANELS = {
+    "Migrate": ["migrate", "migrate-repo"],
+    "Setup": ["doctor", "install", "version"],
+    "Tools": ["index", "query", "sandbox", "report", "dashboard", "parse", "classify", "adapters", "generate"],
+    "Maintainers: models, data and monitoring": [
+        "eval", "monitor", "review", "registry", "serve", "package", "track", "mlflow-ui", "mine-dataset",
+        "train-classifier",
+    ],
+}
+_ORDER = {name: i for i, name in enumerate(n for names in PANELS.values() for n in names)}
+
+
+class _OrderedGroup(TyperGroup):
+    def list_commands(self, ctx):  # click.s signature
+        return sorted(super().list_commands(ctx), key=lambda n: _ORDER.get(n, len(_ORDER)))
+
+
+app = typer.Typer(
+    cls=_OrderedGroup,
+    help="Rebirth AI: modernize legacy code, or translate it to another language, checked by your own tests. "
+    "Run `rebirth` with no command for the guided start screen.",
+)
+
+
+@app.callback(invoke_without_command=True)
+def _main(
+    ctx: typer.Context,
+    show_version: bool = typer.Option(False, "--version", "-V", is_eager=True, help="Print the version and exit."),
+) -> None:
+    if show_version:
+        print(f"rebirth-ai {__version__}")
+        raise typer.Exit()
+    if ctx.invoked_subcommand is None:
+        from rebirth_ai.start import start
+
+        raise typer.Exit(start())
+
 
 # Phase 13 MLOps: experiment tracking + model registry (MLflow; optional ".[mlops]" extra)
 from rebirth_ai.mlops_cli import mlflow_ui, package_cmd, registry_app, serve_app, track_app  # noqa: E402
@@ -45,7 +84,7 @@ def _preflight(*, ollama: bool = False, docker: bool = False) -> None:
 
 @app.command()
 def version() -> None:
-    """Print package version."""
+    """Print the version."""
     print(f"rebirth-ai {__version__}")
 
 
@@ -58,7 +97,7 @@ def install(
     keep_files: bool = typer.Option(False, "--keep-files", help="keep downloaded files after ollama create"),
     dry_run: bool = typer.Option(False, "--dry-run", help="show the plan only"),
 ) -> None:
-    """Download, verify (sha256) and register the model packs in Ollama (configs/models.json)."""
+    """Download the model packs, check their sha256 and register them in Ollama."""
     from rebirth_ai.install import InstallError
     from rebirth_ai.install import install as run_install
 
@@ -113,7 +152,7 @@ def _gpu_vram_gb() -> tuple[str, float] | None:
 def doctor(
     strict: bool = typer.Option(False, "--strict", help="exit 1 if a requirement for the installed packs is missing"),
 ) -> None:
-    """Check local prerequisites (Python, Docker, Ollama, model packs, sandbox images, GPU, disk)."""
+    """Check that everything Rebirth needs is installed and running (Docker, Ollama, models, GPU, disk)."""
     import shutil
     import subprocess
     import sys
@@ -270,7 +309,7 @@ def doctor(
 
 @app.command("adapters")
 def list_adapters() -> None:
-    """List registered language adapters (id, extensions, sandbox image)."""
+    """List the 8 languages: id, file types, test command and sandbox image."""
     from rebirth_ai.adapters.registry import adapter_summaries
 
     table = Table(title="Language adapters")
@@ -295,10 +334,10 @@ def parse_file(
         None,
         "--lang",
         "-l",
-        help="Adapter id override (js_ts | python); default = detect from suffix",
+        help="Language (js_ts | python | go | java | csharp | rust | cpp | swift); default: from the file suffix",
     ),
 ) -> None:
-    """AST-chunk a source file and print structured chunks."""
+    """Split a source file into functions and classes, as code search sees it."""
     from rebirth_ai.adapters.registry import get_adapter
 
     if lang:
@@ -337,10 +376,10 @@ def sandbox_run(
         None,
         "--lang",
         "-l",
-        help="Adapter id override (js_ts | python); default = auto-detect",
+        help="Language (js_ts | python | go | java | csharp | rust | cpp | swift); default: detected from the project",
     ),
 ) -> None:
-    """Run fixture/project tests inside the ephemeral Docker sandbox."""
+    """Run a project's tests in the Docker sandbox, as Rebirth does."""
     from rebirth_ai.adapters.registry import detect_adapter_id, get_adapter_for_project
     from rebirth_ai.sandbox.runner import SandboxRunner
 
@@ -350,11 +389,11 @@ def sandbox_run(
               "no source files); pass --lang")
     adapter = get_adapter_for_project(project, lang=lang)
     runner = SandboxRunner(adapter)
-    from rebirth_ai.sandbox.runner import SandboxImageMissing
+    from rebirth_ai.sandbox.runner import SandboxError
 
     try:
         result = runner.run_project(project, relative_test=test)
-    except SandboxImageMissing as exc:
+    except SandboxError as exc:
         _fail(str(exc))
     status = "[green]PASS[/green]" if result.ok else "[red]FAIL[/red]"
     print(f"{status} exit={result.exit_code} in {result.duration_sec:.2f}s adapter={adapter.name}")
@@ -378,12 +417,13 @@ def index_project(
         help="Project root to index into the vector DB",
     ),
     db: Path = typer.Option(
-        Path("data/embeddings.db"),
+        DEFAULT_DB,
         "--db",
-        help="SQLite vector DB path",
+        help="SQLite vector DB path (one project at a time: indexing another replaces it)",
+        show_default="data/embeddings.db in the Rebirth folder",
     ),
 ) -> None:
-    """AST-chunk + embed a project into SQLite for RAG."""
+    """Build a project's code-search index (optional: gives the model the code a file uses)."""
     from rebirth_ai.rag.retrieve import Retriever
 
     retriever = Retriever(db_path=db)
@@ -396,10 +436,10 @@ def index_project(
 @app.command("query")
 def query_index(
     text: str = typer.Argument(..., help="Free-text retrieval query"),
-    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    db: Path = typer.Option(DEFAULT_DB, "--db", help="Code-search index (`rebirth index`)", show_default="data/embeddings.db in the Rebirth folder"),
     top_k: int = typer.Option(5, "--top-k", "-k"),
 ) -> None:
-    """Query the vector index for relevant code chunks."""
+    """Search the code-search index."""
     from rebirth_ai.rag.retrieve import Retriever
 
     retriever = Retriever(db_path=db)
@@ -417,17 +457,19 @@ def query_index(
 @app.command("train-classifier")
 def train_classifier(
     dataset: Path = typer.Option(
-        Path("data/datasets/error_logs.jsonl"),
+        ERROR_LOGS,
         "--dataset",
         exists=True,
         dir_okay=False,
+        show_default="data/datasets/error_logs.jsonl in the Rebirth folder",
     ),
     model_dir: Path = typer.Option(
-        Path("data/models/error_classifier"),
+        CLASSIFIER_DIR,
         "--model-dir",
+        show_default="data/models/error_classifier in the Rebirth folder",
     ),
 ) -> None:
-    """Train the TF-IDF + RandomForest error classifier."""
+    """Train the error classifier (TF-IDF + logistic regression; runs on first use if missing)."""
     from rebirth_ai.classify.model import ErrorClassifier
 
     _, report = ErrorClassifier.train_from_jsonl(dataset, model_dir=model_dir)
@@ -444,7 +486,7 @@ def generate_migration(
         "-o",
     ),
     use_rag: bool = typer.Option(True, "--rag/--no-rag", help="Attach retrieved context"),
-    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    db: Path = typer.Option(DEFAULT_DB, "--db", help="Code-search index (`rebirth index`)", show_default="data/embeddings.db in the Rebirth folder"),
     out: Path | None = typer.Option(None, "--out", help="Write draft code to this path"),
     backend: str = typer.Option(
         "auto",
@@ -453,7 +495,7 @@ def generate_migration(
         help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
     ),
 ) -> None:
-    """Generate a modernized draft via Ollama or local PEFT LoRA (optional RAG)."""
+    """One draft from the model, without running the tests (for debugging)."""
     from rebirth_ai.generate.factory import get_generator
 
     source = path.read_text(encoding="utf-8")
@@ -496,7 +538,7 @@ def mine_dataset(
         help="CommitPackFT language(s): javascript, typescript, python (repeatable)",
     ),
 ) -> None:
-    """Mine migration pairs from CommitPackFT (JS/TS and/or Python)."""
+    """Mine before/after training pairs from CommitPackFT."""
     import subprocess
     import sys
     from pathlib import Path
@@ -555,7 +597,7 @@ def migrate_file(
         "--write/--no-write",
         help="Write successful draft back onto the project file",
     ),
-    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    db: Path = typer.Option(DEFAULT_DB, "--db", help="Code-search index (`rebirth index`)", show_default="data/embeddings.db in the Rebirth folder"),
     max_iterations: int = typer.Option(5, "--max-iterations"),
     out: Path | None = typer.Option(None, "--out", help="Also write final draft here"),
     backend: str = typer.Option(
@@ -568,7 +610,7 @@ def migrate_file(
         None,
         "--lang",
         "-l",
-        help="Adapter id override (js_ts | python); default = auto-detect",
+        help="Language (js_ts | python | go | java | csharp | rust | cpp | swift); default: detected from the project",
     ),
     to: str | None = typer.Option(
         None,
@@ -599,10 +641,10 @@ def migrate_file(
         "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
     ),
 ) -> None:
-    """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route.
+    """Modernize one file, or translate it with --to. Every draft is checked by the project's tests.
 
-    With ``--to <lang>``: translate the file to another language instead (translate → target
-    sandbox → classify → retry); see docs/phases/PHASE_17_CROSS_LANGUAGE.md.
+    Without --write nothing in the project changes: the result and its diff are printed. With --to, the
+    translation is a new file under <project>/rebirth_out/<language>/ and the source is not changed.
     """
     import os
 
@@ -679,11 +721,11 @@ def migrate_file(
     print("[dim]running migration graph…[/dim]")
     t0 = _time.time()
     from rebirth_ai.graph.fallback import invoke as fallback_run
-    from rebirth_ai.sandbox.runner import SandboxImageMissing
+    from rebirth_ai.sandbox.runner import SandboxError
 
     try:
         final = fallback_run(graph, state, original=source_text, seed=seed_text, backend=backend, use=fallback)
-    except SandboxImageMissing as exc:
+    except SandboxError as exc:
         _fail(str(exc))
     wall = _time.time() - t0
 
@@ -707,6 +749,8 @@ def migrate_file(
         print(f"  • {step}")
 
     draft = final.get("current_draft") or ""
+    if status == "success" and draft and source_text is not None:
+        _print_diff(file, source_text, draft)
     if out is not None:
         out.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
@@ -750,6 +794,8 @@ def migrate_file(
         },
     )
     print(f"[dim]run log[/dim] {run_path}")
+    if status not in ("success", "unchanged"):
+        print(f"[dim]last draft and test log:[/dim] {runs_dir() / rid}")
 
     raise typer.Exit(code=0 if status in ("success", "unchanged") else 1)
 
@@ -800,11 +846,11 @@ def _translate_file(
     source_path = project / file
     source_text = source_path.read_text(encoding="utf-8", errors="replace") if source_path.is_file() else None
     t0 = _time.time()
-    from rebirth_ai.sandbox.runner import SandboxImageMissing
+    from rebirth_ai.sandbox.runner import SandboxError
 
     try:
         final = build_translation_graph().invoke(state)
-    except SandboxImageMissing as exc:
+    except SandboxError as exc:
         _fail(str(exc))
     wall = _time.time() - t0
 
@@ -880,10 +926,11 @@ def migrate_repo(
         "--objective",
         "-o",
     ),
-    under: str = typer.Option(
-        "src",
+    under: str | None = typer.Option(
+        None,
         "--under",
-        help="Comma-separated roots to discover sources (e.g. src,lib,app)",
+        help="Comma-separated folders to look in, e.g. src,lib (default: src if the project has one, "
+        "else the whole project)",
     ),
     file: list[str] = typer.Option(
         [],
@@ -906,7 +953,7 @@ def migrate_repo(
         "--dry-run",
         help="Plan only: discover + topo-order + test map; no LLM / writes",
     ),
-    db: Path = typer.Option(Path("data/embeddings.db"), "--db"),
+    db: Path = typer.Option(DEFAULT_DB, "--db", help="Code-search index (`rebirth index`)", show_default="data/embeddings.db in the Rebirth folder"),
     max_iterations: int = typer.Option(5, "--max-iterations"),
     backend: str = typer.Option(
         "auto",
@@ -915,9 +962,10 @@ def migrate_repo(
         help="auto (default: packaged adapter from configs/routing.yaml, else plain Ollama) | ollama | peft",
     ),
     report: Path = typer.Option(
-        Path("data/reports/migrate_repo.json"),
+        DEFAULT_REPORT,
         "--report",
         help="Write JSON batch report here",
+        show_default="data/reports/migrate_repo.json in the Rebirth folder",
     ),
     open_pr: bool = typer.Option(
         False,
@@ -944,7 +992,7 @@ def migrate_repo(
         None,
         "--lang",
         "-l",
-        help="Adapter id override (js_ts | python); default = auto-detect",
+        help="Language (js_ts | python | go | java | csharp | rust | cpp | swift); default: detected from the project",
     ),
     fallback: bool | None = typer.Option(
         None,
@@ -953,7 +1001,11 @@ def migrate_repo(
         "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
     ),
 ) -> None:
-    """Phase 5–6: migrate many files (topo-ordered); dry-run; optional GitHub PR."""
+    """Modernize every source file of a project, in dependency order; optionally open a pull request.
+
+    --dry-run shows the plan only. Without --write nothing in the project changes. --open-pr commits the
+    files whose tests passed to a new branch and opens a GitHub pull request.
+    """
     import os
 
     from rebirth_ai.github import GitHubError, open_migration_pr
@@ -967,6 +1019,7 @@ def migrate_repo(
             "[dim]peft backend: hash RAG + chat prompts "
             "(avoids ST+7B VRAM stack / SFT truncation)[/dim]"
         )
+    under = under or ("src" if (project / "src").is_dir() else ".")
     mode = "dry-run" if dry_run else ("write" if write else "no-write")
     print(
         f"[dim]migrate-repo under={under!r} backend={backend} mode={mode} lang={lang or 'auto'}[/dim]"
@@ -974,11 +1027,11 @@ def migrate_repo(
     if not dry_run:
         _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"}, docker=True)
         from rebirth_ai.adapters.registry import get_adapter_for_project
-        from rebirth_ai.sandbox.runner import SandboxImageMissing, SandboxRunner
+        from rebirth_ai.sandbox.runner import SandboxError, SandboxRunner
 
         try:
             SandboxRunner(get_adapter_for_project(project, lang=lang)).ensure_image()
-        except SandboxImageMissing as exc:
+        except SandboxError as exc:
             _fail(str(exc))
     if open_pr and not dry_run:
         from rebirth_ai.github import client as gh
@@ -1110,7 +1163,7 @@ def eval_cmd(
     ),
     target: float = typer.Option(0.90, "--target", help="Pass-rate gate for fixtures suite"),
 ) -> None:
-    """Run behavioral / held-out / multi-lang fixture sandbox evals."""
+    """Run the evaluation suites."""
     import subprocess
     import sys
 
@@ -1157,7 +1210,7 @@ def report_cmd(
         help="Batch / eval / run summary JSON",
     ),
 ) -> None:
-    """Pretty-print a migrate-repo / eval / run JSON report (secrets redacted)."""
+    """Print a run, migrate-repo or eval report, with secrets redacted."""
     from rebirth_ai.report_view import load_report, render_report
 
     try:
@@ -1179,11 +1232,12 @@ def classify_log(
     ),
     text: str | None = typer.Argument(None, help="Raw log text if --file not set"),
     model_dir: Path = typer.Option(
-        Path("data/models/error_classifier"),
+        CLASSIFIER_DIR,
         "--model-dir",
+        show_default="data/models/error_classifier in the Rebirth folder",
     ),
 ) -> None:
-    """Classify a test/CI failure log into a discrete error class."""
+    """Classify a test failure log (the class the retry loop acts on)."""
     from rebirth_ai.classify.model import ErrorClassifier
 
     if log_file is not None:
@@ -1204,3 +1258,33 @@ def classify_log(
 if __name__ == "__main__":
     app()
 
+
+def _print_diff(name: str, before: str, after: str, *, limit: int = 400) -> None:
+    """The change as a coloured unified diff (the first ``limit`` lines)."""
+    import difflib
+
+    from rich.console import Console
+    from rich.text import Text
+
+    lines = list(difflib.unified_diff(before.splitlines(), after.splitlines(), f"a/{name}", f"b/{name}",
+                                      lineterm=""))
+    out = Text()
+    for line in lines[:limit]:
+        style = ("bold" if line.startswith(("---", "+++")) else "green" if line.startswith("+")
+                 else "red" if line.startswith("-") else "cyan" if line.startswith("@@") else "")
+        out.append(line + "\n", style=style)
+    if len(lines) > limit:
+        out.append(f"… {len(lines) - limit} more diff lines (--out <file> saves the whole draft)\n", style="dim")
+    Console(highlight=False).print(out, end="")
+
+
+def _assign_panels() -> None:
+    panel_of = {name: panel for panel, names in PANELS.items() for name in names}
+    for info in app.registered_commands:
+        name = info.name or info.callback.__name__.replace("_", "-")
+        info.rich_help_panel = panel_of.get(name, "Other")
+    for info in app.registered_groups:
+        info.rich_help_panel = panel_of.get(info.name or "", "Other")
+
+
+_assign_panels()

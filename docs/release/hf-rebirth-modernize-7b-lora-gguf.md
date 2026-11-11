@@ -95,6 +95,13 @@ undercounts, since other valid rewrites score as misses.
 A Qwen2.5-Coder-14B with the same kind of adapters only tied these 7B adapters (Go 15 vs 14, Python 19 vs 20
 per 100), so the 7B is the shipped model for this job.
 
+**On real projects.** The test used 14 files from 10 small public libraries (JavaScript, Python, Go), judged
+by each library's own tests:
+- These adapters changed 4 files with the tests passing and returned the other 10 unchanged. They are
+  conservative.
+- In Rebirth, a 14B fallback then retries the unchanged files and changed 4 more: 8 of 14 in all.
+- The remaining 6 were left as they were, and no file was broken.
+
 ## Limitations
 
 - Trained on single-file commits of ≤ 512 tokens; long files are handled by Rebirth's chat prompt path.

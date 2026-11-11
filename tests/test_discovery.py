@@ -181,6 +181,7 @@ def test_detect_language_without_marker_files(tmp_path: Path) -> None:
     (tmp_path / ".git" / "config").write_text(
         '[remote "origin"]\n\turl = https://github.com/pkg/errors.git\n', encoding="utf-8")
     assert module_path(tmp_path) == "github.com/pkg/errors"
-    assert GoAdapter().setup_command_for(tmp_path) == "go mod init github.com/pkg/errors && go mod tidy"
+    assert GoAdapter().setup_command_for(tmp_path) == (
+        "go mod init github.com/pkg/errors && go mod edit -go=1.22 && go mod tidy")
     (tmp_path / "go.mod").write_text("module github.com/pkg/errors\n", encoding="utf-8")
     assert GoAdapter().setup_command_for(tmp_path) is None  # no requires: nothing to download

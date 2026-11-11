@@ -17,6 +17,7 @@ from rebirth_ai.graph.discovery import (
     topological_migrate_order,
 )
 from rebirth_ai.graph.fallback import needs_fallback, run_fallback
+from rebirth_ai.paths import DEFAULT_DB
 from rebirth_ai.safety import (
     file_too_large,
     has_restrictive_license_header,
@@ -195,7 +196,7 @@ def migrate_repository(
     seeds: list[str] | None = None,
     write: bool = False,
     dry_run: bool = False,
-    db_path: Path | str = "data/embeddings.db",
+    db_path: Path | str = DEFAULT_DB,
     max_iterations: int = 5,
     skip_without_tests: bool = True,
     lang: str | None = None,

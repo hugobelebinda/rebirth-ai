@@ -1,18 +1,16 @@
-"""Structured migrate run logs under ``data/runs/`` (Phase 10)."""
+"""Structured migrate run logs under ``<Rebirth>/data/runs/`` (Phase 10; ``REBIRTH_RUNS_DIR`` moves them)."""
 
 from __future__ import annotations
 
 import json
-import os
 import time
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from rebirth_ai.paths import runs_dir_default
 from rebirth_ai.redact import redact_obj
-
-DEFAULT_RUNS_DIR = Path(os.environ.get("REBIRTH_RUNS_DIR", "data/runs"))
 
 
 def new_run_id() -> str:
@@ -21,7 +19,7 @@ def new_run_id() -> str:
 
 
 def runs_dir() -> Path:
-    path = Path(os.environ.get("REBIRTH_RUNS_DIR", str(DEFAULT_RUNS_DIR)))
+    path = runs_dir_default()
     path.mkdir(parents=True, exist_ok=True)
     return path
 

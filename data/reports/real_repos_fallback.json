@@ -1,0 +1,523 @@
+{
+ "backends": [
+  "fallback"
+ ],
+ "summary": {
+  "fallback": {
+   "success": 8,
+   "unchanged": 6,
+   "failed": 0,
+   "files": 14
+  }
+ },
+ "rows": [
+  {
+   "repo": "is-number",
+   "url": "https://github.com/jonschlinkert/is-number.git",
+   "commit": "98e8ff1da1a89f93d1397a24d7413ed15421c139",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 18,
+   "baseline": {
+    "test": "package.json",
+    "ok": true,
+    "exit": 0,
+    "seconds": 5.2,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-js-ts:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": "qwen2.5-coder:14b-instruct-q6_K",
+     "seconds": 42.5,
+     "added": 2,
+     "removed": 2,
+     "comments_before": 6,
+     "comments_after": 6
+    }
+   }
+  },
+  {
+   "repo": "kind-of",
+   "url": "https://github.com/jonschlinkert/kind-of.git",
+   "commit": "3c7e8fd86094cfdb1b1bd048a39f699161da62e4",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 129,
+   "baseline": {
+    "test": "package.json",
+    "ok": true,
+    "exit": 0,
+    "seconds": 9.8,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-js-ts:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": null,
+     "seconds": 129.2,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 11,
+     "comments_after": 11
+    }
+   }
+  },
+  {
+   "repo": "fill-range",
+   "url": "https://github.com/jonschlinkert/fill-range.git",
+   "commit": "bef65700633e1a9debb1ce67bf2922731c9ef4b5",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 248,
+   "baseline": {
+    "test": "package.json",
+    "ok": false,
+    "exit": 127,
+    "seconds": 7.8,
+    "why": "\n> fill-range@7.1.1 test\n> npm run lint && npm run mocha\n\n\n> fill-range@7.1.1 lint\n> eslint --cache --cache-location node_modules/.cache/.eslintcache --report-unused-disable-directives --ignore-path .gitignore .\n\nsh: 1: eslint: not found\n"
+   },
+   "results": {}
+  },
+  {
+   "repo": "to-regex-range",
+   "url": "https://github.com/micromatch/to-regex-range.git",
+   "commit": "b9fa118cc271dff9504946a23e54f2bd8c364bdf",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 288,
+   "baseline": {
+    "test": "package.json",
+    "ok": true,
+    "exit": 0,
+    "seconds": 5.4,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-js-ts:7b"
+     ],
+     "fallback_model": null,
+     "seconds": 46.3,
+     "added": 5,
+     "removed": 5,
+     "comments_before": 23,
+     "comments_after": 23
+    }
+   }
+  },
+  {
+   "repo": "repeat-string",
+   "url": "https://github.com/jonschlinkert/repeat-string.git",
+   "commit": "3914965fe08212b60cdbb32ab83ef5f8b1d5df47",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 70,
+   "baseline": {
+    "test": "package.json",
+    "ok": true,
+    "exit": 0,
+    "seconds": 6.0,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-js-ts:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": "qwen2.5-coder:14b-instruct-q6_K",
+     "seconds": 48.8,
+     "added": 3,
+     "removed": 3,
+     "comments_before": 30,
+     "comments_after": 30
+    }
+   }
+  },
+  {
+   "repo": "minimist",
+   "url": "https://github.com/minimistjs/minimist.git",
+   "commit": "ecfdaea23e7931c0d529c52b743c711c3278a8ce",
+   "license": "MIT",
+   "file": "index.js",
+   "lines": 271,
+   "baseline": {
+    "test": "package.json",
+    "ok": false,
+    "exit": 1,
+    "seconds": 78.1,
+    "why": "ase use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n(node:93) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\nnpm error code EAI_AGAIN\nnpm error syscall getaddrinfo\nnpm error errno EAI_AGAIN\nnpm error request to https://registry.npmjs.org/npm failed, reason: getaddrinfo EAI_AGAIN registry.npmjs.org\nnpm error A complete log of this run can be found in: /home/node/.npm/_logs/2026-11-11T21_43_22_246Z-debug-0.log\n"
+   },
+   "results": {}
+  },
+  {
+   "repo": "inflection",
+   "url": "https://github.com/jpvanhal/inflection.git",
+   "commit": "88eefaacf7d0caaa701af7c8ab2d0ab3f17086f1",
+   "license": "MIT",
+   "file": "inflection/__init__.py",
+   "lines": 429,
+   "baseline": {
+    "test": "test_inflection.py",
+    "ok": true,
+    "exit": 0,
+    "seconds": 3.0,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 2,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-python:7b"
+     ],
+     "fallback_model": null,
+     "seconds": 137.2,
+     "added": 3,
+     "removed": 3,
+     "comments_before": 32,
+     "comments_after": 32
+    }
+   }
+  },
+  {
+   "repo": "shortuuid",
+   "url": "https://github.com/skorokithakis/shortuuid.git",
+   "commit": "75a7803c3633d36eb2486e2168bb3df237a6cd43",
+   "license": "BSD-3-Clause",
+   "file": "shortuuid/main.py",
+   "lines": 164,
+   "baseline": {
+    "test": "shortuuid/test_shortuuid.py",
+    "ok": true,
+    "exit": 0,
+    "seconds": 0.4,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-python:7b"
+     ],
+     "fallback_model": null,
+     "seconds": 31.7,
+     "added": 2,
+     "removed": 2,
+     "comments_before": 29,
+     "comments_after": 29
+    }
+   }
+  },
+  {
+   "repo": "python-string-utils",
+   "url": "https://github.com/daveoncode/python-string-utils.git",
+   "commit": "78929d88d90b1f90cb4837528ed955166bf0f559",
+   "license": "MIT",
+   "file": "string_utils/generation.py",
+   "lines": 140,
+   "baseline": {
+    "test": "tests",
+    "ok": true,
+    "exit": 0,
+    "seconds": 0.5,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-python:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": "qwen2.5-coder:14b-instruct-q6_K",
+     "seconds": 65.7,
+     "added": 3,
+     "removed": 11,
+     "comments_before": 14,
+     "comments_after": 14
+    }
+   }
+  },
+  {
+   "repo": "python-slugify",
+   "url": "https://github.com/un33k/python-slugify.git",
+   "commit": "35aca63fc2672cba2c739ff6dff685a4f26a4f9a",
+   "license": "MIT",
+   "file": "slugify/slugify.py",
+   "lines": 229,
+   "baseline": {
+    "test": "tests",
+    "ok": true,
+    "exit": 0,
+    "seconds": 1.9,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-python:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": "qwen2.5-coder:14b-instruct-q6_K",
+     "seconds": 124.6,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 15,
+     "comments_after": 15
+    }
+   }
+  },
+  {
+   "repo": "python-slugify",
+   "url": "https://github.com/un33k/python-slugify.git",
+   "commit": "35aca63fc2672cba2c739ff6dff685a4f26a4f9a",
+   "license": "MIT",
+   "file": "slugify/special.py",
+   "lines": 55,
+   "baseline": {
+    "test": "tests/test_add_uppercase_error.py",
+    "ok": true,
+    "exit": 0,
+    "seconds": 1.6,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-python:7b"
+     ],
+     "fallback_model": null,
+     "seconds": 18.9,
+     "added": 1,
+     "removed": 1,
+     "comments_before": 8,
+     "comments_after": 8
+    }
+   }
+  },
+  {
+   "repo": "go-homedir",
+   "url": "https://github.com/mitchellh/go-homedir.git",
+   "commit": "af06845cf3004701891bf4fdb884bfe4920b3727",
+   "license": "MIT",
+   "file": "homedir.go",
+   "lines": 167,
+   "baseline": {
+    "test": "homedir_test.go",
+    "ok": true,
+    "exit": 0,
+    "seconds": 2.6,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-go:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": null,
+     "seconds": 107.2,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 22,
+     "comments_after": 22
+    }
+   }
+  },
+  {
+   "repo": "errors",
+   "url": "https://github.com/pkg/errors.git",
+   "commit": "87f8819acf6dc28bf5d3c14b334268236d686f48",
+   "license": "BSD-2-Clause",
+   "file": "errors.go",
+   "lines": 288,
+   "baseline": {
+    "test": "errors_test.go",
+    "ok": false,
+    "exit": 1,
+    "seconds": 2.8,
+    "why": "ckTrace\\n\\t.+/github.com/pkg/errors/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t.+/github.com/pkg/errors/stack_test.go:225\"\n    stack_test.go:239: test 11: line 5: fmt.Sprintf(\"%+v\", err):\n         got: \"\\ngithub.com/pkg/errors.stackTrace\\n\\t/workspace/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t/workspace/stack_test.go:225\"\n        want: \"\\ngithub.com/pkg/errors.stackTrace\\n\\t.+/github.com/pkg/errors/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t.+/github.com/pkg/errors/stack_test.go:225\"\nFAIL\nFAIL\tgithub.com/pkg/errors\t0.003s\nFAIL\n"
+   },
+   "results": {}
+  },
+  {
+   "repo": "errors",
+   "url": "https://github.com/pkg/errors.git",
+   "commit": "87f8819acf6dc28bf5d3c14b334268236d686f48",
+   "license": "BSD-2-Clause",
+   "file": "stack.go",
+   "lines": 177,
+   "baseline": {
+    "test": "stack_test.go",
+    "ok": false,
+    "exit": 1,
+    "seconds": 2.7,
+    "why": "ckTrace\\n\\t.+/github.com/pkg/errors/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t.+/github.com/pkg/errors/stack_test.go:225\"\n    stack_test.go:239: test 11: line 5: fmt.Sprintf(\"%+v\", err):\n         got: \"\\ngithub.com/pkg/errors.stackTrace\\n\\t/workspace/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t/workspace/stack_test.go:225\"\n        want: \"\\ngithub.com/pkg/errors.stackTrace\\n\\t.+/github.com/pkg/errors/stack_test.go:174\\ngithub.com/pkg/errors.TestStackTraceFormat\\n\\t.+/github.com/pkg/errors/stack_test.go:225\"\nFAIL\nFAIL\tgithub.com/pkg/errors\t0.003s\nFAIL\n"
+   },
+   "results": {}
+  },
+  {
+   "repo": "go-humanize",
+   "url": "https://github.com/dustin/go-humanize.git",
+   "commit": "f5b54ae1392365a578bb43ab728e3fcdc291f0cd",
+   "license": "MIT",
+   "file": "bytes.go",
+   "lines": 215,
+   "baseline": {
+    "test": "bytes_test.go",
+    "ok": true,
+    "exit": 0,
+    "seconds": 2.5,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-go:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": null,
+     "seconds": 151.1,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 52,
+     "comments_after": 52
+    }
+   }
+  },
+  {
+   "repo": "go-humanize",
+   "url": "https://github.com/dustin/go-humanize.git",
+   "commit": "f5b54ae1392365a578bb43ab728e3fcdc291f0cd",
+   "license": "MIT",
+   "file": "comma.go",
+   "lines": 169,
+   "baseline": {
+    "test": "comma_test.go",
+    "ok": true,
+    "exit": 0,
+    "seconds": 2.5,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "success",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-go:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": "qwen2.5-coder:14b-instruct-q6_K",
+     "seconds": 81.3,
+     "added": 10,
+     "removed": 10,
+     "comments_before": 25,
+     "comments_after": 24
+    }
+   }
+  },
+  {
+   "repo": "go-humanize",
+   "url": "https://github.com/dustin/go-humanize.git",
+   "commit": "f5b54ae1392365a578bb43ab728e3fcdc291f0cd",
+   "license": "MIT",
+   "file": "times.go",
+   "lines": 125,
+   "baseline": {
+    "test": "times_test.go",
+    "ok": true,
+    "exit": 0,
+    "seconds": 2.5,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-go:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": null,
+     "seconds": 115.2,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 35,
+     "comments_after": 35
+    }
+   }
+  },
+  {
+   "repo": "go-humanize",
+   "url": "https://github.com/dustin/go-humanize.git",
+   "commit": "f5b54ae1392365a578bb43ab728e3fcdc291f0cd",
+   "license": "MIT",
+   "file": "si.go",
+   "lines": 174,
+   "baseline": {
+    "test": "si_test.go",
+    "ok": true,
+    "exit": 0,
+    "seconds": 2.5,
+    "why": ""
+   },
+   "results": {
+    "fallback": {
+     "status": "unchanged",
+     "iterations": 1,
+     "error_class": null,
+     "models": [
+      "ollama:rebirth-go:7b",
+      "qwen2.5-coder:14b-instruct-q6_K"
+     ],
+     "fallback_model": null,
+     "seconds": 144.0,
+     "added": 0,
+     "removed": 0,
+     "comments_before": 43,
+     "comments_after": 43
+    }
+   }
+  }
+ ]
+}

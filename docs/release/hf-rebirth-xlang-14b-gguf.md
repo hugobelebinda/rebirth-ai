@@ -62,11 +62,11 @@ is `build_translation_prompt` in `src/rebirth_ai/xlang/prompts.py`).
 
 ## Training
 
-- **Data:** 13,616 rows of at most 2,048 tokens. 12,000 are translation pairs over 63 directions, at most 190
-  per direction. The other 2,000 are same-language rows from the Rebirth corpus (commits from permissively licensed
-  repositories in [CommitPackFT](https://huggingface.co/datasets/bigcode/commitpackft) and
-  [CommitPack](https://huggingface.co/datasets/bigcode/commitpack)), so file-level code is not
-  forgotten.
+- **Data:** a mix of 14,000 rows, of which the 13,616 of at most 2,048 tokens were trained on:
+  - 12,000 translation pairs over 63 directions, at most 190 per direction;
+  - 2,000 same-language rows from the Rebirth corpus (commits from permissively licensed repositories in
+    [CommitPackFT](https://huggingface.co/datasets/bigcode/commitpackft) and
+    [CommitPack](https://huggingface.co/datasets/bigcode/commitpack)), so file-level code is not forgotten.
 - **Where the pairs come from:**
   1. Programs from the [CodeContests](https://huggingface.co/datasets/deepmind/code_contests) **train** split,
      each with a Python 3, C++ or Java reference solution that passes 10 of the problem's tests.
