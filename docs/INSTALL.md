@@ -26,6 +26,19 @@ Rebirth uses two models (see [ADR-001](research/ADR-001_UNIFIED_VS_SPECIALISTS.m
 
 Both are installed by default. Switching between the two in one session costs a 10–20 s model reload.
 
+**Fallback for modernize.** On real code the 7B adapters often return a file unchanged. When that
+happens (the tests pass but nothing changed), Rebirth runs the file once more with a 14B:
+
+1. the plain Qwen2.5-Coder 14B, if Ollama has it. This is the best fallback, and it needs one more
+   ~12 GB download: `ollama pull qwen2.5-coder:14b-instruct-q6_K`;
+2. otherwise `rebirth-xlang:14b`, which the migrate pack installs;
+3. otherwise the fallback is skipped, and the run says what to pull.
+
+Turn it off with `--no-fallback` or `REBIRTH_FALLBACK=0`, and choose another model with
+`REBIRTH_FALLBACK_MODEL`. Measured on 14 real files: 2 clean modernizations with the 7B alone, 6 with
+the plain-14B fallback ([PHASE_19 § Step 4](phases/PHASE_19_LAUNCH.md#step-4--release-checks-2026-11-11)).
+Passing tests are evidence, not proof: review each diff.
+
 ## Install
 
 ```bash
@@ -58,6 +71,11 @@ bash scripts/bootstrap.sh --from /media/usb/rebirth-models
 ```
 
 The files are still checked against their sha256 before Ollama sees them.
+
+The modernize pack's base model (`qwen2.5-coder:7b-instruct`, ~4.7 GB) still comes from the Ollama
+library. On a machine with no internet, run `ollama pull qwen2.5-coder:7b-instruct` on a connected
+machine first, then copy its Ollama model folder (`~/.ollama/models`, or `/usr/share/ollama/.ollama/models`
+for the Linux service) over before you run the bootstrap.
 
 ## Check the install
 
@@ -100,6 +118,7 @@ rebirth dashboard
 ```bash
 for m in $(ollama list | awk '/^rebirth-/{print $1}'); do ollama rm "$m"; done
 ollama rm qwen2.5-coder:7b-instruct          # the modernize pack's base, if nothing else uses it
+ollama rm qwen2.5-coder:14b-instruct-q6_K    # only if you pulled it for the fallback
 docker rmi $(docker images 'rebirth-ai/*' -q)
 rm -rf rebirth-ai                            # the clone, its .venv and your local run logs (data/runs)
 ```
