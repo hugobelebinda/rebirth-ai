@@ -4,7 +4,7 @@
 > Previous: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)  
 > Depends on: Phase 10 complete **and** LoRA specialization waves ([PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md)) — or explicit user skip of LoRA  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 19  
-> Last docs refresh: 2026-11-10  
+> Last docs refresh: 2026-11-11  
 > Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ## Why deferred
@@ -43,11 +43,11 @@ now; step 6 (publish + tag) only after a review with the owner.
 
 | # | Step | State |
 |---|---|---|
-| 1 | Merge PR #5 (Phase 17 + 18) | waiting for the owner (the agent may not merge) |
-| 2 | Merge the cross-language LoRA into the 14B before quantizing → `rebirth-xlang:14b-v2`, gate vs v1 | built; gate run in progress |
+| 1 | Merge PR #5 (Phase 17 + 18) | done (owner merged it 2026-11-10) |
+| 2 | Merge the cross-language LoRA into the 14B before quantizing → `rebirth-xlang:14b-v2`, gate vs v1 | done 2026-11-11: gate passed, v2 served, rollback demo done |
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
 | 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | in progress |
-| 5 | Docs: INSTALL, README, Hugging Face model cards | drafts done |
+| 5 | Docs: INSTALL, README, SECURITY, Hugging Face model cards | drafts done (both cards) |
 | 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
 
 ## Built (2026-11-10)
@@ -72,6 +72,27 @@ tokens/s** reading the prompt (+45 %).
 Gate (`scripts/xlang_v2_eval.sh`, then `rebirth serve publish-xlang`): the same 931 program translations and
 2,229 HumanEval translations as v1; v2 must not drop by more than 2 % (programs) / 1 % (HumanEval) of n.
 Also watched: the Go `bufio.Scanner` + `fmt.Fscan` defect (v1: 17 / 115 first-try Go drafts).
+
+**Result (2026-11-10 → 11, ~13 h on the 7800 XT, paused overnight after A1 and resumed):**
+
+| Suite | Translations | v1 (adapter at run time) | **v2 (merged)** | Allowed drop |
+|---|---:|---:|---:|---:|
+| Programs, 21 directions with human sources (A1) | 420 | 265 | **265** | |
+| Programs, 35 bootstrapped directions (A2) | 511 | 407 | **402** | |
+| **Programs, verified after ≤ 2 retries** | **931** | **672** | **667** | 18 |
+| HumanEval, 35 directions (B1) | 1,396 | 1,296 | **1,295** | |
+| HumanEval, 21 bootstrapped directions (B2) | 833 | 768 | **770** | |
+| **HumanEval, first try** | **2,229** | **2,064** | **2,065** | 22 |
+
+Gate passed: v2 is v1 within noise (per target language, programs move by at most 4 translations either way), and it is
+faster. Go defect: **13 / 115** first-try Go drafts (v1 17), 22 / 206 over all rounds (v1 30 / 211).
+`xlang_v2_eval.sh` now skips a stage whose report exists, so a stopped run restarts where it left off.
+
+Served (2026-11-11): `rebirth serve publish-xlang` put v1 on the translation route (against the plain 14B:
+672 vs 551, 2,064 vs 2,030), then v2 (against v1). Rollback demo: `rebirth serve rollback --lang xlang`
+→ `rebirth-xlang:14b` = v1 (Ollama digest `c5f020f8d613`), again → v2 (`9611346cead7`), history keeps v1.
+`migrate --to` (`--backend auto`) now follows the route's alias `rebirth-xlang:14b` instead of a fixed
+`rebirth-xlang:14b-v1` tag (`REBIRTH_XLANG_MODEL` still overrides).
 
 ### Step 3 — install
 

@@ -410,6 +410,11 @@ runtime: an f16 LoRA applied on top of a q6_K base. The planned fix is the Phase
 into the bf16 weights, then quantize** (ADR-001 item 4); re-check this count after merging. If it
 persists, a one-line hint in the Go target notes or a stage-6 data round would cover it.
 
+**Re-check after merging (Phase 19, 2026-11-11):** the merged v2 (`rebirth-xlang:14b-v2`, same scores as v1:
+programs 667 vs 672 / 931, HumanEval 2,065 vs 2,064 / 2,229) does it in **13 / 115** first-try Go drafts
+(v1 17). Merging reduced it but did not remove it, so it is not only the run-time LoRA. Retries recover most
+of these; a Go target hint stays the cheap follow-up ([PHASE_19 § Step 2](PHASE_19_LAUNCH.md#step-2--merged-cross-language-model-rebirth-xlang14b-v2)).
+
 Reports: `data/reports/xlang/programs_xlang14b_q6k_bootstrap.json`, `zeroshot_xlang14b_q6k.json`,
 `zeroshot_xlang14b_q6k_bootstrap.json` (+ `.gen.jsonl` drafts); logs `logs/exp/xlang/stage5_*.log`.
 

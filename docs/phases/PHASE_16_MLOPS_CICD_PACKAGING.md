@@ -1,6 +1,6 @@
 # Phase 16 — MLOps 3: model CI/CD + packaging
 
-> Status: **IN PROGRESS** — offline part done 2026-11-06 on the 7B champions. Phase 15 produced no 14B same-language champion (S2 gate, 2026-11-08), so the 7B adapters stay packaged. 2026-11-10: the Phase 17 cross-language adapter is packaged too — `scripts/ollama_xlang.sh` → `rebirth-xlang:14b-v1` (q6_K 14B + f16 GGUF LoRA, base chat template kept), served by `rebirth migrate --to` (`--backend auto`); its serving check is the program-suite run in [PHASE_17](PHASE_17_CROSS_LANGUAGE.md#stage-4--shared-adapter--eval-done-2026-11-09-aws--local-check) (265 / 420 vs 208 for the plain 14B).
+> Status: **COMPLETE (2026-11-11)** — offline part done 2026-11-06 on the 7B champions; rollback demonstrated live on the cross-language model 2026-11-11 (v2 ↔ v1). Phase 15 produced no 14B same-language champion (S2 gate, 2026-11-08), so the 7B adapters stay packaged. 2026-11-10: the Phase 17 cross-language adapter is packaged too — `scripts/ollama_xlang.sh` → `rebirth-xlang:14b-v1` (q6_K 14B + f16 GGUF LoRA, base chat template kept), served by `rebirth migrate --to` (`--backend auto`; since 2026-11-11 through the translation route, v2 = LoRA merged, Phase 19); its serving check is the program-suite run in [PHASE_17](PHASE_17_CROSS_LANGUAGE.md#stage-4--shared-adapter--eval-done-2026-11-09-aws--local-check) (265 / 420 vs 208 for the plain 14B).
 > Previous: [PHASE_15_CLOUD_14B.md](PHASE_15_CLOUD_14B.md) · Next: [PHASE_17_CROSS_LANGUAGE.md](PHASE_17_CROSS_LANGUAGE.md)
 > Estimated effort: ~2–3 days.
 
@@ -61,5 +61,5 @@ End-to-end check: `rebirth migrate fixtures/python_sample … --lang python` →
 
 - [x] CI green on main; PRs blocked on failing tests or model gate — CI green on main and on PRs #3–#5 (`ci.yml`); **branch protection on `main` since 2026-11-10**: required checks `lint`, `test`, `pipeline` (branch up to date), PR required (0 approvals, solo repo), applies to admins, no force-push / deletion. Model quality stays gated locally (`rebirth registry gate`, serving gate in `rebirth package`): CI has no GPU
 - [x] All 8 champions packaged as Ollama models; served-model scores recorded (7B, 2026-11-06; repeat for 14B)
-- [ ] Rollback demonstrated on one language — implemented + unit-tested; live demo at the first real promotion (no language has a second packaged champion yet)
+- [x] Rollback demonstrated — live on the cross-language model, the first route with two packaged versions (2026-11-11, [PHASE_19 § Step 2](PHASE_19_LAUNCH.md#step-2--merged-cross-language-model-rebirth-xlang14b-v2)): `rebirth serve rollback --lang xlang` moved `rebirth-xlang:14b` from v2 to v1 and back, route history intact. The same-language path (registry champion ↔ previous + alias) is unit-tested; no language has a second packaged champion yet
 - [x] `rebirth migrate` routes through `configs/routing.yaml` (default `--backend auto`)
