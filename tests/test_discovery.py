@@ -149,3 +149,38 @@ def test_infer_python_package_and_submodule(tmp_path: Path) -> None:
     (tmp_path / "tests").mkdir()
     (tmp_path / "tests" / "test_misc.py").write_text("from inflect import other, util\n", encoding="utf-8")
     assert infer_test_path(tmp_path, "inflect/util.py") == "tests/test_misc.py"
+
+
+def test_infer_python_reexported_module_runs_the_test_folder(tmp_path: Path) -> None:
+    pkg = tmp_path / "strutils"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("from .validation import *\nfrom .generation import *\n", encoding="utf-8")
+    (pkg / "validation.py").write_text("def is_x(s):\n    return True\n", encoding="utf-8")
+    (pkg / "generation.py").write_text("def gen():\n    return 'x'\n", encoding="utf-8")
+    (pkg / "unused.py").write_text("Y = 1\n", encoding="utf-8")
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_is_x.py").write_text("from strutils import is_x\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_gen.py").write_text("from strutils import gen\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "strutils/validation.py") == "tests"  # through the package
+    assert infer_test_path(tmp_path, "strutils/unused.py") is None  # not re-exported, not imported
+    assert infer_test_path(tmp_path, "strutils/__init__.py") == "tests"  # two tests import it
+    (tmp_path / "tests" / "test_val.py").write_text("import strutils.validation\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "strutils/validation.py") == "tests/test_val.py"  # its own test first
+
+
+def test_detect_language_without_marker_files(tmp_path: Path) -> None:
+    from rebirth_ai.adapters.go_lang import GoAdapter, module_path
+    from rebirth_ai.adapters.registry import get_adapter_for_project
+
+    (tmp_path / "errors.go").write_text("package errors\n", encoding="utf-8")
+    (tmp_path / "errors_test.go").write_text("package errors\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("# x\n", encoding="utf-8")
+    assert get_adapter_for_project(tmp_path).name == "go"  # Go from before modules: no go.mod
+    assert module_path(tmp_path) == "rebirth.local/project"
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "config").write_text(
+        '[remote "origin"]\n\turl = https://github.com/pkg/errors.git\n', encoding="utf-8")
+    assert module_path(tmp_path) == "github.com/pkg/errors"
+    assert GoAdapter().setup_command_for(tmp_path) == "go mod init github.com/pkg/errors && go mod tidy"
+    (tmp_path / "go.mod").write_text("module github.com/pkg/errors\n", encoding="utf-8")
+    assert GoAdapter().setup_command_for(tmp_path) is None  # no requires: nothing to download

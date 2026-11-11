@@ -365,7 +365,7 @@ def _candidate_test_files(project_dir: Path, python: bool) -> list[Path]:
                 continue
             stem = name[: -len(path.suffix)]
             if python:
-                keep = stem.startswith("test_") or stem.endswith("_test")
+                keep = stem.startswith("test_") or stem.endswith("_test") or stem in {"test", "tests"}
             else:
                 keep = stem in {"test", "tests"} or in_test_dir or stem.endswith((".test", ".spec"))
             if keep:
@@ -421,18 +421,51 @@ def _py_module(rel: Path) -> str:
     return ".".join(parts)
 
 
+def _py_reexported(project_dir: Path, rel: Path, parent: str, last: str) -> bool:
+    """Whether the package's ``__init__.py`` imports from this module (``from .mod import *``)."""
+    init = project_dir / rel.parent / "__init__.py"
+    try:
+        text = init.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    p, m = re.escape(parent), re.escape(last)
+    return bool(re.search(
+        rf"^\s*from\s+(?:\.|{p}\.){m}\s+import\b|^\s*from\s+(?:\.|{p})\s+import\s+[^\n]*\b{m}\b|"
+        rf"^\s*import\s+{p}\.{m}\b", text, re.M))
+
+
+def _suite_dir(tests: list[Path]) -> str:
+    """Test folder that holds all of ``tests`` (``tests``, ``test``, …), else the project root."""
+    tops = {next((part for part in t.parts[:-1] if part in _TEST_DIRS), None) for t in tests}
+    if len(tops) == 1 and None not in tops:
+        t = tests[0]
+        return Path(*t.parts[: t.parts.index(tops.pop()) + 1]).as_posix()
+    return "."
+
+
 def tests_importing(project_dir: Path, relative_file: Path | str) -> str | None:
-    """First test file (by name / location) that imports ``relative_file``."""
+    """The test that covers ``relative_file``, found by what the test files import.
+
+    JS: the first test file that imports this file. Python: the test files that import the module
+    itself, else those that reach it through its package (``from pkg import name`` with
+    ``pkg/__init__.py`` re-exporting it): one file → that file, several → their test folder.
+    """
     rel = Path(relative_file)
     python = rel.suffix.lower() == ".py"
+    direct: list[Path] = []
+    via_package: list[Path] = []
     if python:
         mod = _py_module(rel)
         if not mod:
             return None
         parent, _, last = mod.rpartition(".")
         pats = [rf"^\s*import\s+{re.escape(mod)}\b", rf"^\s*from\s+{re.escape(mod)}\s+import\b"]
+        pkg_pat = None
         if parent:
-            pats.append(rf"^\s*from\s+{re.escape(parent)}\s+import\s+[^\n]*\b{re.escape(last)}\b")
+            if _py_reexported(project_dir, rel, parent, last):
+                pkg_pat = re.compile(rf"^\s*(?:import|from)\s+{re.escape(parent)}\b", re.M)
+            else:  # `from pkg import mod`: the module itself
+                pats.append(rf"^\s*from\s+{re.escape(parent)}\s+import\s+[^\n]*\b{re.escape(last)}\b")
         pat = re.compile("|".join(pats), re.M)
     for test_rel in _candidate_test_files(project_dir, python):
         if test_rel == rel:
@@ -443,13 +476,18 @@ def tests_importing(project_dir: Path, relative_file: Path | str) -> str | None:
             continue
         if python:
             if pat.search(text):
-                return test_rel.as_posix()
+                direct.append(test_rel)
+            elif pkg_pat is not None and pkg_pat.search(text):
+                via_package.append(test_rel)
             continue
         for m in _IMPORT_SPEC.finditer(text):
             spec = m.group(1) or m.group(2)
             if _js_resolve(project_dir, test_rel, spec) == rel.as_posix():
                 return test_rel.as_posix()
-    return None
+    hits = direct or via_package  # a test of the module itself beats tests of the whole package
+    if len(hits) == 1:
+        return hits[0].as_posix()
+    return _suite_dir(hits) if hits else None
 
 
 def resolve_local_import(
