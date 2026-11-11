@@ -99,6 +99,10 @@ class _Step:
     timed_out: bool
 
 
+class SandboxImageMissing(RuntimeError):
+    """The language's sandbox image is not built (the CLI prints this without a traceback)."""
+
+
 class SandboxRunner:
     """Spin up → mount copy → [setup with network → disconnect] → overlay → test offline → destroy.
 
@@ -121,9 +125,10 @@ class SandboxRunner:
             self.client.images.get(self.spec.image)
         except ImageNotFound as exc:
             build_hint = self.spec.dockerfile_dir or "docker/<lang>_sandbox"
-            raise RuntimeError(
+            raise SandboxImageMissing(
                 f"Sandbox image {self.spec.image!r} not found. "
-                f"Build it with: docker build -t {self.spec.image} {build_hint}"
+                f"Build it with: docker build -t {self.spec.image} {build_hint} "
+                "(or run bash scripts/bootstrap.sh, which builds all 8)"
             ) from exc
 
     def setup_command(self, project_dir: Path, relative_test: str | None) -> str | None:

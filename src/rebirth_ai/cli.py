@@ -350,7 +350,12 @@ def sandbox_run(
               "no source files); pass --lang")
     adapter = get_adapter_for_project(project, lang=lang)
     runner = SandboxRunner(adapter)
-    result = runner.run_project(project, relative_test=test)
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
+
+    try:
+        result = runner.run_project(project, relative_test=test)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     status = "[green]PASS[/green]" if result.ok else "[red]FAIL[/red]"
     print(f"{status} exit={result.exit_code} in {result.duration_sec:.2f}s adapter={adapter.name}")
     print(f"[dim]cmd:[/dim] {result.command}")
@@ -674,8 +679,12 @@ def migrate_file(
     print("[dim]running migration graph…[/dim]")
     t0 = _time.time()
     from rebirth_ai.graph.fallback import invoke as fallback_run
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
 
-    final = fallback_run(graph, state, original=source_text, seed=seed_text, backend=backend, use=fallback)
+    try:
+        final = fallback_run(graph, state, original=source_text, seed=seed_text, backend=backend, use=fallback)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
@@ -791,7 +800,12 @@ def _translate_file(
     source_path = project / file
     source_text = source_path.read_text(encoding="utf-8", errors="replace") if source_path.is_file() else None
     t0 = _time.time()
-    final = build_translation_graph().invoke(state)
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
+
+    try:
+        final = build_translation_graph().invoke(state)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
@@ -959,6 +973,13 @@ def migrate_repo(
     )
     if not dry_run:
         _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"}, docker=True)
+        from rebirth_ai.adapters.registry import get_adapter_for_project
+        from rebirth_ai.sandbox.runner import SandboxImageMissing, SandboxRunner
+
+        try:
+            SandboxRunner(get_adapter_for_project(project, lang=lang)).ensure_image()
+        except SandboxImageMissing as exc:
+            _fail(str(exc))
     if open_pr and not dry_run:
         from rebirth_ai.github import client as gh
 
