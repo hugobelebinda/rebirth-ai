@@ -66,7 +66,13 @@ fi
 say "3/6 code-search embedding model"
 if [ "$embedder" = 1 ]; then
   model="${REBIRTH_EMBEDDING_MODEL:-flax-sentence-embeddings/st-codesearch-distilroberta-base}"
-  .venv/bin/python -c "from sentence_transformers import SentenceTransformer as S; S('$model')" >/dev/null
+  # cached copy first (no request to the Hugging Face Hub), download only when it is missing
+  .venv/bin/python -c "
+from sentence_transformers import SentenceTransformer as S
+try:
+    S('$model', local_files_only=True)
+except OSError:
+    S('$model')" >/dev/null
   echo "ok: $model cached (runs offline from now on)"
 else
   echo "skipped: export REBIRTH_EMBEDDER=hash (e.g. in ~/.bashrc), or code search downloads it on first use"

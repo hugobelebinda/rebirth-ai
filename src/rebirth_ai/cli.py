@@ -517,16 +517,16 @@ def migrate_file(
         help="Project root (sandbox + relative paths)",
     ),
     file: str = typer.Option(
-        "src/math.js",
+        ...,
         "--file",
         "-f",
         help="Project-relative source file to migrate",
     ),
-    test: str = typer.Option(
-        "test/math.test.js",
+    test: str | None = typer.Option(
+        None,
         "--test",
         "-t",
-        help="Project-relative test file",
+        help="Project-relative test file (default: the test that imports --file, else the whole suite)",
     ),
     objective: str = typer.Option(
         "Fix the file so project tests pass; modernize idioms without changing public API; keep comments and docstrings",
@@ -632,6 +632,13 @@ def migrate_file(
         )
         return
 
+    if test is None:
+        from rebirth_ai.graph.discovery import infer_test_path
+
+        test = infer_test_path(project, file) or ""
+        print(f"[dim]test: {test}[/dim]" if test else
+              "[yellow]no test file imports this file: running the whole test suite, which may not "
+              "exercise it (pass --test)[/yellow]")
     from rebirth_ai.graph.app import build_migration_graph, initial_state
 
     os.environ["REBIRTH_GENERATOR"] = backend

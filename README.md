@@ -68,8 +68,8 @@ rebirth parse fixtures/js_ts_sample/src/math.js
 rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
 rebirth sandbox fixtures/python_sample -t tests/test_math_ops.py --lang python
 
-# Closed-loop single-file migrate (default Ollama 14B)
-rebirth migrate fixtures/js_ts_sample \
+# Closed-loop single-file migrate (served 7B adapter, the 14B fallback if it changes nothing)
+rebirth migrate fixtures/js_ts_sample --file src/math.js --test test/math.test.js \
   --seed-draft fixtures/migration_seeds/math.broken.js \
   --out /tmp/rebirth_math_fixed.js --no-write
 
@@ -89,7 +89,7 @@ rebirth migrate-repo fixtures/js_ts_sample \
   --file src/math.js --file src/format.js \
   --seed src/math.js=fixtures/migration_seeds/math.broken.js \
   --seed src/format.js=fixtures/migration_seeds/format.broken.js \
-  --write --report data/reports/migrate_repo.json
+  --report data/reports/migrate_repo.json      # add --write to put passing drafts in place
 ```
 
 Optional PEFT (defaults to 7B adapter when present):
@@ -97,7 +97,7 @@ Optional PEFT (defaults to 7B adapter when present):
 ```bash
 pip install -e ".[ml]"
 # Unload Ollama first if VRAM is tight: ollama stop qwen2.5-coder:14b-instruct-q6_K
-rebirth migrate fixtures/js_ts_sample \
+rebirth migrate fixtures/js_ts_sample --file src/math.js --test test/math.test.js \
   --seed-draft fixtures/migration_seeds/math.broken.js --backend peft --no-write
 ```
 

@@ -130,3 +130,23 @@ def test_open_pr_checks_git_before_running_a_model(proj, monkeypatch) -> None:
     res = _cli(["migrate-repo", str(proj), "--under", "src", "--open-pr"], monkeypatch)
     out = " ".join(res.output.split())  # Rich wraps long lines
     assert res.exit_code == 2 and "--open-pr:" in out and "not a git repository" in out
+
+
+def test_migrate_requires_file_and_finds_the_test(tmp_path, monkeypatch) -> None:
+    import rebirth_ai.graph.app as graph_app
+
+    res = _cli(["migrate", str(tmp_path)], monkeypatch)
+    assert res.exit_code == 2 and "--file" in res.output  # no silent src/math.js default
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "__init__.py").write_text("def f():\n    return 1\n")
+    (tmp_path / "test_pkg.py").write_text("import pkg\n")
+    seen = {}
+
+    class G:
+        def invoke(self, state):
+            seen["test"] = state["relative_test"]
+            return {**state, "status": "failed", "iteration_count": 1, "trace": []}
+
+    monkeypatch.setattr(graph_app, "build_migration_graph", lambda: G())
+    _cli(["migrate", str(tmp_path), "--file", "pkg/__init__.py", "--no-write"], monkeypatch)
+    assert seen["test"] == "test_pkg.py"  # inferred, not the old test/math.test.js default
