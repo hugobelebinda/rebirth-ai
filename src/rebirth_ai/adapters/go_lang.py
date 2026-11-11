@@ -12,6 +12,8 @@ from rebirth_ai.ast.chunker import CodeChunk, CodeChunker
 
 DEFAULT_IMAGE = os.environ.get("REBIRTH_GO_SANDBOX_IMAGE", "rebirth-ai/go-sandbox:latest")
 SOURCE_SUFFIXES = {".go"}
+# The `go` line given to a project without go.mod (pre-modules code); the toolchain itself is newer.
+GOMOD_LANGUAGE = "1.22"
 SKIP_DIR_PARTS = frozenset({"vendor", ".git", "bin", "dist"})
 
 
@@ -52,10 +54,13 @@ class GoAdapter:
     def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
         """Download the modules ``go.mod`` requires (the tests then run offline). A project from
         before Go modules (no ``go.mod``) gets one in the sandbox copy: ``go mod init`` with the
-        import path of its git remote, then ``go mod tidy`` for its imports."""
+        import path of its git remote, then ``go mod tidy`` for its imports. Its ``go`` line is set to
+        GOMOD_LANGUAGE: ``go mod init`` would write the sandbox toolchain's version, and newer language
+        versions change behavior (vet checks run by ``go test``, for example)."""
         gomod = Path(project_dir) / "go.mod"
         if not gomod.is_file():
-            return f"go mod init {shlex.quote(module_path(project_dir))} && go mod tidy"
+            return (f"go mod init {shlex.quote(module_path(project_dir))} && go mod edit -go={GOMOD_LANGUAGE} "
+                    "&& go mod tidy")
         if "require" not in gomod.read_text(encoding="utf-8", errors="replace"):
             return None
         return "go mod download"
