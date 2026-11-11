@@ -629,12 +629,20 @@ def migrate_file(
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
+    from rebirth_ai.graph.batch import UNCHANGED_MESSAGE, no_change
+
+    if status == "success" and final.get("current_draft") and source_text is not None and no_change(
+            final["current_draft"], source_text, seed_text):
+        status = "unchanged"
     color = {
         "success": "green",
+        "unchanged": "yellow",
         "human_review": "yellow",
         "failed": "red",
     }.get(status, "white")
     print(f"[{color}]status={status}[/{color}] iterations={final.get('iteration_count')}")
+    if status == "unchanged":
+        print(f"[yellow]{UNCHANGED_MESSAGE}[/yellow]")
     print(f"[dim]error_class={final.get('error_class')}[/dim]")
     for step in final.get("trace") or []:
         print(f"  • {step}")
@@ -679,7 +687,7 @@ def migrate_file(
     )
     print(f"[dim]run log[/dim] {run_path}")
 
-    raise typer.Exit(code=0 if status == "success" else 1)
+    raise typer.Exit(code=0 if status in ("success", "unchanged") else 1)
 
 
 def _translate_file(
@@ -967,7 +975,7 @@ def migrate_repo(
         raise typer.Exit(code=0 if planned or batch.results else 1)
 
     # Exit 0 if at least one success and no hard failures, else 1 when any failed
-    raise typer.Exit(code=0 if batch.succeeded and not batch.failed else 1)
+    raise typer.Exit(code=0 if (batch.succeeded or batch.unchanged) and not batch.failed else 1)
 
 
 @app.command("eval")

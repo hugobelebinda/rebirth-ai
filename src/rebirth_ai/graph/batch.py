@@ -41,7 +41,7 @@ __all__ = [
 class FileMigrationResult:
     relative_file: str
     relative_test: str | None
-    status: str  # success | human_review | failed | skipped_* | planned
+    status: str  # success | unchanged | human_review | failed | skipped_* | planned
     iterations: int = 0
     error_class: str | None = None
     trace: list[str] = field(default_factory=list)
@@ -64,6 +64,10 @@ class BatchReport:
         return [r for r in self.results if r.status == "success"]
 
     @property
+    def unchanged(self) -> list[FileMigrationResult]:
+        return [r for r in self.results if r.status == "unchanged"]
+
+    @property
     def failed(self) -> list[FileMigrationResult]:
         return [
             r
@@ -71,6 +75,7 @@ class BatchReport:
             if r.status
             not in {
                 "success",
+                "unchanged",
                 "skipped",
                 "skipped_no_test",
                 "skipped_wrong_language",
@@ -90,6 +95,7 @@ class BatchReport:
             "summary": {
                 "total": len(self.results),
                 "success": len(self.succeeded),
+                "unchanged": len(self.unchanged),
                 "failed": len(self.failed),
                 "skipped": sum(
                     1 for r in self.results if r.status.startswith("skipped")
@@ -102,6 +108,16 @@ class BatchReport:
     def write_json(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2) + "\n", encoding="utf-8")
+
+
+UNCHANGED_MESSAGE = "tests pass, but the model returned the file unchanged (at most whitespace differs); nothing written"
+
+
+def no_change(draft: str, original: str, seed: str | None = None) -> bool:
+    """True when a passing draft leaves the file as it was: same code as the original up to
+    whitespace, and no seed draft that differed from it (a repaired seed is a real change)."""
+    same = draft.split() == original.split()
+    return same and (seed is None or seed.split() == original.split())
 
 
 def _parse_seed_map(raw: list[str] | None) -> dict[str, Path]:
@@ -310,6 +326,9 @@ def migrate_repository(
 
         status = str(final.get("status") or "failed")
         draft = final.get("current_draft") or ""
+        message = ""
+        if status == "success" and draft and no_change(draft, original, seed_text):
+            status, message = "unchanged", UNCHANGED_MESSAGE
         wrote = False
         if write and status == "success" and draft:
             target = project_dir / rel_s
@@ -329,6 +348,7 @@ def migrate_repository(
                 error_class=final.get("error_class"),
                 trace=list(final.get("trace") or []),
                 wrote=wrote,
+                message=message,
                 test_logs_excerpt=_excerpt(final.get("test_logs")),
                 draft_preview=preview,
             )
@@ -364,6 +384,7 @@ def render_pr_body(report: BatchReport) -> str:
             "### Summary",
             "",
             f"- Success: **{len(report.succeeded)}**",
+            f"- Unchanged (tests pass, the model changed nothing): **{len(report.unchanged)}**",
             f"- Failed / human review: **{len(report.failed)}**",
             f"- Skipped: **{sum(1 for r in report.results if r.status.startswith('skipped'))}**",
             f"- Planned: **{sum(1 for r in report.results if r.status == 'planned')}**",
@@ -380,6 +401,11 @@ def render_pr_body(report: BatchReport) -> str:
             )
     else:
         lines.append("- _(none)_")
+
+    if report.unchanged:
+        lines.extend(["", "### Unchanged", ""])
+        for r in report.unchanged:
+            lines.append(f"- `{r.relative_file}` — {r.message}")
 
     lines.extend(["", "### Failed / needs review", ""])
     if report.failed:
