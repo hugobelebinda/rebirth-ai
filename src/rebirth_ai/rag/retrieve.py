@@ -6,18 +6,14 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from rebirth_ai import paths
 from rebirth_ai.adapters.base import LanguageAdapter
 from rebirth_ai.adapters.registry import get_adapter_for_project
 from rebirth_ai.ast.chunker import CodeChunk
 from rebirth_ai.rag.embedder import Embedder, get_embedder
 from rebirth_ai.rag.store import StoredChunk, VectorStore
 
-DEFAULT_DB = Path(
-    os.environ.get(
-        "REBIRTH_VECTOR_DB_PATH",
-        "data/embeddings.db",
-    )
-)
+DEFAULT_DB = Path(os.environ.get("REBIRTH_VECTOR_DB_PATH") or paths.DEFAULT_DB)
 
 
 @dataclass

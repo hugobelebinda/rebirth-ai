@@ -27,8 +27,9 @@ from typing import Any
 
 from rebirth_ai.monitor.imports import extract_imports, family
 from rebirth_ai.monitor.store import Record
+from rebirth_ai.paths import DATA
 
-REFERENCE_DIR = Path("data/monitor/reference")
+REFERENCE_DIR = DATA / "monitor" / "reference"
 LANGS = ("js_ts", "python", "go", "java", "csharp", "rust", "cpp", "swift")
 POOL_LANG = {"python": "python", "cpp": "cpp", "java": "java"}  # stage-3 pool reference solutions
 # log-spaced character-length bucket edges: 0, 200, 400, 800, … 51,200, ∞

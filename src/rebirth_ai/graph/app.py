@@ -14,6 +14,7 @@ from rebirth_ai.graph.routing import (
     after_tests,
 )
 from rebirth_ai.graph.state import MigrationState, default_max_iterations
+from rebirth_ai.paths import DEFAULT_DB
 
 
 def build_migration_graph():
@@ -75,7 +76,7 @@ def initial_state(
     objective: str,
     seed_draft: str | None = None,
     test_first: bool = False,
-    db_path: Path | str = "data/embeddings.db",
+    db_path: Path | str = DEFAULT_DB,
     max_iterations: int | None = None,
     adapter_id: str | None = None,
     language: str | None = None,

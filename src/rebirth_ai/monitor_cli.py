@@ -7,6 +7,8 @@ from pathlib import Path
 import typer
 from rich import print
 
+from rebirth_ai.paths import DATA
+
 monitor_app = typer.Typer(help="Regression + drift checks over local run logs")
 review_app = typer.Typer(help="Data flywheel: review failed / hard migrations into curated training rows")
 
@@ -20,13 +22,13 @@ def _warnings(records, ref_dir: Path, min_runs: int, margin: float) -> list[dict
 
 
 def dashboard_cmd(
-    out: Path = typer.Option(Path("data/reports/dashboard.html"), "--out", help="static HTML report"),
+    out: Path = typer.Option(DATA / "reports" / "dashboard.html", "--out", help="static HTML report"),
     runs_dir: Path | None = _RUNS,
-    ref_dir: Path = typer.Option(Path("data/monitor/reference"), "--ref-dir"),
+    ref_dir: Path = typer.Option(DATA / "monitor" / "reference", "--ref-dir"),
     min_runs: int = typer.Option(10, "--min-runs", help="regression check: runs per model before comparing"),
     margin: float = typer.Option(10.0, "--margin", help="regression check: success drop in points"),
 ) -> None:
-    """Run health per language / direction and model version → terminal table + one offline HTML file."""
+    """How your past runs went, per language and model: a table here and one offline HTML page."""
     from rebirth_ai.monitor.dashboard import render_html, render_text, summarize
     from rebirth_ai.monitor.store import load_records
 
@@ -44,7 +46,7 @@ def dashboard_cmd(
 @monitor_app.command("check")
 def monitor_check(
     runs_dir: Path | None = _RUNS,
-    ref_dir: Path = typer.Option(Path("data/monitor/reference"), "--ref-dir"),
+    ref_dir: Path = typer.Option(DATA / "monitor" / "reference", "--ref-dir"),
     min_runs: int = typer.Option(10, "--min-runs"),
     margin: float = typer.Option(10.0, "--margin"),
 ) -> None:
@@ -62,7 +64,7 @@ def monitor_check(
 @monitor_app.command("reference")
 def monitor_reference(
     lang: list[str] = typer.Option(None, "--lang", help="default: all 8"),
-    out_dir: Path = typer.Option(Path("data/monitor/reference"), "--out-dir"),
+    out_dir: Path = typer.Option(DATA / "monitor" / "reference", "--out-dir"),
 ) -> None:
     """Build the training-input profiles drift is measured against (corpus + stage-3 pool)."""
     from rebirth_ai.monitor import drift

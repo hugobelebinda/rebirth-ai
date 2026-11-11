@@ -1,4 +1,4 @@
-"""TF-IDF + RandomForest error classifier."""
+"""TF-IDF + logistic-regression error classifier (routes a failed test run to the right fix)."""
 
 from __future__ import annotations
 
@@ -14,8 +14,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
 from rebirth_ai.classify.features import ERROR_CLASSES, normalize_log
+from rebirth_ai.paths import CLASSIFIER_DIR, ERROR_LOGS
 
-DEFAULT_MODEL_DIR = Path("data/models/error_classifier")
+DEFAULT_MODEL_DIR = CLASSIFIER_DIR
+# Shipped with the repo; the model itself is not (a pickle is tied to the scikit-learn version), so it is
+# trained on first use (< 1 s) or by scripts/bootstrap.sh.
+DEFAULT_DATASET = ERROR_LOGS
 
 
 @dataclass(frozen=True)
@@ -118,6 +122,9 @@ class ErrorClassifier:
     @classmethod
     def load(cls, model_dir: Path = DEFAULT_MODEL_DIR) -> ErrorClassifier:
         path = Path(model_dir) / "pipeline.joblib"
+        if not path.exists() and Path(model_dir) == DEFAULT_MODEL_DIR and DEFAULT_DATASET.is_file():
+            clf, _ = cls.train_from_jsonl(DEFAULT_DATASET, model_dir=DEFAULT_MODEL_DIR)
+            return clf
         if not path.exists():
             raise FileNotFoundError(
                 f"Classifier not found at {path}. Train with: rebirth train-classifier"

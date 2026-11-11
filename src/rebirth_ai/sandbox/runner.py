@@ -26,7 +26,7 @@ from concurrent.futures import TimeoutError as FuturesTimeout
 from dataclasses import dataclass
 from pathlib import Path
 
-from docker.errors import ContainerError, ImageNotFound
+from docker.errors import APIError, ContainerError, ImageNotFound
 from docker.models.containers import Container
 
 import docker
@@ -99,8 +99,12 @@ class _Step:
     timed_out: bool
 
 
-class SandboxImageMissing(RuntimeError):
-    """The language's sandbox image is not built (the CLI prints this without a traceback)."""
+class SandboxError(RuntimeError):
+    """The sandbox could not run at all (the CLI prints this as one line, without a traceback)."""
+
+
+class SandboxImageMissing(SandboxError):
+    """The language's sandbox image is not built."""
 
 
 class SandboxRunner:
@@ -240,18 +244,25 @@ class SandboxRunner:
         setup_step: _Step | None = None
         try:
             run_user = self.spec.user or None
-            container = self.client.containers.run(
-                image=self.spec.image,
-                command=["sleep", "infinity"],
-                working_dir=self.spec.workdir,
-                volumes={str(work): {"bind": self.spec.workdir, "mode": "rw"}},
-                environment=dict(self.spec.env),
-                network_mode=setup_network if setup else "none",
-                detach=True,
-                remove=False,
-                user=run_user,
-                **container_limits(),
-            )
+            try:
+                container = self.client.containers.run(
+                    image=self.spec.image,
+                    command=["sleep", "infinity"],
+                    working_dir=self.spec.workdir,
+                    volumes={str(work): {"bind": self.spec.workdir, "mode": "rw"}},
+                    environment=dict(self.spec.env),
+                    network_mode=setup_network if setup else "none",
+                    detach=True,
+                    remove=False,
+                    user=run_user,
+                    **container_limits(),
+                )
+            except APIError as exc:  # e.g. an image built by hand without the expected user
+                hint = self.spec.dockerfile_dir or "docker/<lang>_sandbox"
+                raise SandboxError(
+                    f"Docker could not start the sandbox {self.spec.image}: {exc.explanation or exc}. "
+                    f"Rebuild it: docker build -t {self.spec.image} {hint} (or bash scripts/bootstrap.sh)"
+                ) from exc
             if setup:
                 setup_step = self._exec(container, setup, self.spec.setup_timeout_sec, run_user)
                 self._disconnect(container)

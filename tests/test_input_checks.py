@@ -161,3 +161,33 @@ def test_migrate_requires_file_and_finds_the_test(tmp_path, monkeypatch) -> None
     monkeypatch.setattr(graph_app, "build_migration_graph", lambda: G())
     _cli(["migrate", str(tmp_path), "--file", "pkg/__init__.py", "--no-write"], monkeypatch)
     assert seen["test"] == "test_pkg.py"  # inferred, not the old test/math.test.js default
+
+
+def test_a_container_that_cannot_start_is_a_one_line_error(proj, monkeypatch) -> None:
+    """A hand-built image without the expected user made Docker refuse to start the container: that was
+    a 40-line traceback."""
+    from docker.errors import APIError
+
+    from rebirth_ai.adapters.python import PythonAdapter
+    from rebirth_ai.sandbox.runner import SandboxError, SandboxRunner
+
+    class Containers:
+        def run(self, **_):
+            raise APIError("500", explanation="unable to find user rebirth: no matching entries in passwd file")
+
+    class Images:
+        def get(self, name):
+            return name
+
+    class Client:
+        containers = Containers()
+        images = Images()
+
+    runner = SandboxRunner(PythonAdapter(), client=Client())
+    with pytest.raises(SandboxError, match="unable to find user rebirth.*docker build -t"):
+        runner.run_project(proj)
+
+    monkeypatch.setattr(SandboxRunner, "ensure_image", lambda self: None)
+    monkeypatch.setattr(SandboxRunner, "run_project", lambda *a, **k: (_ for _ in ()).throw(SandboxError("Docker could not start x")))
+    res = _cli(["sandbox", str(proj), "--lang", "python"], monkeypatch)
+    assert res.exit_code == 2 and "Docker could not start x" in _plain(res.output) and "Traceback" not in res.output

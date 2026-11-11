@@ -25,10 +25,11 @@ from typing import Any
 
 from rebirth_ai.monitor.imports import family
 from rebirth_ai.monitor.store import Record, load_records
+from rebirth_ai.paths import DATA
 from rebirth_ai.redact import redact_text
 from rebirth_ai.runs import runs_dir
 
-FLYWHEEL_DIR = Path("data/datasets/flywheel")
+FLYWHEEL_DIR = DATA / "datasets" / "flywheel"
 EVAL_PERCENT = 20
 
 

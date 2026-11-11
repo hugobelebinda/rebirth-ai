@@ -17,12 +17,13 @@ from rebirth_ai.generate.prompts import (
     strip_prose_preamble,
 )
 from rebirth_ai.lora import lora_target, normalize_lang, read_meta
+from rebirth_ai.paths import DATA
 
 # Prefer the proven 7B ROCm adapter; fall back to 0.5B if 7B is missing.
 DEFAULT_BASE_7B = "Qwen/Qwen2.5-Coder-7B-Instruct"
-DEFAULT_ADAPTER_7B = Path("data/models/lora_js_ts_7b/adapter")
+DEFAULT_ADAPTER_7B = DATA / "models" / "lora_js_ts_7b" / "adapter"
 DEFAULT_BASE_05B = "Qwen/Qwen2.5-Coder-0.5B-Instruct"
-DEFAULT_ADAPTER_05B = Path("data/models/lora_js_ts/adapter")
+DEFAULT_ADAPTER_05B = DATA / "models" / "lora_js_ts" / "adapter"
 # Back-compat aliases
 DEFAULT_BASE = DEFAULT_BASE_7B
 DEFAULT_ADAPTER = DEFAULT_ADAPTER_7B
