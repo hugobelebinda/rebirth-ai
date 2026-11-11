@@ -166,7 +166,28 @@ def _heuristic_error_class(logs: str) -> str | None:
         return "SyntaxError"
     if "typeerror" in low or "error ts23" in low or "is not assignable to" in low:
         return "TypeMismatch"
+    # compiled languages (the classifier was trained on JS / Python logs): Go, Rust, Swift, C++,
+    # Java, C#
+    if _COMPILE_SYNTAX.search(logs):
+        return "SyntaxError"
+    if _COMPILE_TYPE.search(logs):
+        return "TypeMismatch"
     return None
+
+
+# Anchored on the compilers' own shapes (``file:line:col: error: …``, ``error[E…]``, ``error CS…``) so
+# assertion messages such as chai's "AssertionError: expected 4 to equal 5" never match.
+_LOC = r"(?:^|:\d+(?::\d+)?:?\s*)"
+_COMPILE_SYNTAX = re.compile(
+    rf"{_LOC}syntax error:|^error(?:\[E\d+\])?: expected\b|\.(?:swift|c|cc|cpp|cxx|h|hpp):\d+:\d+: error: expected\b"
+    rf"|\.java:\d+: error: (?:'?[;)}}\]]'? expected|class, interface, enum, or record expected|reached end of file)"
+    r"|error CS1\d{3}\b",
+    re.MULTILINE)
+_COMPILE_TYPE = re.compile(
+    r"^error\[E0308\]: mismatched types|\.go:\d+:\d+: cannot use .+ as .+ value|\.java:\d+: error: incompatible types"
+    r"|error CS0029\b|\.swift:\d+:\d+: error: cannot convert value of type"
+    r"|\.(?:c|cc|cpp|cxx|h|hpp):\d+:\d+: error: (?:no matching function for call|invalid conversion from)",
+    re.MULTILINE)
 
 
 def classify_error(state: MigrationState) -> MigrationState:
@@ -188,6 +209,9 @@ def classify_error(state: MigrationState) -> MigrationState:
             unknown = True
             if override:
                 label = override
+            elif label == "DependencyMissing":
+                # a guess must not send the run to install_dependency (a Go "unexpected EOF" did, 0.34)
+                label = "TestLogicFailure"
     except Exception:
         label = override or "TestLogicFailure"
         if override is None:
