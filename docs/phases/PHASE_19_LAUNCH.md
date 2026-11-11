@@ -27,13 +27,13 @@ Preferred brain: Ollama 14B default + **per-lang PEFT** when adapters exist
 
 ## Exit criteria
 
-- [ ] Phases 11–18 complete **or** written skip decision  
-- [ ] `scripts/bootstrap.sh` + doctor green path documented for second machine  
-- [ ] Fixture E2E for all 8 languages  
-- [ ] ≥1 real JS/TS repo + ≥1 real non-JS repo migrate report  
-- [ ] `migrate-repo --open-pr` on throwaway branch  
-- [ ] Security checklist (secrets, sandbox network default `none`)  
-- [ ] Corpus ≥15K documented in `DATASET.md`  
+- [x] Phases 11–18 complete **or** written skip decision — 11–17 complete; 18's first flywheel retrain deferred to after launch (needs real use, [PHASE_18](PHASE_18_MLOPS_MONITORING.md))  
+- [x] `scripts/bootstrap.sh` + doctor green path documented for second machine — [INSTALL.md](../INSTALL.md), clean-copy test 2026-11-10  
+- [x] Fixture E2E for all 8 languages — 8 / 8 closed-loop with the served models, hardened sandbox (2026-11-11, step 4)  
+- [x] ≥1 real JS/TS repo + ≥1 real non-JS repo migrate report — is-number (JS), go-homedir (Go), inflection (Python) + 2 `--to` (2026-11-11, step 4). **Open finding:** the served 7B adapters return these files unchanged, the plain 14B modernizes them (review item)  
+- [ ] `migrate-repo --open-pr` on throwaway branch — needs the owner's choice of repo  
+- [x] Security checklist (secrets, sandbox network default `none`) — [SECURITY.md](../SECURITY.md); model-written code never has network (step 4)  
+- [x] Corpus ≥15K documented in `DATASET.md` (24,640)  
 - [ ] Tag `v1.0.0`  
 
 ## Plan (agreed 2026-11-10)
@@ -46,7 +46,7 @@ now; step 6 (publish + tag) only after a review with the owner.
 | 1 | Merge PR #5 (Phase 17 + 18) | done (owner merged it 2026-11-10) |
 | 2 | Merge the cross-language LoRA into the 14B before quantizing → `rebirth-xlang:14b-v2`, gate vs v1 | done 2026-11-11: gate passed, v2 served, rollback demo done |
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
-| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | in progress |
+| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done except `--open-pr` (needs a throwaway repo) |
 | 5 | Docs: INSTALL, README, SECURITY, Hugging Face model cards | drafts done (both cards) |
 | 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
 
@@ -111,6 +111,76 @@ Served (2026-11-11): `rebirth serve publish-xlang` put v1 on the translation rou
   through `transformers` before).
 - Clean-copy test (2026-11-10): fresh copy of the repo without `.venv`, `bootstrap.sh --from <release
   folder>` → 3 min 56 s, `doctor --strict`: all checks passed.
+
+### Step 4 — release checks (2026-11-11)
+
+**Sandbox hardening** (security checklist; [SECURITY.md](../SECURITY.md), `src/rebirth_ai/sandbox/`). Before,
+Maven / NuGet downloads ran during the tests, so Java and C# drafts (and their translation checks) ran
+with network, and packages a draft asked for were installed in the same networked container. Now:
+
+- **Setup, then test, in one container.** The project's declared dependencies are downloaded first,
+  online, before the draft is written in. The container is then disconnected from every network
+  (checked; the run fails closed), the draft is written in, and the tests run offline. Per language:
+  `npm ci` / `npm install`, `pip install --user`, `mvn test` (Maven only fetches its test provider when
+  tests run), `dotnet restore`, `go mod download`, `cargo fetch`, `swift package resolve`.
+- **Limits:** 4 GB memory with no swap, 1,024 processes, all capabilities dropped, `no-new-privileges`,
+  `timeout` inside the container plus a host kill 30 s later.
+- **Package policy:** a missing package is installed only if the project declares it or the original
+  file imports it. Names are validated and shell-quoted, and Python import names are mapped to PyPI names.
+  A refused package is explained to the model in the next prompt.
+- **Also:** the code-search embedder loads offline, and bootstrap no longer writes a `.env` the CLI never
+  reads.
+- **Tests:** `tests/test_sandbox_hardening.py` (15), `tests/test_sandbox_confinement_docker.py` (6, real
+  containers).
+- **Same scores:** re-testing the 420 saved A1 v2 translations in the hardened sandbox gives the same
+  265 / 420 (211 first try), identical in all 21 directions.
+
+**Fixture E2E**, served models (`--backend auto`), broken seed draft → model → sandbox:
+
+- All 8 languages succeed on iteration 1: `rebirth-<lang>:7b` for JS/TS, Python, Go, Java, C#, Rust, C++
+  and Swift (12–39 s each).
+- `--to`: Python → Go against the Go fixture's tests succeeds on iteration 2 with `rebirth-xlang:14b` (v2).
+- Phase 7 JS benches (`training/bench_js_repos.py`, plain 14B): 6 / 6 ok (success or human review, the bench gate).
+  - `bench_express` now proves the refusal: a draft-only `pretty-ms` is refused, the model drops it, and
+    the run ends in human review. The original passes the tests; the 14B kept reimplementing pretty-ms.
+  - `bench_express_optin` (`REBIRTH_ALLOW_UNDECLARED_PACKAGES=1`) proves the install: queued, set up
+    online, PASS.
+
+**Real repos** (shallow clones in git-ignored `data/bench/`, MIT, no writes):
+
+| Repo | File | Served model | Result |
+|---|---|---|---|
+| jonschlinkert/is-number | `index.js` (18 lines), tests: mocha via `npm test` | `rebirth-js-ts:7b` | tests pass, file **unchanged** |
+| mitchellh/go-homedir | `homedir.go` (167 lines), `homedir_test.go` | `rebirth-go:7b` | tests pass, file **unchanged** |
+| jpvanhal/inflection | `inflection/__init__.py` (429 lines), `test_inflection.py` | `rebirth-python:7b` | tests pass, one blank line added (**unchanged**) |
+| is-number | `index.js` → Go (`--to go`) | `rebirth-xlang:14b` | compiles, iteration 1 |
+| go-homedir | `homedir.go` → Rust (`--to rust`) | `rebirth-xlang:14b` | compiles, iteration 1 |
+
+The same three files with the plain 14B (`--backend ollama`) are real modernizations, all passing the
+projects' tests:
+
+- **is-number:** an arrow function, and the `isFinite` fallback dropped.
+- **go-homedir:** a `switch` and merged conditions, but the explanatory comments were deleted.
+- **inflection:** f-strings, `typing` imports and an annotated `__version__`.
+
+**Fixed from these runs:**
+
+1. **Test files are found by what they import.** migrate-repo skipped is-number and inflection ("no
+   matching test file"). It now falls back to a test that imports the file; JS runs the project's own
+   `npm test`.
+2. **Long files are no longer cut off.** The served 7B's chat path was capped at 1,024 output tokens, so
+   go-homedir was cut off ("unexpected EOF" in all 5 drafts). The cap is now 8,192, the same as the plain
+   client.
+3. **A refused package is explained to the model**, so it stops importing it.
+4. **A passing draft that changes nothing is reported as `unchanged`** instead of `success`, and is never
+   written or put in a PR. Before, these real-repo runs reported "success".
+
+**Open (owner's review):**
+
+- The 7B adapters make no change on these 3 real files, while the plain 14B does. Possible fix: an
+  `unchanged` result retries once with the plain 14B. That is a routing change, so it needs measuring on
+  more files.
+- `--open-pr` needs a throwaway repository.
 
 ### Step 5 — docs
 
