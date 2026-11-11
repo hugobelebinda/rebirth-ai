@@ -16,7 +16,7 @@ from rebirth_ai.graph.discovery import (
     infer_test_path,
     topological_migrate_order,
 )
-from rebirth_ai.graph.fallback import invoke as fallback_run
+from rebirth_ai.graph.fallback import needs_fallback, run_fallback
 from rebirth_ai.safety import (
     file_too_large,
     has_restrictive_license_header,
@@ -159,6 +159,33 @@ def _unified_diff(path: str, before: str, after: str, *, max_lines: int = 80) ->
     return "\n".join(lines)
 
 
+def _file_result(final: dict, project_dir: Path, rel_s: str, test_rel: str | None, original: str,
+                 seed_text: str | None, write: bool) -> FileMigrationResult:
+    """Report entry for one finished run (writes the draft when it passed and changed the file)."""
+    status = str(final.get("status") or "failed")
+    draft = final.get("current_draft") or ""
+    message = ""
+    if status == "success" and draft and no_change(draft, original, seed_text):
+        status, message = "unchanged", UNCHANGED_MESSAGE
+    wrote = False
+    if write and status == "success" and draft:
+        write_like(project_dir / rel_s, draft)
+        wrote = True
+    return FileMigrationResult(
+        relative_file=rel_s,
+        relative_test=test_rel,
+        status=status,
+        iterations=int(final.get("iteration_count") or 0),
+        error_class=final.get("error_class"),
+        trace=list(final.get("trace") or []),
+        wrote=wrote,
+        message=message,
+        test_logs_excerpt=_excerpt(final.get("test_logs")),
+        draft_preview=_unified_diff(rel_s, original, draft) if draft and draft != original else "",
+        fallback_model=final.get("fallback_model"),
+    )
+
+
 def migrate_repository(
     project_dir: Path,
     *,
@@ -275,6 +302,7 @@ def migrate_repository(
         return report
 
     graph = build_migration_graph()
+    deferred: list[tuple] = []
 
     for rel in targets:
         rel_s = rel.as_posix()
@@ -316,7 +344,7 @@ def migrate_repository(
         )
 
         try:
-            final = fallback_run(graph, state, original=original, seed=seed_text, use=fallback)
+            final = graph.invoke(state)
         except Exception as exc:
             report.results.append(
                 FileMigrationResult(
@@ -327,37 +355,22 @@ def migrate_repository(
                 )
             )
             continue
+        report.results.append(_file_result(final, project_dir, rel_s, test_rel, original, seed_text, write))
+        served = needs_fallback(final, original=original, seed=seed_text, use=fallback)
+        if served:
+            deferred.append((len(report.results) - 1, state, final, served, rel_s, test_rel, original, seed_text))
 
-        status = str(final.get("status") or "failed")
-        draft = final.get("current_draft") or ""
-        message = ""
-        if status == "success" and draft and no_change(draft, original, seed_text):
-            status, message = "unchanged", UNCHANGED_MESSAGE
-        wrote = False
-        if write and status == "success" and draft:
-            target = project_dir / rel_s
-            write_like(target, draft)
-            wrote = True
-
-        preview = ""
-        if draft and draft != original:
-            preview = _unified_diff(rel_s, original, draft)
-
-        report.results.append(
-            FileMigrationResult(
-                relative_file=rel_s,
-                relative_test=test_rel,
-                status=status,
-                iterations=int(final.get("iteration_count") or 0),
-                error_class=final.get("error_class"),
-                trace=list(final.get("trace") or []),
-                wrote=wrote,
-                message=message,
-                test_logs_excerpt=_excerpt(final.get("test_logs")),
-                draft_preview=preview,
-                fallback_model=final.get("fallback_model"),
-            )
-        )
+    # Fallback runs last: the served 7B and the 14B do not fit in a 16 GB GPU together, so one pass
+    # per model swaps once instead of once per unchanged file.
+    for idx, state, final, served, rel_s, test_rel, original, seed_text in deferred:
+        if on_file:
+            on_file(f"{rel_s} (fallback)")
+        try:
+            final = run_fallback(graph, state, final, served)
+        except Exception as exc:  # keep the 7B result, note why the fallback did not run
+            report.results[idx].trace.append(f"fallback: failed — {exc}")
+            continue
+        report.results[idx] = _file_result(final, project_dir, rel_s, test_rel, original, seed_text, write)
 
     return report
 

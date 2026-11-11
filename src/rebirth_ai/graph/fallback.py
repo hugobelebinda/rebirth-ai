@@ -78,28 +78,40 @@ def _plain_ollama(model: str) -> Iterator[None]:
                 os.environ[k] = v
 
 
-def invoke(graph, state: dict, *, original: str | None, seed: str | None = None, backend: str | None = None,
-           use: bool | None = None, list_models: Callable[[], list[str]] | None = None) -> dict:
-    """``graph.invoke(state)``, then the fallback run if it applies (see the module doc). The
-    returned state's trace holds both runs; ``fallback_model`` names the 14B when it ran."""
+def needs_fallback(final: dict, *, original: str | None, seed: str | None = None, backend: str | None = None,
+                   use: bool | None = None) -> str | None:
+    """The served adapter (``ollama:rebirth-go:7b``) whose passing, unchanged result should get the
+    14B run, else None."""
     from rebirth_ai.graph.batch import no_change
 
-    final = graph.invoke(state)
     backend = (backend or os.environ.get("REBIRTH_GENERATOR", "auto")).strip().lower()
     draft = final.get("current_draft") or ""
     if not (enabled(use) and backend in AUTO_BACKENDS and final.get("status") == "success" and draft
             and original is not None and no_change(draft, original, seed)):
-        return final
+        return None
     served = served_adapter_models(final.get("trace"))
-    if not served:
-        return final
+    return served[-1] if served else None
+
+
+def run_fallback(graph, state: dict, final: dict, served: str, *,
+                 list_models: Callable[[], list[str]] | None = None) -> dict:
+    """The 14B run for ``final`` (both traces kept; ``fallback_model`` set), or ``final`` with a
+    note when Ollama has no 14B."""
     trace = list(final.get("trace") or [])
     model = pick_model(list_models)
     if model is None:
-        note = (f"fallback: skipped — {served[-1]} returned the file unchanged and Ollama has no 14B "
+        note = (f"fallback: skipped — {served} returned the file unchanged and Ollama has no 14B "
                 f"({' / '.join(candidates())}; `ollama pull {PLAIN_14B}`)")
         return {**final, "trace": trace + [note]}
-    trace.append(f"fallback: {served[-1]} returned the file unchanged; one more run with {model}")
+    trace.append(f"fallback: {served} returned the file unchanged; one more run with {model}")
     with _plain_ollama(model):
         second = graph.invoke(state)
     return {**second, "trace": trace + list(second.get("trace") or []), "fallback_model": model}
+
+
+def invoke(graph, state: dict, *, original: str | None, seed: str | None = None, backend: str | None = None,
+           use: bool | None = None, list_models: Callable[[], list[str]] | None = None) -> dict:
+    """``graph.invoke(state)``, then the fallback run if it applies (see the module doc)."""
+    final = graph.invoke(state)
+    served = needs_fallback(final, original=original, seed=seed, backend=backend, use=use)
+    return run_fallback(graph, state, final, served, list_models=list_models) if served else final

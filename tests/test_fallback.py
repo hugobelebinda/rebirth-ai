@@ -100,3 +100,31 @@ def test_batch_report_names_the_fallback(tmp_path, monkeypatch) -> None:
     assert (tmp_path / "src" / "a.js").read_text() == "const x = 1;\n"
     body = batch.render_pr_body(report)
     assert f"by the fallback {fallback.PLAIN_14B}" in body and "evidence, not proof" in body
+
+
+def test_migrate_repo_runs_all_fallbacks_after_the_served_pass(tmp_path, monkeypatch) -> None:
+    from rebirth_ai.graph import batch
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "test").mkdir()
+    for name in ("a", "b"):
+        (tmp_path / "src" / f"{name}.js").write_text(ORIGINAL, encoding="utf-8")
+        (tmp_path / "test" / f"{name}.test.js").write_text(f"import '../src/{name}.js';\n", encoding="utf-8")
+    calls = []
+
+    class ByEnv:
+        def invoke(self, state):
+            gen = os.environ.get("REBIRTH_GENERATOR")
+            calls.append((state["relative_file"], gen))
+            if gen == "ollama":
+                return {"status": "success", "current_draft": "const x = 1;\n", "iteration_count": 1,
+                        "trace": [f"generate_code: iteration=1 model={os.environ['OLLAMA_MODEL']} chars=12"]}
+            return {"status": "success", "current_draft": ORIGINAL, "iteration_count": 1,
+                    "trace": ["generate_code: iteration=1 model=ollama:rebirth-js-ts:7b chars=10"]}
+
+    monkeypatch.setattr(batch, "build_migration_graph", lambda: ByEnv())
+    monkeypatch.setattr(fallback, "pick_model", lambda list_models=None: fallback.PLAIN_14B)
+    report = batch.migrate_repository(tmp_path, objective="modernize", under="src", write=True)
+    assert [g for _, g in calls] == ["auto", "auto", "ollama", "ollama"]  # one model swap, not one per file
+    assert [r.status for r in report.results] == ["success", "success"]
+    assert all(r.fallback_model == fallback.PLAIN_14B and r.wrote for r in report.results)
