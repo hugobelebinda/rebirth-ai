@@ -131,20 +131,52 @@ def execute_tests(state: MigrationState) -> MigrationState:
     )
     logs = (result.stdout or "") + ("\n" + result.stderr if result.stderr else "")
     status_bit = "PASS" if result.ok else "FAIL"
+    trace_line = f"execute_tests: {status_bit} exit={result.exit_code} in {result.duration_sec:.2f}s"
+    ok = result.ok
+    # A passing model draft that deleted the original's comments is not done: ask for them back.
+    if ok and int(state.get("iteration_count") or 0) >= 1:
+        lost, total = comments_lost(state.get("original_code") or "", draft, adapter.name)
+        if lost:
+            ok = False
+            logs = (f"{KEPT_COMMENTS_NOTE} The draft deleted {lost} of the original's {total} comment lines. "
+                    "Keep every comment and docstring of the original file; only update one when the code it "
+                    "describes changes.")
+            trace_line += f", but {lost} of {total} comment lines deleted"
     return {
         **state,
         "test_logs": logs,
         "error_class": None,
-        "status": "success" if result.ok else "running",
-        "trace": _trace(
-            state,
-            f"execute_tests: {status_bit} exit={result.exit_code} in {result.duration_sec:.2f}s",
-        ),
+        "status": "success" if ok else "running",
+        "trace": _trace(state, trace_line),
     }
+
+
+KEPT_COMMENTS_NOTE = "[rebirth] Tests pass, but"
+_COMMENT_PREFIX = {"python": ("#",), "default": ("//", "/*", "*", "*/")}
+
+
+def comments_lost(original: str, draft: str, adapter_id: str | None) -> tuple[int, int]:
+    """(comment lines the draft dropped, comment lines of the original) when that is a real loss:
+    at least 3 lines and over 20 % of them; else (0, total). ``REBIRTH_KEEP_COMMENTS=0`` turns it off."""
+    import os
+
+    if os.environ.get("REBIRTH_KEEP_COMMENTS", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return 0, 0
+    prefix = _COMMENT_PREFIX.get(adapter_id or "", _COMMENT_PREFIX["default"])
+
+    def count(text: str) -> int:
+        n = sum(1 for line in text.splitlines() if line.strip().startswith(prefix))
+        return n + (text.count('"""') + text.count("\'\'\'") if adapter_id == "python" else 0)
+
+    total, kept = count(original), count(draft)
+    lost = total - kept
+    return (lost, total) if lost >= 3 and lost > 0.2 * total else (0, total)
 
 
 def _heuristic_error_class(logs: str) -> str | None:
     """High-precision overrides (beat a confused classifier on obvious CI shapes)."""
+    if logs.startswith(KEPT_COMMENTS_NOTE):  # our own note: tests passed, comments were deleted
+        return "TestLogicFailure"
     low = logs.lower()
     if (
         "cannot find module" in low
@@ -200,9 +232,9 @@ def classify_error(state: MigrationState) -> MigrationState:
         probs = clf.predict_proba(logs)
         label = max(probs, key=probs.get)
         confidence = float(probs[label])
-        # Clear dependency/module errors always win over a low-signal model guess.
-        if override == "DependencyMissing":
-            label = "DependencyMissing"
+        # Clear dependency/module errors (and Rebirth's own comment note) always win over a model guess.
+        if override == "DependencyMissing" or logs.startswith(KEPT_COMMENTS_NOTE):
+            label = override
             confidence = max(confidence, 0.99)
         elif confidence < 0.45:
             # Phase 7 telemetry: low-confidence → keep prediction but mark Unknown.
