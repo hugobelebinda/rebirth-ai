@@ -46,7 +46,7 @@ above.
 | Language | Setup step, when the project has dependencies | Test step (offline) |
 |---|---|---|
 | JS / TS | `npm ci` (with a lockfile) or `npm install`, for the packages in `package.json` | `npm test` / `node --test` |
-| Python | `pip install --user` of `requirements*.txt` and the `pyproject.toml` dependencies (not the project itself) | `pytest` |
+| Python | `pip install --user` of `requirements*.txt` and the `pyproject.toml` dependencies (not the project itself) | `python -m pytest` |
 | Java | **your project's own tests, once**, online (`mvn test`): Maven only downloads its test-runner plugin when tests actually run | `mvn -o test` |
 | C# | `dotnet restore` | `dotnet test --no-restore` |
 | Go | `go mod download` | `go test` |

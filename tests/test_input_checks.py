@@ -66,7 +66,7 @@ def test_test_paths_with_spaces_are_quoted() -> None:
     from rebirth_ai.adapters.js_ts import JsTsAdapter
     from rebirth_ai.adapters.python import PythonAdapter
 
-    assert PythonAdapter().test_command_for("dir with spaces/test_u.py") == "pytest -q 'dir with spaces/test_u.py'"
+    assert PythonAdapter().test_command_for("dir with spaces/test_u.py") == "python -m pytest -q 'dir with spaces/test_u.py'"
     assert JsTsAdapter().test_command_for("my tests/a.test.js") == "node --test 'my tests/a.test.js'"
     assert GoAdapter().test_command_for("my pkg/a_test.go") == "go test './my pkg'"
 

@@ -54,7 +54,7 @@ class PythonAdapter:
         return SandboxSpec(
             image=self._image,
             workdir="/workspace",
-            test_command="pytest -q",
+            test_command="python -m pytest -q",  # -m: the project root is importable, as when you run it
             timeout_sec=self._timeout_sec,
             env={"PYTHONDONTWRITEBYTECODE": "1", "PIP_DISABLE_PIP_VERSION_CHECK": "1"},
             user="rebirth",
@@ -77,8 +77,8 @@ class PythonAdapter:
 
     def test_command_for(self, relative_file: str | None = None) -> str:
         if relative_file:
-            return f"pytest -q {shlex.quote(relative_file)}"
-        return "pytest -q"
+            return f"python -m pytest -q {shlex.quote(relative_file)}"
+        return "python -m pytest -q"
 
     def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
         """``pip install --user`` the requirements files and the pyproject's declared dependencies."""
