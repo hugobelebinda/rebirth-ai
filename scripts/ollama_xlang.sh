@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Package the Phase 17 shared cross-language adapter (lora_xlang_14b) as the Ollama model that
-# `rebirth migrate --to <lang>` serves by default (--backend auto → REBIRTH_XLANG_MODEL):
+# Package the Phase 17 shared cross-language adapter (lora_xlang_14b) as an Ollama model, applied at
+# run time (v1). Superseded by v2 (the same LoRA merged before quantizing, scripts/xlang_v2_merge.sh,
+# installed by `rebirth install`); `migrate --to` serves whichever version the translation route points
+# rebirth-xlang:14b at (rebirth serve publish-xlang / rollback --lang xlang), or REBIRTH_XLANG_MODEL.
 #   bash scripts/ollama_xlang.sh [adapter dir] [tag]
 # Defaults: data/models/lora_xlang_14b/adapter (dvc pull data/models/lora_xlang_14b/adapter.dvc),
 # tag rebirth-xlang:14b-v1. Needs the q6_K 14B in Ollama (ollama pull qwen2.5-coder:14b-instruct-q6_K)
@@ -32,4 +34,4 @@ dir="$ROOT/data/models/ollama/${tag//:/_}"
 mkdir -p "$dir"
 printf 'FROM %s\nADAPTER %s\n' "$from" "$gguf" > "$dir/Modelfile"   # no TEMPLATE: keep the chat template
 ollama create "$tag" -f "$dir/Modelfile"
-echo "ollama model $tag ready — rebirth migrate --to <lang> uses it (REBIRTH_XLANG_MODEL=\"\" turns it off)"
+echo "ollama model $tag ready — serve it with rebirth serve publish-xlang, or REBIRTH_XLANG_MODEL=$tag"

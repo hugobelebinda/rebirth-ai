@@ -250,7 +250,7 @@ def serve_status() -> None:
                   "pass" if (x.get("gate") or {}).get("passed") else "?",
                   ", ".join(f"v{v}" for v in (x.get("history") or {})))
     else:
-        t.add_row("--to (xlang)", "[dim]rebirth-xlang:14b-v1 / plain 14B (no route)[/dim]", "", "", "", "", "", "")
+        t.add_row("--to (xlang)", "[dim]rebirth-xlang:14b if installed, else plain 14B (no route)[/dim]", "", "", "", "", "", "")
     print(t)
 
 
