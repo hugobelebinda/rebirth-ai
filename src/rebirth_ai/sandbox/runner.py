@@ -21,6 +21,7 @@ import os
 import shutil
 import tempfile
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FuturesTimeout
 from dataclasses import dataclass
@@ -244,9 +245,11 @@ class SandboxRunner:
         setup_step: _Step | None = None
         try:
             run_user = self.spec.user or None
+            name = f"rebirth-sandbox-{uuid.uuid4().hex[:12]}"
             try:
                 container = self.client.containers.run(
                     image=self.spec.image,
+                    name=name,
                     command=["sleep", "infinity"],
                     working_dir=self.spec.workdir,
                     volumes={str(work): {"bind": self.spec.workdir, "mode": "rw"}},
@@ -258,6 +261,10 @@ class SandboxRunner:
                     **container_limits(),
                 )
             except APIError as exc:  # e.g. an image built by hand without the expected user
+                try:  # Docker created the container before failing to start it: don't leave it behind
+                    self.client.containers.get(name).remove(force=True)
+                except Exception:
+                    pass
                 hint = self.spec.dockerfile_dir or "docker/<lang>_sandbox"
                 raise SandboxError(
                     f"Docker could not start the sandbox {self.spec.image}: {exc.explanation or exc}. "

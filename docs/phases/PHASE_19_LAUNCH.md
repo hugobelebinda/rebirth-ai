@@ -320,6 +320,7 @@ review of what a new user would meet, and these fixes on `rebirth/p19-prelaunch`
 | `migrate-repo` looked only in `src/`, so it found nothing in most Go and many Python repos. | It looks in `src/` if the project has one, else in the whole project. |
 | `migrate` printed no change on success. | It prints the diff, and where the last draft is when no draft passed. |
 | A container Docker could not start gave a 40-line traceback. | One-line error with the rebuild command (`SandboxError`). |
+| Such a container was left behind in Docker as *Created* (3 found after the C# rebuild). | Each sandbox container has a unique name; one that fails to start is removed. |
 | `bootstrap.sh` kept existing images after a Dockerfile changed. | Images carry a hash of their folder and are rebuilt when it changes. |
 | Dependencies had no upper bounds; a fresh install already got newer versions than the tested ones. | Upper bounds at the next breaking release. The suite passes on Python 3.11 with the newest allowed versions (typer 0.29, langchain-core 1.8, sentence-transformers 6.3). |
 | README was a development log; `--help` started with maintainer commands. | README is a user guide. `rebirth` alone opens a start screen (`docs/assets/start-screen.png`, `scripts/render_start_screen.py`). `--help` is grouped (Migrate, Setup, Tools, Maintainers). `--version` added. |

@@ -171,9 +171,22 @@ def test_a_container_that_cannot_start_is_a_one_line_error(proj, monkeypatch) ->
     from rebirth_ai.adapters.python import PythonAdapter
     from rebirth_ai.sandbox.runner import SandboxError, SandboxRunner
 
+    removed: list[str] = []
+
+    class Created:  # Docker creates the container, then fails to start it
+        def __init__(self, name):
+            self.name = name
+
+        def remove(self, force=False):
+            removed.append(self.name)
+
     class Containers:
-        def run(self, **_):
+        def run(self, **kw):
+            self.name = kw["name"]
             raise APIError("500", explanation="unable to find user rebirth: no matching entries in passwd file")
+
+        def get(self, name):
+            return Created(name)
 
     class Images:
         def get(self, name):
@@ -186,6 +199,8 @@ def test_a_container_that_cannot_start_is_a_one_line_error(proj, monkeypatch) ->
     runner = SandboxRunner(PythonAdapter(), client=Client())
     with pytest.raises(SandboxError, match="unable to find user rebirth.*docker build -t"):
         runner.run_project(proj)
+    # the created-but-never-started container is not left behind
+    assert removed == [Client.containers.name] and removed[0].startswith("rebirth-sandbox-")
 
     monkeypatch.setattr(SandboxRunner, "ensure_image", lambda self: None)
     monkeypatch.setattr(SandboxRunner, "run_project", lambda *a, **k: (_ for _ in ()).throw(SandboxError("Docker could not start x")))
