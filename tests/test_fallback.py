@@ -31,7 +31,7 @@ class Graph:
 
 @pytest.fixture(autouse=True)
 def env(monkeypatch):
-    for k in ("REBIRTH_FALLBACK", "REBIRTH_FALLBACK_MODEL", "OLLAMA_MODEL"):
+    for k in ("REBIRTH_FALLBACK", "REBIRTH_FALLBACK_MODEL", "REBIRTH_FALLBACK_TRIES", "OLLAMA_MODEL"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setenv("REBIRTH_GENERATOR", "auto")
 
@@ -128,3 +128,35 @@ def test_migrate_repo_runs_all_fallbacks_after_the_served_pass(tmp_path, monkeyp
     assert [g for _, g in calls] == ["auto", "auto", "ollama", "ollama"]  # one model swap, not one per file
     assert [r.status for r in report.results] == ["success", "success"]
     assert all(r.fallback_model == fallback.PLAIN_14B and r.wrote for r in report.results)
+
+
+class FailingSecond(Graph):
+    """The 14B never passes: the second run ends in human_review."""
+
+    def invoke(self, state):
+        if not self.calls:
+            return super().invoke(state)
+        self.calls.append(state.get("max_iterations"))
+        return {"status": "human_review", "current_draft": "broken(", "iteration_count": state["max_iterations"],
+                "trace": ["generate_code: iteration=1 model=qwen chars=8", "human_review: tests failed"]}
+
+
+def test_a_failed_fallback_leaves_the_file_unchanged_not_failed() -> None:
+    from rebirth_ai.graph.batch import no_change
+
+    g = FailingSecond()
+    out = fallback.invoke(g, {"max_iterations": 5}, original=ORIGINAL, list_models=models(fallback.PLAIN_14B))
+    assert g.calls[-1] == 2  # the 14B gets REBIRTH_FALLBACK_TRIES (2) tries, not the file's 5
+    assert out["status"] == "success" and no_change(out["current_draft"], ORIGINAL, None)  # → "unchanged"
+    assert "fallback_model" not in out  # the 14B wrote nothing that was kept
+    assert out["trace"][-1].startswith(f"fallback: {fallback.PLAIN_14B} found no passing change in 2 tries")
+    assert any("human_review" in t for t in out["trace"])  # its attempts stay visible
+
+
+def test_fallback_tries_setting(monkeypatch) -> None:
+    monkeypatch.setenv("REBIRTH_FALLBACK_TRIES", "4")
+    assert fallback.tries() == 4
+    monkeypatch.setenv("REBIRTH_FALLBACK_TRIES", "0")
+    assert fallback.tries() == 1
+    monkeypatch.setenv("REBIRTH_FALLBACK_TRIES", "x")
+    assert fallback.tries() == 2

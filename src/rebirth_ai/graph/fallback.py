@@ -12,6 +12,10 @@ The fallback applies when all of these hold:
 Then the loop runs once more with a 14B in Ollama: ``REBIRTH_FALLBACK_MODEL``, else the plain
 Qwen2.5-Coder 14B (``OLLAMA_MODEL``), else ``rebirth-xlang:14b``, whichever Ollama has.
 ``--no-fallback`` or ``REBIRTH_FALLBACK=0`` turns it off.
+
+The 14B gets ``REBIRTH_FALLBACK_TRIES`` tries (default 2: on the real files, every fallback that found a
+change found it on the first try). When it finds no passing change, the result stays the served adapter's:
+the file is unchanged and its tests pass, so it is reported as unchanged, not as a failure.
 """
 
 from __future__ import annotations
@@ -38,6 +42,14 @@ def served_adapter_models(trace: list[str] | None) -> list[str]:
     """Served same-language adapters that wrote a draft in this run (``ollama:rebirth-go:7b``)."""
     return [m for line in trace or [] for m in _MODEL.findall(line)
             if m.startswith("ollama:rebirth-") and not m.startswith(f"ollama:{XLANG_14B}")]
+
+
+def tries() -> int:
+    """``REBIRTH_FALLBACK_TRIES`` (default 2, at least 1)."""
+    try:
+        return max(1, int(os.environ.get("REBIRTH_FALLBACK_TRIES", "2")))
+    except ValueError:
+        return 2
 
 
 def candidates() -> list[str]:
@@ -95,18 +107,24 @@ def needs_fallback(final: dict, *, original: str | None, seed: str | None = None
 
 def run_fallback(graph, state: dict, final: dict, served: str, *,
                  list_models: Callable[[], list[str]] | None = None) -> dict:
-    """The 14B run for ``final`` (both traces kept; ``fallback_model`` set), or ``final`` with a
-    note when Ollama has no 14B."""
+    """The 14B run for ``final`` when it passes (both traces kept; ``fallback_model`` set). Otherwise
+    ``final`` itself with a note: when Ollama has no 14B, or the 14B found no passing change."""
     trace = list(final.get("trace") or [])
     model = pick_model(list_models)
     if model is None:
         note = (f"fallback: skipped — {served} returned the file unchanged and Ollama has no 14B "
                 f"({' / '.join(candidates())}; `ollama pull {PLAIN_14B}`)")
         return {**final, "trace": trace + [note]}
-    trace.append(f"fallback: {served} returned the file unchanged; one more run with {model}")
+    n = tries()
+    trace.append(f"fallback: {served} returned the file unchanged; one more run with {model} (up to {n} tries)")
     with _plain_ollama(model):
-        second = graph.invoke(state)
-    return {**second, "trace": trace + list(second.get("trace") or []), "fallback_model": model}
+        second = graph.invoke({**state, "max_iterations": n})
+    trace += list(second.get("trace") or [])
+    if second.get("status") == "success":
+        return {**second, "trace": trace, "fallback_model": model}
+    note = (f"fallback: {model} found no passing change in {second.get('iteration_count') or n} tries; "
+            "the file is left as it was (its tests pass)")
+    return {**final, "trace": trace + [note]}
 
 
 def invoke(graph, state: dict, *, original: str | None, seed: str | None = None, backend: str | None = None,
