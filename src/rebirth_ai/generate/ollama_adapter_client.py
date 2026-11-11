@@ -19,7 +19,11 @@ import os
 import httpx
 
 from rebirth_ai.generate.ollama_client import GenerateResult, num_ctx_for
-from rebirth_ai.generate.peft_client import _clean_sft_completion, plan_generation
+from rebirth_ai.generate.peft_client import (
+    CHAT_MAX_NEW_TOKENS,
+    _clean_sft_completion,
+    plan_generation,
+)
 from rebirth_ai.generate.prompts import extract_code_block
 
 IM_END = "<|im_end|>"
@@ -40,7 +44,7 @@ class OllamaAdapterClient:
         language: str | None = None,
         host: str | None = None,
         timeout_sec: float = 600.0,
-        max_new_tokens: int = 1024,
+        max_new_tokens: int = CHAT_MAX_NEW_TOKENS,
         prompt_style: str = "sft",
     ) -> None:
         self.model = model
