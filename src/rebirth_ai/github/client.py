@@ -125,8 +125,15 @@ def detect_default_branch(repo: Path, *, remote: str = "origin") -> str:
     return "main"
 
 
+def branch_exists(repo: Path, name: str) -> bool:
+    return _run(["git", "rev-parse", "--verify", "--quiet", f"refs/heads/{name}"], cwd=repo, check=False).returncode == 0
+
+
 def create_branch(repo: Path, name: str, *, from_ref: str | None = None) -> None:
-    args = ["git", "checkout", "-B", name]
+    """Create and switch to a new branch; refuses one that exists (``-B`` would reset it and lose its commits)."""
+    if branch_exists(repo, name):
+        raise GitHubError(f"branch {name!r} already exists in {repo}: pass --pr-branch <new name>, or delete it")
+    args = ["git", "checkout", "-b", name]
     if from_ref:
         args.append(from_ref)
     _run(args, cwd=repo)
@@ -138,12 +145,14 @@ def stage_paths(repo: Path, paths: list[str]) -> None:
     _run(["git", "add", "--", *paths], cwd=repo)
 
 
-def commit(repo: Path, message: str) -> bool:
-    """Create a commit. Returns False if there was nothing to commit."""
-    staged = _run(["git", "diff", "--cached", "--quiet"], cwd=repo, check=False)
+def commit(repo: Path, message: str, paths: list[str] | None = None) -> bool:
+    """Commit ``paths`` only (other staged changes stay staged, out of the commit); all staged
+    changes when ``paths`` is None. Returns False if there was nothing to commit."""
+    spec = ["--", *paths] if paths else []
+    staged = _run(["git", "diff", "--cached", "--quiet", *spec], cwd=repo, check=False)
     if staged.returncode == 0:
         return False
-    _run(["git", "commit", "-m", message], cwd=repo)
+    _run(["git", "commit", "-m", message, *spec], cwd=repo)
     return True
 
 

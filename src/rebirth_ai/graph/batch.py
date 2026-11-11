@@ -361,12 +361,13 @@ def migrate_repository(
     return report
 
 
-def render_pr_body(report: BatchReport) -> str:
-    """Markdown PR summary: successes, failures, optional sandbox excerpts."""
+def render_pr_body(report: BatchReport, *, project_label: str | None = None) -> str:
+    """Markdown PR summary: successes, failures, optional sandbox excerpts. ``project_label``
+    replaces the project's absolute path (a PR should not show local paths)."""
     lines = [
         "## Rebirth AI migration report",
         "",
-        f"**Project:** `{report.project_dir}`",
+        f"**Project:** `{project_label or report.project_dir}`",
         f"**Objective:** {report.objective}",
     ]
     if report.dry_run:

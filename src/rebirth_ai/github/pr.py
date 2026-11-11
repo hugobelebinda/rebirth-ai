@@ -8,6 +8,7 @@ from pathlib import Path
 from rebirth_ai.github import client as gh
 from rebirth_ai.github.client import GitHubError
 from rebirth_ai.graph.batch import BatchReport, render_pr_body
+from rebirth_ai.redact import redact_text
 from rebirth_ai.safety import filter_secret_paths
 
 
@@ -23,7 +24,7 @@ class PullRequestResult:
 
 
 def open_migration_pr(
-    repo: Path,
+    project: Path,
     report: BatchReport,
     *,
     branch: str = "rebirth/migrate",
@@ -35,83 +36,61 @@ def open_migration_pr(
     draft: bool = False,
     report_path: Path | None = None,
 ) -> PullRequestResult:
-    """
-    Stage successful writes (+ optional report JSON), commit, push, open PR.
+    """Commit the files the migration wrote on a new branch of ``project``'s git repo, push it, and
+    open a PR.
 
-    Failed files are listed in the PR body; they are not required to block the PR.
-    ``base=None`` auto-detects the repo default branch (main/master).
+    ``paths`` are project-relative; the default is every file a successful run wrote. Only these
+    files go into the commit: anything else you had staged stays staged, out of the commit. The PR
+    body lists failed files too, and shows the project relative to the repo root, with no local
+    paths. ``report_path`` is added only when it lies inside the repo. ``base=None`` picks the
+    repo's default branch.
     """
-    repo = gh.git_root(repo)
+    project = Path(project).resolve()
+    repo = gh.git_root(project)
+    try:
+        prefix = project.relative_to(repo.resolve())
+    except ValueError:
+        prefix = Path(".")
+    label = repo.name if str(prefix) == "." else f"{repo.name}/{prefix.as_posix()}"
+    body = redact_text(render_pr_body(report, project_label=label))
     base_branch = base or gh.detect_default_branch(repo)
-    body = render_pr_body(report)
     pr_title = title or f"Rebirth AI: migrate {len(report.succeeded)} file(s)"
 
     if paths is None:
         paths = [r.relative_file for r in report.succeeded if r.wrote]
+    rel = [(prefix / p).as_posix() for p in paths]
     if report_path is not None:
-        # Prefer path relative to repo when possible
         try:
-            rel_report = str(report_path.resolve().relative_to(repo))
+            rel.append(Path(report_path).resolve().relative_to(repo.resolve()).as_posix())
         except ValueError:
-            rel_report = str(report_path)
-        if rel_report not in paths:
-            paths = [*paths, rel_report]
-
-    paths, blocked = filter_secret_paths(paths)
+            pass  # outside the repo: the PR body has the summary
+    rel, blocked = filter_secret_paths(rel)
     if blocked:
-        raise GitHubError(
-            "Refusing to stage secret/credential paths in migration PR: "
-            + ", ".join(blocked)
-        )
+        raise GitHubError("Refusing to stage secret/credential paths in migration PR: " + ", ".join(blocked))
+    if not rel:
+        return PullRequestResult(branch=branch, base=base_branch, url=None, committed=False, pushed=False,
+                                 body=body, message="Nothing to commit: no file was written (did every file fail?)")
 
     gh.create_branch(repo, branch)
-    if paths:
-        gh.stage_paths(repo, paths)
+    gh.stage_paths(repo, rel)
     committed = gh.commit(
         repo,
-        f"rebirth: migrate {len(report.succeeded)} file(s)\n\n"
-        f"Failed/review: {len(report.failed)}",
+        f"rebirth: migrate {len(report.succeeded)} file(s)\n\nFailed/review: {len(report.failed)}",
+        rel,
     )
+    if not committed:
+        return PullRequestResult(branch=branch, base=base_branch, url=None, committed=False, pushed=False,
+                                 body=body, message=f"Nothing to commit on {branch}: the written files match HEAD")
 
     pushed = False
     url: str | None = None
-    message = ""
-
-    if not committed and not paths:
-        message = "Nothing to commit (no written successes)."
-        return PullRequestResult(
-            branch=branch,
-            base=base_branch,
-            url=None,
-            committed=False,
-            pushed=False,
-            body=body,
-            message=message,
-        )
-
     if push:
         gh.push_branch(repo, branch)
         pushed = True
-
     if create_pr:
-        url = gh.create_pull_request(
-            repo,
-            title=pr_title,
-            body=body,
-            head=branch,
-            base=base_branch,
-            draft=draft,
-        )
+        url = gh.create_pull_request(repo, title=pr_title, body=body, head=branch, base=base_branch, draft=draft)
         message = f"Opened {'draft ' if draft else ''}PR {url}"
     else:
         message = "Branch ready; PR creation skipped."
-
-    return PullRequestResult(
-        branch=branch,
-        base=base_branch,
-        url=url,
-        committed=committed,
-        pushed=pushed,
-        body=body,
-        message=message,
-    )
+    return PullRequestResult(branch=branch, base=base_branch, url=url, committed=committed, pushed=pushed,
+                             body=body, message=message)

@@ -948,6 +948,20 @@ def migrate_repo(
     )
     if not dry_run:
         _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"}, docker=True)
+    if open_pr and not dry_run:
+        from rebirth_ai.github import client as gh
+
+        try:
+            gh.git_root(project)
+            gh.repo_slug_from_remote(gh.git_root(project))
+            gh.require_auth()
+            if gh.branch_exists(gh.git_root(project), pr_branch):
+                raise GitHubError(f"branch {pr_branch!r} already exists: pass --pr-branch <new name>, or delete it")
+        except GitHubError as exc:
+            _fail(f"--open-pr: {exc}")
+        if not write:
+            print("[dim]--open-pr writes the files whose tests pass (implies --write)[/dim]")
+            write = True
 
     batch = migrate_repository(
         project,
@@ -1010,14 +1024,13 @@ def migrate_repo(
     if open_pr and not dry_run:
         try:
             result = open_migration_pr(
-                Path.cwd(),
+                project,
                 batch,
                 branch=pr_branch,
                 base=pr_base,
                 push=push,
                 create_pr=True,
                 draft=draft,
-                report_path=report if report.exists() else None,
             )
             print(f"[green]{result.message}[/green]")
             if result.url:

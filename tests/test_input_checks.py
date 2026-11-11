@@ -121,3 +121,12 @@ def test_install_from_missing_folder_fails_before_any_pull(tmp_path) -> None:
 
     with pytest.raises(InstallError, match="no such folder"):
         install("modernize", from_dir=tmp_path / "nope")
+
+
+def test_open_pr_checks_git_before_running_a_model(proj, monkeypatch) -> None:
+    import rebirth_ai.graph.batch as batch
+
+    monkeypatch.setattr(batch, "build_migration_graph", lambda: pytest.fail("the model must not run"))
+    res = _cli(["migrate-repo", str(proj), "--under", "src", "--open-pr"], monkeypatch)
+    out = " ".join(res.output.split())  # Rich wraps long lines
+    assert res.exit_code == 2 and "--open-pr:" in out and "not a git repository" in out
