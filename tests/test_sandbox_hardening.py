@@ -265,6 +265,8 @@ def test_graph_install_node_refuses_draft_only_packages(tmp_path, monkeypatch):
             "iteration_count": 0, "max_iterations": 5, "trace": []}
     s = nodes.install_dependency({**base, "test_logs": "Error: Cannot find package 'evil-pkg' imported"})
     assert s.get("extra_packages") in (None, []) and "refused evil-pkg" in s["trace"][-1]
+    assert s["test_logs"].startswith("[rebirth] The package `evil-pkg` is not available")  # told to the model
+    assert "Cannot find package 'evil-pkg'" in s["test_logs"]
     assert after_install(s) == "generate_code"
     s = nodes.install_dependency({**base, "test_logs": "Error: Cannot find package 'ms' imported"})
     assert s["extra_packages"] == ["ms"] and after_install(s) == "execute_tests"

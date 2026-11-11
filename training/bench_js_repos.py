@@ -41,6 +41,8 @@ DEFAULT_BENCHES = [
         "embedder": "hash",
     },
     {
+        # The seed draft imports `pretty-ms`, which neither package.json nor the original file uses: the
+        # package policy refuses to install it (sandbox/deps.py) and the model must do without.
         "id": "bench_express",
         "path": ROOT / "fixtures" / "bench_express",
         "under": "src",
@@ -50,6 +52,27 @@ DEFAULT_BENCHES = [
         "files": ["src/duration.js"],
         "class": "app_with_deps",
         "embedder": "hash",
+        "expect": "refused",
+    },
+    {
+        # Same project with REBIRTH_ALLOW_UNDECLARED_PACKAGES=1: DependencyMissing → install `pretty-ms`
+        # in the next run's setup step (with network, before the draft) → tests pass offline.
+        "id": "bench_express_optin",
+        "path": ROOT / "fixtures" / "bench_express",
+        "under": "src",
+        "seeds": [
+            "src/duration.js=fixtures/bench_express/seeds/duration.missing_dep.js",
+        ],
+        "files": ["src/duration.js"],
+        "class": "app_with_deps",
+        "embedder": "hash",
+        "env": {"REBIRTH_ALLOW_UNDECLARED_PACKAGES": "1"},
+        "objective": (
+            "Keep the `pretty-ms` package import in duration.js. If tests fail with "
+            "ERR_MODULE_NOT_FOUND / Cannot find package 'pretty-ms', install the missing "
+            "dependency rather than rewriting away from `pretty-ms`. Tests must pass."
+        ),
+        "expect": "queued",
     },
     {
         "id": "bench_monorepo",
@@ -149,26 +172,30 @@ def _run_one(
         "without changing public API. Prefer installing missing packages "
         "when the classifier reports DependencyMissing."
     )
-    if spec.get("id") == "bench_express":
-        objective = (
-            "Keep the `ms` package import in duration.js. If tests fail with "
-            "ERR_MODULE_NOT_FOUND / Cannot find package 'ms', install the missing "
-            "dependency rather than rewriting away from `ms`. Tests must pass."
-        )
+    objective = spec.get("objective") or objective
 
     print(f"\n=== bench {spec['id']} ({spec.get('class')}) dry_run={dry_run} ===")
-    report = migrate_repository(
-        project,
-        objective=objective,
-        files=list(files) if files else None,
-        under=under,
-        seeds=cwd_seeds or None,
-        write=write and not dry_run,
-        dry_run=dry_run,
-        max_iterations=5,
-        skip_without_tests=bool(spec.get("skip_without_tests", True)),
-        on_file=lambda p: print(f"  → {p}"),
-    )
+    saved = {k: os.environ.get(k) for k in spec.get("env") or {}}
+    os.environ.update(spec.get("env") or {})
+    try:
+        report = migrate_repository(
+            project,
+            objective=objective,
+            files=list(files) if files else None,
+            under=under,
+            seeds=cwd_seeds or None,
+            write=write and not dry_run,
+            dry_run=dry_run,
+            max_iterations=5,
+            skip_without_tests=bool(spec.get("skip_without_tests", True)),
+            on_file=lambda p: print(f"  → {p}"),
+        )
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
     out_path = out_dir / f"{spec['id']}.json"
     report.write_json(out_path)
 
@@ -180,13 +207,13 @@ def _run_one(
         if r.status in {"success", "human_review", "planned"}
     ]
     rate = (len(okish) / len(actionable)) if actionable else 1.0
-    installed = any(
-        "install_dependency" in " ".join(r.trace) for r in report.results
-    )
+    trace = [t for r in report.results for t in r.trace]
+    installed = any(t.startswith("install_dependency: queued") for t in trace)
+    refused = any(t.startswith("install_dependency: refused") for t in trace)
     print(
         f"  summary success={summary['success']} failed={summary['failed']} "
         f"skipped={summary['skipped']} planned={summary.get('planned', 0)} "
-        f"okish_rate={rate:.0%} install_path={installed} → {out_path}"
+        f"okish_rate={rate:.0%} install_queued={installed} install_refused={refused} → {out_path}"
     )
     return {
         "id": spec["id"],
@@ -196,6 +223,8 @@ def _run_one(
         "summary": summary,
         "okish_rate": rate,
         "install_dependency_seen": installed,
+        "install_refused": refused,
+        "expect": spec.get("expect"),
         "migrate_order": report.migrate_order,
         "dry_run": dry_run,
         "backend": backend,
@@ -255,12 +284,15 @@ def main() -> int:
     rates = [r["okish_rate"] for r in results if r["id"].startswith("bench_")]
     if rates and min(rates) < 0.8:
         return 1
-    express = next((r for r in results if r["id"] == "bench_express"), None)
-    if express is not None and not express.get("install_dependency_seen"):
-        print("WARN: bench_express did not hit install_dependency in trace")
-        # Soft fail — still want the path exercised; return 1 to surface
-        return 1
-    return 0
+    warned = False
+    for r in results:
+        if r.get("expect") == "queued" and not r.get("install_dependency_seen"):
+            print(f"WARN: {r['id']} did not install the missing package")
+            warned = True
+        if r.get("expect") == "refused" and (r.get("install_dependency_seen") or not r.get("install_refused")):
+            print(f"WARN: {r['id']}: the draft-only package was not refused")
+            warned = True
+    return 1 if warned else 0  # the dependency paths must be exercised
 
 
 if __name__ == "__main__":

@@ -192,6 +192,16 @@ def classify_error(state: MigrationState) -> MigrationState:
     }
 
 
+def _refusal_note(pkg: str, logs: str) -> str:
+    """Test logs for the next draft, led by why the missing package stays missing (else the model
+    keeps importing it: Phase 19 bench, 5 drafts in a row)."""
+    return (
+        f"[rebirth] The package `{pkg}` is not available and will not be installed: the project does "
+        "not depend on it. Do not import it. Use the language's standard library or a dependency the "
+        f"project already declares.\n\n{logs}"
+    )
+
+
 def install_dependency(state: MigrationState) -> MigrationState:
     logs = state.get("test_logs") or ""
     pkg = _missing_package_name(logs) or state.get("missing_package")
@@ -212,6 +222,7 @@ def install_dependency(state: MigrationState) -> MigrationState:
         return {
             **state,
             "missing_package": pkg,
+            "test_logs": _refusal_note(pkg, logs),
             "trace": _trace(state, f"install_dependency: refused {pkg} — {adapter.name} has no package installs"),
         }
     language = "python" if adapter.name == "python" else "js_ts"
@@ -220,6 +231,7 @@ def install_dependency(state: MigrationState) -> MigrationState:
         return {
             **state,
             "missing_package": pkg,
+            "test_logs": _refusal_note(pkg, logs),
             "trace": _trace(state, f"install_dependency: refused {pkg} — {why}"),
         }
 
