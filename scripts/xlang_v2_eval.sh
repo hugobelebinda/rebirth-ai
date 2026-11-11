@@ -20,21 +20,19 @@ note() { echo "{\"t\":\"$(date -Is)\",$1}" | tee -a "$S"; }
 export REBIRTH_EMBEDDER=hash OLLAMA_MODEL="${XLANG_TAG:-rebirth-xlang:14b-v2}"
 PY=".venv/bin/python -u training/eval_translate.py --backend ollama"
 
-note "\"event\":\"A1_start\",\"model\":\"$OLLAMA_MODEL\""
-$PY --suite programs --limit 20 --retries 2 --out "$R/programs_$T.json" > "$X/v2_programs.log" 2>&1
-note "\"event\":\"A1_end\",\"exit\":$?"
+# stage NAME OUT LOG ARGS...: skipped when its report exists (a stopped run restarts at the first
+# missing report; a half-done stage resumes from its cached generations)
+stage() {
+  local name=$1 out=$2 log=$3; shift 3
+  if [ -f "$out" ]; then note "\"event\":\"${name}_skip\",\"report\":\"$out\""; return; fi
+  note "\"event\":\"${name}_start\",\"model\":\"$OLLAMA_MODEL\""
+  $PY "$@" --out "$out" > "$X/$log" 2>&1
+  note "\"event\":\"${name}_end\",\"exit\":$?"
+}
 
-note "\"event\":\"A2_start\""
-$PY --suite programs --limit 20 --retries 2 --sources javascript go csharp rust swift \
-  --add-sources-from "$R/programs_ollama14b_retry.json" \
-  --out "$R/programs_${T}_bootstrap.json" > "$X/v2_programs_bootstrap.log" 2>&1
-note "\"event\":\"A2_end\",\"exit\":$?"
-
-note "\"event\":\"B1_start\""
-$PY --limit 40 --out "$R/zeroshot_$T.json" > "$X/v2_humaneval_pass1.log" 2>&1
-note "\"event\":\"B1_end\",\"exit\":$?"
-
-note "\"event\":\"B2_start\""
-$PY --limit 40 --sources rust csharp swift --add-sources-from "$R/zeroshot_ollama14b.json" \
-  --out "$R/zeroshot_${T}_bootstrap.json" > "$X/v2_humaneval_pass2.log" 2>&1
-note "\"event\":\"B2_end\",\"exit\":$?"
+stage A1 "$R/programs_$T.json" v2_programs.log --suite programs --limit 20 --retries 2
+stage A2 "$R/programs_${T}_bootstrap.json" v2_programs_bootstrap.log --suite programs --limit 20 --retries 2 \
+  --sources javascript go csharp rust swift --add-sources-from "$R/programs_ollama14b_retry.json"
+stage B1 "$R/zeroshot_$T.json" v2_humaneval_pass1.log --limit 40
+stage B2 "$R/zeroshot_${T}_bootstrap.json" v2_humaneval_pass2.log --limit 40 \
+  --sources rust csharp swift --add-sources-from "$R/zeroshot_ollama14b.json"

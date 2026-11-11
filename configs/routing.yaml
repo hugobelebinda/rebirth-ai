@@ -297,4 +297,68 @@ languages:
         parses>=peft-2: true
         soft_exact>=base: true
       warnings: []
-generated_at: '2026-11-06T23:23:06+00:00'
+generated_at: '2026-11-11T16:12:28+00:00'
+translation:
+  model: rebirth-xlang:14b
+  tag: rebirth-xlang:14b-v2
+  version: '2'
+  eval:
+    programs:
+      pass: 667
+      n: 931
+    humaneval:
+      pass: 2065
+      n: 2229
+  baseline:
+    programs:
+      pass: 672
+      n: 931
+    humaneval:
+      pass: 2064
+      n: 2229
+  gate:
+    passed: true
+    checks:
+      'programs: 667 >= 672 - 18': true
+      'humaneval: 2065 >= 2064 - 22': true
+    warnings:
+    - 'programs: 667 < 672 (within the 18 allowed)'
+  reports:
+  - data/reports/xlang/programs_xlang14b_v2_q6k.json
+  - data/reports/xlang/programs_xlang14b_v2_q6k_bootstrap.json
+  - data/reports/xlang/zeroshot_xlang14b_v2_q6k.json
+  - data/reports/xlang/zeroshot_xlang14b_v2_q6k_bootstrap.json
+  note: 'LoRA merged into the bf16 weights, then quantized once to q6_K (Phase 19
+    step 2): same scores, 24 % faster generation'
+  history:
+    '1':
+      model: rebirth-xlang:14b
+      tag: rebirth-xlang:14b-v1
+      version: '1'
+      eval:
+        programs:
+          pass: 672
+          n: 931
+        humaneval:
+          pass: 2064
+          n: 2229
+      baseline:
+        programs:
+          pass: 551
+          n: 931
+        humaneval:
+          pass: 2030
+          n: 2229
+      gate:
+        passed: true
+        checks:
+          'programs: 672 >= 551 - 18': true
+          'humaneval: 2064 >= 2030 - 22': true
+        warnings: []
+      reports:
+      - data/reports/xlang/programs_xlang14b_q6k.json
+      - data/reports/xlang/programs_xlang14b_q6k_bootstrap.json
+      - data/reports/xlang/zeroshot_xlang14b_q6k.json
+      - data/reports/xlang/zeroshot_xlang14b_q6k_bootstrap.json
+      note: Qwen2.5-Coder-14B q6_K + cross-language LoRA applied at run time (Phase
+        17 stage 5)
