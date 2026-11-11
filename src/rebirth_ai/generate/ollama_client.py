@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 
 import httpx
@@ -10,6 +11,18 @@ import httpx
 from rebirth_ai.generate.prompts import SYSTEM_PROMPT, build_migration_prompt, extract_code_block
 
 _CTX_BUCKETS = (4096, 8192, 16384, 32768)  # few distinct num_ctx values → few model reloads
+
+
+def ollama_host(host: str | None = None) -> str:
+    """Base URL of the Ollama server: ``host``, else ``OLLAMA_HOST`` (which Ollama itself accepts
+    without a scheme: ``127.0.0.1:11434``, ``0.0.0.0``), else ``http://127.0.0.1:11434``."""
+    h = (host or os.environ.get("OLLAMA_HOST") or "http://127.0.0.1:11434").strip().rstrip("/")
+    if "://" in h:  # a full URL is used as given (a proxy on 443 has no port)
+        return h
+    hostport = h.replace("0.0.0.0", "127.0.0.1", 1)
+    if not re.search(r":\d+$", hostport):  # bare host: Ollama's default port
+        hostport += ":11434"
+    return "http://" + hostport
 
 
 def num_ctx_for(prompt: str, max_new_tokens: int) -> int:
@@ -41,9 +54,7 @@ class OllamaClient:
         model: str | None = None,
         timeout_sec: float = 300.0,
     ) -> None:
-        self.host = (host or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")).rstrip(
-            "/"
-        )
+        self.host = ollama_host(host)
         self.model = model or os.environ.get(
             "OLLAMA_MODEL", "qwen2.5-coder:14b-instruct-q6_K"
         )

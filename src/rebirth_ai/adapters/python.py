@@ -77,7 +77,7 @@ class PythonAdapter:
 
     def test_command_for(self, relative_file: str | None = None) -> str:
         if relative_file:
-            return f"pytest -q {relative_file}"
+            return f"pytest -q {shlex.quote(relative_file)}"
         return "pytest -q"
 
     def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:

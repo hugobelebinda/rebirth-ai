@@ -74,7 +74,7 @@ class JsTsAdapter:
         ``package.json``: discovery found only the project's own test script covering the file)."""
         if relative_file and relative_file != "package.json":
             # Escape is minimal — paths come from our fixture/temp dirs.
-            return f"node --test {relative_file}"
+            return f"node --test {shlex.quote(relative_file)}"
         return "npm test"
 
 

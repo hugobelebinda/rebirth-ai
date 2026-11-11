@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import NoReturn
 
 import typer
 from rich import print
@@ -26,6 +27,20 @@ from rebirth_ai.monitor_cli import dashboard_cmd, monitor_app, review_app  # noq
 app.command("dashboard")(dashboard_cmd)  # Phase 18
 app.add_typer(monitor_app, name="monitor")
 app.add_typer(review_app, name="review")
+
+
+def _fail(message: str, code: int = 2) -> NoReturn:
+    """Print an error without a traceback and exit (2 = bad input / environment)."""
+    print(f"[red]error:[/red] {message}")
+    raise typer.Exit(code=code)
+
+
+def _preflight(*, ollama: bool = False, docker: bool = False) -> None:
+    from rebirth_ai import preflight
+
+    for problem in ((preflight.ollama_error() if ollama else None), (preflight.docker_error() if docker else None)):
+        if problem:
+            _fail(problem)
 
 
 @app.command()
@@ -183,7 +198,9 @@ def doctor(
     try:
         import httpx
 
-        resp = httpx.get("http://127.0.0.1:11434/api/tags", timeout=5.0)
+        from rebirth_ai.generate.ollama_client import ollama_host
+
+        resp = httpx.get(f"{ollama_host()}/api/tags", timeout=5.0)
         if resp.status_code == 200:
             models = [m.get("name") for m in resp.json().get("models", [])]
             print(f"[bold]Ollama[/bold]: ok ({len(models)} models)")
@@ -193,7 +210,7 @@ def doctor(
             print(f"[bold]Ollama[/bold]: HTTP {resp.status_code}")
             problems.append(f"Ollama server answered HTTP {resp.status_code}")
 
-        ps = httpx.get("http://127.0.0.1:11434/api/ps", timeout=5.0)
+        ps = httpx.get(f"{ollama_host()}/api/ps", timeout=5.0)
         if ps.status_code == 200:
             loaded = ps.json().get("models", [])
             if not loaded:
@@ -324,9 +341,13 @@ def sandbox_run(
     ),
 ) -> None:
     """Run fixture/project tests inside the ephemeral Docker sandbox."""
-    from rebirth_ai.adapters.registry import get_adapter_for_project
+    from rebirth_ai.adapters.registry import detect_adapter_id, get_adapter_for_project
     from rebirth_ai.sandbox.runner import SandboxRunner
 
+    _preflight(docker=True)
+    if lang is None and detect_adapter_id(project) is None:
+        _fail(f"could not tell the language of {project} (no package.json, pyproject.toml, go.mod, … and "
+              "no source files); pass --lang")
     adapter = get_adapter_for_project(project, lang=lang)
     runner = SandboxRunner(adapter)
     result = runner.run_project(project, relative_test=test)
@@ -579,6 +600,20 @@ def migrate_file(
     sandbox → classify → retry); see docs/phases/PHASE_17_CROSS_LANGUAGE.md.
     """
     import os
+
+    from rebirth_ai.safety import InputError, check_source_file, inside
+
+    try:
+        check_source_file(project, file)
+        if to:
+            from rebirth_ai.xlang.languages import get_lang
+
+            get_lang(to)
+            if target_project is not None and target_file:
+                inside(target_project, target_file, what="--target-project")
+    except (InputError, ValueError) as exc:
+        _fail(str(exc))
+    _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"} or bool(to), docker=True)
 
     if to:
         _translate_file(
@@ -911,6 +946,8 @@ def migrate_repo(
     print(
         f"[dim]migrate-repo under={under!r} backend={backend} mode={mode} lang={lang or 'auto'}[/dim]"
     )
+    if not dry_run:
+        _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"}, docker=True)
 
     batch = migrate_repository(
         project,
@@ -927,6 +964,9 @@ def migrate_repo(
         fallback=fallback,
     )
     batch.write_json(report)
+    if not batch.results:
+        print(f"[yellow]No source files found under {under!r} in {project}[/yellow] "
+              "(--under picks the folders, --file the files).")
     print(render_pr_body(batch))
     # Show patch previews when not writing
     if not dry_run and not write:
@@ -1075,7 +1115,11 @@ def report_cmd(
     """Pretty-print a migrate-repo / eval / run JSON report (secrets redacted)."""
     from rebirth_ai.report_view import load_report, render_report
 
-    render_report(load_report(path))
+    try:
+        data = load_report(path)
+    except ValueError as exc:  # json.JSONDecodeError included
+        _fail(f"{path} is not a Rebirth JSON report ({exc})")
+    render_report(data)
 
 
 @app.command("classify")

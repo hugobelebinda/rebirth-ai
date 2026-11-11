@@ -348,7 +348,10 @@ def serve_rollback(lang: str, log=print) -> dict:
     """Registry rollback (champion ↔ previous) + re-point the serving alias to that version."""
     from rebirth_ai import registry, routing
 
-    lang = normalize_lang(lang)
+    key = normalize_lang(lang)
+    if key is None:
+        raise ValueError(f"unknown language {lang!r} (js_ts, python, go, java, csharp, rust, cpp, swift, or xlang)")
+    lang = key
     cur = routing.route(lang)
     target = registry.alias_version(lang, registry.PREVIOUS)
     if target is None:

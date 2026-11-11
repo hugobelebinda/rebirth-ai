@@ -68,7 +68,7 @@ class GoAdapter:
                 target = str(Path(target).parent)
             if not target.startswith("./"):
                 target = "./" + target.strip("/")
-            return f"go test {target}"
+            return f"go test {shlex.quote(target)}"
         return "go test ./..."
 
 

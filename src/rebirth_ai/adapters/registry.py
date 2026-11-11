@@ -73,6 +73,11 @@ _ALIASES = {
 }
 
 
+def adapter_for_suffix(suffix: str) -> str | None:
+    """Adapter id for a file extension (``.py`` → ``python``), None if unknown."""
+    return _SUFFIX_TO_ADAPTER.get(suffix.lower())
+
+
 def list_adapter_ids() -> list[str]:
     return sorted(_REGISTRY.keys())
 

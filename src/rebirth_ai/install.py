@@ -184,6 +184,8 @@ def install(choice: str = "both", *, from_dir: Path | None = None, from_local: b
             manifest: dict | None = None, progress: Callable[[str], None] = print) -> list[Step]:
     from rebirth_ai.packaging import ollama_has
 
+    if from_dir is not None and not Path(from_dir).is_dir():
+        raise InstallError(f"--from {from_dir}: no such folder")
     manifest = manifest or load_manifest()
     steps = plan(choice, manifest=manifest, from_dir=from_dir, from_local=from_local, force=force)
     if dry_run:

@@ -80,12 +80,16 @@ def initial_state(
     adapter_id: str | None = None,
     language: str | None = None,
 ) -> MigrationState:
-    from rebirth_ai.adapters.registry import get_adapter_for_project, language_label_for_file
+    from rebirth_ai.adapters.registry import (
+        adapter_for_suffix,
+        get_adapter_for_project,
+        language_label_for_file,
+    )
 
     project_dir = project_dir.resolve()
     file_path = project_dir / relative_file
     original = file_path.read_text(encoding="utf-8")
-    adapter = get_adapter_for_project(project_dir, lang=adapter_id)
+    adapter = get_adapter_for_project(project_dir, lang=adapter_id or adapter_for_suffix(file_path.suffix))
     resolved_adapter_id = adapter.name
     resolved_language = language or language_label_for_file(
         file_path, adapter_id=resolved_adapter_id
