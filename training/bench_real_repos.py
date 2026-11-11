@@ -4,8 +4,9 @@
 For every file: the project's own tests must pass on the original in the sandbox (else the file is
 left out), then ``migrate_repository`` runs once per backend with the same objective, writing into
 the clone. The script records status (success = changed and the tests pass, unchanged, failed),
-the diff size and comment lines kept, then restores the file. The "unchanged → plain 14B" fallback
-is the 7B result, or the 14B result where the 7B changed nothing.
+the diff size and comment lines kept, then restores the file. ``--backends fallback`` runs the
+shipped default (served 7B, then a 14B where it changed nothing, ``graph/fallback.py``); the
+summary's ``fallback`` row composes it from separate ``auto`` and ``ollama`` runs.
 
     python training/bench_real_repos.py                       # all repos, backends auto + ollama
     python training/bench_real_repos.py --only go-humanize --backends auto
@@ -102,10 +103,11 @@ def baseline(repo: Path, rel: str) -> dict:
 def run_one(repo: Path, rel: str, backend: str, diff_dir: Path) -> dict:
     from rebirth_ai.graph.batch import migrate_repository
 
-    os.environ["REBIRTH_GENERATOR"] = backend
+    # auto = served 7B only; fallback = auto + the 14B when the 7B changes nothing (the default)
+    os.environ["REBIRTH_GENERATOR"] = "auto" if backend == "fallback" else backend
     t0 = time.time()
     report = migrate_repository(repo, objective=objective(rel), files=[rel], under=".", write=True,
-                                max_iterations=5)
+                                max_iterations=5, fallback=backend == "fallback")
     (r,) = report.results
     diff = git(repo, "diff", "--", rel)
     before = git(repo, "show", f"HEAD:{rel}")
@@ -118,6 +120,7 @@ def run_one(repo: Path, rel: str, backend: str, diff_dir: Path) -> dict:
     suf = Path(rel).suffix
     return {
         "status": r.status, "iterations": r.iterations, "error_class": r.error_class, "models": models,
+        "fallback_model": r.fallback_model,
         "seconds": round(time.time() - t0, 1),
         "added": sum(1 for line in diff.splitlines() if line.startswith("+") and not line.startswith("+++")),
         "removed": sum(1 for line in diff.splitlines() if line.startswith("-") and not line.startswith("---")),
@@ -145,7 +148,9 @@ def summarize(rows: list[dict], backends: list[str]) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--only", action="append", default=[], help="repo name (repeatable)")
-    ap.add_argument("--backends", nargs="+", default=["auto", "ollama"], help="auto = served 7B; ollama = plain 14B")
+    ap.add_argument("--backends", nargs="+", default=["auto", "ollama"],
+                    help="auto = served 7B only; ollama = plain 14B (OLLAMA_MODEL); fallback = the shipped default "
+                    "(served 7B, then a 14B when it changes nothing)")
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "reports" / "real_repos.json")
     ap.add_argument("--diff-dir", type=Path, default=BENCH / "_diffs")
     args = ap.parse_args()

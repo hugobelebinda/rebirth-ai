@@ -508,7 +508,7 @@ def migrate_file(
         help="Project-relative test file",
     ),
     objective: str = typer.Option(
-        "Fix the file so project tests pass; modernize idioms without changing public API",
+        "Fix the file so project tests pass; modernize idioms without changing public API; keep comments and docstrings",
         "--objective",
         "-o",
     ),
@@ -565,6 +565,12 @@ def migrate_file(
     ),
     target_test: str | None = typer.Option(
         None, "--target-test", help="--to: target-project test file (also shown to the model)"
+    ),
+    fallback: bool | None = typer.Option(
+        None,
+        "--fallback/--no-fallback",
+        help="When the served 7B adapter passes the tests but changes nothing, run once more with a 14B "
+        "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
     ),
 ) -> None:
     """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route.
@@ -625,7 +631,9 @@ def migrate_file(
     graph = build_migration_graph()
     print("[dim]running migration graph…[/dim]")
     t0 = _time.time()
-    final = graph.invoke(state)
+    from rebirth_ai.graph.fallback import invoke as fallback_run
+
+    final = fallback_run(graph, state, original=source_text, seed=seed_text, backend=backend, use=fallback)
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
@@ -655,6 +663,8 @@ def migrate_file(
         target = Path(final["file_path"])
         target.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {target}")
+    if status == "success":
+        print("[dim]Passing tests are evidence, not proof: review the diff before you keep it.[/dim]")
 
     from rebirth_ai.monitor import telemetry
     from rebirth_ai.monitor.flywheel import save_artifacts
@@ -675,6 +685,7 @@ def migrate_file(
             "status": status,
             "iterations": final.get("iteration_count"),
             "error_class": final.get("error_class"),
+            "fallback_model": final.get("fallback_model"),
             "trace": final.get("trace") or [],
             "test_logs": (final.get("test_logs") or "")[:4000],
             "artifacts": save_artifacts(runs_dir() / rid, source_name=file, source=source_text,
@@ -805,7 +816,7 @@ def migrate_repo(
         help="Project root to walk and migrate",
     ),
     objective: str = typer.Option(
-        "Fix files so project tests pass; modernize idioms without changing public API",
+        "Fix files so project tests pass; modernize idioms without changing public API; keep comments and docstrings",
         "--objective",
         "-o",
     ),
@@ -875,6 +886,12 @@ def migrate_repo(
         "-l",
         help="Adapter id override (js_ts | python); default = auto-detect",
     ),
+    fallback: bool | None = typer.Option(
+        None,
+        "--fallback/--no-fallback",
+        help="When the served 7B adapter passes the tests but changes nothing, run once more with a 14B "
+        "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
+    ),
 ) -> None:
     """Phase 5–6: migrate many files (topo-ordered); dry-run; optional GitHub PR."""
     import os
@@ -907,6 +924,7 @@ def migrate_repo(
         max_iterations=max_iterations,
         lang=lang,
         on_file=lambda p: print(f"[cyan]→[/cyan] {p}"),
+        fallback=fallback,
     )
     batch.write_json(report)
     print(render_pr_body(batch))
