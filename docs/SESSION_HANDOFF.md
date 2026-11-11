@@ -3,7 +3,7 @@
 > **Read this first** in a new agent window. Then sync [GLOBAL.md](GLOBAL.md) + [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).
 > Phases were **renumbered in execution order** on 2026-11-05 (map: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-## Where we are — Phases 0–17 ✅, 18 tooling ✅, Phase 19 steps 1–5 done except `--open-pr` (2026-11-11); step 6 (publish) waits for the owner's review; no cloud spend planned
+## Where we are — Phases 0–17 ✅, 18 tooling ✅, Phase 19 steps 1–5 done and merged (PR #6), pre-launch fixes on `rebirth/p19-prelaunch` (2026-11-11); step 6 (publish) waits for the owner's review; no cloud spend planned
 
 | Item | State |
 |------|--------|
@@ -21,8 +21,8 @@
 
 | Item | Value |
 |------|--------|
-| Branch | `rebirth/p19-launch` (local, **not pushed**; Phase 19 work + sandbox hardening merged from `rebirth/p19-sandbox`) |
-| Last merge | PR #5 (Phase 17 complete + Phase 18 monitoring + ADR-001, 2026-11-10) |
+| Branch | `rebirth/p19-prelaunch` (local, **not pushed**: start screen, README user guide, newer sandbox toolchains, fallback fix, paths, CHANGELOG) |
+| Last merge | PR #6 (Phase 19 steps 1–5, `fa37aef`, 2026-11-11; merged at the owner's request) |
 | Branch protection | `main`: CI checks `lint` / `test` / `pipeline` required, PR required (0 approvals), applies to admins — everything lands through a PR |
 | Tag | `v0.2.0-mvp` on origin (JS/TS MVP) |
 
@@ -40,10 +40,14 @@
 - **Fallback shipped** (7B unchanged → one 14B run), **bug hunt** (10 rounds, 264 → 307 tests),
   **`--open-pr` checked** on the private throwaway repo `rebirth-openpr-test` (PRs #1, #2).
   Details: [PHASE_19 § Step 4](phases/PHASE_19_LAUNCH.md#step-4--release-checks-2026-11-11).
+- **Pre-launch review (2026-11-11 night):**
+  - findings and fixes in [PHASE_19 § Pre-launch review](phases/PHASE_19_LAUNCH.md#pre-launch-review-and-fixes-2026-11-11-evening);
+  - GitHub private vulnerability reporting, Dependabot alerts and topics are enabled.
 - **Open for the owner:**
-  1. Push `rebirth/p19-launch` and open the PR, on the owner's word ("soon but not now").
-  2. Step 6 review: Hugging Face upload, 1.0.0, the tag, GitHub private vulnerability reporting,
-     optionally deleting the 29.5 GB bf16 GGUF.
+  1. Push `rebirth/p19-prelaunch`, open the PR and merge it, on the owner's word.
+  2. Step 6 review: Hugging Face upload (owner runs `hf auth login`), version 1.0.0 (then re-render
+     `docs/assets/start-screen.png` and date the CHANGELOG), the tag and the GitHub release, optionally
+     deleting the 29.5 GB bf16 GGUF.
   3. Delete the throwaway repo when done (it needs the `delete_repo` scope).
 
 Earlier:
@@ -79,6 +83,6 @@ Phases 0–10 adapters / golden JS benches / 15K mine / Phase 11.1 harness.
 
 ## Tests
 
-Full suite green (**212 passed**, 2026-11-10; `ruff check .` clean).
+Full suite green (**327 passed**, 2026-11-11, Python 3.12 and 3.11; `ruff check .` clean).
 
  Prefer `REBIRTH_EMBEDDER=hash` with Ollama 14B resident; unload Ollama before PEFT train/migrate.

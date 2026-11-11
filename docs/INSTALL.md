@@ -9,10 +9,10 @@ tested in Docker sandboxes with no network, and nothing is sent anywhere. Detail
 |---|---|---|
 | OS | Linux x86-64 | Tested on Ubuntu 24.04. macOS / Windows (WSL2) are untested. |
 | Python | 3.11+ with `venv` | `sudo apt install python3 python3-venv` |
-| Docker | Engine 24+ | Your user must be in the `docker` group. The 8 sandbox images take ~8 GB. |
+| Docker | Engine 24+ | Your user must be in the `docker` group. The 8 sandbox images take ~11 GB. |
 | Ollama | 0.30+ | Must be running (`ollama list` works). |
 | GPU | see the packs below | NVIDIA (CUDA) or AMD (ROCm, see [OLLAMA_AMD_GPU.md](OLLAMA_AMD_GPU.md)). Without a GPU Ollama runs on the CPU, which is very slow. |
-| Disk | ~30 GB free | Models ~17 GB, sandbox images ~8 GB, Python environment ~3 GB. |
+| Disk | ~35 GB free | Models ~17 GB, sandbox images ~11 GB, Python environment ~3 GB. |
 | Internet | for the install | Afterwards the models and Rebirth work offline. The sandbox still downloads your project's own dependencies before testing (Maven, NuGet, npm, pip, Go, Cargo, SwiftPM), when it has any. |
 
 ### The two model packs
@@ -35,8 +35,10 @@ happens (the tests pass but nothing changed), Rebirth runs the file once more wi
 3. otherwise the fallback is skipped, and the run says what to pull.
 
 Turn it off with `--no-fallback` or `REBIRTH_FALLBACK=0`, and choose another model with
-`REBIRTH_FALLBACK_MODEL`. Measured on 14 real files: 2 clean modernizations with the 7B alone, 6 with
-the plain-14B fallback ([PHASE_19 § Step 4](phases/PHASE_19_LAUNCH.md#step-4--release-checks-2026-11-11)).
+`REBIRTH_FALLBACK_MODEL`. The 14B gets 2 tries (`REBIRTH_FALLBACK_TRIES`). If it finds no passing change,
+the file stays as it was and is reported unchanged. Measured on 14 real files: the 7B alone changed 4; with
+the fallback, 8 were changed with their tests passing and 6 were left unchanged, none broken
+([PHASE_19 § Pre-launch review](phases/PHASE_19_LAUNCH.md#pre-launch-review-and-fixes-2026-11-11-evening)).
 Passing tests are evidence, not proof: review each diff.
 
 ## Install
@@ -53,9 +55,10 @@ bash scripts/bootstrap.sh                    # both packs
 1. checks for git, Python ≥ 3.11, Docker (daemon reachable) and Ollama (server reachable), and tells you
    what to install if one is missing;
 2. creates `.venv` and installs Rebirth with a CPU-only PyTorch (only the small code-search model runs in
-   Python; the LLMs run in Ollama);
+   Python; the LLMs run in Ollama), and trains the small error classifier (under a second);
 3. downloads the code-search embedding model (~330 MB) so later runs work offline;
-4. builds the 8 sandbox images (`rebirth-ai/<lang>-sandbox`);
+4. builds the 8 sandbox images (`rebirth-ai/<lang>-sandbox`). An image whose Dockerfile changed since it was
+   built (after a `git pull`) is rebuilt;
 5. runs `rebirth install`: downloads the model files from Hugging Face, checks each one against the
    sha256 in [`configs/models.json`](../configs/models.json), and registers them in Ollama;
 6. runs `rebirth doctor --strict`.
@@ -90,6 +93,7 @@ free disk, each model pack (`8/8`, `1/1`) and each sandbox image.
 
 ```bash
 source .venv/bin/activate
+rebirth            # the guided start screen: checks your setup, asks what to do, shows the command
 # modernize one file; the draft is kept only if the project's tests pass (--write puts it back in place)
 rebirth migrate fixtures/python_sample --file src/math_ops.py --test tests/test_math_ops.py --lang python
 # translate it to Go: a new file under fixtures/python_sample/rebirth_out/go/, compile-checked
@@ -110,7 +114,7 @@ rebirth dashboard
 | `sha256 … ≠ expected` | The file is damaged or not the release file: delete it and run the install again. |
 | Translations are very slow | The 14B does not fit your GPU and runs partly on the CPU: `ollama ps` shows the CPU / GPU split. Use the modernize pack only, or a 16 GB GPU. |
 | GPU memory errors when using `--backend peft` | Unload Ollama first (`ollama stop <model>`); see `rebirth doctor`'s VRAM warning. |
-| Swift sandbox build is slow / large | It is the biggest image (~2.6 GB). `--skip-images` skips all image builds; build one later with `docker build -t rebirth-ai/swift-sandbox:latest docker/swift_sandbox`. |
+| Swift sandbox build is slow / large | It is the biggest image (~4.4 GB). `--skip-images` skips all image builds; build one later with `docker build -t rebirth-ai/swift-sandbox:latest docker/swift_sandbox`. |
 | AMD GPU not used by Ollama | [OLLAMA_AMD_GPU.md](OLLAMA_AMD_GPU.md) |
 
 ## Uninstall

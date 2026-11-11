@@ -4,7 +4,7 @@
 > Previous: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)  
 > Depends on: Phase 10 complete **and** LoRA specialization waves ([PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md)) — or explicit user skip of LoRA  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 19  
-> Last docs refresh: 2026-11-11 (evening)  
+> Last docs refresh: 2026-11-11 (night: pre-launch review)  
 > Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ## Why deferred
@@ -30,7 +30,7 @@ Preferred brain: Ollama 14B default + **per-lang PEFT** when adapters exist
 - [x] Phases 11–18 complete **or** written skip decision — 11–17 complete; 18's first flywheel retrain deferred to after launch (needs real use, [PHASE_18](PHASE_18_MLOPS_MONITORING.md))  
 - [x] `scripts/bootstrap.sh` + doctor green path documented for second machine — [INSTALL.md](../INSTALL.md), clean-copy test 2026-11-10  
 - [x] Fixture E2E for all 8 languages — 8 / 8 closed-loop with the served models, hardened sandbox (2026-11-11, step 4)  
-- [x] ≥1 real JS/TS repo + ≥1 real non-JS repo migrate report — is-number (JS), go-homedir (Go), inflection (Python) + 2 `--to` (2026-11-11, step 4). **Open finding:** the served 7B adapters return these files unchanged, the plain 14B modernizes them (review item)  
+- [x] ≥1 real JS/TS repo + ≥1 real non-JS repo migrate report — is-number (JS), go-homedir (Go), inflection (Python) + 2 `--to` (2026-11-11, step 4). The served 7B adapters often return files unchanged: the 14B fallback (shipped) handles them  
 - [x] `migrate-repo --open-pr` on a throwaway repo — private `rebirth-openpr-test`, PRs #1 (JS) and #2 (Python), 2026-11-11 (step 4)  
 - [x] Security checklist (secrets, sandbox network default `none`) — [SECURITY.md](../SECURITY.md); model-written code never has network (step 4)  
 - [x] Corpus ≥15K documented in `DATASET.md` (24,640)  
@@ -46,8 +46,8 @@ now; step 6 (publish + tag) only after a review with the owner.
 | 1 | Merge PR #5 (Phase 17 + 18) | done (owner merged it 2026-11-10) |
 | 2 | Merge the cross-language LoRA into the 14B before quantizing → `rebirth-xlang:14b-v2`, gate vs v1 | done 2026-11-11: gate passed, v2 served, rollback demo done |
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
-| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done (2026-11-11), plus fallback + bug hunt |
-| 5 | Docs: INSTALL, README, SECURITY, Hugging Face model cards | drafts done (both cards) |
+| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done (2026-11-11), plus fallback, bug hunt and the [pre-launch review](#pre-launch-review-and-fixes-2026-11-11-evening) |
+| 5 | Docs: INSTALL, README (now a user guide), SECURITY, CHANGELOG, Hugging Face model cards | done; cards are drafts until step 6 |
 | 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
 
 ## Built (2026-11-10)
@@ -305,6 +305,39 @@ repository is the owner's call (`gh auth refresh -s delete_repo`, then `gh repo 
 
 `docs/INSTALL.md` (requirements, packs, offline install, troubleshooting, uninstall), README "Install",
 Hugging Face model card drafts in `docs/release/`.
+
+### Pre-launch review and fixes (2026-11-11, evening)
+
+PR #6 (steps 1–5) was merged as `fa37aef`. CI first failed on two tests that depended on the developer
+machine (no sandbox images on GitHub; Rich colours output on Actions); `3ec18c9` fixed them. Then came a
+review of what a new user would meet, and these fixes on `rebirth/p19-prelaunch`:
+
+| Found | Fix |
+|---|---|
+| The sandboxes ran Go 1.22, Rust 1.82, Swift 5.10 and .NET 8 (support ended 2026-11-10). A `go.mod` declaring `go 1.24` failed before any test ran. | Go 1.27, Rust 1.99, Swift 6.4, and .NET 10 with the .NET 8 SDK and packs, so `net8.0` projects build offline. Checked: a `go 1.24` module, a Rust 2024-edition crate, the C# fixture as `net8.0` and as `net10.0`. Java stays on JDK 21 (supported to 2029). |
+| When the 14B fallback failed after the 7B left a file unchanged, the untouched, passing file was reported as `human_review` (exit 1; "needs review" in PRs). | It is reported as unchanged, with the 14B's attempts in the trace. The 14B gets 2 tries (`REBIRTH_FALLBACK_TRIES`). |
+| Run logs, the code-search index, the migrate-repo report and the dashboard were written relative to the current folder, so running from your own project wrote `data/` into it. The error classifier was looked up the same way, and is not in git, so a fresh clone ran on keyword rules only. | Defaults live in `<Rebirth>/data` (`paths.py`). The classifier trains itself on first use (< 1 s, same 0.926 accuracy), and `bootstrap.sh` trains it. |
+| `migrate-repo` looked only in `src/`, so it found nothing in most Go and many Python repos. | It looks in `src/` if the project has one, else in the whole project. |
+| `migrate` printed no change on success. | It prints the diff, and where the last draft is when no draft passed. |
+| A container Docker could not start gave a 40-line traceback. | One-line error with the rebuild command (`SandboxError`). |
+| `bootstrap.sh` kept existing images after a Dockerfile changed. | Images carry a hash of their folder and are rebuilt when it changes. |
+| Dependencies had no upper bounds; a fresh install already got newer versions than the tested ones. | Upper bounds at the next breaking release. The suite passes on Python 3.11 with the newest allowed versions (typer 0.29, langchain-core 1.8, sentence-transformers 6.3). |
+| README was a development log; `--help` started with maintainer commands. | README is a user guide. `rebirth` alone opens a start screen (`docs/assets/start-screen.png`, `scripts/render_start_screen.py`). `--help` is grouped (Migrate, Setup, Tools, Maintainers). `--version` added. |
+| `.env.example` set a relative index path and listed unused variables (`GITHUB_TOKEN`, `REBIRTH_CLASSIFIER_DIR`). | Rewritten: every variable the code reads, with its default, all commented out. |
+| CI used Node 20 actions (deprecated). | `actions/checkout@v7`, `actions/setup-python@v7`. |
+| GitHub: no private vulnerability reporting (SECURITY.md points there), no Dependabot alerts, no topics. | All three enabled. |
+
+**Regression on the finished code (`22d730c`, new images):**
+- Fixtures: 8 / 8 with the served models, plus python→go (iteration 2).
+- Phase 7 benches: 6 / 6.
+- Real repos with the shipped default (`data/reports/real_repos_fallback.json`):
+  - 14 files: **8 changed with the tests passing** (4 by the 7B alone, 4 by the 14B fallback), **6 unchanged,
+    0 failed**;
+  - before this fix: 8 / 1 / 5. The 5 files whose fallback found nothing (kind-of, go-homedir, 3 go-humanize
+    files) are now reported unchanged and take 45 % less time;
+  - the 14 files take 20.7 min in all (was 29.3);
+  - the Go files ran on the new Go 1.27 sandbox.
+- Tests: 327 passed (Python 3.12 and 3.11); ruff clean.
 
 ## What shipped / how to run / samples
 
