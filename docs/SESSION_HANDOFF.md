@@ -1,15 +1,15 @@
-# Session handoff — 2026-11-10 (restart here)
+# Session handoff — 2026-11-11 (restart here)
 
 > **Read this first** in a new agent window. Then sync [GLOBAL.md](GLOBAL.md) + [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).
 > Phases were **renumbered in execution order** on 2026-11-05 (map: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-## Where we are — Phases 0–15 ✅, 16 (offline) ✅, 17 ✅, 18 tooling ✅ (2026-11-10); next: Phase 19; no cloud spend planned
+## Where we are — Phases 0–17 ✅, 18 tooling ✅, Phase 19 steps 1–5 done except `--open-pr` (2026-11-11); step 6 (publish) waits for the owner's review; no cloud spend planned
 
 | Item | State |
 |------|--------|
 | Phases **0–15, 16 (offline)** | **Complete.** Phase 15 ended at its S2 gate (2026-11-08): 14B Go / Python adapters 15 / 19 vs v2 7B 14 / 20 soft-exact per 100 → S3/S4 skipped ([PHASE_15 § Results](phases/PHASE_15_CLOUD_14B.md#results-s1s2-2026-11-08)) |
 | Phase 17 | **Complete** (stage 6 not run). Shared cross-language adapter `lora_xlang_14b` (14B, trained on AWS on 14K rows of test-verified translations). Program suite, local q6_K Ollama: plain 14B **208 / 420** → adapter **265 / 420** (17 / 21 directions better, 1 worse by one problem). Cloud bf16: 215 → 274; Qwen3-Coder-30B zero-shot 282 (too big for 16 GB) ([PHASE_17 § Stage 4](phases/PHASE_17_CROSS_LANGUAGE.md#stage-4--shared-adapter--eval-done-2026-11-09-aws--local-check)). Stage 5 (2026-11-10): other 35 directions **343 → 407 / 511**, HumanEval 56 directions **91.1 → 92.6 %** (no regression); one defect: locally the adapter often mixes `bufio.Scanner` into `fmt.Fscan` in Go (17 / 115 drafts, rare in cloud bf16) → re-check after merging the LoRA ([PHASE_17 § Stage 5](phases/PHASE_17_CROSS_LANGUAGE.md#stage-5--the-other-35-directions--humaneval-regression-check-done-2026-11-10-local)) |
-| Serving | Same-language: Ollama `rebirth-<lang>:7b` (v2 7B adapters, `configs/routing.yaml`). Cross-language (`migrate --to`, `--backend auto`): **`rebirth-xlang:14b-v1`** (q6_K 14B + f16 GGUF LoRA, built by `scripts/ollama_xlang.sh`), plain 14B if missing; `--backend ollama` = plain 14B (eval baseline); `REBIRTH_XLANG_MODEL` overrides |
+| Serving | Same-language: Ollama `rebirth-<lang>:7b` (v2 7B adapters, `configs/routing.yaml`). Cross-language (`migrate --to`, `--backend auto`): **`rebirth-xlang:14b`** = v2 since 2026-11-11 (LoRA merged, q6_K; `translation:` route, history keeps v1; `rebirth serve rollback --lang xlang` swaps), plain 14B if missing; `--backend ollama` = plain 14B (eval baseline); `REBIRTH_XLANG_MODEL` overrides |
 | Adapters | `data/models/lora_<lang>_7b` (8, champions) · `lora_{go,python}_14b` (Phase 15, not promoted) · `lora_xlang_14b` (Phase 17) — all DVC-tracked; the three 14B ones are **not pushed to S3 yet** (`scripts/dvc.sh push` needs the user's go) |
 | Frozen eval sets | `data/datasets/evalsets/<lang>.jsonl` (+ `rust_v2` / `cpp_v2`); translation: `data/datasets/xlang/humaneval.jsonl` (56 directions) and `programs.jsonl` (163 CodeContests programs) |
 | Stage-3 data | `data/datasets/xlang/stage3/` (30,211 pairs, git-ignored, copy in S3) |
@@ -21,12 +21,32 @@
 
 | Item | Value |
 |------|--------|
-| Branch | `main` |
+| Branch | `rebirth/p19-launch` (local, **not pushed**; Phase 19 work + sandbox hardening merged from `rebirth/p19-sandbox`) |
 | Last merge | PR #5 (Phase 17 complete + Phase 18 monitoring + ADR-001, 2026-11-10) |
 | Branch protection | `main`: CI checks `lint` / `test` / `pipeline` required, PR required (0 approvals), applies to admins — everything lands through a PR |
 | Tag | `v0.2.0-mvp` on origin (JS/TS MVP) |
 
 ## Exact next step (plan the day with the user)
+
+**Phase 19 (2026-11-11), details in [PHASE_19](phases/PHASE_19_LAUNCH.md):**
+
+- **Step 2:** v2 passed the gate. Programs 667 vs 672 / 931, HumanEval 2,065 vs 2,064 / 2,229, Go defect
+  13 vs 17 / 115. It is served, and the rollback demo is done (Phase 16 complete).
+- **Step 4:**
+  - Sandbox hardening (SECURITY.md); A1 re-test identical (265).
+  - Fixtures 8 / 8 with the served models; Phase 7 benches 6 / 6.
+  - Real repos: is-number, go-homedir, inflection, plus 2 `--to`.
+  - Fixed: tests found by import, chat output cap 8,192, refused-package note, `unchanged` status.
+- **Fallback shipped** (7B unchanged → one 14B run), **bug hunt** (10 rounds, 264 → 307 tests),
+  **`--open-pr` checked** on the private throwaway repo `rebirth-openpr-test` (PRs #1, #2).
+  Details: [PHASE_19 § Step 4](phases/PHASE_19_LAUNCH.md#step-4--release-checks-2026-11-11).
+- **Open for the owner:**
+  1. Push `rebirth/p19-launch` and open the PR, on the owner's word ("soon but not now").
+  2. Step 6 review: Hugging Face upload, 1.0.0, the tag, GitHub private vulnerability reporting,
+     optionally deleting the 29.5 GB bf16 GGUF.
+  3. Delete the throwaway repo when done (it needs the `delete_repo` scope).
+
+Earlier:
 
 1. ✅ **Phase 17 stage 5 done 2026-11-10** (local, 5.6 h): 35 bootstrapped directions 343 → 407 / 511, HumanEval 91.1 → 92.6 %. Follow-up: the Go `bufio.Scanner` + `fmt.Fscan` defect — re-count after the LoRA merge (Phase 19), else a Go target hint or stage-6 data.
 2. ✅ **Decided 2026-11-10: two models** — 7B adapters (modernize) + 14B cross-language adapter (`--to`), no unified adapter ([ADR-001](research/ADR-001_UNIFIED_VS_SPECIALISTS.md)). Follow-ups: ✅ Ollama swap time measured (7B↔14B 11–17 s warm vs 10 s between two 7B languages; ADR item 2); Phase 19 installer offers both packs; merge the xlang LoRA into the 14B before quantizing.

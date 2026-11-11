@@ -14,12 +14,14 @@ Greedy, seed 0. Ollama stops at the GGUF EOS (``<|im_end|>``) and at the plan's 
 
 from __future__ import annotations
 
-import os
-
 import httpx
 
-from rebirth_ai.generate.ollama_client import GenerateResult, num_ctx_for
-from rebirth_ai.generate.peft_client import _clean_sft_completion, plan_generation
+from rebirth_ai.generate.ollama_client import GenerateResult, num_ctx_for, ollama_host
+from rebirth_ai.generate.peft_client import (
+    CHAT_MAX_NEW_TOKENS,
+    _clean_sft_completion,
+    plan_generation,
+)
 from rebirth_ai.generate.prompts import extract_code_block
 
 IM_END = "<|im_end|>"
@@ -40,12 +42,12 @@ class OllamaAdapterClient:
         language: str | None = None,
         host: str | None = None,
         timeout_sec: float = 600.0,
-        max_new_tokens: int = 1024,
+        max_new_tokens: int = CHAT_MAX_NEW_TOKENS,
         prompt_style: str = "sft",
     ) -> None:
         self.model = model
         self.language = language
-        self.host = (host or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")).rstrip("/")
+        self.host = ollama_host(host)
         self.timeout_sec = timeout_sec
         self.max_new_tokens = max_new_tokens
         self.prompt_style = prompt_style

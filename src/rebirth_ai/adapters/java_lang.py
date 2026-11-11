@@ -53,10 +53,22 @@ class JavaAdapter:
     def parse(self, path: Path, source: str | None = None) -> list[CodeChunk]:
         return self._chunker.chunk_file(path, source=source)
 
-    def test_command_for(self, relative_file: str | None = None) -> str:
+    @staticmethod
+    def _mvn(relative_file: str | None, *, offline: bool) -> str:
+        mvn = "mvn -q -o" if offline else "mvn -q -B"
         if relative_file and relative_file.endswith(".java"):
             stem = Path(relative_file).stem
-            if stem.endswith("Test"):
-                return f"mvn -q -Dtest={stem} test"
-            return f"mvn -q -Dtest={stem}Test test"
-        return "mvn -q test"
+            return f"{mvn} -Dtest={stem if stem.endswith('Test') else stem + 'Test'} test"
+        return f"{mvn} test"
+
+    def test_command_for(self, relative_file: str | None = None) -> str:
+        """Offline (``-o``): the sandbox's setup step has already downloaded everything."""
+        return self._mvn(relative_file, offline=True)
+
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """Run the same tests online on the project as it is, before the draft is written in: Maven
+        downloads the test runner's own plugin (surefire provider) only when tests actually run, so a
+        plain ``dependency:go-offline`` is not enough. Its result is ignored."""
+        if not (Path(project_dir) / "pom.xml").is_file():
+            return None
+        return self._mvn(relative_file, offline=False)

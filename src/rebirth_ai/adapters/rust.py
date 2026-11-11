@@ -51,5 +51,18 @@ class RustAdapter:
     def parse(self, path: Path, source: str | None = None) -> list[CodeChunk]:
         return self._chunker.chunk_file(path, source=source)
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """``cargo fetch`` when ``Cargo.toml`` has dependencies (the tests then run offline)."""
+        import tomllib
+
+        try:
+            data = tomllib.loads((Path(project_dir) / "Cargo.toml").read_text(encoding="utf-8"))
+        except (OSError, tomllib.TOMLDecodeError):
+            return None
+        sections = ("dependencies", "dev-dependencies", "build-dependencies")
+        has = any(data.get(s) for s in sections) or any(
+            (t or {}).get(s) for t in (data.get("target") or {}).values() for s in sections)
+        return "cargo fetch" if has or (data.get("workspace") or {}).get("dependencies") else None
+
     def test_command_for(self, relative_file: str | None = None) -> str:
         return "cargo test --quiet"

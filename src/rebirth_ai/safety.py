@@ -80,3 +80,42 @@ def filter_secret_paths(paths: list[str]) -> tuple[list[str], list[str]]:
         else:
             safe.append(p)
     return safe, blocked
+
+
+class InputError(ValueError):
+    """A path or file Rebirth refuses to work on; the CLI prints it without a traceback."""
+
+
+def inside(root: Path | str, relative: Path | str, *, what: str = "the project") -> Path:
+    """``root / relative`` resolved (symlinks followed); refuses anything that lands outside ``root``."""
+    base = Path(root).resolve()
+    path = (base / relative).resolve()
+    try:
+        path.relative_to(base)
+    except ValueError:
+        raise InputError(f"{relative} is outside {what} ({base})") from None
+    return path
+
+
+def check_source_file(project: Path | str, relative: Path | str) -> str:
+    """The text of a file Rebirth is asked to migrate or translate, after checking it is inside the
+    project, exists, is not a secrets file, is not too large, and is non-empty UTF-8 text."""
+    path = inside(project, relative)
+    if not path.exists():
+        raise InputError(f"no such file: {relative} (in {Path(project).resolve()})")
+    if not path.is_file():
+        raise InputError(f"{relative} is not a file")
+    if is_secret_path(path.relative_to(Path(project).resolve())):
+        raise InputError(f"{relative} looks like a secrets file: Rebirth does not send it to a model or rewrite it")
+    if file_too_large(path):
+        raise InputError(f"{relative} is {path.stat().st_size:,} bytes, over REBIRTH_MAX_FILE_BYTES={max_file_bytes():,}")
+    data = path.read_bytes()
+    if b"\x00" in data[:8192]:
+        raise InputError(f"{relative} is a binary file")
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        raise InputError(f"{relative} is not UTF-8 text; convert it first (e.g. iconv -f latin1 -t utf-8)") from None
+    if not text.strip():
+        raise InputError(f"{relative} is empty: nothing to migrate")
+    return text

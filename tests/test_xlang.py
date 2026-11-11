@@ -243,8 +243,8 @@ def test_stage3_leak_guard_matches_div1_div2_copies() -> None:
 
 
 @pytest.fixture
-def ollama_tags(monkeypatch):
-    """Fake Ollama tag list (None = server unreachable); fresh translator cache per test."""
+def ollama_tags(monkeypatch, tmp_path):
+    """Fake Ollama tag list (None = server unreachable); fresh translator cache per test; empty routing."""
     from rebirth_ai.generate import ollama_client
     from rebirth_ai.xlang import translator as T
 
@@ -258,6 +258,7 @@ def ollama_tags(monkeypatch):
     monkeypatch.setattr(ollama_client.OllamaClient, "list_models", list_models)
     monkeypatch.delenv("REBIRTH_XLANG_MODEL", raising=False)
     monkeypatch.delenv("OLLAMA_MODEL", raising=False)
+    monkeypatch.setenv("REBIRTH_ROUTING", str(tmp_path / "routing.yaml"))
     monkeypatch.setattr(T, "_CACHE", {})
     return state
 
@@ -270,6 +271,15 @@ def test_auto_backend_serves_the_installed_xlang_adapter(ollama_tags) -> None:
     assert Translator("routed").model_name == f"ollama:{DEFAULT_XLANG_MODEL}"
     # explicit `ollama` stays the plain 14B: the zero-shot baseline the evals compare against
     assert Translator("ollama").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
+
+
+def test_auto_backend_follows_the_translation_route(ollama_tags) -> None:
+    from rebirth_ai import routing
+    from rebirth_ai.xlang.translator import Translator
+
+    routing.set_translation_route({"model": "rebirth-xlang:custom", "tag": "rebirth-xlang:14b-v9", "version": "9"})
+    ollama_tags["tags"] = ["qwen2.5-coder:14b-instruct-q6_K", "rebirth-xlang:14b", "rebirth-xlang:custom"]
+    assert Translator("auto").model_name == "ollama:rebirth-xlang:custom"
 
 
 @pytest.mark.parametrize("tags", [["qwen2.5-coder:14b-instruct-q6_K"], None])

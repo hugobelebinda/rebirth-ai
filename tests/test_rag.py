@@ -43,3 +43,28 @@ def test_query_refuses_embedder_dim_mismatch(tmp_path: Path) -> None:
         raise AssertionError("expected ValueError for dim mismatch")
     except ValueError as exc:
         assert "dim mismatch" in str(exc).lower()
+
+
+def test_retrieve_context_only_uses_this_projects_index(tmp_path, monkeypatch) -> None:
+    """Phase 19 bug hunt: data/embeddings.db built for one project fed its chunks to every other one."""
+    from rebirth_ai.graph import nodes
+    from rebirth_ai.rag.retrieve import Retriever
+
+    monkeypatch.setenv("REBIRTH_EMBEDDER", "hash")
+    a, b = tmp_path / "a", tmp_path / "b"
+    for proj in (a, b):
+        (proj / "src").mkdir(parents=True)
+    (a / "src" / "util.js").write_text("export function helper(x) { return x * 2; }\n")
+    (a / "src" / "main.js").write_text("import { helper } from './util.js';\nexport const y = helper(2);\n")
+    (b / "src" / "main.js").write_text("import { helper } from './util.js';\nexport const y = helper(2);\n")
+    db = tmp_path / "idx.db"
+    Retriever(db_path=db).index_project(a)
+
+    def run(proj):
+        state = {"file_path": str(proj / "src" / "main.js"), "project_dir": str(proj), "db_path": str(db),
+                 "adapter_id": "js_ts", "trace": []}
+        return nodes.retrieve_context(state)
+
+    assert run(a)["retrieved_context"]  # its own index: context
+    out = run(b)
+    assert out["retrieved_context"] == [] and "is for" in out["trace"][-1]  # another project's: skipped

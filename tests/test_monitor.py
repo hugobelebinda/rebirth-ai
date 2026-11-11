@@ -231,8 +231,11 @@ def test_migrate_commands_write_telemetry_and_artifacts(tmp_path, monkeypatch) -
 
     import rebirth_ai.graph.app as graph_app
     import rebirth_ai.xlang.graph as xgraph
+    from rebirth_ai import preflight
     from rebirth_ai.cli import app
 
+    monkeypatch.setattr(preflight, "ollama_error", lambda *a, **k: None)  # graphs are stubbed: no Ollama,
+    monkeypatch.setattr(preflight, "docker_error", lambda *a, **k: None)  # no Docker, no connection
     runs = tmp_path / "runs"
     monkeypatch.setenv("REBIRTH_RUNS_DIR", str(runs))
     proj = tmp_path / "proj"

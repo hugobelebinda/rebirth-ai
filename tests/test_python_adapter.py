@@ -38,5 +38,5 @@ def test_discover_and_infer_python_fixture() -> None:
 
 def test_python_test_command() -> None:
     adapter = PythonAdapter()
-    assert adapter.test_command_for(None) == "pytest -q"
-    assert adapter.test_command_for("tests/test_math_ops.py") == "pytest -q tests/test_math_ops.py"
+    assert adapter.test_command_for(None) == "python -m pytest -q"
+    assert adapter.test_command_for("tests/test_math_ops.py") == "python -m pytest -q tests/test_math_ops.py"

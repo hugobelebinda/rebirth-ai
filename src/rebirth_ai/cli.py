@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import NoReturn
 
 import typer
 from rich import print
@@ -28,6 +29,20 @@ app.add_typer(monitor_app, name="monitor")
 app.add_typer(review_app, name="review")
 
 
+def _fail(message: str, code: int = 2) -> NoReturn:
+    """Print an error without a traceback and exit (2 = bad input / environment)."""
+    print(f"[red]error:[/red] {message}")
+    raise typer.Exit(code=code)
+
+
+def _preflight(*, ollama: bool = False, docker: bool = False) -> None:
+    from rebirth_ai import preflight
+
+    for problem in ((preflight.ollama_error() if ollama else None), (preflight.docker_error() if docker else None)):
+        if problem:
+            _fail(problem)
+
+
 @app.command()
 def version() -> None:
     """Print package version."""
@@ -35,16 +50,115 @@ def version() -> None:
 
 
 @app.command()
-def doctor() -> None:
-    """Check local prerequisites (Docker, Ollama, sandbox images, Python)."""
+def install(
+    pack: str = typer.Option("both", "--pack", help="both | modernize (7B, 8 languages) | migrate (14B, --to)"),
+    from_dir: Path | None = typer.Option(None, "--from", help="folder with the release files (mirror / USB)"),
+    from_local: bool = typer.Option(False, "--from-local", help="use this repo's own build outputs"),
+    force: bool = typer.Option(False, "--force", help="re-create models that are already installed"),
+    keep_files: bool = typer.Option(False, "--keep-files", help="keep downloaded files after ollama create"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="show the plan only"),
+) -> None:
+    """Download, verify (sha256) and register the model packs in Ollama (configs/models.json)."""
+    from rebirth_ai.install import InstallError
+    from rebirth_ai.install import install as run_install
+
+    try:
+        steps = run_install(pack, from_dir=from_dir, from_local=from_local, force=force,
+                            keep_files=keep_files, dry_run=dry_run)
+    except InstallError as exc:
+        print(f"[red]install failed:[/red] {exc}")
+        raise typer.Exit(1) from exc
+    if dry_run:
+        for s in steps:
+            print(f"{s.action:7s} {s.pack:9s} {s.tag:24s} ← {s.source}")
+    else:
+        print(f"[green]{sum(s.action == 'install' for s in steps)} installed, "
+              f"{sum(s.action == 'skip' for s in steps)} already present[/green] — run `rebirth doctor`")
+
+
+def _gpu_vram_gb() -> tuple[str, float] | None:
+    """(name, total VRAM GB) of the first GPU from nvidia-smi or rocm-smi, else None."""
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("nvidia-smi"):
+        r = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"],
+                           capture_output=True, text=True, timeout=10, check=False)
+        if r.returncode == 0 and r.stdout.strip():
+            name, mib = r.stdout.splitlines()[0].rsplit(",", 1)
+            return name.strip(), float(mib) / 1024
+    if shutil.which("rocm-smi"):
+        r = subprocess.run(["rocm-smi", "--showmeminfo", "vram", "--json"], capture_output=True, text=True,
+                           timeout=10, check=False)
+        try:
+            card = next(iter(json.loads(r.stdout).values()))
+            total = next(v for k, v in card.items() if "Total Memory" in k)
+            return "AMD GPU", float(total) / 1e9
+        except Exception:
+            pass
+    # amdgpu kernel driver, no ROCm tools needed (ROCm may come from pip wheels only)
+    sizes = []
+    for f in Path("/sys/class/drm").glob("card*/device/mem_info_vram_total"):
+        try:
+            sizes.append(int(f.read_text().strip()))
+        except (OSError, ValueError):
+            continue
+    if sizes:
+        return "AMD GPU (amdgpu)", max(sizes) / 2**30
+    return None
+
+
+@app.command()
+def doctor(
+    strict: bool = typer.Option(False, "--strict", help="exit 1 if a requirement for the installed packs is missing"),
+) -> None:
+    """Check local prerequisites (Python, Docker, Ollama, model packs, sandbox images, GPU, disk)."""
     import shutil
     import subprocess
     import sys
 
-    print(f"[bold]Python[/bold]: {sys.version.split()[0]}")
-    print(f"[bold]docker[/bold]: {'ok' if shutil.which('docker') else 'MISSING'}")
-    print(f"[bold]ollama[/bold]: {'ok' if shutil.which('ollama') else 'MISSING'}")
-    print(f"[bold]node[/bold]: {'ok' if shutil.which('node') else 'MISSING'}")
+    problems: list[str] = []
+    py_ok = sys.version_info >= (3, 11)
+    print(f"[bold]Python[/bold]: {sys.version.split()[0]}" + ("" if py_ok else " — needs ≥ 3.11"))
+    if not py_ok:
+        problems.append("Python < 3.11")
+    for tool in ("docker", "ollama", "git"):
+        ok = bool(shutil.which(tool))
+        print(f"[bold]{tool}[/bold]: {'ok' if ok else 'MISSING'}")
+        if not ok:
+            problems.append(f"{tool} missing")
+    print(f"[bold]node[/bold]: {'ok' if shutil.which('node') else 'missing (only needed for host-side JS tools)'}")
+
+    free = shutil.disk_usage(Path.cwd()).free / 1e9
+    print(f"[bold]Disk free[/bold]: {free:.0f} GB" + (" — low (packs need ~17 GB)" if free < 20 else ""))
+    gpu = _gpu_vram_gb()
+    if gpu:
+        name, vram = gpu
+        note = "" if vram >= 15 else (" — migrate pack (14B q6_K) needs ~16 GB; modernize (7B) fits"
+                                      if vram >= 7 else " — below 8 GB: models run partly on CPU (slow)")
+        print(f"[bold]GPU[/bold]: {name}, {vram:.0f} GB VRAM{note}")
+    else:
+        print("[bold]GPU[/bold]: not detected (nvidia-smi / rocm-smi missing) — Ollama may still use one")
+
+    try:
+        from rebirth_ai.install import status as pack_status
+
+        packs = pack_status()
+        for name, st in packs.items():
+            ok = st["installed"] == st["total"]
+            line = f"{st['installed']}/{st['total']} models"
+            if not ok:
+                line += f" — missing {', '.join(st['missing'][:3])}{' …' if len(st['missing']) > 3 else ''}"
+                line += f" (rebirth install --pack {name})"
+            print(f"[bold]Pack {name}[/bold]: {'ok, ' if ok else ''}{line}")
+            if 0 < st["installed"] < st["total"]:
+                problems.append(f"pack {name} incomplete")
+        if not any(st["installed"] for st in packs.values()):
+            problems.append("no model pack installed (rebirth install)")
+    except Exception as exc:
+        print(f"[bold]Model packs[/bold]: error ({exc})")
+        problems.append("model packs not checked (Ollama not reachable?)")
 
     try:
         r = subprocess.run(
@@ -54,8 +168,11 @@ def doctor() -> None:
             timeout=15,
         )
         print(f"[bold]Docker daemon[/bold]: {'ok' if r.returncode == 0 else 'NOT RUNNING'}")
+        if r.returncode != 0:
+            problems.append("Docker daemon not reachable (running? user in the docker group?)")
     except Exception as exc:
         print(f"[bold]Docker daemon[/bold]: error ({exc})")
+        problems.append("Docker daemon not reachable")
 
     try:
         from docker.errors import ImageNotFound
@@ -73,13 +190,17 @@ def doctor() -> None:
             except ImageNotFound:
                 hint = row.get("dockerfile_dir") or "docker/<lang>_sandbox"
                 print(f"[bold]{label}[/bold]: MISSING ({image}) — docker build -t {image} {hint}")
+                problems.append(f"sandbox image {image} missing (bash scripts/bootstrap.sh builds all 8)")
     except Exception as exc:
         print(f"[bold]Sandbox images[/bold]: error ({exc})")
+        problems.append("sandbox images not checked (Docker not reachable?)")
 
     try:
         import httpx
 
-        resp = httpx.get("http://127.0.0.1:11434/api/tags", timeout=5.0)
+        from rebirth_ai.generate.ollama_client import ollama_host
+
+        resp = httpx.get(f"{ollama_host()}/api/tags", timeout=5.0)
         if resp.status_code == 200:
             models = [m.get("name") for m in resp.json().get("models", [])]
             print(f"[bold]Ollama[/bold]: ok ({len(models)} models)")
@@ -87,8 +208,9 @@ def doctor() -> None:
                 print(f"  - {name}")
         else:
             print(f"[bold]Ollama[/bold]: HTTP {resp.status_code}")
+            problems.append(f"Ollama server answered HTTP {resp.status_code}")
 
-        ps = httpx.get("http://127.0.0.1:11434/api/ps", timeout=5.0)
+        ps = httpx.get(f"{ollama_host()}/api/ps", timeout=5.0)
         if ps.status_code == 200:
             loaded = ps.json().get("models", [])
             if not loaded:
@@ -134,6 +256,16 @@ def doctor() -> None:
                 )
     except Exception as exc:
         print(f"[bold]Ollama[/bold]: not reachable ({exc})")
+        problems.append("Ollama server not reachable (ollama serve / systemctl start ollama)")
+
+    if problems:
+        print(f"[yellow]{len(problems)} problem(s):[/yellow]")
+        for p in dict.fromkeys(problems):
+            print(f"  - {p}")
+    else:
+        print("[green]all checks passed[/green]")
+    if strict and problems:
+        raise typer.Exit(1)
 
 
 @app.command("adapters")
@@ -209,12 +341,21 @@ def sandbox_run(
     ),
 ) -> None:
     """Run fixture/project tests inside the ephemeral Docker sandbox."""
-    from rebirth_ai.adapters.registry import get_adapter_for_project
+    from rebirth_ai.adapters.registry import detect_adapter_id, get_adapter_for_project
     from rebirth_ai.sandbox.runner import SandboxRunner
 
+    _preflight(docker=True)
+    if lang is None and detect_adapter_id(project) is None:
+        _fail(f"could not tell the language of {project} (no package.json, pyproject.toml, go.mod, … and "
+              "no source files); pass --lang")
     adapter = get_adapter_for_project(project, lang=lang)
     runner = SandboxRunner(adapter)
-    result = runner.run_project(project, relative_test=test)
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
+
+    try:
+        result = runner.run_project(project, relative_test=test)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     status = "[green]PASS[/green]" if result.ok else "[red]FAIL[/red]"
     print(f"{status} exit={result.exit_code} in {result.duration_sec:.2f}s adapter={adapter.name}")
     print(f"[dim]cmd:[/dim] {result.command}")
@@ -381,19 +522,19 @@ def migrate_file(
         help="Project root (sandbox + relative paths)",
     ),
     file: str = typer.Option(
-        "src/math.js",
+        ...,
         "--file",
         "-f",
         help="Project-relative source file to migrate",
     ),
-    test: str = typer.Option(
-        "test/math.test.js",
+    test: str | None = typer.Option(
+        None,
         "--test",
         "-t",
-        help="Project-relative test file",
+        help="Project-relative test file (default: the test that imports --file, else the whole suite)",
     ),
     objective: str = typer.Option(
-        "Fix the file so project tests pass; modernize idioms without changing public API",
+        "Fix the file so project tests pass; modernize idioms without changing public API; keep comments and docstrings",
         "--objective",
         "-o",
     ),
@@ -421,7 +562,7 @@ def migrate_file(
         "auto",
         "--backend",
         "-b",
-        help="auto (default: packaged adapter — configs/routing.yaml for same-language, the cross-language adapter rebirth-xlang:14b-v1 with --to — else plain Ollama) | ollama | peft",
+        help="auto (default: the packaged model — rebirth-<lang>:7b from configs/routing.yaml, or with --to the served rebirth-xlang:14b — else plain Ollama) | ollama | peft",
     ),
     lang: str | None = typer.Option(
         None,
@@ -451,6 +592,12 @@ def migrate_file(
     target_test: str | None = typer.Option(
         None, "--target-test", help="--to: target-project test file (also shown to the model)"
     ),
+    fallback: bool | None = typer.Option(
+        None,
+        "--fallback/--no-fallback",
+        help="When the served 7B adapter passes the tests but changes nothing, run once more with a 14B "
+        "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
+    ),
 ) -> None:
     """Closed-loop LangGraph migrate: retrieve → generate → test → classify → route.
 
@@ -458,6 +605,20 @@ def migrate_file(
     sandbox → classify → retry); see docs/phases/PHASE_17_CROSS_LANGUAGE.md.
     """
     import os
+
+    from rebirth_ai.safety import InputError, check_source_file, inside
+
+    try:
+        check_source_file(project, file)
+        if to:
+            from rebirth_ai.xlang.languages import get_lang
+
+            get_lang(to)
+            if target_project is not None and target_file:
+                inside(target_project, target_file, what="--target-project")
+    except (InputError, ValueError) as exc:
+        _fail(str(exc))
+    _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"} or bool(to), docker=True)
 
     if to:
         _translate_file(
@@ -476,6 +637,13 @@ def migrate_file(
         )
         return
 
+    if test is None:
+        from rebirth_ai.graph.discovery import infer_test_path
+
+        test = infer_test_path(project, file) or ""
+        print(f"[dim]test: {test}[/dim]" if test else
+              "[yellow]no test file imports this file: running the whole test suite, which may not "
+              "exercise it (pass --test)[/yellow]")
     from rebirth_ai.graph.app import build_migration_graph, initial_state
 
     os.environ["REBIRTH_GENERATOR"] = backend
@@ -510,16 +678,30 @@ def migrate_file(
     graph = build_migration_graph()
     print("[dim]running migration graph…[/dim]")
     t0 = _time.time()
-    final = graph.invoke(state)
+    from rebirth_ai.graph.fallback import invoke as fallback_run
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
+
+    try:
+        final = fallback_run(graph, state, original=source_text, seed=seed_text, backend=backend, use=fallback)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
+    from rebirth_ai.graph.batch import UNCHANGED_MESSAGE, no_change
+
+    if status == "success" and final.get("current_draft") and source_text is not None and no_change(
+            final["current_draft"], source_text, seed_text):
+        status = "unchanged"
     color = {
         "success": "green",
+        "unchanged": "yellow",
         "human_review": "yellow",
         "failed": "red",
     }.get(status, "white")
     print(f"[{color}]status={status}[/{color}] iterations={final.get('iteration_count')}")
+    if status == "unchanged":
+        print(f"[yellow]{UNCHANGED_MESSAGE}[/yellow]")
     print(f"[dim]error_class={final.get('error_class')}[/dim]")
     for step in final.get("trace") or []:
         print(f"  • {step}")
@@ -529,9 +711,13 @@ def migrate_file(
         out.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
     if write and status == "success":
+        from rebirth_ai.textfile import write_like
+
         target = Path(final["file_path"])
-        target.write_text(draft, encoding="utf-8")
+        write_like(target, draft)
         print(f"[green]wrote[/green] {target}")
+    if status == "success":
+        print("[dim]Passing tests are evidence, not proof: review the diff before you keep it.[/dim]")
 
     from rebirth_ai.monitor import telemetry
     from rebirth_ai.monitor.flywheel import save_artifacts
@@ -552,6 +738,7 @@ def migrate_file(
             "status": status,
             "iterations": final.get("iteration_count"),
             "error_class": final.get("error_class"),
+            "fallback_model": final.get("fallback_model"),
             "trace": final.get("trace") or [],
             "test_logs": (final.get("test_logs") or "")[:4000],
             "artifacts": save_artifacts(runs_dir() / rid, source_name=file, source=source_text,
@@ -564,7 +751,7 @@ def migrate_file(
     )
     print(f"[dim]run log[/dim] {run_path}")
 
-    raise typer.Exit(code=0 if status == "success" else 1)
+    raise typer.Exit(code=0 if status in ("success", "unchanged") else 1)
 
 
 def _translate_file(
@@ -613,7 +800,12 @@ def _translate_file(
     source_path = project / file
     source_text = source_path.read_text(encoding="utf-8", errors="replace") if source_path.is_file() else None
     t0 = _time.time()
-    final = build_translation_graph().invoke(state)
+    from rebirth_ai.sandbox.runner import SandboxImageMissing
+
+    try:
+        final = build_translation_graph().invoke(state)
+    except SandboxImageMissing as exc:
+        _fail(str(exc))
     wall = _time.time() - t0
 
     status = final.get("status", "unknown")
@@ -632,7 +824,9 @@ def _translate_file(
         out.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
     if write and status == "success" and target_project is not None and target_file:
-        (target_project / target_file).write_text(draft, encoding="utf-8")
+        from rebirth_ai.textfile import write_like
+
+        write_like(target_project / target_file, draft)
         print(f"[green]wrote[/green] {target_project / target_file}")
 
     from rebirth_ai.monitor import telemetry
@@ -682,7 +876,7 @@ def migrate_repo(
         help="Project root to walk and migrate",
     ),
     objective: str = typer.Option(
-        "Fix files so project tests pass; modernize idioms without changing public API",
+        "Fix files so project tests pass; modernize idioms without changing public API; keep comments and docstrings",
         "--objective",
         "-o",
     ),
@@ -752,6 +946,12 @@ def migrate_repo(
         "-l",
         help="Adapter id override (js_ts | python); default = auto-detect",
     ),
+    fallback: bool | None = typer.Option(
+        None,
+        "--fallback/--no-fallback",
+        help="When the served 7B adapter passes the tests but changes nothing, run once more with a 14B "
+        "in Ollama (default on; REBIRTH_FALLBACK=0 turns it off, REBIRTH_FALLBACK_MODEL picks the model)",
+    ),
 ) -> None:
     """Phase 5–6: migrate many files (topo-ordered); dry-run; optional GitHub PR."""
     import os
@@ -771,6 +971,29 @@ def migrate_repo(
     print(
         f"[dim]migrate-repo under={under!r} backend={backend} mode={mode} lang={lang or 'auto'}[/dim]"
     )
+    if not dry_run:
+        _preflight(ollama=backend.strip().lower() not in {"peft", "lora", "local"}, docker=True)
+        from rebirth_ai.adapters.registry import get_adapter_for_project
+        from rebirth_ai.sandbox.runner import SandboxImageMissing, SandboxRunner
+
+        try:
+            SandboxRunner(get_adapter_for_project(project, lang=lang)).ensure_image()
+        except SandboxImageMissing as exc:
+            _fail(str(exc))
+    if open_pr and not dry_run:
+        from rebirth_ai.github import client as gh
+
+        try:
+            gh.git_root(project)
+            gh.repo_slug_from_remote(gh.git_root(project))
+            gh.require_auth()
+            if gh.branch_exists(gh.git_root(project), pr_branch):
+                raise GitHubError(f"branch {pr_branch!r} already exists: pass --pr-branch <new name>, or delete it")
+        except GitHubError as exc:
+            _fail(f"--open-pr: {exc}")
+        if not write:
+            print("[dim]--open-pr writes the files whose tests pass (implies --write)[/dim]")
+            write = True
 
     batch = migrate_repository(
         project,
@@ -784,8 +1007,12 @@ def migrate_repo(
         max_iterations=max_iterations,
         lang=lang,
         on_file=lambda p: print(f"[cyan]→[/cyan] {p}"),
+        fallback=fallback,
     )
     batch.write_json(report)
+    if not batch.results:
+        print(f"[yellow]No source files found under {under!r} in {project}[/yellow] "
+              "(--under picks the folders, --file the files).")
     print(render_pr_body(batch))
     # Show patch previews when not writing
     if not dry_run and not write:
@@ -829,14 +1056,13 @@ def migrate_repo(
     if open_pr and not dry_run:
         try:
             result = open_migration_pr(
-                Path.cwd(),
+                project,
                 batch,
                 branch=pr_branch,
                 base=pr_base,
                 push=push,
                 create_pr=True,
                 draft=draft,
-                report_path=report if report.exists() else None,
             )
             print(f"[green]{result.message}[/green]")
             if result.url:
@@ -852,7 +1078,7 @@ def migrate_repo(
         raise typer.Exit(code=0 if planned or batch.results else 1)
 
     # Exit 0 if at least one success and no hard failures, else 1 when any failed
-    raise typer.Exit(code=0 if batch.succeeded and not batch.failed else 1)
+    raise typer.Exit(code=0 if (batch.succeeded or batch.unchanged) and not batch.failed else 1)
 
 
 @app.command("eval")
@@ -934,7 +1160,11 @@ def report_cmd(
     """Pretty-print a migrate-repo / eval / run JSON report (secrets redacted)."""
     from rebirth_ai.report_view import load_report, render_report
 
-    render_report(load_report(path))
+    try:
+        data = load_report(path)
+    except ValueError as exc:  # json.JSONDecodeError included
+        _fail(f"{path} is not a Rebirth JSON report ({exc})")
+    render_report(data)
 
 
 @app.command("classify")

@@ -1,18 +1,20 @@
 """Generation backends for translation (``rebirth migrate --to`` and the translation evals).
 
-- ``auto`` (``migrate --to`` default; also ``routed`` / ``rebirth``): the packaged cross-language
-  adapter in Ollama (``REBIRTH_XLANG_MODEL``, default ``rebirth-xlang:14b-v1``: the Phase 17 shared
-  adapter on the q6_K 14B, built by ``scripts/ollama_xlang.sh``) when it is installed, else the
-  plain 14B (``OLLAMA_MODEL``). ``REBIRTH_XLANG_MODEL=""`` turns the adapter off.
+- ``auto`` (``migrate --to`` default; also ``routed`` / ``rebirth``): the served cross-language
+  model in Ollama when it is installed, else the plain 14B (``OLLAMA_MODEL``). Served = the
+  ``translation:`` route's alias in ``configs/routing.yaml`` (``rebirth-xlang:14b``, moved by
+  ``rebirth serve publish-xlang`` / ``rebirth serve rollback --lang xlang``; ``rebirth install``
+  creates it). ``REBIRTH_XLANG_MODEL`` overrides it; ``REBIRTH_XLANG_MODEL=""`` turns it off.
 - ``ollama``: always the plain Qwen2.5-Coder 14B in Ollama (``OLLAMA_MODEL``); the zero-shot
   baseline the evals compare against.
 - ``peft``: base 7B with a chat prompt, no adapter (``REBIRTH_PEFT_BASE`` / ``REBIRTH_PEFT_ADAPTER``
   override; the per-language same-language adapters are *not* used — they were trained to
   modernize within one language)
 
-The cross-language adapter is served through the base model's chat template with the product
-prompt (the same request as the plain 14B), as it was evaluated: program suite, q6_K + GGUF in
-Ollama, 265 / 420 translations verified vs 208 for the plain 14B (2026-11-09).
+The cross-language model is served through the base model's chat template with the product
+prompt (the same request as the plain 14B), as it was evaluated. v2 (Phase 19: LoRA merged, q6_K):
+667 / 931 program translations verified vs 551 for the plain 14B, HumanEval 2,065 / 2,229 first try
+vs 2,030 (2026-11-11).
 
 Instances are cached per backend so a retry loop or an eval run loads the model once.
 """
@@ -24,12 +26,22 @@ from dataclasses import dataclass
 
 from rebirth_ai.xlang.prompts import TRANSLATE_SYSTEM_PROMPT
 
-DEFAULT_XLANG_MODEL = "rebirth-xlang:14b-v1"
+DEFAULT_XLANG_MODEL = "rebirth-xlang:14b"  # the alias `rebirth install` creates
 
 
 def xlang_model() -> str:
-    """Ollama tag of the packaged cross-language adapter ("" = do not use one)."""
-    return os.environ.get("REBIRTH_XLANG_MODEL", DEFAULT_XLANG_MODEL).strip()
+    """Ollama tag of the served cross-language model ("" = do not use one): ``REBIRTH_XLANG_MODEL``,
+    else the translation route's alias (configs/routing.yaml), else ``DEFAULT_XLANG_MODEL``."""
+    env = os.environ.get("REBIRTH_XLANG_MODEL")
+    if env is not None:
+        return env.strip()
+    try:
+        from rebirth_ai import routing
+
+        route = routing.translation_route() or {}
+    except Exception:  # unreadable routing.yaml: same as no route
+        route = {}
+    return str(route.get("model") or DEFAULT_XLANG_MODEL).strip()
 
 
 def installed_xlang_model(client) -> str | None:

@@ -1,0 +1,103 @@
+{
+ "_doc": "Model packs for `rebirth install` / scripts/bootstrap.sh. Files are downloaded from Hugging Face (https://huggingface.co/<hf_namespace>/<hf_repo>/resolve/main/<file>), checked against sha256, then registered in Ollama. Until the release files are uploaded (Phase 19 step 6), install with --from <dir> or --from-local.",
+ "version": 1,
+ "hf_namespace": "belebindahugo",
+ "packs": {
+  "modernize": {
+   "description": "Same-language modernization: 8 LoRA adapters (v2 recipe, Phase 11) on Qwen2.5-Coder-7B-Instruct Q4_K_M",
+   "hf_repo": "rebirth-modernize-7b-lora-gguf",
+   "ollama_base": "qwen2.5-coder:7b-instruct",
+   "approx_download_gb": 4.8,
+   "models": [
+    {
+     "lang": "js_ts",
+     "tag": "rebirth-js-ts:7b-v1",
+     "alias": "rebirth-js-ts:7b",
+     "file": "rebirth-js-ts-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/js_ts_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "76e05a5f1b4e200f26b25429580e1c8fd3ed55322cd13222fa652eecf5465ce9"
+    },
+    {
+     "lang": "python",
+     "tag": "rebirth-python:7b-v1",
+     "alias": "rebirth-python:7b",
+     "file": "rebirth-python-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/python_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "20c567b1c66fc457c931e4dccd05e1b70f74db7d6491958cde5093739ae7899e"
+    },
+    {
+     "lang": "go",
+     "tag": "rebirth-go:7b-v1",
+     "alias": "rebirth-go:7b",
+     "file": "rebirth-go-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/go_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "5f932146988c9030c5074bf4a7d28e39ef4445e2bed091307aa489c1b5a269e9"
+    },
+    {
+     "lang": "java",
+     "tag": "rebirth-java:7b-v1",
+     "alias": "rebirth-java:7b",
+     "file": "rebirth-java-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/java_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "604723a60b50865d96480734a3052a9f28f4c47124d48bd66d7d7f1142dc9e9f"
+    },
+    {
+     "lang": "csharp",
+     "tag": "rebirth-csharp:7b-v1",
+     "alias": "rebirth-csharp:7b",
+     "file": "rebirth-csharp-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/csharp_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "cf657b28ee4b3736ff62c025149663f07549731db2391b9fe0993f9a6c6d2163"
+    },
+    {
+     "lang": "rust",
+     "tag": "rebirth-rust:7b-v1",
+     "alias": "rebirth-rust:7b",
+     "file": "rebirth-rust-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/rust_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "61deb5a27a2896e59a5d68a9600208ae6413f31620233cdf8ff11af8c8b473dc"
+    },
+    {
+     "lang": "cpp",
+     "tag": "rebirth-cpp:7b-v1",
+     "alias": "rebirth-cpp:7b",
+     "file": "rebirth-cpp-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/cpp_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "ca80b4393cb41e466a8328b7803cfa145a8ab9417a3d6671e73159e9c3fe4ee9"
+    },
+    {
+     "lang": "swift",
+     "tag": "rebirth-swift:7b-v1",
+     "alias": "rebirth-swift:7b",
+     "file": "rebirth-swift-7b-v1.lora.f16.gguf",
+     "local": "data/models/gguf/swift_7b_v1.f16.gguf",
+     "size": 10108448,
+     "sha256": "33c9a6a3b8556f871757712bd9dc19d66b405264b0f7efe71ac50b9c8e035106"
+    }
+   ]
+  },
+  "migrate": {
+   "description": "Cross-language migration between the 8 languages: Phase 17 shared adapter merged into Qwen2.5-Coder-14B-Instruct, Q6_K",
+   "hf_repo": "rebirth-xlang-14b-gguf",
+   "approx_download_gb": 12.1,
+   "models": [
+    {
+     "tag": "rebirth-xlang:14b-v2",
+     "alias": "rebirth-xlang:14b",
+     "file": "rebirth-xlang-14b-v2.Q6_K.gguf",
+     "local": "data/models/merge_xlang_v2/xlang_14b_v2.q6_K.gguf",
+     "size": 12124684384,
+     "sha256": "bfa04408e2156a51e56b9b1c8d3a41418c9eca524498c2d97adcc21295a45883",
+     "modelfile": "configs/ollama/xlang-14b.Modelfile"
+    }
+   ]
+  }
+ }
+}

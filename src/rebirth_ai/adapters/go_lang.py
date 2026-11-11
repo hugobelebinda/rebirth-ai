@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import re
+import shlex
 from pathlib import Path
 
 from rebirth_ai.adapters.base import SandboxSpec
@@ -47,6 +49,17 @@ class GoAdapter:
     def parse(self, path: Path, source: str | None = None) -> list[CodeChunk]:
         return self._chunker.chunk_file(path, source=source)
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """Download the modules ``go.mod`` requires (the tests then run offline). A project from
+        before Go modules (no ``go.mod``) gets one in the sandbox copy: ``go mod init`` with the
+        import path of its git remote, then ``go mod tidy`` for its imports."""
+        gomod = Path(project_dir) / "go.mod"
+        if not gomod.is_file():
+            return f"go mod init {shlex.quote(module_path(project_dir))} && go mod tidy"
+        if "require" not in gomod.read_text(encoding="utf-8", errors="replace"):
+            return None
+        return "go mod download"
+
     def test_command_for(self, relative_file: str | None = None) -> str:
         if relative_file:
             # Directory or package path for `go test`
@@ -55,5 +68,16 @@ class GoAdapter:
                 target = str(Path(target).parent)
             if not target.startswith("./"):
                 target = "./" + target.strip("/")
-            return f"go test {target}"
+            return f"go test {shlex.quote(target)}"
         return "go test ./..."
+
+
+def module_path(project_dir: Path) -> str:
+    """Import path for a module-less Go project: its git remote (``github.com/pkg/errors``), else
+    a placeholder (in-package tests do not care; external ``_test`` packages need the real one)."""
+    try:
+        cfg = (Path(project_dir) / ".git" / "config").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        cfg = ""
+    m = re.search(r"url\s*=\s*(?:https?://|ssh://git@|git@)([\w.-]+)[:/]([\w.-]+)/([\w.-]+?)(?:\.git)?\s*$", cfg, re.M)
+    return f"{m.group(1)}/{m.group(2)}/{m.group(3)}".lower() if m else "rebirth.local/project"

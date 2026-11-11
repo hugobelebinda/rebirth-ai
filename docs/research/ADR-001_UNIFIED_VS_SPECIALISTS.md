@@ -23,7 +23,7 @@ Measured since then (all on frozen eval sets):
 | Speed | base 7B ~1.9× faster than base 14B per translation (HumanEval: 1.6 s vs 3.0 s); the unmerged LoRA in Ollama costs the 14B another ~35 % (18.3 vs 13.5 s per program) |
 | Size | 7B Q4_K_M 4.7 GB + 8 adapters × 10 MB; 14B q6_K 12 GB + cross-language adapter 132 MB |
 
-**What ships today is B:** `rebirth-<lang>:7b` for modernize, `rebirth-xlang:14b-v1` for `--to`. Cloud credit left: **~$77**.
+**What ships today is B:** `rebirth-<lang>:7b` for modernize, `rebirth-xlang:14b` (v2 since 2026-11-11) for `--to`. Cloud credit left: **~$77**.
 
 ## Decision (accepted 2026-11-10)
 
@@ -83,5 +83,5 @@ What would flip the decision:
 1. [x] Owner decided 2026-11-10: B (two models). The unified pilot (item 5) is not run.
 2. [x] Measured 2026-11-10 (7800 XT, warm page cache, `OLLAMA_MAX_LOADED_MODELS=1`, num_ctx 4096; first request after the switch, 1 token): **7B → 14B 11.4–17.1 s**, **14B → 7B 10.8–12.1 s**, and **7B → 7B of another language 9.9 s** (each `rebirth-<lang>:7b` is its own Ollama model, so a language change already reloads); same model again 0.2 s. So the second base adds only ~1–7 s per switch over what changing language already costs. Cold cache (first use after boot, read from disk) not measured: it needs root to drop the page cache.
 3. [ ] Phase 19: installer offers the two packs separately (modernize 4.7 GB, migrate 12 GB) and both by default.
-4. [ ] Phase 19: merge the cross-language LoRA into the 14B weights before quantizing (removes the ~35 % LoRA overhead; one 12 GB file instead of base + adapter). Needs a re-check on the program suite, including the Go defect stage 5 found (`bufio.Scanner` passed to `fmt.Fscan`: 17 / 115 local first-try Go drafts with the unmerged adapter, 3 / 123 in cloud bf16).
+4. [x] Phase 19: merge the cross-language LoRA into the 14B weights before quantizing (removes the ~35 % LoRA overhead; one 12 GB file instead of base + adapter). Needs a re-check on the program suite, including the Go defect stage 5 found (`bufio.Scanner` passed to `fmt.Fscan`: 17 / 115 local first-try Go drafts with the unmerged adapter, 3 / 123 in cloud bf16). **Done 2026-11-11:** v2 = v1 within noise (programs 667 vs 672 / 931, HumanEval 2,065 vs 2,064 / 2,229), 24 % faster generation, Go defect 13 / 115; served as `rebirth-xlang:14b` ([PHASE_19 § Step 2](../phases/PHASE_19_LAUNCH.md#step-2--merged-cross-language-model-rebirth-xlang14b-v2)).
 5. [ ] ~~*(Only if A is wanted)*~~ not pursued (decision B) — kept for reference: **gated pilot, ~$12–15:** unified 14B adapter on 2 languages' same-language rows (Go + Python) + all translation rows, ~6 h on g6e. Continue to the full unified run only if Go / Python ≥ the 7B adapters (14 / 20 per 100) **and** the program suite ≥ 260 / 420.

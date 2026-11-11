@@ -97,3 +97,17 @@ def test_clean_preamble_needs_language_tag_and_short_prose() -> None:
     # Long code-like prefix with a fenced example inside → not treated as a preamble.
     code = "def f():\n    return 1\n\ndef g():\n    return 2\n\nDOC = '''\n```python\nf()\n```\n'''\n"
     assert extract_code_block(code) == code
+
+
+def test_chat_budget_fits_a_4kb_file() -> None:
+    # Phase 19: the old 1024 ceiling cut a 167-line, 3.8 KB Go file mid-function
+    from rebirth_ai.generate.peft_client import CHAT_MAX_NEW_TOKENS, plan_generation
+
+    code = "\n".join(f"\tx{i} := compute{i}(a, b, c) // line {i}" for i in range(167))
+    plan = plan_generation(prompt_style="sft", objective="modernize", legacy_code=code,
+                           file_path="homedir.go", language="go")
+    assert plan.style == "chat" and plan.max_new_tokens * 3 >= 1.5 * len(code)
+    assert plan.max_new_tokens <= CHAT_MAX_NEW_TOKENS
+    short = plan_generation(prompt_style="sft", objective="m", legacy_code="var x = 1;\n",
+                            file_path="a.js", language="javascript")
+    assert short.style == "sft" and short.max_new_tokens <= 512  # short files: unchanged

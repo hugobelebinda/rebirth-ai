@@ -25,8 +25,11 @@ class SandboxSpec:
     user: str = "node"
     # Hint for doctor / CLI: relative Dockerfile directory under repo root.
     dockerfile_dir: str = "docker/js_ts_sandbox"
-    # Default Docker network for test runs (maven/nuget need bridge).
+    # Docker network for the optional setup step (dependency download, before the draft is written).
+    # The test step itself never has network: the runner disconnects the container first.
     network_mode: str = "none"
+    # Time limit of the setup step (downloads).
+    setup_timeout_sec: int = 600
 
 
 @runtime_checkable
@@ -50,3 +53,6 @@ class LanguageAdapter(Protocol):
     def is_source_file(self, path: Path) -> bool:
         """Whether this adapter owns the given path."""
         ...
+
+    # Optional: ``setup_command_for(project_dir, relative_test) -> str | None`` — the dependency step
+    # the sandbox runs with network *before* the draft is written in (see ``sandbox.runner``).

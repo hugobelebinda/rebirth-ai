@@ -34,8 +34,9 @@ def after_install(state: MigrationState) -> str:
     iteration = int(state.get("iteration_count") or 0)
     if iteration >= max_iter:
         return "halt_human_review"
-    # Trace ends with "already queued X" when the package was previously known
+    # Re-test only when a new package was queued; "already queued", "refused" or "no package
+    # detected" would re-run the same failing draft, so ask the LLM for a new one instead.
     last = (state.get("trace") or [""])[-1]
-    if "already queued" in last:
-        return "generate_code"
-    return "execute_tests"
+    if last.startswith("install_dependency: queued"):
+        return "execute_tests"
+    return "generate_code"

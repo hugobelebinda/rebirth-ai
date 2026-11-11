@@ -36,9 +36,21 @@ Phase numbers follow execution order (renumbered 2026-11-05 — map in [`docs/PR
 **Now:** Phase 19 (v1.0 launch). Phase 17, done: `rebirth migrate --to <lang>` translates between any of the 8 languages with a shared cross-language adapter trained on AWS (2026-11-09) on 30K test-verified translation pairs. On 931 whole-program translations over all 56 directions (Codeforces problems, judged by their tests) it lifts the local q6_K 14B from 551 to 672 verified ([`PHASE_17_CROSS_LANGUAGE.md`](docs/phases/PHASE_17_CROSS_LANGUAGE.md)). Phase 15 (14B same-language adapters) ended at its gate: they tie the 7B adapters, which stay ([`PHASE_15_CLOUD_14B.md`](docs/phases/PHASE_15_CLOUD_14B.md)). Cloud plan + spend: [`docs/CLOUD_GPU_PLAN.md`](docs/CLOUD_GPU_PLAN.md).  
 **Production roadmap:** [`docs/PRODUCTION_ROADMAP.md`](docs/PRODUCTION_ROADMAP.md) · [`docs/GLOBAL.md`](docs/GLOBAL.md) · [`docs/DATASET.md`](docs/DATASET.md)
 
-Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Same-language: v2 7B adapter per language, served from Ollama as `rebirth-<lang>:7b` (`--backend auto`, the default; `--backend peft` runs them in-process). Cross-language (`--to`): `rebirth-xlang:14b-v1` (q6_K 14B + shared adapter; build it with `bash scripts/ollama_xlang.sh`), plain Ollama 14B when it is not installed.
+Live adapters: **JS/TS, Python, Go, Java, C#, Rust, C++, Swift**. Same-language: v2 7B adapter per language, served from Ollama as `rebirth-<lang>:7b` (`--backend auto`, the default; `--backend peft` runs them in-process). When a 7B adapter passes the tests but changes nothing, Rebirth runs the file once more with a 14B (the plain Qwen2.5-Coder 14B if installed, else `rebirth-xlang:14b`; `--no-fallback` turns it off). Cross-language (`--to`): `rebirth-xlang:14b` (v2: the 14B with the shared adapter merged in, q6_K; `rebirth install`), plain Ollama 14B when it is not installed.
 
-## Quick start
+## Install
+
+Linux with Docker and [Ollama](https://ollama.com) running; a 16 GB GPU for both packs (8 GB for the
+modernize pack only). Everything runs locally; nothing is sent anywhere.
+
+```bash
+git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai
+bash scripts/bootstrap.sh            # venv, 8 sandbox images, both model packs (sha256-checked), rebirth doctor
+```
+
+Details, offline install, troubleshooting: [`docs/INSTALL.md`](docs/INSTALL.md).
+
+## Quick start (development)
 
 ```bash
 python3 -m venv .venv
@@ -56,8 +68,8 @@ rebirth parse fixtures/js_ts_sample/src/math.js
 rebirth sandbox fixtures/js_ts_sample -t test/math.test.js
 rebirth sandbox fixtures/python_sample -t tests/test_math_ops.py --lang python
 
-# Closed-loop single-file migrate (default Ollama 14B)
-rebirth migrate fixtures/js_ts_sample \
+# Closed-loop single-file migrate (served 7B adapter, the 14B fallback if it changes nothing)
+rebirth migrate fixtures/js_ts_sample --file src/math.js --test test/math.test.js \
   --seed-draft fixtures/migration_seeds/math.broken.js \
   --out /tmp/rebirth_math_fixed.js --no-write
 
@@ -68,7 +80,7 @@ rebirth migrate fixtures/python_sample \
 
 # Translate to another language (Phase 17): new file under <project>/rebirth_out/<lang>/,
 # checked against a target-language project's tests (else a compile check), retried on errors.
-# Served by rebirth-xlang:14b-v1 when installed (bash scripts/ollama_xlang.sh), else the plain 14B
+# Served by rebirth-xlang:14b when installed (rebirth install), else the plain 14B
 rebirth migrate fixtures/python_sample --file src/math_ops.py --to go \
   --target-project fixtures/go_sample --target-file src/mathops.go --target-test src/mathops_test.go
 
@@ -77,7 +89,7 @@ rebirth migrate-repo fixtures/js_ts_sample \
   --file src/math.js --file src/format.js \
   --seed src/math.js=fixtures/migration_seeds/math.broken.js \
   --seed src/format.js=fixtures/migration_seeds/format.broken.js \
-  --write --report data/reports/migrate_repo.json
+  --report data/reports/migrate_repo.json      # add --write to put passing drafts in place
 ```
 
 Optional PEFT (defaults to 7B adapter when present):
@@ -85,7 +97,7 @@ Optional PEFT (defaults to 7B adapter when present):
 ```bash
 pip install -e ".[ml]"
 # Unload Ollama first if VRAM is tight: ollama stop qwen2.5-coder:14b-instruct-q6_K
-rebirth migrate fixtures/js_ts_sample \
+rebirth migrate fixtures/js_ts_sample --file src/math.js --test test/math.test.js \
   --seed-draft fixtures/migration_seeds/math.broken.js --backend peft --no-write
 ```
 

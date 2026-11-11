@@ -16,12 +16,14 @@ from rebirth_ai.graph.discovery import (
     infer_test_path,
     topological_migrate_order,
 )
+from rebirth_ai.graph.fallback import needs_fallback, run_fallback
 from rebirth_ai.safety import (
     file_too_large,
     has_restrictive_license_header,
     is_secret_path,
     max_file_bytes,
 )
+from rebirth_ai.textfile import write_like
 
 # Re-export for older imports / tests
 SKIP_DIR_NAMES = DENY_DIR_NAMES
@@ -41,7 +43,7 @@ __all__ = [
 class FileMigrationResult:
     relative_file: str
     relative_test: str | None
-    status: str  # success | human_review | failed | skipped_* | planned
+    status: str  # success | unchanged | human_review | failed | skipped_* | planned
     iterations: int = 0
     error_class: str | None = None
     trace: list[str] = field(default_factory=list)
@@ -49,6 +51,7 @@ class FileMigrationResult:
     message: str = ""
     test_logs_excerpt: str = ""
     draft_preview: str = ""
+    fallback_model: str | None = None  # the 14B that re-ran a file the served adapter left unchanged
 
 
 @dataclass
@@ -64,6 +67,10 @@ class BatchReport:
         return [r for r in self.results if r.status == "success"]
 
     @property
+    def unchanged(self) -> list[FileMigrationResult]:
+        return [r for r in self.results if r.status == "unchanged"]
+
+    @property
     def failed(self) -> list[FileMigrationResult]:
         return [
             r
@@ -71,6 +78,7 @@ class BatchReport:
             if r.status
             not in {
                 "success",
+                "unchanged",
                 "skipped",
                 "skipped_no_test",
                 "skipped_wrong_language",
@@ -90,6 +98,7 @@ class BatchReport:
             "summary": {
                 "total": len(self.results),
                 "success": len(self.succeeded),
+                "unchanged": len(self.unchanged),
                 "failed": len(self.failed),
                 "skipped": sum(
                     1 for r in self.results if r.status.startswith("skipped")
@@ -102,6 +111,16 @@ class BatchReport:
     def write_json(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2) + "\n", encoding="utf-8")
+
+
+UNCHANGED_MESSAGE = "tests pass, but the model returned the file unchanged (at most whitespace differs); nothing written"
+
+
+def no_change(draft: str, original: str, seed: str | None = None) -> bool:
+    """True when a passing draft leaves the file as it was: same code as the original up to
+    whitespace, and no seed draft that differed from it (a repaired seed is a real change)."""
+    same = draft.split() == original.split()
+    return same and (seed is None or seed.split() == original.split())
 
 
 def _parse_seed_map(raw: list[str] | None) -> dict[str, Path]:
@@ -140,6 +159,33 @@ def _unified_diff(path: str, before: str, after: str, *, max_lines: int = 80) ->
     return "\n".join(lines)
 
 
+def _file_result(final: dict, project_dir: Path, rel_s: str, test_rel: str | None, original: str,
+                 seed_text: str | None, write: bool) -> FileMigrationResult:
+    """Report entry for one finished run (writes the draft when it passed and changed the file)."""
+    status = str(final.get("status") or "failed")
+    draft = final.get("current_draft") or ""
+    message = ""
+    if status == "success" and draft and no_change(draft, original, seed_text):
+        status, message = "unchanged", UNCHANGED_MESSAGE
+    wrote = False
+    if write and status == "success" and draft:
+        write_like(project_dir / rel_s, draft)
+        wrote = True
+    return FileMigrationResult(
+        relative_file=rel_s,
+        relative_test=test_rel,
+        status=status,
+        iterations=int(final.get("iteration_count") or 0),
+        error_class=final.get("error_class"),
+        trace=list(final.get("trace") or []),
+        wrote=wrote,
+        message=message,
+        test_logs_excerpt=_excerpt(final.get("test_logs")),
+        draft_preview=_unified_diff(rel_s, original, draft) if draft and draft != original else "",
+        fallback_model=final.get("fallback_model"),
+    )
+
+
 def migrate_repository(
     project_dir: Path,
     *,
@@ -154,6 +200,7 @@ def migrate_repository(
     skip_without_tests: bool = True,
     lang: str | None = None,
     on_file: Callable[[str], None] | None = None,
+    fallback: bool | None = None,
 ) -> BatchReport:
     """Run the single-file LangGraph loop across many sources; continue on failures.
 
@@ -255,6 +302,7 @@ def migrate_repository(
         return report
 
     graph = build_migration_graph()
+    deferred: list[tuple] = []
 
     for rel in targets:
         rel_s = rel.as_posix()
@@ -307,42 +355,33 @@ def migrate_repository(
                 )
             )
             continue
+        report.results.append(_file_result(final, project_dir, rel_s, test_rel, original, seed_text, write))
+        served = needs_fallback(final, original=original, seed=seed_text, use=fallback)
+        if served:
+            deferred.append((len(report.results) - 1, state, final, served, rel_s, test_rel, original, seed_text))
 
-        status = str(final.get("status") or "failed")
-        draft = final.get("current_draft") or ""
-        wrote = False
-        if write and status == "success" and draft:
-            target = project_dir / rel_s
-            target.write_text(draft, encoding="utf-8")
-            wrote = True
-
-        preview = ""
-        if draft and draft != original:
-            preview = _unified_diff(rel_s, original, draft)
-
-        report.results.append(
-            FileMigrationResult(
-                relative_file=rel_s,
-                relative_test=test_rel,
-                status=status,
-                iterations=int(final.get("iteration_count") or 0),
-                error_class=final.get("error_class"),
-                trace=list(final.get("trace") or []),
-                wrote=wrote,
-                test_logs_excerpt=_excerpt(final.get("test_logs")),
-                draft_preview=preview,
-            )
-        )
+    # Fallback runs last: the served 7B and the 14B do not fit in a 16 GB GPU together, so one pass
+    # per model swaps once instead of once per unchanged file.
+    for idx, state, final, served, rel_s, test_rel, original, seed_text in deferred:
+        if on_file:
+            on_file(f"{rel_s} (fallback)")
+        try:
+            final = run_fallback(graph, state, final, served)
+        except Exception as exc:  # keep the 7B result, note why the fallback did not run
+            report.results[idx].trace.append(f"fallback: failed — {exc}")
+            continue
+        report.results[idx] = _file_result(final, project_dir, rel_s, test_rel, original, seed_text, write)
 
     return report
 
 
-def render_pr_body(report: BatchReport) -> str:
-    """Markdown PR summary: successes, failures, optional sandbox excerpts."""
+def render_pr_body(report: BatchReport, *, project_label: str | None = None) -> str:
+    """Markdown PR summary: successes, failures, optional sandbox excerpts. ``project_label``
+    replaces the project's absolute path (a PR should not show local paths)."""
     lines = [
         "## Rebirth AI migration report",
         "",
-        f"**Project:** `{report.project_dir}`",
+        f"**Project:** `{project_label or report.project_dir}`",
         f"**Objective:** {report.objective}",
     ]
     if report.dry_run:
@@ -364,6 +403,7 @@ def render_pr_body(report: BatchReport) -> str:
             "### Summary",
             "",
             f"- Success: **{len(report.succeeded)}**",
+            f"- Unchanged (tests pass, the model changed nothing): **{len(report.unchanged)}**",
             f"- Failed / human review: **{len(report.failed)}**",
             f"- Skipped: **{sum(1 for r in report.results if r.status.startswith('skipped'))}**",
             f"- Planned: **{sum(1 for r in report.results if r.status == 'planned')}**",
@@ -376,10 +416,16 @@ def render_pr_body(report: BatchReport) -> str:
         for r in report.succeeded:
             lines.append(
                 f"- `{r.relative_file}` (iters={r.iterations}"
-                f"{', wrote' if r.wrote else ''})"
+                f"{', wrote' if r.wrote else ''}"
+                f"{f', by the fallback {r.fallback_model}' if r.fallback_model else ''})"
             )
     else:
         lines.append("- _(none)_")
+
+    if report.unchanged:
+        lines.extend(["", "### Unchanged", ""])
+        for r in report.unchanged:
+            lines.append(f"- `{r.relative_file}` — {r.message}")
 
     lines.extend(["", "### Failed / needs review", ""])
     if report.failed:
@@ -406,5 +452,13 @@ def render_pr_body(report: BatchReport) -> str:
             test = r.relative_test or "_(no test)_"
             lines.append(f"- `{r.relative_file}` → test `{test}` — {r.message}")
 
-    lines.extend(["", "---", "_Generated by `rebirth migrate-repo`._", ""])
+    lines.extend([
+        "",
+        "> Passing tests are evidence, not proof: code paths the tests do not run can still change "
+        "behavior. Review every diff before merging.",
+        "",
+        "---",
+        "_Generated by `rebirth migrate-repo`._",
+        "",
+    ])
     return "\n".join(lines)

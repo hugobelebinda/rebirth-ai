@@ -109,3 +109,78 @@ def test_dry_run_migrate_repo_fixture() -> None:
     body = render_pr_body(report)
     assert "dry-run" in body
     assert "Migrate order" in body
+
+
+def test_infer_falls_back_to_a_test_that_imports_the_file(tmp_path: Path) -> None:
+    from rebirth_ai.adapters.js_ts import JsTsAdapter
+
+    # single-file npm package: root test.js requires the package root (package.json "main")
+    (tmp_path / "index.js").write_text("module.exports = () => 1;\n", encoding="utf-8")
+    (tmp_path / "test.js").write_text("var f = require('./');\n", encoding="utf-8")
+    (tmp_path / "package.json").write_text('{"name": "pkg", "main": "index.js"}', encoding="utf-8")
+    assert infer_test_path(tmp_path, "index.js") == "test.js"  # no test script: node --test test.js
+    (tmp_path / "package.json").write_text(
+        '{"name": "pkg", "main": "index.js", "scripts": {"test": "mocha"}}', encoding="utf-8")
+    assert infer_test_path(tmp_path, "index.js") == "package.json"  # the project's own runner
+    assert JsTsAdapter().test_command_for("package.json") == "npm test"
+    # a file no test imports stays without a test (skipped), even with a test script
+    (tmp_path / "other.js").write_text("module.exports = 2;\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "other.js") is None
+    # test/ dir importing ../lib/x and node_modules never scanned
+    (tmp_path / "lib").mkdir()
+    (tmp_path / "lib" / "x.js").write_text("export const x = 1;\n", encoding="utf-8")
+    (tmp_path / "test").mkdir()
+    (tmp_path / "test" / "x.js").write_text("import { x } from '../lib/x.js';\n", encoding="utf-8")
+    nm = tmp_path / "node_modules" / "dep"
+    nm.mkdir(parents=True)
+    (nm / "test.js").write_text("require('../../other');\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "lib/x.js") == "package.json"
+    assert infer_test_path(tmp_path, "other.js") is None
+
+
+def test_infer_python_package_and_submodule(tmp_path: Path) -> None:
+    pkg = tmp_path / "inflect"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    (pkg / "util.py").write_text("X = 1\n", encoding="utf-8")
+    (tmp_path / "test_inflect.py").write_text("import pytest\n\nimport inflect\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "inflect/__init__.py") == "test_inflect.py"
+    assert infer_test_path(tmp_path, "inflect/util.py") is None  # nothing imports inflect.util
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_misc.py").write_text("from inflect import other, util\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "inflect/util.py") == "tests/test_misc.py"
+
+
+def test_infer_python_reexported_module_runs_the_test_folder(tmp_path: Path) -> None:
+    pkg = tmp_path / "strutils"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("from .validation import *\nfrom .generation import *\n", encoding="utf-8")
+    (pkg / "validation.py").write_text("def is_x(s):\n    return True\n", encoding="utf-8")
+    (pkg / "generation.py").write_text("def gen():\n    return 'x'\n", encoding="utf-8")
+    (pkg / "unused.py").write_text("Y = 1\n", encoding="utf-8")
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_is_x.py").write_text("from strutils import is_x\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_gen.py").write_text("from strutils import gen\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "strutils/validation.py") == "tests"  # through the package
+    assert infer_test_path(tmp_path, "strutils/unused.py") is None  # not re-exported, not imported
+    assert infer_test_path(tmp_path, "strutils/__init__.py") == "tests"  # two tests import it
+    (tmp_path / "tests" / "test_val.py").write_text("import strutils.validation\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "strutils/validation.py") == "tests/test_val.py"  # its own test first
+
+
+def test_detect_language_without_marker_files(tmp_path: Path) -> None:
+    from rebirth_ai.adapters.go_lang import GoAdapter, module_path
+    from rebirth_ai.adapters.registry import get_adapter_for_project
+
+    (tmp_path / "errors.go").write_text("package errors\n", encoding="utf-8")
+    (tmp_path / "errors_test.go").write_text("package errors\n", encoding="utf-8")
+    (tmp_path / "README.md").write_text("# x\n", encoding="utf-8")
+    assert get_adapter_for_project(tmp_path).name == "go"  # Go from before modules: no go.mod
+    assert module_path(tmp_path) == "rebirth.local/project"
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "config").write_text(
+        '[remote "origin"]\n\turl = https://github.com/pkg/errors.git\n', encoding="utf-8")
+    assert module_path(tmp_path) == "github.com/pkg/errors"
+    assert GoAdapter().setup_command_for(tmp_path) == "go mod init github.com/pkg/errors && go mod tidy"
+    (tmp_path / "go.mod").write_text("module github.com/pkg/errors\n", encoding="utf-8")
+    assert GoAdapter().setup_command_for(tmp_path) is None  # no requires: nothing to download

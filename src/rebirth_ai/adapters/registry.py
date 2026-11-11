@@ -73,6 +73,11 @@ _ALIASES = {
 }
 
 
+def adapter_for_suffix(suffix: str) -> str | None:
+    """Adapter id for a file extension (``.py`` → ``python``), None if unknown."""
+    return _SUFFIX_TO_ADAPTER.get(suffix.lower())
+
+
 def list_adapter_ids() -> list[str]:
     return sorted(_REGISTRY.keys())
 
@@ -118,7 +123,26 @@ def detect_adapter_id(project_dir: Path) -> str | None:
             if preferred in hits:
                 return preferred
         return hits[0]
-    return None
+    return _by_source_files(root)
+
+
+_SKIP_DIRS = {"node_modules", ".git", ".venv", "venv", "__pycache__", "data", "target", "build", "vendor"}
+
+
+def _by_source_files(root: Path, *, limit: int = 400) -> str | None:
+    """No marker file (e.g. a Go repo from before modules): the language most source files use."""
+    counts: dict[str, int] = {}
+    seen = 0
+    for path in root.rglob("*"):
+        if seen >= limit:
+            break
+        if not path.is_file() or set(path.relative_to(root).parts[:-1]) & _SKIP_DIRS:
+            continue
+        aid = _SUFFIX_TO_ADAPTER.get(path.suffix.lower())
+        if aid:
+            counts[aid] = counts.get(aid, 0) + 1
+            seen += 1
+    return max(counts, key=lambda a: counts[a]) if counts else None
 
 
 def _suffix_weight(root: Path, suffixes: set[str], *, limit: int = 80) -> int:

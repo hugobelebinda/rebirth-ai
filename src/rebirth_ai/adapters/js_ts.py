@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from pathlib import Path
 
 from rebirth_ai.adapters.base import SandboxSpec
@@ -46,8 +47,8 @@ class JsTsAdapter:
         )
 
     def install_command(self, packages: list[str]) -> str:
-        pkgs = " ".join(packages)
-        return f"npm install --no-save --no-package-lock {pkgs}"
+        pkgs = " ".join(shlex.quote(p) for p in packages)
+        return f"npm install --no-save --no-package-lock --no-audit --no-fund {pkgs}"
 
     def is_source_file(self, path: Path) -> bool:
         return path.suffix.lower() in SOURCE_SUFFIXES
@@ -62,11 +63,18 @@ class JsTsAdapter:
             chunker = self._js_chunker
         return chunker.chunk_file(path, source=source)
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """Install the packages ``package.json`` declares (``npm ci`` with a lockfile)."""
+        from rebirth_ai.sandbox.deps import npm_setup
+
+        return npm_setup(project_dir)
+
     def test_command_for(self, relative_file: str | None = None) -> str:
-        """Use Node's built-in test runner; optionally target one test file."""
-        if relative_file:
+        """Node's built-in test runner on one test file; ``npm test`` for the whole suite (no file, or
+        ``package.json``: discovery found only the project's own test script covering the file)."""
+        if relative_file and relative_file != "package.json":
             # Escape is minimal — paths come from our fixture/temp dirs.
-            return f"node --test {relative_file}"
+            return f"node --test {shlex.quote(relative_file)}"
         return "npm test"
 
 

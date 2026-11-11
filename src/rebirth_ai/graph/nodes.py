@@ -11,6 +11,7 @@ from rebirth_ai.classify.model import ErrorClassifier
 from rebirth_ai.generate.factory import get_generator
 from rebirth_ai.graph.state import MigrationState
 from rebirth_ai.rag.retrieve import Retriever
+from rebirth_ai.sandbox.deps import install_decision
 from rebirth_ai.sandbox.runner import SandboxRunner
 
 _MISSING_PKG = re.compile(
@@ -47,8 +48,22 @@ def retrieve_context(state: MigrationState) -> MigrationState:
     db = Path(state.get("db_path") or "data/embeddings.db")
     context: list[str] = []
     if db.exists():
+        # One index per project (`rebirth index <project>`): chunks of another project are not context
+        # for this one. Checked before the embedder loads.
+        from rebirth_ai.rag.store import VectorStore
+
+        indexed = VectorStore(db).get_meta("project_dir")
+        project = Path(state["project_dir"]).resolve()
+        if indexed and Path(indexed).resolve() != project:
+            return {
+                **state,
+                "retrieved_context": [],
+                "status": "running",
+                "trace": _trace(state, f"retrieve_context: skipped (the index {db} is for {indexed}; "
+                                       f"`rebirth index {project}` builds one for this project)"),
+            }
         try:
-            retriever = Retriever(db_path=db)
+            retriever = Retriever(db_path=db, adapter=_adapter_for_state(state))
             hits = retriever.query_for_file(path, top_k=4)
             context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
         except Exception as exc:
@@ -100,46 +115,68 @@ def execute_tests(state: MigrationState) -> MigrationState:
     adapter = _adapter_for_state(state)
     runner = SandboxRunner(adapter)
 
-    # Temp sandbox copies discard node_modules / venv — when extras are known,
-    # install+test in one networked container so the dep is available for the suite.
-    if packages:
-        install = getattr(adapter, "install_command", None)
-        if callable(install):
-            install_cmd = install(packages)
-        else:
-            install_cmd = f"npm install --no-save --no-package-lock {' '.join(packages)}"
-        test_cmd = runner.adapter.test_command_for(state.get("relative_test"))
-        combined = f"{install_cmd} && {test_cmd}"
-        result = runner.run_project(
-            project,
-            command=combined,
-            network_mode="bridge",
-            overlay_text=draft,
-            overlay_dest=relative_file,
-        )
-    else:
-        result = runner.run_project(
-            project,
-            relative_test=state.get("relative_test"),
-            overlay_text=draft,
-            overlay_dest=relative_file,
-        )
+    # Temp sandbox copies discard node_modules / venv: the project's declared dependencies and the
+    # packages queued by install_dependency are installed in the sandbox's setup step, with network,
+    # before the draft is written in; the draft's tests run offline.
+    setup = runner.setup_command(project, state.get("relative_test"))
+    install = getattr(adapter, "install_command", None)
+    if packages and callable(install):
+        setup = " && ".join(c for c in (setup, install(packages)) if c)
+    result = runner.run_project(
+        project,
+        relative_test=state.get("relative_test"),
+        setup_command=setup,
+        overlay_text=draft,
+        overlay_dest=relative_file,
+    )
     logs = (result.stdout or "") + ("\n" + result.stderr if result.stderr else "")
     status_bit = "PASS" if result.ok else "FAIL"
+    trace_line = f"execute_tests: {status_bit} exit={result.exit_code} in {result.duration_sec:.2f}s"
+    ok = result.ok
+    # A passing model draft that deleted the original's comments is not done: ask for them back.
+    if ok and int(state.get("iteration_count") or 0) >= 1:
+        lost, total = comments_lost(state.get("original_code") or "", draft, adapter.name)
+        if lost:
+            ok = False
+            logs = (f"{KEPT_COMMENTS_NOTE} The draft deleted {lost} of the original's {total} comment lines. "
+                    "Keep every comment and docstring of the original file; only update one when the code it "
+                    "describes changes.")
+            trace_line += f", but {lost} of {total} comment lines deleted"
     return {
         **state,
         "test_logs": logs,
         "error_class": None,
-        "status": "success" if result.ok else "running",
-        "trace": _trace(
-            state,
-            f"execute_tests: {status_bit} exit={result.exit_code} in {result.duration_sec:.2f}s",
-        ),
+        "status": "success" if ok else "running",
+        "trace": _trace(state, trace_line),
     }
+
+
+KEPT_COMMENTS_NOTE = "[rebirth] Tests pass, but"
+_COMMENT_PREFIX = {"python": ("#",), "default": ("//", "/*", "*", "*/")}
+
+
+def comments_lost(original: str, draft: str, adapter_id: str | None) -> tuple[int, int]:
+    """(comment lines the draft dropped, comment lines of the original) when that is a real loss:
+    at least 3 lines and over 20 % of them; else (0, total). ``REBIRTH_KEEP_COMMENTS=0`` turns it off."""
+    import os
+
+    if os.environ.get("REBIRTH_KEEP_COMMENTS", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return 0, 0
+    prefix = _COMMENT_PREFIX.get(adapter_id or "", _COMMENT_PREFIX["default"])
+
+    def count(text: str) -> int:
+        n = sum(1 for line in text.splitlines() if line.strip().startswith(prefix))
+        return n + (text.count('"""') + text.count("\'\'\'") if adapter_id == "python" else 0)
+
+    total, kept = count(original), count(draft)
+    lost = total - kept
+    return (lost, total) if lost >= 3 and lost > 0.2 * total else (0, total)
 
 
 def _heuristic_error_class(logs: str) -> str | None:
     """High-precision overrides (beat a confused classifier on obvious CI shapes)."""
+    if logs.startswith(KEPT_COMMENTS_NOTE):  # our own note: tests passed, comments were deleted
+        return "TestLogicFailure"
     low = logs.lower()
     if (
         "cannot find module" in low
@@ -161,7 +198,28 @@ def _heuristic_error_class(logs: str) -> str | None:
         return "SyntaxError"
     if "typeerror" in low or "error ts23" in low or "is not assignable to" in low:
         return "TypeMismatch"
+    # compiled languages (the classifier was trained on JS / Python logs): Go, Rust, Swift, C++,
+    # Java, C#
+    if _COMPILE_SYNTAX.search(logs):
+        return "SyntaxError"
+    if _COMPILE_TYPE.search(logs):
+        return "TypeMismatch"
     return None
+
+
+# Anchored on the compilers' own shapes (``file:line:col: error: …``, ``error[E…]``, ``error CS…``) so
+# assertion messages such as chai's "AssertionError: expected 4 to equal 5" never match.
+_LOC = r"(?:^|:\d+(?::\d+)?:?\s*)"
+_COMPILE_SYNTAX = re.compile(
+    rf"{_LOC}syntax error:|^error(?:\[E\d+\])?: expected\b|\.(?:swift|c|cc|cpp|cxx|h|hpp):\d+:\d+: error: expected\b"
+    rf"|\.java:\d+: error: (?:'?[;)}}\]]'? expected|class, interface, enum, or record expected|reached end of file)"
+    r"|error CS1\d{3}\b",
+    re.MULTILINE)
+_COMPILE_TYPE = re.compile(
+    r"^error\[E0308\]: mismatched types|\.go:\d+:\d+: cannot use .+ as .+ value|\.java:\d+: error: incompatible types"
+    r"|error CS0029\b|\.swift:\d+:\d+: error: cannot convert value of type"
+    r"|\.(?:c|cc|cpp|cxx|h|hpp):\d+:\d+: error: (?:no matching function for call|invalid conversion from)",
+    re.MULTILINE)
 
 
 def classify_error(state: MigrationState) -> MigrationState:
@@ -174,15 +232,18 @@ def classify_error(state: MigrationState) -> MigrationState:
         probs = clf.predict_proba(logs)
         label = max(probs, key=probs.get)
         confidence = float(probs[label])
-        # Clear dependency/module errors always win over a low-signal model guess.
-        if override == "DependencyMissing":
-            label = "DependencyMissing"
+        # Clear dependency/module errors (and Rebirth's own comment note) always win over a model guess.
+        if override == "DependencyMissing" or logs.startswith(KEPT_COMMENTS_NOTE):
+            label = override
             confidence = max(confidence, 0.99)
         elif confidence < 0.45:
             # Phase 7 telemetry: low-confidence → keep prediction but mark Unknown.
             unknown = True
             if override:
                 label = override
+            elif label == "DependencyMissing":
+                # a guess must not send the run to install_dependency (a Go "unexpected EOF" did, 0.34)
+                label = "TestLogicFailure"
     except Exception:
         label = override or "TestLogicFailure"
         if override is None:
@@ -201,6 +262,16 @@ def classify_error(state: MigrationState) -> MigrationState:
     }
 
 
+def _refusal_note(pkg: str, logs: str) -> str:
+    """Test logs for the next draft, led by why the missing package stays missing (else the model
+    keeps importing it: Phase 19 bench, 5 drafts in a row)."""
+    return (
+        f"[rebirth] The package `{pkg}` is not available and will not be installed: the project does "
+        "not depend on it. Do not import it. Use the language's standard library or a dependency the "
+        f"project already declares.\n\n{logs}"
+    )
+
+
 def install_dependency(state: MigrationState) -> MigrationState:
     logs = state.get("test_logs") or ""
     pkg = _missing_package_name(logs) or state.get("missing_package")
@@ -216,17 +287,35 @@ def install_dependency(state: MigrationState) -> MigrationState:
             "trace": _trace(state, f"install_dependency: skip relative import {pkg}"),
         }
 
+    adapter = _adapter_for_state(state)
+    if not callable(getattr(adapter, "install_command", None)):
+        return {
+            **state,
+            "missing_package": pkg,
+            "test_logs": _refusal_note(pkg, logs),
+            "trace": _trace(state, f"install_dependency: refused {pkg} — {adapter.name} has no package installs"),
+        }
+    language = "python" if adapter.name == "python" else "js_ts"
+    to_install, why = install_decision(Path(state["project_dir"]), language, pkg, state.get("original_code") or "")
+    if to_install is None:
+        return {
+            **state,
+            "missing_package": pkg,
+            "test_logs": _refusal_note(pkg, logs),
+            "trace": _trace(state, f"install_dependency: refused {pkg} — {why}"),
+        }
+
     extras = list(state.get("extra_packages") or [])
-    already = pkg in extras
+    already = to_install in extras
     if not already:
-        extras.append(pkg)
+        extras.append(to_install)
     return {
         **state,
         "missing_package": pkg,
         "extra_packages": extras,
         "trace": _trace(
             state,
-            f"install_dependency: {'already queued' if already else 'queued'} {pkg}",
+            f"install_dependency: {'already queued' if already else 'queued'} {to_install} ({why})",
         ),
     }
 

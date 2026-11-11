@@ -147,6 +147,10 @@ def _clean_sft_completion(text: str) -> str:
 
 SFT_MAX_NEW_TOKENS = 512
 SFT_MIN_NEW_TOKENS = 256
+# Ceiling of the chat path (long files, retries); the budget itself scales with the file
+# (`_chat_max_new_tokens`). 1024 cut every file over ~3.5 KB mid-function (Phase 19 real-repo
+# check: go-homedir, 3.8 KB -> "unexpected EOF" in all 5 drafts). Same ceiling as OllamaClient.
+CHAT_MAX_NEW_TOKENS = 8192
 
 
 def _sft_max_new_tokens(legacy_code: str, requested: int) -> int:
@@ -186,7 +190,7 @@ def plan_generation(
     legacy_code: str,
     file_path: str,
     language: str,
-    max_new_tokens: int = 1024,
+    max_new_tokens: int = CHAT_MAX_NEW_TOKENS,
     retrieved_context: list[str] | None = None,
     error_class: str | None = None,
     test_logs: str | None = None,
@@ -236,7 +240,7 @@ class PeftClient:
         base_model: str | None = None,
         adapter_path: Path | str | None = None,
         language: str | None = None,
-        max_new_tokens: int = 1024,
+        max_new_tokens: int = CHAT_MAX_NEW_TOKENS,
         prompt_style: str | None = None,
     ) -> None:
         self.base_model, self.adapter_path = resolve_peft_paths(
