@@ -5,43 +5,45 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rebirth-ai"
 version = "0.1.0"
-description = "Autonomous closed-loop AI agent for legacy codebase migration (LangGraph + RAG + LoRA + Docker sandbox)."
+description = "Modernize legacy code, or translate it between 8 languages, with local models; every change is checked by your own tests in a Docker sandbox."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Hugo-Nathan Bele-Binda" }]
-keywords = ["migration", "langgraph", "lora", "rag", "technical-debt"]
+keywords = ["code-migration", "code-modernization", "code-translation", "legacy-code", "ollama", "llm", "docker", "technical-debt"]
+# Upper bounds: the next release that may break us (tree-sitter grammars track the core's ABI, so they stay
+# on the tested minor). scripts/bootstrap.sh installs within these ranges; CI tests the newest allowed.
 dependencies = [
-  "docker>=7.0.0",
-  "tree-sitter>=0.22.0",
-  "tree-sitter-javascript>=0.21.0",
-  "tree-sitter-typescript>=0.21.0",
-  "tree-sitter-python>=0.21.0",
-  "tree-sitter-go>=0.21.0",
-  "tree-sitter-java>=0.21.0",
-  "tree-sitter-c-sharp>=0.21.0",
-  "tree-sitter-rust>=0.21.0",
-  "tree-sitter-cpp>=0.21.0",
-  "tree-sitter-swift>=0.0.1",
-  "sentence-transformers>=3.0.0",
-  "scikit-learn>=1.4.0",
-  "pandas>=2.2.0",
-  "numpy>=1.26.0",
-  "httpx>=0.27.0",
-  "pydantic>=2.6.0",
-  "pydantic-settings>=2.2.0",
-  "typer>=0.12.0",
-  "rich>=13.7.0",
-  "langgraph>=0.2.0",
-  "langchain-core>=0.3.0",
-  "PyYAML>=6.0",  # configs/routing.yaml (rebirth migrate --backend auto)
+  "docker>=7.0.0,<8",
+  "tree-sitter>=0.22.0,<0.27",
+  "tree-sitter-javascript>=0.21.0,<0.26",
+  "tree-sitter-typescript>=0.21.0,<0.24",
+  "tree-sitter-python>=0.21.0,<0.26",
+  "tree-sitter-go>=0.21.0,<0.26",
+  "tree-sitter-java>=0.21.0,<0.24",
+  "tree-sitter-c-sharp>=0.21.0,<0.24",
+  "tree-sitter-rust>=0.21.0,<0.25",
+  "tree-sitter-cpp>=0.21.0,<0.24",
+  "tree-sitter-swift>=0.0.1,<0.8",
+  "sentence-transformers>=3.0.0,<7",
+  "scikit-learn>=1.4.0,<2",
+  "pandas>=2.2.0,<4",
+  "numpy>=1.26.0,<3",
+  "httpx>=0.27.0,<1",
+  "pydantic>=2.6.0,<3",
+  "pydantic-settings>=2.2.0,<3",
+  "typer>=0.12.0,<0.30",
+  "rich>=13.7.0,<16",
+  "langgraph>=1.0,<2",
+  "langchain-core>=1.0,<2",
+  "PyYAML>=6.0,<7",  # configs/routing.yaml (rebirth migrate --backend auto)
 ]
 
 [project.optional-dependencies]
 graph = [
-  "langgraph>=0.2.0",
-  "langchain-core>=0.3.0",
+  "langgraph>=1.0,<2",
+  "langchain-core>=1.0,<2",
 ]
 ml = [
   "torch>=2.2.0",

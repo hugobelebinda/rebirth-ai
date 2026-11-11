@@ -58,10 +58,12 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv
   .venv/bin/pip install -q --upgrade pip
   # CPU torch: only the small embedding model runs in Python; the LLMs run in Ollama.
-  [ "${REBIRTH_TORCH:-cpu}" = cpu ] && .venv/bin/pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+  [ "${REBIRTH_TORCH:-cpu}" = cpu ] && .venv/bin/pip install -q "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
 fi
 .venv/bin/pip install -q -e .
 .venv/bin/rebirth version
+# The error classifier is trained here, not shipped (a pickle is tied to the scikit-learn version): < 1 s.
+.venv/bin/rebirth train-classifier >/dev/null && echo "ok: error classifier trained"
 
 say "3/6 code-search embedding model"
 if [ "$embedder" = 1 ]; then
@@ -83,11 +85,14 @@ if [ "$images" = 1 ]; then
   version="$(.venv/bin/python -c 'import rebirth_ai; print(rebirth_ai.__version__)')"
   for dir in docker/*_sandbox; do
     lang="$(basename "$dir" _sandbox)"; name="rebirth-ai/${lang//_/-}-sandbox"
-    if [ "$rebuild" = 0 ] && docker image inspect "$name:latest" >/dev/null 2>&1; then
-      echo "ok: $name:latest (exists)"
+    # The image carries a hash of its folder: after a `git pull` that changes a Dockerfile, it is rebuilt.
+    sum="$(find "$dir" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -c1-16)"
+    have="$(docker image inspect -f '{{index .Config.Labels "rebirth.dockerfile"}}' "$name:latest" 2>/dev/null || true)"
+    if [ "$rebuild" = 0 ] && [ "$have" = "$sum" ]; then
+      echo "ok: $name:latest (up to date)"
     else
       echo "building $name …"
-      docker build -q -t "$name:latest" "$dir" >/dev/null
+      docker build -q --label "rebirth.dockerfile=$sum" -t "$name:latest" "$dir" >/dev/null
     fi
     docker tag "$name:latest" "$name:$version"
   done
@@ -104,7 +109,7 @@ fi
 
 say "6/6 rebirth doctor"
 .venv/bin/rebirth doctor --strict
-printf '\n\033[32mReady.\033[0m Try (bundled sample project):\n'
-printf '  .venv/bin/rebirth migrate fixtures/python_sample --file src/math_ops.py --test tests/test_math_ops.py --lang python\n'
-printf '  .venv/bin/rebirth migrate fixtures/python_sample --file src/math_ops.py --lang python --to go\n'
-printf 'More: docs/INSTALL.md\n'
+printf '\n\033[32mReady.\033[0m Put rebirth on your path (source .venv/bin/activate), then run:\n'
+printf '  rebirth                       the guided start screen\n'
+printf '  rebirth migrate fixtures/python_sample --file src/math_ops.py      a bundled sample\n'
+printf 'Guide: README.md · install details: docs/INSTALL.md\n'
