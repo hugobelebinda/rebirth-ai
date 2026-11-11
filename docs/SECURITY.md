@@ -89,10 +89,21 @@ restriction; only use it on a machine you can throw away.
 - Without `--write`, nothing in your project changes: drafts are shown and kept in the run report, and
   translations (`--to`) are written to a new `rebirth_out/<language>/` folder.
 - `--write` replaces only the files whose tests passed in the sandbox.
-- `--open-pr` creates a branch, commits only the files that passed, and opens a pull request (`--draft` for a
-  draft) with your own `gh` login (`gh auth login`; Rebirth never sees a token). Secret-looking paths (`.env*`, `*.pem`,
-  `*.key`, `credentials*`, `secrets*`, SSH keys) are never committed
-  ([`safety.py`](../src/rebirth_ai/safety.py)). Review the pull request before merging it, like any other.
+- `--open-pr` (implies `--write`) opens a pull request with your own `gh` login (`gh auth login`; Rebirth
+  never sees a token). It works in the project's own git repository:
+  - It creates a **new** branch. It refuses one that already exists.
+  - It commits **only the files whose tests passed**. Anything else you had staged stays staged, out of the
+    commit.
+  - Secret-looking paths (`.env*`, `*.pem`, `*.key`, `credentials*`, `secrets*`, SSH keys) are never
+    committed ([`safety.py`](../src/rebirth_ai/safety.py)).
+  - The PR body names the project relative to the repository, with no local paths, and its log excerpts are
+    redacted.
+  - Use `--draft` for a draft PR.
+
+  Review the pull request before merging it, like any other.
+- `rebirth migrate` only works on a file inside the project you name. It refuses paths that lead outside it
+  (`../`, absolute paths, symlinks), secrets files, binary or non-UTF-8 files, and files over
+  `REBIRTH_MAX_FILE_BYTES`.
 
 ## Limits
 
