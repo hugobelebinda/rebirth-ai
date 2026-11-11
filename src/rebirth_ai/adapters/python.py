@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from pathlib import Path
 
 from rebirth_ai.adapters.base import SandboxSpec
@@ -79,9 +80,15 @@ class PythonAdapter:
             return f"pytest -q {relative_file}"
         return "pytest -q"
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """``pip install --user`` the requirements files and the pyproject's declared dependencies."""
+        from rebirth_ai.sandbox.deps import pip_setup
+
+        return pip_setup(project_dir)
+
     def install_command(self, packages: list[str]) -> str:
-        pkgs = " ".join(packages)
-        return f"pip install --no-cache-dir {pkgs}"
+        pkgs = " ".join(shlex.quote(p) for p in packages)
+        return f"pip install --user --no-cache-dir --disable-pip-version-check -q {pkgs}"
 
 
 def get_adapter() -> PythonAdapter:

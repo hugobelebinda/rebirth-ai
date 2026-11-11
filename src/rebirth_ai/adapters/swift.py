@@ -53,5 +53,12 @@ class SwiftAdapter:
     def parse(self, path: Path, source: str | None = None) -> list[CodeChunk]:
         return self._chunker.chunk_file(path, source=source)
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """``swift package resolve`` when ``Package.swift`` has package dependencies."""
+        manifest = Path(project_dir) / "Package.swift"
+        if not manifest.is_file() or ".package(" not in manifest.read_text(encoding="utf-8", errors="replace"):
+            return None
+        return "swift package resolve"
+
     def test_command_for(self, relative_file: str | None = None) -> str:
         return "swift test"

@@ -11,6 +11,7 @@ from rebirth_ai.classify.model import ErrorClassifier
 from rebirth_ai.generate.factory import get_generator
 from rebirth_ai.graph.state import MigrationState
 from rebirth_ai.rag.retrieve import Retriever
+from rebirth_ai.sandbox.deps import install_decision
 from rebirth_ai.sandbox.runner import SandboxRunner
 
 _MISSING_PKG = re.compile(
@@ -100,30 +101,20 @@ def execute_tests(state: MigrationState) -> MigrationState:
     adapter = _adapter_for_state(state)
     runner = SandboxRunner(adapter)
 
-    # Temp sandbox copies discard node_modules / venv — when extras are known,
-    # install+test in one networked container so the dep is available for the suite.
-    if packages:
-        install = getattr(adapter, "install_command", None)
-        if callable(install):
-            install_cmd = install(packages)
-        else:
-            install_cmd = f"npm install --no-save --no-package-lock {' '.join(packages)}"
-        test_cmd = runner.adapter.test_command_for(state.get("relative_test"))
-        combined = f"{install_cmd} && {test_cmd}"
-        result = runner.run_project(
-            project,
-            command=combined,
-            network_mode="bridge",
-            overlay_text=draft,
-            overlay_dest=relative_file,
-        )
-    else:
-        result = runner.run_project(
-            project,
-            relative_test=state.get("relative_test"),
-            overlay_text=draft,
-            overlay_dest=relative_file,
-        )
+    # Temp sandbox copies discard node_modules / venv: the project's declared dependencies and the
+    # packages queued by install_dependency are installed in the sandbox's setup step, with network,
+    # before the draft is written in; the draft's tests run offline.
+    setup = runner.setup_command(project, state.get("relative_test"))
+    install = getattr(adapter, "install_command", None)
+    if packages and callable(install):
+        setup = " && ".join(c for c in (setup, install(packages)) if c)
+    result = runner.run_project(
+        project,
+        relative_test=state.get("relative_test"),
+        setup_command=setup,
+        overlay_text=draft,
+        overlay_dest=relative_file,
+    )
     logs = (result.stdout or "") + ("\n" + result.stderr if result.stderr else "")
     status_bit = "PASS" if result.ok else "FAIL"
     return {
@@ -216,17 +207,33 @@ def install_dependency(state: MigrationState) -> MigrationState:
             "trace": _trace(state, f"install_dependency: skip relative import {pkg}"),
         }
 
+    adapter = _adapter_for_state(state)
+    if not callable(getattr(adapter, "install_command", None)):
+        return {
+            **state,
+            "missing_package": pkg,
+            "trace": _trace(state, f"install_dependency: refused {pkg} — {adapter.name} has no package installs"),
+        }
+    language = "python" if adapter.name == "python" else "js_ts"
+    to_install, why = install_decision(Path(state["project_dir"]), language, pkg, state.get("original_code") or "")
+    if to_install is None:
+        return {
+            **state,
+            "missing_package": pkg,
+            "trace": _trace(state, f"install_dependency: refused {pkg} — {why}"),
+        }
+
     extras = list(state.get("extra_packages") or [])
-    already = pkg in extras
+    already = to_install in extras
     if not already:
-        extras.append(pkg)
+        extras.append(to_install)
     return {
         **state,
         "missing_package": pkg,
         "extra_packages": extras,
         "trace": _trace(
             state,
-            f"install_dependency: {'already queued' if already else 'queued'} {pkg}",
+            f"install_dependency: {'already queued' if already else 'queued'} {to_install} ({why})",
         ),
     }
 

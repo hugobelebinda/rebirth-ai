@@ -1,7 +1,7 @@
 # Installing Rebirth AI
 
 Rebirth runs entirely on your machine: the models run in [Ollama](https://ollama.com), the code it writes is
-tested in Docker sandboxes with no network, and nothing is sent anywhere.
+tested in Docker sandboxes with no network, and nothing is sent anywhere. Details: [SECURITY.md](SECURITY.md).
 
 ## What you need
 
@@ -13,7 +13,7 @@ tested in Docker sandboxes with no network, and nothing is sent anywhere.
 | Ollama | 0.30+ | Must be running (`ollama list` works). |
 | GPU | see the packs below | NVIDIA (CUDA) or AMD (ROCm, see [OLLAMA_AMD_GPU.md](OLLAMA_AMD_GPU.md)). Without a GPU Ollama runs on the CPU, which is very slow. |
 | Disk | ~30 GB free | Models ~17 GB, sandbox images ~8 GB, Python environment ~3 GB. |
-| Internet | for the install only | Afterwards everything works offline. |
+| Internet | for the install | Afterwards the models and Rebirth work offline. The sandbox still downloads your project's own dependencies before testing (Maven, NuGet, npm, pip, Go, Cargo, SwiftPM), when it has any. |
 
 ### The two model packs
 

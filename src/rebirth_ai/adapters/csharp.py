@@ -58,9 +58,19 @@ class CSharpAdapter:
         return self._chunker.chunk_file(path, source=source)
 
     def test_command_for(self, relative_file: str | None = None) -> str:
-        # Run against the test project when the common fixture layout is present.
+        # Run against the test project when the common fixture layout is present. No restore: the
+        # sandbox's setup step (``dotnet restore``, with network) has done it; this step is offline.
         return (
             "if [ -f MathOps.Tests/MathOps.Tests.csproj ]; then "
-            "dotnet test MathOps.Tests/MathOps.Tests.csproj --nologo -v q; "
-            "else dotnet test --nologo -v q; fi"
+            "dotnet test MathOps.Tests/MathOps.Tests.csproj --nologo -v q --no-restore; "
+            "else dotnet test --nologo -v q --no-restore; fi"
+        )
+
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        d = Path(project_dir)
+        if not any(d.glob("*.sln")) and not any(d.rglob("*.csproj")):
+            return None
+        return (
+            "if [ -f MathOps.Tests/MathOps.Tests.csproj ]; then "
+            "dotnet restore MathOps.Tests/MathOps.Tests.csproj -v q; else dotnet restore -v q; fi"
         )
