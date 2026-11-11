@@ -4,7 +4,7 @@
 > Previous: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)  
 > Depends on: Phase 10 complete **and** LoRA specialization waves ([PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md)) — or explicit user skip of LoRA  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 19  
-> Last docs refresh: 2026-11-11  
+> Last docs refresh: 2026-11-11 (evening)  
 > Handoff: [SESSION_HANDOFF.md](../SESSION_HANDOFF.md)
 
 ## Why deferred
@@ -208,10 +208,83 @@ Comments were kept: at most 2 comment lines lost per file, with the objective as
 gives 2 clean results out of 14, the fallback 6. Cost: one 14B run per unchanged file, 24–290 s here, and
 the longest when it fails.
 
-**Open (owner's review):**
+**Fallback shipped (owner's go, 2026-11-11):** `src/rebirth_ai/graph/fallback.py`.
 
-- Whether to ship the fallback (`unchanged` → one 14B run).
-- `--open-pr` needs a throwaway repository.
+- **When:** a served 7B adapter passes the tests but changes nothing.
+- **What:** one more run with a 14B. It tries `REBIRTH_FALLBACK_MODEL`, then the plain Qwen2.5-Coder 14B,
+  then `rebirth-xlang:14b`, whichever Ollama has. If none is there, it is skipped with a note.
+- **On by default:** `--no-fallback` or `REBIRTH_FALLBACK=0` turns it off. `migrate-repo` runs all
+  fallbacks after the 7B pass, so the models swap once instead of once per file.
+- **Measured:**
+  - The shipped default, end to end on the 14 files: 9 changed and passing, 1 unchanged, 4 failed. That
+    matches the estimate composed from separate runs.
+  - `rebirth-xlang:14b` as the fallback, on the 10 files the 7B left unchanged: 2 clean modernizations
+    and a docstring typo fix, with no regression. The plain 14B gets 4 clean and 1 regression, so it is
+    tried first.
+- **Also:**
+  - The default objectives ask the model to keep comments and docstrings.
+  - Reports, PR bodies and successful runs say "passing tests are evidence, not proof".
+
+**Bug hunt (2026-11-11, before anything is published):** 10 rounds, each fix with tests (264 → 307 tests).
+
+1. **Bad input:**
+   - `migrate --file` accepted paths outside the project, secrets files and huge files. Binary and
+     non-UTF-8 files crashed, and empty files went to the model.
+   - Ollama or Docker down, a missing sandbox image, `--to klingon`, a malformed report, rollback of an
+     unknown language, and `sandbox` on a folder with no code gave tracebacks or wrong messages.
+   - All of these now end in a one-line error with exit code 2.
+2. **`--open-pr`:**
+   - It opened the PR on the repository you ran the command from, not the project's.
+   - Paths were wrong for a project in a subfolder.
+   - It committed the user's unrelated staged changes, and `-B` silently reset an existing branch.
+   - It staged a report file outside the repo, so `git add` failed.
+   - The PR body showed absolute local paths and unredacted logs.
+   - Without `--write` it committed nothing. Now `--open-pr` implies `--write`, and git and `gh` are
+     checked before any model runs. `tests/test_github_pr.py` covers this with a real repo and a fake `gh`.
+3. **Downloads:** a truncated or corrupt model file, or a `.part` file longer than the release, failed on
+   every later run. A dropped connection gave a traceback instead of "run again to resume".
+4. **Writing files:**
+   - `--write` turned CRLF files into LF (every line changed) and lost the BOM and the final newline.
+   - The fixes for long files (chat output ceiling) and for passing drafts that change nothing are under
+     "Fixed from these runs" above.
+5. **Running tests:**
+   - Paths with spaces broke the sandbox command.
+   - Python ran bare `pytest`, so a package next to `tests/` could not be imported.
+   - A `.py` file in a project with `package.json` got the JS adapter.
+   - `rebirth migrate` defaulted `--file` and `--test` to a fixture's paths, so without `--test` it ran
+     the wrong test.
+   - Test discovery and language detection for real layouts are under the real-repo results above.
+6. **Code search:** the index of whatever project was last indexed (`data/embeddings.db`) fed its chunks
+   to every migration. Now an index is used only for its own project.
+7. **Error classes:**
+   - Go, Rust, Java, C#, C++ and Swift compile errors were classified with JS / Python rules. A Go syntax
+     error came out as a "missing dependency" and took the run to the package-install step.
+   - A low-confidence guess no longer goes to install.
+8. **Comments:** a passing draft that deletes the original's comments (at least 3 lines and over 20 %) goes
+   back to the model with a note. The 14B fallback had deleted 9 of go-homedir's 22 comment lines.
+9. **Other:**
+   - `OLLAMA_HOST` without a scheme broke the clients, and `rebirth doctor` ignored `OLLAMA_HOST`.
+   - `install --from <missing folder>` pulled models first.
+   - The pyproject `license` table is deprecated.
+   - bootstrap asked the Hugging Face Hub for an embedding model it already had.
+   - INSTALL now says the 7B base still comes from the Ollama library.
+
+Final regression on the finished code (2026-11-11):
+
+- 8 / 8 fixture languages on iteration 1; Python → Go on iteration 2.
+- Phase 7 benches 6 / 6.
+- The 14 real files with the shipped defaults: 8 changed and passing, 1 unchanged, 5 failed.
+  - go-homedir is now human review: the comment guard turned down 5 drafts that stripped its comments,
+    including the one that also removed its macOS fallback.
+  - Every other file kept its comments.
+  - Of the 8, 6 are clean and 2 are the 7B issues listed above (inflection, to-regex-range).
+
+Checked clean:
+- `--help` of all 24 commands and their subcommands.
+- `bootstrap.sh` (shellcheck).
+- A clean-copy bootstrap: 38 s, `doctor --strict` green.
+
+Open (owner's review): the `--open-pr` check on a throwaway repository.
 
 ### Step 5 — docs
 
