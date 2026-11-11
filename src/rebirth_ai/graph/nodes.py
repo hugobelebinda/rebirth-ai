@@ -48,8 +48,22 @@ def retrieve_context(state: MigrationState) -> MigrationState:
     db = Path(state.get("db_path") or "data/embeddings.db")
     context: list[str] = []
     if db.exists():
+        # One index per project (`rebirth index <project>`): chunks of another project are not context
+        # for this one. Checked before the embedder loads.
+        from rebirth_ai.rag.store import VectorStore
+
+        indexed = VectorStore(db).get_meta("project_dir")
+        project = Path(state["project_dir"]).resolve()
+        if indexed and Path(indexed).resolve() != project:
+            return {
+                **state,
+                "retrieved_context": [],
+                "status": "running",
+                "trace": _trace(state, f"retrieve_context: skipped (the index {db} is for {indexed}; "
+                                       f"`rebirth index {project}` builds one for this project)"),
+            }
         try:
-            retriever = Retriever(db_path=db)
+            retriever = Retriever(db_path=db, adapter=_adapter_for_state(state))
             hits = retriever.query_for_file(path, top_k=4)
             context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
         except Exception as exc:
