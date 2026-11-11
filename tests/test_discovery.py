@@ -109,3 +109,43 @@ def test_dry_run_migrate_repo_fixture() -> None:
     body = render_pr_body(report)
     assert "dry-run" in body
     assert "Migrate order" in body
+
+
+def test_infer_falls_back_to_a_test_that_imports_the_file(tmp_path: Path) -> None:
+    from rebirth_ai.adapters.js_ts import JsTsAdapter
+
+    # single-file npm package: root test.js requires the package root (package.json "main")
+    (tmp_path / "index.js").write_text("module.exports = () => 1;\n", encoding="utf-8")
+    (tmp_path / "test.js").write_text("var f = require('./');\n", encoding="utf-8")
+    (tmp_path / "package.json").write_text('{"name": "pkg", "main": "index.js"}', encoding="utf-8")
+    assert infer_test_path(tmp_path, "index.js") == "test.js"  # no test script: node --test test.js
+    (tmp_path / "package.json").write_text(
+        '{"name": "pkg", "main": "index.js", "scripts": {"test": "mocha"}}', encoding="utf-8")
+    assert infer_test_path(tmp_path, "index.js") == "package.json"  # the project's own runner
+    assert JsTsAdapter().test_command_for("package.json") == "npm test"
+    # a file no test imports stays without a test (skipped), even with a test script
+    (tmp_path / "other.js").write_text("module.exports = 2;\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "other.js") is None
+    # test/ dir importing ../lib/x and node_modules never scanned
+    (tmp_path / "lib").mkdir()
+    (tmp_path / "lib" / "x.js").write_text("export const x = 1;\n", encoding="utf-8")
+    (tmp_path / "test").mkdir()
+    (tmp_path / "test" / "x.js").write_text("import { x } from '../lib/x.js';\n", encoding="utf-8")
+    nm = tmp_path / "node_modules" / "dep"
+    nm.mkdir(parents=True)
+    (nm / "test.js").write_text("require('../../other');\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "lib/x.js") == "package.json"
+    assert infer_test_path(tmp_path, "other.js") is None
+
+
+def test_infer_python_package_and_submodule(tmp_path: Path) -> None:
+    pkg = tmp_path / "inflect"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("def f():\n    return 1\n", encoding="utf-8")
+    (pkg / "util.py").write_text("X = 1\n", encoding="utf-8")
+    (tmp_path / "test_inflect.py").write_text("import pytest\n\nimport inflect\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "inflect/__init__.py") == "test_inflect.py"
+    assert infer_test_path(tmp_path, "inflect/util.py") is None  # nothing imports inflect.util
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "test_misc.py").write_text("from inflect import other, util\n", encoding="utf-8")
+    assert infer_test_path(tmp_path, "inflect/util.py") == "tests/test_misc.py"

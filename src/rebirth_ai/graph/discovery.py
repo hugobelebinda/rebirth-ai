@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import os
 import re
 from pathlib import Path
 
@@ -325,6 +326,129 @@ def infer_test_path(project_dir: Path, relative_file: Path | str) -> str | None:
                 # stem.test.js → stem match via Path.stem of "math.test" vs "math"
                 if hinted.name.startswith(f"{stem}.") and (project_dir / hinted).is_file():
                     return hinted.as_posix()
+    # Last resort: a test file that imports this very file (`test.js` → `require('./')`, root
+    # `test_<package>.py` → `import <package>`). JS runs the project's own `npm test` (the test may
+    # need mocha / ava / jest); Python runs that test file with pytest.
+    if suf in JS_SOURCE_SUFFIXES or suf == ".py":
+        hit = tests_importing(project_dir, rel)
+        if hit:
+            return (WHOLE_SUITE_JS if suf in JS_SOURCE_SUFFIXES and _npm_test_script(project_dir) else hit)
+    return None
+
+
+WHOLE_SUITE_JS = "package.json"  # test "path" meaning: the project's `npm test` (JsTsAdapter)
+_TEST_DIRS = ("test", "tests", "__tests__", "spec")
+_MAX_TEST_FILES = 300
+
+
+def _npm_test_script(project_dir: Path) -> str:
+    try:
+        data = json.loads((project_dir / "package.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    script = (data.get("scripts") or {}).get("test") or ""
+    return "" if "no test specified" in script else script
+
+
+def _candidate_test_files(project_dir: Path, python: bool) -> list[Path]:
+    """Test files by name: ``test_*.py`` / ``*_test.py``; root ``test.js``, files under test dirs,
+    ``*.test.*`` / ``*.spec.*``. Skips the deny-listed and hidden directories without entering them."""
+    exts = {".py"} if python else JS_SOURCE_SUFFIXES
+    out: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(project_dir):
+        dirnames[:] = sorted(d for d in dirnames if d not in DENY_DIR_NAMES and not d.startswith("."))
+        here = Path(dirpath).relative_to(project_dir)
+        in_test_dir = any(part in _TEST_DIRS for part in here.parts)
+        for name in sorted(filenames):
+            path = Path(name)
+            if path.suffix not in exts:
+                continue
+            stem = name[: -len(path.suffix)]
+            if python:
+                keep = stem.startswith("test_") or stem.endswith("_test")
+            else:
+                keep = stem in {"test", "tests"} or in_test_dir or stem.endswith((".test", ".spec"))
+            if keep:
+                out.append(here / name)
+                if len(out) >= _MAX_TEST_FILES:
+                    return out
+    return out
+
+
+def _js_resolve(project_dir: Path, test_rel: Path, spec: str) -> str | None:
+    """Project-relative source a JS import specifier in ``test_rel`` points at (``./``, ``..``, files)."""
+    if spec.startswith("."):
+        base = (project_dir / test_rel.parent / spec).resolve()
+    else:  # the package's own name: `require('is-number')` in its tests
+        try:
+            name = json.loads((project_dir / "package.json").read_text(encoding="utf-8")).get("name")
+        except (OSError, ValueError):
+            return None
+        if spec != name:
+            return None
+        base = project_dir.resolve()
+    try:
+        rel = base.relative_to(project_dir.resolve())
+    except ValueError:
+        return None
+    if (project_dir / rel).is_file():
+        return rel.as_posix()
+    if (project_dir / rel).is_dir():
+        if rel == Path("."):
+            try:
+                main = json.loads((project_dir / "package.json").read_text(encoding="utf-8")).get("main")
+            except (OSError, ValueError):
+                main = None
+            if isinstance(main, str) and (project_dir / main).is_file():
+                return Path(main).as_posix().removeprefix("./")
+        for idx in ("index.js", "index.ts", "index.mjs", "index.cjs"):
+            if (project_dir / rel / idx).is_file():
+                return (rel / idx).as_posix()
+        return None
+    for ext in (".js", ".ts", ".mjs", ".cjs", ".jsx", ".tsx"):
+        if (project_dir / f"{rel.as_posix()}{ext}").is_file():
+            return f"{rel.as_posix()}{ext}"
+    return None
+
+
+def _py_module(rel: Path) -> str:
+    """``inflection/__init__.py`` → ``inflection``; ``src/pkg/mod.py`` → ``pkg.mod``."""
+    parts = list(rel.with_suffix("").parts)
+    if parts and parts[0] == "src":
+        parts = parts[1:]
+    if parts and parts[-1] == "__init__":
+        parts = parts[:-1]
+    return ".".join(parts)
+
+
+def tests_importing(project_dir: Path, relative_file: Path | str) -> str | None:
+    """First test file (by name / location) that imports ``relative_file``."""
+    rel = Path(relative_file)
+    python = rel.suffix.lower() == ".py"
+    if python:
+        mod = _py_module(rel)
+        if not mod:
+            return None
+        parent, _, last = mod.rpartition(".")
+        pats = [rf"^\s*import\s+{re.escape(mod)}\b", rf"^\s*from\s+{re.escape(mod)}\s+import\b"]
+        if parent:
+            pats.append(rf"^\s*from\s+{re.escape(parent)}\s+import\s+[^\n]*\b{re.escape(last)}\b")
+        pat = re.compile("|".join(pats), re.M)
+    for test_rel in _candidate_test_files(project_dir, python):
+        if test_rel == rel:
+            continue
+        try:
+            text = (project_dir / test_rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if python:
+            if pat.search(text):
+                return test_rel.as_posix()
+            continue
+        for m in _IMPORT_SPEC.finditer(text):
+            spec = m.group(1) or m.group(2)
+            if _js_resolve(project_dir, test_rel, spec) == rel.as_posix():
+                return test_rel.as_posix()
     return None
 
 
