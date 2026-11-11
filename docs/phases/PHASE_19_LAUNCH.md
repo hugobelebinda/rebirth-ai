@@ -175,11 +175,42 @@ projects' tests:
 4. **A passing draft that changes nothing is reported as `unchanged`** instead of `success`, and is never
    written or put in a PR. Before, these real-repo runs reported "success".
 
+**Measured on more files (owner's go, 2026-11-11):** `training/bench_real_repos.py`.
+
+- **Set-up:** 13 MIT / BSD repos at pinned commits, 18 files, objective "modernize to current idioms,
+  keep the public API, behavior and comments". The report is `data/reports/real_repos.json`.
+- **Left out (4 files):** the project's own tests fail on the original in the sandbox:
+  - fill-range: needs an undeclared `eslint`.
+  - minimist: the tests download npm.
+  - pkg/errors (2 files): the tests expect the GOPATH folder layout.
+- **Fixed on the way:**
+  - Python tests that import through the package now map to the test file, or the test folder.
+  - Projects with no marker file are detected from their source files.
+  - A Go project with no `go.mod` gets `go mod init` + `go mod tidy` in the sandbox copy.
+
+| On 14 files | Changed, tests pass | Unchanged | Failed (5 drafts) |
+|---|---:|---:|---:|
+| Served 7B (`--backend auto`) | 4 | 10 | 0 |
+| Plain 14B (`--backend ollama`) | 8 | 1 | 5 |
+| 7B, then the 14B when unchanged | 9 | 1 | 4 |
+
+Read by hand, the 9 fallback results are:
+
+- **6 clean:** shortuuid and slugify `special.py` (7B); is-number, repeat-string, string-utils `generation.py`
+  and go-humanize `comma.go` (14B).
+- **3 pass the tests but are wrong:**
+  - go-homedir (14B): on macOS, a failed `dscl` call no longer falls back to the shell. That branch is
+    untested on Linux.
+  - inflection (7B): `set[str]` breaks the Python ≥ 3.5 the project supports.
+  - to-regex-range (7B): the exported `cache` becomes a `Map`.
+
+Comments were kept: at most 2 comment lines lost per file, with the objective asking for it. The 7B alone
+gives 2 clean results out of 14, the fallback 6. Cost: one 14B run per unchanged file, 24–290 s here, and
+the longest when it fails.
+
 **Open (owner's review):**
 
-- The 7B adapters make no change on these 3 real files, while the plain 14B does. Possible fix: an
-  `unchanged` result retries once with the plain 14B. That is a routing change, so it needs measuring on
-  more files.
+- Whether to ship the fallback (`unchanged` → one 14B run).
 - `--open-pr` needs a throwaway repository.
 
 ### Step 5 — docs
