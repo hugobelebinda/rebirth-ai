@@ -37,13 +37,14 @@
   - Fixtures 8 / 8 with the served models; Phase 7 benches 6 / 6.
   - Real repos: is-number, go-homedir, inflection, plus 2 `--to`.
   - Fixed: tests found by import, chat output cap 8,192, refused-package note, `unchanged` status.
+- **Fallback shipped** (7B unchanged → one 14B run), **bug hunt** (10 rounds, 264 → 307 tests),
+  **`--open-pr` checked** on the private throwaway repo `rebirth-openpr-test` (PRs #1, #2).
+  Details: [PHASE_19 § Step 4](phases/PHASE_19_LAUNCH.md#step-4--release-checks-2026-11-11).
 - **Open for the owner:**
-  1. The served 7B adapters return real files unchanged, while the plain 14B modernizes them. Possible
-     fix: `unchanged` → retry once with the plain 14B (a routing decision).
-  2. A throwaway repo for the `--open-pr` check.
-  3. Push `rebirth/p19-launch` and open the PR.
-  4. Step 6 review: Hugging Face upload, 1.0.0, tag, GitHub private vulnerability reporting, optionally
-     delete the 29.5 GB bf16 GGUF.
+  1. Push `rebirth/p19-launch` and open the PR, on the owner's word ("soon but not now").
+  2. Step 6 review: Hugging Face upload, 1.0.0, the tag, GitHub private vulnerability reporting,
+     optionally deleting the 29.5 GB bf16 GGUF.
+  3. Delete the throwaway repo when done (it needs the `delete_repo` scope).
 
 Earlier:
 

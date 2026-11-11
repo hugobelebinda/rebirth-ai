@@ -31,7 +31,7 @@ Preferred brain: Ollama 14B default + **per-lang PEFT** when adapters exist
 - [x] `scripts/bootstrap.sh` + doctor green path documented for second machine — [INSTALL.md](../INSTALL.md), clean-copy test 2026-11-10  
 - [x] Fixture E2E for all 8 languages — 8 / 8 closed-loop with the served models, hardened sandbox (2026-11-11, step 4)  
 - [x] ≥1 real JS/TS repo + ≥1 real non-JS repo migrate report — is-number (JS), go-homedir (Go), inflection (Python) + 2 `--to` (2026-11-11, step 4). **Open finding:** the served 7B adapters return these files unchanged, the plain 14B modernizes them (review item)  
-- [ ] `migrate-repo --open-pr` on throwaway branch — needs the owner's choice of repo  
+- [x] `migrate-repo --open-pr` on a throwaway repo — private `rebirth-openpr-test`, PRs #1 (JS) and #2 (Python), 2026-11-11 (step 4)  
 - [x] Security checklist (secrets, sandbox network default `none`) — [SECURITY.md](../SECURITY.md); model-written code never has network (step 4)  
 - [x] Corpus ≥15K documented in `DATASET.md` (24,640)  
 - [ ] Tag `v1.0.0`  
@@ -46,7 +46,7 @@ now; step 6 (publish + tag) only after a review with the owner.
 | 1 | Merge PR #5 (Phase 17 + 18) | done (owner merged it 2026-11-10) |
 | 2 | Merge the cross-language LoRA into the 14B before quantizing → `rebirth-xlang:14b-v2`, gate vs v1 | done 2026-11-11: gate passed, v2 served, rollback demo done |
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
-| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done except `--open-pr` (needs a throwaway repo) |
+| 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done (2026-11-11), plus fallback + bug hunt |
 | 5 | Docs: INSTALL, README, SECURITY, Hugging Face model cards | drafts done (both cards) |
 | 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
 
@@ -284,7 +284,22 @@ Checked clean:
 - `bootstrap.sh` (shellcheck).
 - A clean-copy bootstrap: 38 s, `doctor --strict` green.
 
-Open (owner's review): the `--open-pr` check on a throwaway repository.
+**`--open-pr` on a throwaway repository** (owner's go, 2026-11-11): a new **private** GitHub repo,
+`rebirth-openpr-test`, with two small dummy legacy projects in subfolders (`js-legacy/` with
+`node --test`, `py-legacy/` with pytest). `migrate-repo <clone>/<project> --open-pr` was run from the
+Rebirth checkout, the case that used to target the wrong repository:
+
+| PR | Branch | Files committed | Result |
+|---|---|---|---|
+| #1 | `rebirth/migrate-js` | `js-legacy/src/array.js` (7B), `js-legacy/src/strings.js` (14B fallback) | correct files, repo-relative paths, body with no local paths, review note |
+| #2 | `rebirth/migrate-py` | `py-legacy/legacy/textutil.py` (7B); empty `__init__.py` skipped | correct |
+
+The PR #1 diff shows why the review note is there. All tests pass, but:
+- `!seen.hasOwnProperty(x)` → `!seen[x]` changes `unique(["toString"])`.
+- `Array(n).fill(str)` throws on a negative `n`.
+
+Neither case is tested by the dummy project. The Rebirth checkout was left untouched. Deleting the
+repository is the owner's call (`gh auth refresh -s delete_repo`, then `gh repo delete`).
 
 ### Step 5 — docs
 
