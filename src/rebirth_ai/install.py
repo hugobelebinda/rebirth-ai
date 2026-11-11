@@ -114,11 +114,25 @@ def download(url: str, dest: Path, *, size: int | None = None,
     dest.parent.mkdir(parents=True, exist_ok=True)
     part = dest.with_name(dest.name + ".part")
     have = part.stat().st_size if part.exists() else 0
+    if size and have > size:  # longer than the release file: corrupt, start over
+        part.unlink()
+        have = 0
     headers = {"Range": f"bytes={have}-"} if have else {}
+    try:
+        return _stream(httpx, url, dest, part, have, headers, size, progress)
+    except httpx.HTTPError as exc:  # connection lost, timeout: the .part file stays for the next run
+        raise InstallError(f"download of {dest.name} interrupted ({type(exc).__name__}): run the same "
+                           "command again to resume") from exc
+
+
+def _stream(httpx, url, dest, part, have, headers, size, progress) -> Path:
     with httpx.stream("GET", url, headers=headers, follow_redirects=True, timeout=60.0) as r:
-        if r.status_code == 416 and size and have == size:  # already complete
-            part.rename(dest)
-            return dest
+        if r.status_code == 416:
+            if size and have == size:  # already complete
+                part.rename(dest)
+                return dest
+            part.unlink(missing_ok=True)  # the server cannot continue this .part: start over next run
+            raise InstallError(f"download of {dest.name} could not resume (HTTP 416): run the command again")
         if r.status_code in (401, 404):
             raise InstallError(f"{url} not found (HTTP {r.status_code}) — release files not published yet? "
                                "Install from a folder with --from <dir>")
@@ -152,13 +166,18 @@ def _fetch(step: Step, model: dict, *, progress: Callable[[str], None]) -> tuple
         if not path.is_file():
             download(step.source, path, size=model.get("size"), progress=progress)
     if model.get("size") and path.stat().st_size != model["size"]:
-        raise InstallError(f"{path.name}: size {path.stat().st_size} ≠ {model['size']} (truncated download?)")
+        have = path.stat().st_size
+        if temp:  # else every later run would find the bad file and skip the download
+            path.unlink()
+        raise InstallError(f"{path.name}: size {have} ≠ {model['size']} (truncated download?)"
+                           + (" — deleted, run again to download it" if temp else ""))
     progress(f"  checking {path.name} …")
     got = sha256_file(path)
     if got != model["sha256"]:
         if temp:
             path.unlink()
-        raise InstallError(f"{path.name}: sha256 {got[:12]}… ≠ expected {model['sha256'][:12]}…")
+        raise InstallError(f"{path.name}: sha256 {got[:12]}… ≠ expected {model['sha256'][:12]}…"
+                           + (" — deleted, run again to download it" if temp else ""))
     return path, temp
 
 

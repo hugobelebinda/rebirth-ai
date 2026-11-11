@@ -157,3 +157,44 @@ def test_status_counts(tmp_path):
     assert st["modernize"] == {"installed": 1, "total": 1, "missing": []}
     assert st["migrate"]["installed"] == 0 and st["migrate"]["missing"] == ["rebirth-xlang:14b"]
     json.dumps(st)
+
+
+def test_download_recovers_from_bad_partials(tmp_path, monkeypatch):
+    import httpx
+
+    payload = b"x" * 5000
+
+    class Resp:
+        def __init__(self, status, body=b""):
+            self.status_code, self.body, self.headers = status, body, {"content-length": str(len(body))}
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+        def iter_bytes(self, n):
+            yield self.body
+
+    calls = []
+
+    def stream(method, url, headers=None, **kw):
+        calls.append((headers or {}).get("Range"))
+        return Resp(200, payload)
+
+    monkeypatch.setattr(httpx, "stream", stream)
+    dest = tmp_path / "f.gguf"
+    (tmp_path / "f.gguf.part").write_bytes(b"y" * 9000)  # longer than the file: corrupt
+    inst.download("https://example.invalid/f.gguf", dest, size=len(payload), progress=lambda s: None)
+    assert calls == [None] and dest.read_bytes() == payload  # started over, no Range
+
+    def lost(method, url, headers=None, **kw):
+        raise httpx.ReadTimeout("slow")
+
+    monkeypatch.setattr(httpx, "stream", lost)
+    with pytest.raises(inst.InstallError, match="run the same command again to resume"):
+        inst.download("https://example.invalid/g.gguf", tmp_path / "g.gguf", size=10, progress=lambda s: None)
+
+    monkeypatch.setattr(httpx, "stream", lambda *a, **k: Resp(416))
+    (tmp_path / "h.gguf.part").write_bytes(b"z" * 3)
+    with pytest.raises(inst.InstallError, match="could not resume"):
+        inst.download("https://example.invalid/h.gguf", tmp_path / "h.gguf", size=10, progress=lambda s: None)
+    assert not (tmp_path / "h.gguf.part").exists()  # the next run starts clean
