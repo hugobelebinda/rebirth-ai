@@ -23,6 +23,7 @@ from rebirth_ai.safety import (
     is_secret_path,
     max_file_bytes,
 )
+from rebirth_ai.textfile import write_like
 
 # Re-export for older imports / tests
 SKIP_DIR_NAMES = DENY_DIR_NAMES
@@ -335,7 +336,7 @@ def migrate_repository(
         wrote = False
         if write and status == "success" and draft:
             target = project_dir / rel_s
-            target.write_text(draft, encoding="utf-8")
+            write_like(target, draft)
             wrote = True
 
         preview = ""

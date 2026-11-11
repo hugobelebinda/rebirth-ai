@@ -695,8 +695,10 @@ def migrate_file(
         out.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
     if write and status == "success":
+        from rebirth_ai.textfile import write_like
+
         target = Path(final["file_path"])
-        target.write_text(draft, encoding="utf-8")
+        write_like(target, draft)
         print(f"[green]wrote[/green] {target}")
     if status == "success":
         print("[dim]Passing tests are evidence, not proof: review the diff before you keep it.[/dim]")
@@ -801,7 +803,9 @@ def _translate_file(
         out.write_text(draft, encoding="utf-8")
         print(f"[green]wrote[/green] {out}")
     if write and status == "success" and target_project is not None and target_file:
-        (target_project / target_file).write_text(draft, encoding="utf-8")
+        from rebirth_ai.textfile import write_like
+
+        write_like(target_project / target_file, draft)
         print(f"[green]wrote[/green] {target_project / target_file}")
 
     from rebirth_ai.monitor import telemetry
