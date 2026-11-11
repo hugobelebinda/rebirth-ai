@@ -143,6 +143,11 @@ done
 """
 
 
+# Default compile limit of the per-program scripts; a batch's sandbox time limit is the sum of its
+# programs' limits, so the sandbox never cuts a batch short.
+_COMPILE_LIMIT = 180
+
+
 def status_for(exit_code: int) -> str:
     if exit_code == 0:
         return "pass"
@@ -168,7 +173,8 @@ def _run_chunk(
             (d / spec.filename).write_text(source, encoding="utf-8")
             (d / "run.sh").write_text(spec.script(timeout_sec), encoding="utf-8")
         (root / "driver.sh").write_text(_DRIVER.replace("{tail}", str(tail)), encoding="utf-8")
-        res = _runner(lang).run_project(root, command="sh driver.sh")
+        budget = len(chunk) * (_COMPILE_LIMIT + timeout_sec + 4) + 60  # every program at its own limits
+        res = _runner(lang).run_project(root, command="sh driver.sh", timeout_sec=budget)
     out: dict[str, ProgramResult] = {}
     for pid, rc, b64 in _RESULT_RE.findall(res.stdout or ""):
         try:
@@ -263,7 +269,8 @@ def _run_io_chunk(
                 (d / "t" / f"{k:03d}.out").write_text(out, encoding="utf-8")
             (d / "run.sh").write_text(io_script(spec, timeout_sec), encoding="utf-8")
         (root / "driver.sh").write_text(_DRIVER.replace("{tail}", str(tail)), encoding="utf-8")
-        res = _runner(lang).run_project(root, command="sh driver.sh")
+        budget = sum(_COMPILE_LIMIT + 2 + len(tests) * (timeout_sec + 2) for _, tests in chunk.values()) + 60
+        res = _runner(lang).run_project(root, command="sh driver.sh", timeout_sec=budget)
     out: dict[str, ProgramResult] = {}
     for pid, rc, b64 in _RESULT_RE.findall(res.stdout or ""):
         try:

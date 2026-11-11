@@ -47,6 +47,13 @@ class GoAdapter:
     def parse(self, path: Path, source: str | None = None) -> list[CodeChunk]:
         return self._chunker.chunk_file(path, source=source)
 
+    def setup_command_for(self, project_dir: Path, relative_file: str | None = None) -> str | None:
+        """Download the modules ``go.mod`` requires (the tests then run offline)."""
+        gomod = Path(project_dir) / "go.mod"
+        if not gomod.is_file() or "require" not in gomod.read_text(encoding="utf-8", errors="replace"):
+            return None
+        return "go mod download"
+
     def test_command_for(self, relative_file: str | None = None) -> str:
         if relative_file:
             # Directory or package path for `go test`

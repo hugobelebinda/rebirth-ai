@@ -69,9 +69,8 @@ if [ "$embedder" = 1 ]; then
   .venv/bin/python -c "from sentence_transformers import SentenceTransformer as S; S('$model')" >/dev/null
   echo "ok: $model cached (runs offline from now on)"
 else
-  echo "skipped: set REBIRTH_EMBEDDER=hash in .env"
+  echo "skipped: export REBIRTH_EMBEDDER=hash (e.g. in ~/.bashrc), or code search downloads it on first use"
 fi
-[ -f .env ] || { cp .env.example .env; echo "wrote .env from .env.example"; }
 
 say "4/6 sandbox images (8 languages)"
 if [ "$images" = 1 ]; then

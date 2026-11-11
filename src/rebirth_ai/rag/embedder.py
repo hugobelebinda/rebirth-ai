@@ -49,7 +49,10 @@ class SentenceTransformerEmbedder:
             "REBIRTH_EMBEDDING_MODEL",
             "flax-sentence-embeddings/st-codesearch-distilroberta-base",
         )
-        self._model = SentenceTransformer(self.model_name)
+        try:  # cached (bootstrap prefetches it): load without contacting Hugging Face
+            self._model = SentenceTransformer(self.model_name, local_files_only=True)
+        except OSError:  # first use without the prefetch: download once
+            self._model = SentenceTransformer(self.model_name)
         # Probe dim
         probe = self._model.encode(["dim"], normalize_embeddings=True)
         self.dim = int(probe.shape[-1])
