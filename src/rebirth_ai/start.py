@@ -259,6 +259,21 @@ def interactive() -> bool:
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
+def shown(args: list[str]) -> str:
+    """The command as printed: paths in the home folder start with ``~`` (shorter, and a screenshot doesn't
+    show the user name). The tilde stays outside the quotes, so the line still works in a shell."""
+    home = str(Path.home())
+
+    def one(arg: str) -> str:
+        if arg == home:
+            return "~"
+        if arg.startswith(home + "/"):
+            return "~/" + shlex.quote(arg[len(home) + 1:])
+        return shlex.quote(arg)
+
+    return " ".join(one(a) for a in args)
+
+
 def start(console: Console | None = None, *, run: Callable[[list[str]], int] = run_args) -> int:
     console = console or Console(highlight=False)
     tty = interactive()
@@ -272,6 +287,6 @@ def start(console: Console | None = None, *, run: Callable[[list[str]], int] = r
         console.print("\n  [dim]Cancelled.[/dim]")
         return 130
     console.print()
-    console.print(f"  [bold {ACCENT}]→[/] [bold]rebirth {escape(shlex.join(args))}[/bold]")
+    console.print(f"  [bold {ACCENT}]→[/] [bold]rebirth {escape(shown(args))}[/bold]")
     console.print()
     return run(args)

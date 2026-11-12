@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,7 +12,7 @@ from rebirth_ai.ast.chunker import CodeChunk
 from rebirth_ai.rag.embedder import Embedder, get_embedder
 from rebirth_ai.rag.store import StoredChunk, VectorStore
 
-DEFAULT_DB = Path(os.environ.get("REBIRTH_VECTOR_DB_PATH") or paths.DEFAULT_DB)
+DEFAULT_DB = paths.DEFAULT_DB  # honours REBIRTH_VECTOR_DB_PATH
 
 
 @dataclass
@@ -136,12 +135,11 @@ class Retriever:
 
     def query_for_file(self, path: Path, *, top_k: int = 5) -> list[StoredChunk]:
         """Retrieve context for migrating `path` using its imports/symbols."""
-        from rebirth_ai.adapters.registry import get_adapter
+        from rebirth_ai.adapters.registry import adapter_id_for_suffix, get_adapter
 
-        adapter = self.adapter or get_adapter(
-            "python" if path.suffix.lower() == ".py" else "js_ts"
-        )
-        chunks = adapter.parse(path)
+        lang_id = None if self.adapter else adapter_id_for_suffix(path)
+        adapter = self.adapter or (get_adapter(lang_id) if lang_id else None)
+        chunks = adapter.parse(path) if adapter else []  # unknown file type: its text is the query
         import_names = [c.name for c in chunks if c.kind == "import"]
         symbol_names = [c.name for c in chunks if c.kind in {"function", "class", "method"}]
         query_bits = import_names + symbol_names

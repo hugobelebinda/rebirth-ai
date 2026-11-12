@@ -169,3 +169,45 @@ def test_migrate_repo_looks_in_the_whole_project_without_src(tmp_path, monkeypat
     out = _plain(CliRunner().invoke(app, ["migrate-repo", str(tmp_path), "--dry-run",
                                           "--report", str(tmp_path / "r.json")]).output)
     assert "under='src'" in out and "src/app.py" in out and "pkg/util.py" not in out
+
+
+def test_the_command_shown_uses_tilde_for_the_home_folder(tmp_path, monkeypatch, offline) -> None:
+    """Shorter, and a screenshot doesn't show the user name; the command that runs keeps the full path."""
+    home = tmp_path / "home"
+    proj = home / "code" / "my billing"
+    (proj / "src").mkdir(parents=True)
+    (proj / "src" / "a.py").write_text("x = 1\n")
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setattr(start, "interactive", lambda: True)
+    ran = []
+    console, out = _console(["modernize", str(proj), "src/a.py", ""])
+    start.start(console, run=lambda args: ran.append(args) or 0)
+    assert ran == [["migrate", str(proj), "--file", "src/a.py"]]
+    assert "→ rebirth migrate ~/'code/my billing' --file src/a.py" in out.getvalue()
+    assert start.shown(["migrate", "/elsewhere/p", "--to", "go"]) == "migrate /elsewhere/p --to go"
+    assert start.shown(["migrate", str(home)]) == "migrate ~"
+
+
+def test_printed_paths_use_tilde_for_the_home_folder(tmp_path, monkeypatch) -> None:
+    from rebirth_ai.paths import tilde
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    assert tilde(tmp_path / "code" / "billing" / "rebirth_out") == "~/code/billing/rebirth_out"
+    assert tilde(tmp_path) == "~"
+    assert tilde("/srv/other") == "/srv/other"
+    assert tilde(str(tmp_path) + "-not-home/x") == str(tmp_path) + "-not-home/x"
+
+
+def test_rebirth_vector_db_path_moves_the_index_everywhere(tmp_path, monkeypatch) -> None:
+    """.env.example documents it; the CLI's --db default and the graph used to ignore it."""
+    import importlib
+
+    from rebirth_ai import paths
+
+    monkeypatch.setenv("REBIRTH_VECTOR_DB_PATH", str(tmp_path / "idx.db"))
+    try:
+        assert importlib.reload(paths).DEFAULT_DB == tmp_path / "idx.db"
+    finally:
+        monkeypatch.delenv("REBIRTH_VECTOR_DB_PATH")
+        importlib.reload(paths)
+    assert paths.DEFAULT_DB == paths.DATA / "embeddings.db"

@@ -1,6 +1,6 @@
 # Phase 19 — Packaging, UX & Official v1.0 Launch
 
-> Status: **IN PROGRESS (started 2026-11-10)** — last phase (was "Phase 11" before the 2026-11-05 renumbering). Release (step 6: Hugging Face upload, `v1.0.0` tag) waits for the owner's review.  
+> Status: **RELEASE READY (2026-11-11)** — last phase (was "Phase 11" before the 2026-11-05 renumbering). Models published on Hugging Face 2026-11-11; version 1.0.0 on `rebirth/v1.0.0`; the `v1.0.0` tag and the GitHub release wait for the owner's go.  
 > Previous: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)  
 > Depends on: Phase 10 complete **and** LoRA specialization waves ([PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md)) — or explicit user skip of LoRA  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 19  
@@ -48,7 +48,7 @@ now; step 6 (publish + tag) only after a review with the owner.
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
 | 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done (2026-11-11), plus fallback, bug hunt and the [pre-launch review](#pre-launch-review-and-fixes-2026-11-11-evening) |
 | 5 | Docs: INSTALL, README (now a user guide), SECURITY, CHANGELOG, Hugging Face model cards | done; cards are drafts until step 6 |
-| 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
+| 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | models **published 2026-11-11** (checked anonymously: sha256 of every file); 1.0.0, README, demo on `rebirth/v1.0.0`; tag + release on the owner's go |
 
 ## Built (2026-11-10)
 
@@ -320,6 +320,10 @@ review of what a new user would meet, and these fixes on `rebirth/p19-prelaunch`
 | `migrate-repo` looked only in `src/`, so it found nothing in most Go and many Python repos. | It looks in `src/` if the project has one, else in the whole project. |
 | `migrate` printed no change on success. | It prints the diff, and where the last draft is when no draft passed. |
 | A container Docker could not start gave a 40-line traceback. | One-line error with the rebuild command (`SandboxError`). |
+| Such a container was left behind in Docker as *Created* (3 found after the C# rebuild). | Each sandbox container has a unique name; one that fails to start is removed. |
+| On a Linux host whose user is not uid 1000, the sandbox user (uid 1000) could not write the project copy: every Rust and Java file failed (simulated: Rust `Permission denied`, Java exit 1). | The copy is opened to the sandbox user (it sits in a 0700 temp folder), and what the sandbox created is handed back before the container is removed. All 8 languages pass in that simulation. |
+| `bootstrap.sh` would have stopped on a Mac: no `sha256sum`, and bash 3.2 rejects an empty `"${from[@]}"` under `set -u` (reproduced in a `bash:3.2` container). | `shasum -a 256` when `sha256sum` is missing (same label); the bash-3.2-safe form; on macOS a warning that it is untested, with the report link; on Windows outside WSL2 a clear stop. |
+| `--to go` never verified a `package main` translation in `src/` (most Python projects): `go build ./...` wrote the program to a file named `src`, where the folder is (`build output "src" already exists`). Found when the demo's `examples/billing` failed 5 tries. The evaluation suites use `go build -o prog .` and are not affected. | `go build -o /dev/null ./...` (compiles everything, keeps nothing). The example now passes on the first try (17 s); sandbox tests for main packages in `src/`, the root and a subfolder. |
 | `bootstrap.sh` kept existing images after a Dockerfile changed. | Images carry a hash of their folder and are rebuilt when it changes. |
 | Dependencies had no upper bounds; a fresh install already got newer versions than the tested ones. | Upper bounds at the next breaking release. The suite passes on Python 3.11 with the newest allowed versions (typer 0.29, langchain-core 1.8, sentence-transformers 6.3). |
 | README was a development log; `--help` started with maintainer commands. | README is a user guide. `rebirth` alone opens a start screen (`docs/assets/start-screen.png`, `scripts/render_start_screen.py`). `--help` is grouped (Migrate, Setup, Tools, Maintainers). `--version` added. |
@@ -341,4 +345,38 @@ review of what a new user would meet, and these fixes on `rebirth/p19-prelaunch`
 
 ## What shipped / how to run / samples
 
-_Filled at the release (step 6)._
+**Version 1.0.0** (2026-11-11).
+
+- **Models on Hugging Face** (user `belebindahugo`, published 2026-11-11 by `scripts/publish_hf.py`):
+  - [`rebirth-modernize-7b-lora-gguf`](https://huggingface.co/belebindahugo/rebirth-modernize-7b-lora-gguf): the
+    8 LoRA adapters (10 MB each) and the card;
+  - [`rebirth-xlang-14b-gguf`](https://huggingface.co/belebindahugo/rebirth-xlang-14b-gguf): the 14B Q6_K
+    (12.1 GB), a ready Ollama `Modelfile` and the card.
+  - Checked without a login: every file's size and sha256 match `configs/models.json`. The installer's own
+    download code fetched the 8 adapters (sha256 OK, 24 s), and the 14B answers a range request (`GGUF`, right
+    size, so downloads resume).
+- **How to run:** `git clone … && bash scripts/bootstrap.sh`, then `rebirth` (README § Install, Quick start).
+- **Sample:** [`examples/billing`](../../examples/billing), an old-style invoice module with 4 tests.
+  - The README demo (`docs/assets/demo.gif`, recorded by `scripts/record_demo.py`) is a real run on it.
+  - The 7B modernizes it on the first try in 12 s, with the tests passing.
+  - `--to go` compiles on the first try in 17 s (after the Go `src/` fix below).
+
+### Found while preparing the release (all fixed on `rebirth/v1.0.0`)
+
+| Finding | Fix |
+|---|---|
+| `--to go` never verified a `package main` translation in `src/` (most Python projects). `go build ./...` wrote the program to a file named `src`, where the folder is. Found when the demo's example failed 5 tries. | `go build -o /dev/null ./...`. Sandbox tests cover main packages in `src/`, the root and a subfolder. The evaluation suites use `go build -o prog .` and are not affected. |
+| On a Linux host whose user is not uid 1000, Rust and Java always failed: the sandbox user could not write the project copy. | The copy is opened to the sandbox user, and its files are handed back before the container is removed. Simulated on all 8 languages. |
+| A container Docker created but could not start was left behind as *Created*. | Unique container names; a container that fails to start is removed. |
+| `REBIRTH_VECTOR_DB_PATH` was documented, but the CLI and the graph ignored it. | One default (`paths.DEFAULT_DB`) that honours it. |
+| A reasoning model's `<think>` block reached the code reader on the Ollama path. A mistyped `REBIRTH_XLANG_MODEL` silently used the plain 14B. | `<think>` is stripped; the typo is reported. Checked end to end with a model Rebirth doesn't ship. |
+| `bootstrap.sh` would have stopped on a Mac (`sha256sum`, bash 3.2 with `set -u`). | Fixed. macOS gets an "untested" warning; Windows outside WSL2 a clear stop. |
+| Printed paths showed the full home folder (the user name in screenshots). | `~` in printed paths and in the start screen's command. |
+| *Outside review (read-only):* `python -m rebirth_ai.cli` crashed on a passing migrate (`NameError: _print_diff`) and lost the grouped `--help`: the `__main__` block sat above the last definitions. | The block is the last statement (an AST test keeps it there). The installed `rebirth` was never affected. |
+| *Review:* `rebirth parse` without `--lang` only knew `.py`; `.go`, `.rs`, `.swift`, `.cpp` were rejected. | The language comes from the registry's suffix map, like everywhere else. |
+| *Review:* `rebirth generate` sent every non-TypeScript file to the JS/TS model with a JavaScript prompt (a `.py` file went to `rebirth-js-ts:7b`). | The file's own language and model; its code search parses with that language too. |
+| *Review:* `--out` and the `--to` output were written whatever the result: an empty file when the model returned no code (reproduced), and for same-language runs a draft that failed the tests. | Never an empty file. Same-language `--out` only keeps a draft that passed; an unverified translation is still written, marked "not verified". |
+| *Review:* `mine-dataset` and `eval` need `training/`, which a plain `pip install` doesn't copy. | By design Rebirth runs from a clone (configs, sandboxes, data), so any command outside one now says how to install. |
+| *Same kind, found while checking:* `eval` defaults were relative to the current folder (`data/reports/…`, `fixtures/eval_suite/…`). | Defaults in the Rebirth folder, your own paths resolved from your folder, scripts run from the clone. |
+| *Same kind:* the code-search retriever, without an adapter, parsed every non-`.py` file as JS/TS. | The registry's language, else the file's text as the query. |
+| *Same kind:* `migrate-repo`'s dependency order parsed Go, Java, Rust… files with the JS parser; the README promised dependency order for all languages. | Import edges for JS/TS and Python only (their imports name files); the others keep path order. The README says so. |

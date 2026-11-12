@@ -290,6 +290,19 @@ def test_auto_backend_falls_back_to_plain_14b(ollama_tags, tags) -> None:
     assert Translator("auto").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
 
 
+def test_a_chosen_xlang_model_that_is_not_installed_is_reported(ollama_tags, monkeypatch, capsys) -> None:
+    """REBIRTH_XLANG_MODEL can name any Ollama model; a typo used to switch silently to the plain 14B."""
+    from rebirth_ai.xlang.translator import Translator
+
+    ollama_tags["tags"] = ["qwen2.5-coder:14b-instruct-q6_K", "qwen3-coder:30b"]
+    monkeypatch.setenv("REBIRTH_XLANG_MODEL", "qwen3-coder:30b")
+    assert Translator("auto").model_name == "ollama:qwen3-coder:30b" and capsys.readouterr().err == ""
+    monkeypatch.setenv("REBIRTH_XLANG_MODEL", "qwen3-coder:31b")
+    assert Translator("auto").model_name == "ollama:qwen2.5-coder:14b-instruct-q6_K"
+    err = capsys.readouterr().err
+    assert "REBIRTH_XLANG_MODEL=qwen3-coder:31b is not in Ollama" in err and "ollama pull qwen3-coder:31b" in err
+
+
 def test_xlang_model_env_override_and_off(ollama_tags, monkeypatch) -> None:
     from rebirth_ai.xlang.translator import Translator, get_translator
 
@@ -302,3 +315,11 @@ def test_xlang_model_env_override_and_off(ollama_tags, monkeypatch) -> None:
     assert get_translator().backend == "auto"  # the default (REBIRTH_TRANSLATOR unset)
     with pytest.raises(ValueError):
         Translator("vllm")
+
+
+def test_the_go_compile_check_writes_its_program_outside_the_project() -> None:
+    """A file named after the package folder (`src`) cannot be written where that folder is."""
+    from rebirth_ai.xlang.languages import check_spec
+
+    _, cmd = check_spec(get_lang("go"), "src/invoice.go", "package main\n\nfunc main() {}\n")
+    assert cmd == "go build -o /dev/null ./..."

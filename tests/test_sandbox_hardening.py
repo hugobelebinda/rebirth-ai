@@ -79,6 +79,12 @@ class FakeAdapter:
         return self._setup
 
 
+@pytest.fixture(autouse=True)
+def host_uid_1000(monkeypatch):
+    """Like the sandbox user (uid 1000); CI runs as 1001, which the uid tests below set themselves."""
+    monkeypatch.setattr(runner_mod, "_host_uid", lambda: 1000)
+
+
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
     d = tmp_path / "proj"
@@ -274,3 +280,53 @@ def test_graph_install_node_refuses_draft_only_packages(tmp_path, monkeypatch):
     assert after_install(s) == "generate_code"  # already queued: same draft would fail again
     s = nodes.install_dependency({**base, "adapter_id": "java", "test_logs": "Cannot find package 'ms'"})
     assert "refused" in s["trace"][-1]
+
+
+# --------------------------------------------------------------------------- host user is not uid 1000
+
+
+def test_a_host_user_other_than_uid_1000_can_still_be_tested(project, monkeypatch):
+    """The images run tests as uid 1000. For another host user the copy was read-only to the sandbox:
+    Rust's target/ and Maven's target/ could not be created, so every Rust and Java file failed."""
+    import os
+    import stat
+
+    monkeypatch.setattr(runner_mod, "_host_uid", lambda: 1001)
+    tool = project / "gradlew"
+    tool.write_text("#!/bin/sh\n")
+    tool.chmod(0o755)
+    before = stat.S_IMODE(os.stat(project / "src" / "a.py").st_mode)
+    seen = {}
+
+    def script(cmd, c):
+        if not seen:  # the test run: what the sandbox user finds in the copy
+            for p in [c.work, *c.work.rglob("*")]:
+                seen[p.relative_to(c.work).as_posix()] = stat.S_IMODE(os.stat(p).st_mode)
+        return 0, "fine"
+
+    client = FakeClient(script)
+    assert SandboxRunner(FakeAdapter(), client=client).run_project(project).ok
+    assert seen["."] & 0o777 == 0o777 and seen["src"] & 0o777 == 0o777
+    assert seen["src/a.py"] & 0o666 == 0o666 and not seen["src/a.py"] & 0o111
+    assert seen["gradlew"] & 0o777 == 0o777  # executables stay executable
+    # what the sandbox user created is handed back, so the host user can delete the copy afterwards
+    (test_cmd, _, _), (last, _, _) = client.container.calls
+    assert test_cmd[-1] == "run-tests" and "chmod -R a+rwX" in last[-1] and client.container.removed
+    # the user's own project is not touched
+    assert stat.S_IMODE(os.stat(project / "src" / "a.py").st_mode) == before
+
+
+def test_uid_1000_or_no_uid_changes_nothing(project, monkeypatch):
+    for uid in (1000, None):  # None: no os.getuid (Windows)
+        monkeypatch.setattr(runner_mod, "_host_uid", lambda u=uid: u)
+        client = FakeClient(ok)
+        assert SandboxRunner(FakeAdapter(), client=client).run_project(project).ok
+        assert len(client.container.calls) == 1
+
+
+def test_every_sandbox_image_runs_as_uid_1000() -> None:
+    root = Path(__file__).resolve().parents[1] / "docker"
+    for dockerfile in sorted(root.glob("*_sandbox/Dockerfile")):
+        text = dockerfile.read_text()
+        assert "--uid 1000" in text or "USER node" in text, dockerfile  # node images: node is uid 1000
+    assert runner_mod.SANDBOX_UID == 1000

@@ -21,6 +21,7 @@ import os
 import shutil
 import tempfile
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FuturesTimeout
 from dataclasses import dataclass
@@ -39,6 +40,33 @@ _COPY_IGNORE = shutil.ignore_patterns(
     "node_modules", ".git", ".venv", "venv", "__pycache__", ".pytest_cache",
     "target", "build", ".build", "bin", "obj",
 )
+
+
+SANDBOX_UID = 1000  # every image runs the tests as uid 1000 (docker/*_sandbox/Dockerfile; node is 1000 too)
+
+
+def _host_uid() -> int | None:
+    return os.getuid() if hasattr(os, "getuid") else None  # None on Windows
+
+
+def _other_uid() -> bool:
+    """True when the files Rebirth copies are owned by someone other than the sandbox user."""
+    uid = _host_uid()
+    return uid is not None and uid != SANDBOX_UID
+
+
+def open_to_sandbox(root: Path) -> None:
+    """Let the sandbox user write the project copy it doesn't own (a host user with another uid): builds
+    write into the project (Rust and Maven ``target/``, ``node_modules``…). Only the copy changes, and it is
+    inside a 0700 temporary folder that no other host user can enter."""
+    for dirpath, _dirs, files in os.walk(root):
+        os.chmod(dirpath, os.stat(dirpath).st_mode | 0o777)
+        for name in files:
+            p = os.path.join(dirpath, name)
+            if os.path.islink(p):
+                continue
+            mode = os.stat(p).st_mode
+            os.chmod(p, mode | 0o666 | (0o111 if mode & 0o111 else 0))
 
 
 def container_limits() -> dict[str, object]:
@@ -181,9 +209,12 @@ class SandboxRunner:
         if overlay_text is not None:
             overlays.append((str(overlay_dest), overlay_text.encode("utf-8")))
 
-        with tempfile.TemporaryDirectory(prefix="rebirth-sandbox-") as tmp:
+        # ignore_cleanup_errors: a file the sandbox created and couldn't hand back must not hide the result
+        with tempfile.TemporaryDirectory(prefix="rebirth-sandbox-", ignore_cleanup_errors=True) as tmp:
             work = Path(tmp) / "project"
             shutil.copytree(project_dir, work, ignore=_COPY_IGNORE)
+            if _other_uid():
+                open_to_sandbox(work)
             return self._run_mounted(work, cmd, setup=setup_command, setup_network=setup_net,
                                      overlays=overlays, timeout_sec=limit)
 
@@ -244,9 +275,11 @@ class SandboxRunner:
         setup_step: _Step | None = None
         try:
             run_user = self.spec.user or None
+            name = f"rebirth-sandbox-{uuid.uuid4().hex[:12]}"
             try:
                 container = self.client.containers.run(
                     image=self.spec.image,
+                    name=name,
                     command=["sleep", "infinity"],
                     working_dir=self.spec.workdir,
                     volumes={str(work): {"bind": self.spec.workdir, "mode": "rw"}},
@@ -258,6 +291,10 @@ class SandboxRunner:
                     **container_limits(),
                 )
             except APIError as exc:  # e.g. an image built by hand without the expected user
+                try:  # Docker created the container before failing to start it: don't leave it behind
+                    self.client.containers.get(name).remove(force=True)
+                except Exception:
+                    pass
                 hint = self.spec.dockerfile_dir or "docker/<lang>_sandbox"
                 raise SandboxError(
                     f"Docker could not start the sandbox {self.spec.image}: {exc.explanation or exc}. "
@@ -280,6 +317,11 @@ class SandboxRunner:
             stderr = (exc.stderr or b"").decode("utf-8", errors="replace") if exc.stderr else str(exc)
         finally:
             if container is not None:
+                if _other_uid():  # what the sandbox user created belongs to uid 1000: let the host delete it
+                    try:
+                        self._exec(container, "chmod -R a+rwX . 2>/dev/null || true", 120, self.spec.user or None)
+                    except Exception:
+                        pass
                 try:
                     container.remove(force=True)
                 except Exception:

@@ -10,7 +10,7 @@ from rebirth_ai.adapters.registry import get_adapter
 from rebirth_ai.classify.model import ErrorClassifier
 from rebirth_ai.generate.factory import get_generator
 from rebirth_ai.graph.state import MigrationState
-from rebirth_ai.paths import DEFAULT_DB
+from rebirth_ai.paths import DEFAULT_DB, tilde
 from rebirth_ai.rag.retrieve import Retriever
 from rebirth_ai.sandbox.deps import install_decision
 from rebirth_ai.sandbox.runner import SandboxRunner
@@ -60,8 +60,8 @@ def retrieve_context(state: MigrationState) -> MigrationState:
                 **state,
                 "retrieved_context": [],
                 "status": "running",
-                "trace": _trace(state, f"retrieve_context: skipped (the index {db} is for {indexed}; "
-                                       f"`rebirth index {project}` builds one for this project)"),
+                "trace": _trace(state, f"retrieve_context: skipped (the index {tilde(db)} is for {tilde(indexed)}; "
+                                       f"`rebirth index {tilde(project)}` builds one for this project)"),
             }
         try:
             retriever = Retriever(db_path=db, adapter=_adapter_for_state(state))

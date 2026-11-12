@@ -3,7 +3,7 @@
 > **Read this first** in a new agent window. Then sync [GLOBAL.md](GLOBAL.md) + [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md).
 > Phases were **renumbered in execution order** on 2026-11-05 (map: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md#phase-renumbering-2026-11-05)).
 
-## Where we are — Phases 0–17 ✅, 18 tooling ✅, Phase 19 steps 1–5 done and merged (PR #6), pre-launch fixes on `rebirth/p19-prelaunch` (2026-11-11); step 6 (publish) waits for the owner's review; no cloud spend planned
+## Where we are — Phases 0–18 ✅, Phase 19 release ready (2026-11-11): models published on Hugging Face, 1.0.0 on `rebirth/v1.0.0`; tag + GitHub release wait for the owner's go; no cloud spend planned
 
 | Item | State |
 |------|--------|
@@ -21,8 +21,8 @@
 
 | Item | Value |
 |------|--------|
-| Branch | `rebirth/p19-prelaunch` (local, **not pushed**: start screen, README user guide, newer sandbox toolchains, fallback fix, paths, CHANGELOG) |
-| Last merge | PR #6 (Phase 19 steps 1–5, `fa37aef`, 2026-11-11; merged at the owner's request) |
+| Branch | `rebirth/v1.0.0`: 1.0.0, Hugging Face links, demo GIF + `examples/billing`, CONTRIBUTING, fixes (Go `src/` compile check, uid ≠ 1000, leaked containers, `<think>`, `REBIRTH_VECTOR_DB_PATH`, macOS bootstrap) |
+| Last merge | PR #7 (pre-launch fixes, `0b69bb0`, 2026-11-11; merged at the owner's request) |
 | Branch protection | `main`: CI checks `lint` / `test` / `pipeline` required, PR required (0 approvals), applies to admins — everything lands through a PR |
 | Tag | `v0.2.0-mvp` on origin (JS/TS MVP) |
 

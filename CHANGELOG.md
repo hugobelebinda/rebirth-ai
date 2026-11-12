@@ -2,7 +2,7 @@
 
 All notable changes to Rebirth AI. Versions follow [Semantic Versioning](https://semver.org).
 
-## [1.0.0] — unreleased
+## [1.0.0] — 2026-11-11
 
 The first release.
 
@@ -25,12 +25,20 @@ The first release.
   whole-program translations go from 551 to 667 of 931, and HumanEval from 91.1 % to 92.6 %.
 - **Fallback:** when the 7B passes the tests but changes nothing, a 14B tries once more (2 tries).
   `--no-fallback` turns it off.
+- **Any Ollama model** can take any of the three steps:
+  - `--backend ollama` with `OLLAMA_MODEL` for modernizing;
+  - `REBIRTH_FALLBACK_MODEL` for the fallback;
+  - `REBIRTH_XLANG_MODEL` for `--to`.
+
+  Reasoning models work too: their thinking is dropped before the code is read.
 
 ### Using it
 - `rebirth` with no command opens a guided start screen. It checks your setup and builds the command for
   you.
 - `scripts/bootstrap.sh` installs everything: the Python environment, 8 sandbox images, both model packs
   (sha256-checked) and `rebirth doctor`. Offline install: `--from <folder>`.
+  - On macOS it warns that macOS is untested, then goes on.
+  - On Windows outside WSL2 it stops and says to use WSL2.
 - `rebirth doctor` checks Docker, Ollama, the models, the sandbox images, the GPU and disk space.
 - A passing change is shown as a diff. Results are `success`, `unchanged` or `human_review`, with clear
   exit codes.

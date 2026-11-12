@@ -54,6 +54,20 @@ def test_compile_check_catches_broken_translation() -> None:
     assert ok.ok and ok.mode == "compile" and not bad.ok and "syntax error" in bad.logs
 
 
+@pytest.mark.parametrize("rel", ["src/invoice.go", "invoice.go", "pkg/billing/invoice.go"])
+@pytest.mark.parametrize("main_func", [True, False])
+def test_compile_check_of_a_go_main_package_anywhere(rel, main_func) -> None:
+    """`go build ./...` wrote the program to a file named after its folder: for src/, the folder itself
+    (`build output "src" already exists and is a directory`), so a Python project's src/ file never
+    verified in Go, whatever the model wrote."""
+    body = "package main\n\nimport \"fmt\"\n\nfunc Total(a, b float64) float64 { return a + b }\n"
+    body += "\nfunc main() { fmt.Println(Total(1, 2)) }\n" if main_func else "\nvar _ = fmt.Sprint\n"
+    res = verify_translation(target=get_lang("go"), code=body, target_rel=rel)
+    assert res.ok, res.logs[-500:]
+    bad = verify_translation(target=get_lang("go"), code=body.replace("a + b", "a +"), target_rel=rel)
+    assert not bad.ok and "syntax error" in bad.logs
+
+
 def test_program_oracle_in_every_language() -> None:
     """A complete stdin → stdout program per language (incl. int-overflow bugs that must fail)."""
     oracle = json.loads((ROOT / "fixtures/xlang_oracle/programs.json").read_text())

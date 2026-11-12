@@ -22,6 +22,7 @@ Instances are cached per backend so a retry loop or an eval run loads the model 
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 
 from rebirth_ai.xlang.prompts import TRANSLATE_SYSTEM_PROMPT
@@ -58,6 +59,9 @@ def installed_xlang_model(client) -> str | None:
         return want
     if ":" not in want and f"{want}:latest" in names:
         return f"{want}:latest"
+    if os.environ.get("REBIRTH_XLANG_MODEL"):  # chosen by the user, so say why it is not used
+        print(f"[translate] REBIRTH_XLANG_MODEL={want} is not in Ollama (ollama pull {want}); "
+              f"using {client.model}", file=sys.stderr)
     return None
 
 
