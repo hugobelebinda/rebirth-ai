@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 import shutil
 import subprocess
 import sys
@@ -16,6 +17,12 @@ from rebirth_ai.cli import app
 
 ROOT = Path(__file__).resolve().parents[1]
 runner = CliRunner()
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(text: str) -> str:
+    """Output without colours (GitHub Actions forces them) and with line wraps undone."""
+    return " ".join(_ANSI.sub("", text).split())
 
 
 # --------------------------------------------------------------------------- python -m rebirth_ai.cli
@@ -29,7 +36,7 @@ def test_python_m_runs_after_every_definition() -> None:
     assert isinstance(last, ast.If) and "__main__" in ast.unparse(last.test)
     out = subprocess.run([sys.executable, "-m", "rebirth_ai.cli", "--help"], capture_output=True, text=True,
                          timeout=120, cwd=ROOT)
-    assert out.returncode == 0 and "Migrate" in out.stdout and "Maintainers" in out.stdout
+    assert out.returncode == 0 and "Migrate" in _plain(out.stdout) and "Maintainers" in _plain(out.stdout)
 
 
 # --------------------------------------------------------------------------- language from the file suffix
@@ -40,14 +47,14 @@ def test_python_m_runs_after_every_definition() -> None:
 def test_parse_picks_the_language_from_the_suffix(path) -> None:
     res = runner.invoke(app, ["parse", str(ROOT / path)])
     assert res.exit_code == 0, res.output
-    assert "chunk(s)" in res.output
+    assert "chunk(s)" in _plain(res.output)
 
 
 def test_parse_names_the_problem_for_an_unknown_suffix(tmp_path) -> None:
     f = tmp_path / "notes.txt"
     f.write_text("hello\n")
     res = runner.invoke(app, ["parse", str(f)])
-    assert res.exit_code == 2 and "--lang" in res.output
+    assert res.exit_code == 2 and "--lang" in _plain(res.output)
 
 
 class _Result:
@@ -91,7 +98,7 @@ def test_generate_does_not_write_an_empty_draft(tmp_path, monkeypatch) -> None:
     f, out = tmp_path / "a.py", tmp_path / "out.py"
     f.write_text("x = 1\n")
     res = runner.invoke(app, ["generate", str(f), "--no-rag", "--out", str(out)])
-    assert not out.exists() and "no code" in res.output
+    assert not out.exists() and "no code" in _plain(res.output)
 
 
 def test_code_search_parses_a_file_with_its_own_language(tmp_path, monkeypatch) -> None:
@@ -150,7 +157,7 @@ def test_modernize_out_holds_only_a_draft_that_passed(billing, monkeypatch, stat
     res = runner.invoke(app, ["migrate", str(billing), "--file", "src/invoice.py", "--no-fallback", "--out", str(out)])
     assert out.exists() is written, res.output
     if not written:
-        assert "not written: no draft passed the tests" in " ".join(res.output.split())
+        assert "not written: no draft passed the tests" in _plain(res.output)
 
 
 @pytest.mark.parametrize(("draft", "written"), [("package main\n", True), ("\n", False), ("", False)])
@@ -165,7 +172,7 @@ def test_translate_never_writes_an_empty_file(billing, monkeypatch, draft, writt
                               "--out-dir", str(out_dir), "--out", str(out)])
     dest = out_dir / "src" / "invoice.go"
     assert dest.exists() is written and out.exists() is written, res.output
-    text = " ".join(res.output.split())
+    text = _plain(res.output)
     assert ("not verified" in text) if written else ("nothing written: the model returned no code" in text)
 
 
@@ -194,5 +201,5 @@ def test_outside_a_clone_every_command_says_how_to_install(tmp_path, monkeypatch
 
     monkeypatch.setattr(paths, "ROOT", tmp_path)
     res = runner.invoke(app, ["doctor"])
-    assert res.exit_code == 2 and "git clone" in res.output and "bootstrap.sh" in res.output
+    assert res.exit_code == 2 and "git clone" in _plain(res.output) and "bootstrap.sh" in _plain(res.output)
     assert runner.invoke(app, ["--version"]).exit_code == 0
