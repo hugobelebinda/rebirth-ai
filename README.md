@@ -174,7 +174,7 @@ rebirth migrate <project> --file <path in the project>
 ```
 
 - **Nothing in your project changes** unless you add `--write`. Without it, Rebirth shows the result and the
-  run is kept in the report. `--out <path>` saves the new version somewhere else.
+  run is kept in the report. `--out <path>` saves the new version somewhere else, only if it passed the tests.
 - **Tests:** by default, the test that imports the file, else the whole suite. Use `--test <path>` to pick one.
 - **What to change:** `--objective "<text>"` steers the model, for example
   `--objective "Convert the callbacks to async/await"`. The default is "modernize the idioms without changing
@@ -200,7 +200,8 @@ rebirth migrate-repo <project> --write      # also write the changes that passed
 - **Which files:** every source file under `src/` if the project has one, else the whole project. Rebirth skips
   tests, vendored code (`node_modules`, `vendor`, …), build outputs and files over 200 KB. Change the folders with
   `--under lib,app`, or pick files with `--file` (repeatable).
-- **Order:** files are done in dependency order, so a file is migrated after the files it imports.
+- **Order:** in JS/TS and Python projects, a file is migrated after the local files it imports. In the other
+  languages, files go in path order: a Go or Java package, a Rust crate or a C# project builds its files together.
 - **Report:** a JSON report goes to `data/reports/migrate_repo.json` in the Rebirth folder (`--report` changes
   it). `rebirth report <file>` prints it, with secrets redacted.
 - **Time:** expect 20–60 s per file with the 7B model, plus the fallback when it runs. See
@@ -440,7 +441,7 @@ GPU.
    - Merging made generation 24 % faster.
 5. **The agent.**
    - A LangGraph loop: draft, test in the sandbox, classify the error, retry.
-   - Files are done in dependency order, with a 14B fallback.
+   - Files are done in dependency order (JS/TS and Python), with a 14B fallback.
 6. **Around it:**
    - experiment tracking and a model registry (MLflow), and versioned data (DVC);
    - quality gates before a model is served, and rollback;

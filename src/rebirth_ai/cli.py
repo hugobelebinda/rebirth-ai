@@ -11,6 +11,7 @@ from rich.table import Table
 from typer.core import TyperGroup
 
 from rebirth_ai import __version__
+from rebirth_ai import paths as rebirth_paths
 from rebirth_ai.paths import CLASSIFIER_DIR, DEFAULT_DB, DEFAULT_REPORT, ERROR_LOGS, tilde
 
 # `rebirth --help`: commands grouped by who needs them, in this order (assigned at the end of the file).
@@ -46,6 +47,10 @@ def _main(
     if show_version:
         print(f"rebirth-ai {__version__}")
         raise typer.Exit()
+    if not (rebirth_paths.ROOT / "configs" / "models.json").is_file():
+        # a plain `pip install` copies the package only, without configs/, docker/, training/ or data/
+        _fail("Rebirth runs from a clone of its repository, which holds its configs, sandboxes and data: "
+              "git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai && bash scripts/bootstrap.sh")
     if ctx.invoked_subcommand is None:
         from rebirth_ai.start import start
 
@@ -338,12 +343,12 @@ def parse_file(
     ),
 ) -> None:
     """Split a source file into functions and classes, as code search sees it."""
-    from rebirth_ai.adapters.registry import get_adapter
+    from rebirth_ai.adapters.registry import adapter_id_for_suffix, get_adapter
 
-    if lang:
-        adapter = get_adapter(lang)
-    else:
-        adapter = get_adapter("python" if path.suffix.lower() == ".py" else "js_ts")
+    lang_id = lang or adapter_id_for_suffix(path)
+    if lang_id is None:
+        raise typer.BadParameter(f"{path.name}: not a source file Rebirth knows; name its language with --lang")
+    adapter = get_adapter(lang_id)
     if path.suffix.lower() not in set(getattr(adapter, "SOURCE_SUFFIXES", set())):
         raise typer.BadParameter(f"Unsupported source suffix for {adapter.name}: {path.suffix}")
     chunks = adapter.parse(path)
@@ -496,19 +501,27 @@ def generate_migration(
     ),
 ) -> None:
     """One draft from the model, without running the tests (for debugging)."""
-    from rebirth_ai.generate.factory import get_generator
+    from rebirth_ai.adapters.registry import (
+        adapter_id_for_suffix,
+        get_adapter,
+        language_label_for_file,
+    )
+    from rebirth_ai.generate import factory
 
+    adapter_id = adapter_id_for_suffix(path)
+    if adapter_id is None:
+        _fail(f"{path.name}: not a source file Rebirth knows (rebirth adapters lists the languages)")
+    language = language_label_for_file(path, adapter_id=adapter_id)
     source = path.read_text(encoding="utf-8")
-    language = "typescript" if path.suffix.lower() in {".ts", ".tsx"} else "javascript"
     context: list[str] = []
     if use_rag and db.exists():
         from rebirth_ai.rag.retrieve import Retriever
 
-        retriever = Retriever(db_path=db)
+        retriever = Retriever(db_path=db, adapter=get_adapter(adapter_id))
         hits = retriever.query_for_file(path, top_k=4)
         context = [f"// {h.file_path} :: {h.kind} {h.name}\n{h.text}" for h in hits]
 
-    client = get_generator(backend, language=language)
+    client = factory.get_generator(backend, language=adapter_id)
     result = client.migrate(
         objective=objective,
         legacy_code=source,
@@ -519,8 +532,11 @@ def generate_migration(
     print(f"[dim]model={result.model} prompt_chars={result.prompt_chars}[/dim]")
     print(result.code)
     if out is not None:
-        out.write_text(result.code, encoding="utf-8")
-        print(f"[green]wrote[/green] {tilde(out)}")
+        if result.code.strip():
+            out.write_text(result.code, encoding="utf-8")
+            print(f"[green]wrote[/green] {tilde(out)}")
+        else:
+            print(f"[yellow]{tilde(out)} not written: the model returned no code[/yellow]")
 
 
 @app.command("mine-dataset")
@@ -541,10 +557,8 @@ def mine_dataset(
     """Mine before/after training pairs from CommitPackFT."""
     import subprocess
     import sys
-    from pathlib import Path
 
-    # src/rebirth_ai/cli.py → repo root is parents[2]
-    script = Path(__file__).resolve().parents[2] / "training" / "mine_migration_pairs.py"
+    script = rebirth_paths.ROOT / "training" / "mine_migration_pairs.py"
     cmd = [sys.executable, str(script), "--max-pairs", str(max_pairs)]
     if require_parse:
         cmd.append("--require-parse")
@@ -552,7 +566,7 @@ def mine_dataset(
         cmd.append("--dry-run")
     if langs:
         cmd.extend(["--langs", *langs])
-    raise typer.Exit(subprocess.call(cmd))
+    raise typer.Exit(subprocess.call(cmd, cwd=rebirth_paths.ROOT))
 
 
 @app.command("migrate")
@@ -599,7 +613,7 @@ def migrate_file(
     ),
     db: Path = typer.Option(DEFAULT_DB, "--db", help="Code-search index (`rebirth index`)", show_default="data/embeddings.db in the Rebirth folder"),
     max_iterations: int = typer.Option(5, "--max-iterations"),
-    out: Path | None = typer.Option(None, "--out", help="Also write final draft here"),
+    out: Path | None = typer.Option(None, "--out", help="Also write the result here (same language: only a draft that passed)"),
     backend: str = typer.Option(
         "auto",
         "--backend",
@@ -752,8 +766,11 @@ def migrate_file(
     if status == "success" and draft and source_text is not None:
         _print_diff(file, source_text, draft)
     if out is not None:
-        out.write_text(draft, encoding="utf-8")
-        print(f"[green]wrote[/green] {tilde(out)}")
+        if status in {"success", "unchanged"} and draft.strip():
+            out.write_text(draft, encoding="utf-8")
+            print(f"[green]wrote[/green] {tilde(out)}")
+        else:  # a draft that failed the tests is not "the new version"; it stays in the run log
+            print(f"[yellow]{tilde(out)} not written: no draft passed the tests[/yellow]")
     if write and status == "success":
         from rebirth_ai.textfile import write_like
 
@@ -863,12 +880,14 @@ def _translate_file(
     draft = final.get("current_draft") or ""
     root = (out_dir or (project / "rebirth_out" / target.id)).resolve()
     dest = root / (final.get("target_rel") or state["target_rel"])
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(draft, encoding="utf-8")
-    print(f"[green]wrote[/green] {tilde(dest)}" + ("" if status == "success" else " [yellow](not verified — review it)[/yellow]"))
-    if out is not None:
-        out.write_text(draft, encoding="utf-8")
-        print(f"[green]wrote[/green] {tilde(out)}")
+    if draft.strip():  # an unverified translation is still a start; an empty file is not
+        note = "" if status == "success" else " [yellow](not verified — review it)[/yellow]"
+        for path in [dest] + ([out] if out is not None else []):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(draft, encoding="utf-8")
+            print(f"[green]wrote[/green] {tilde(path)}{note}")
+    else:
+        print("[yellow]nothing written: the model returned no code[/yellow]")
     if write and status == "success" and target_project is not None and target_file:
         from rebirth_ai.textfile import write_like
 
@@ -1148,18 +1167,20 @@ def eval_cmd(
         "-l",
         help="Adapter id or 'all' (fixtures suite supports all 8 langs)",
     ),
-    out: Path = typer.Option(
-        Path("data/reports/eval_behavioral.json"),
+    out: Path | None = typer.Option(
+        None,
         "--out",
+        show_default="data/reports/eval_behavioral.json (fixtures: eval_fixture_sandboxes.json) in the Rebirth folder",
     ),
     freeze_baseline: Path | None = typer.Option(
         None,
         "--freeze-baseline",
         help="Write baseline snapshot (e.g. data/reports/baselines/ollama_js_ts.json)",
     ),
-    manifest: Path = typer.Option(
-        Path("fixtures/eval_suite/manifest.json"),
+    manifest: Path | None = typer.Option(
+        None,
         "--manifest",
+        show_default="fixtures/eval_suite/manifest.json in the Rebirth folder",
     ),
     target: float = typer.Option(0.90, "--target", help="Pass-rate gate for fixtures suite"),
 ) -> None:
@@ -1167,7 +1188,9 @@ def eval_cmd(
     import subprocess
     import sys
 
-    root = Path(__file__).resolve().parents[2]
+    # The scripts run from the Rebirth folder; paths you give are resolved from your own folder first.
+    root = rebirth_paths.ROOT
+    reports = rebirth_paths.DATA / "reports"
     if suite == "fixtures" or lang == "all":
         script = root / "training" / "eval_fixture_sandboxes.py"
         cmd = [
@@ -1178,9 +1201,9 @@ def eval_cmd(
             "--target",
             str(target),
             "--out",
-            str(out if out != Path("data/reports/eval_behavioral.json") else Path("data/reports/eval_fixture_sandboxes.json")),
+            str(out.resolve() if out else reports / "eval_fixture_sandboxes.json"),
         ]
-        raise typer.Exit(subprocess.call(cmd))
+        raise typer.Exit(subprocess.call(cmd, cwd=root))
 
     script = root / "training" / "eval_behavioral.py"
     cmd = [
@@ -1191,13 +1214,13 @@ def eval_cmd(
         "--suite",
         suite,
         "--out",
-        str(out),
+        str(out.resolve() if out else reports / "eval_behavioral.json"),
         "--manifest",
-        str(manifest),
+        str(manifest.resolve() if manifest else root / "fixtures" / "eval_suite" / "manifest.json"),
     ]
     if freeze_baseline is not None:
-        cmd.extend(["--freeze-baseline", str(freeze_baseline)])
-    raise typer.Exit(subprocess.call(cmd))
+        cmd.extend(["--freeze-baseline", str(freeze_baseline.resolve())])
+    raise typer.Exit(subprocess.call(cmd, cwd=root))
 
 
 @app.command("report")
@@ -1255,10 +1278,6 @@ def classify_log(
         print(f"  {cls_name}: {p:.3f}")
 
 
-if __name__ == "__main__":
-    app()
-
-
 def _print_diff(name: str, before: str, after: str, *, limit: int = 400) -> None:
     """The change as a coloured unified diff (the first ``limit`` lines)."""
     import difflib
@@ -1288,3 +1307,7 @@ def _assign_panels() -> None:
 
 
 _assign_panels()
+
+# Last, after every definition above (python -m rebirth_ai.cli runs this module top to bottom).
+if __name__ == "__main__":
+    app()

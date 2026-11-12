@@ -11,7 +11,7 @@ from pathlib import Path
 from rebirth_ai.adapters.base import LanguageAdapter
 from rebirth_ai.adapters.js_ts import SOURCE_SUFFIXES as JS_SOURCE_SUFFIXES
 from rebirth_ai.adapters.js_ts import JsTsAdapter
-from rebirth_ai.adapters.registry import get_adapter
+from rebirth_ai.adapters.registry import adapter_id_for_suffix, get_adapter
 from rebirth_ai.safety import file_too_large, is_secret_path
 
 # Always skipped even if not in .gitignore
@@ -523,9 +523,13 @@ def resolve_local_import(
 
 
 def extract_local_imports(project_dir: Path, relative_file: Path | str) -> list[str]:
-    """Return project-relative local import targets from a source file."""
+    """Return project-relative local import targets from a source file.
+
+    JS/TS and Python only: those are the languages whose imports name files. The others (a Go or Java package,
+    a Rust crate, a C# or Swift module) compile their files together, so they get no edges and keep path order.
+    """
     path = project_dir / relative_file
-    if not path.is_file():
+    if not path.is_file() or adapter_id_for_suffix(path) not in {"js_ts", "python"}:
         return []
     text = path.read_text(encoding="utf-8", errors="replace")
     # Prefer Tree-sitter import chunks when available
