@@ -8,7 +8,12 @@ from dataclasses import dataclass
 
 import httpx
 
-from rebirth_ai.generate.prompts import SYSTEM_PROMPT, build_migration_prompt, extract_code_block
+from rebirth_ai.generate.prompts import (
+    SYSTEM_PROMPT,
+    build_migration_prompt,
+    extract_code_block,
+    strip_thinking,
+)
 
 _CTX_BUCKETS = (4096, 8192, 16384, 32768)  # few distinct num_ctx values → few model reloads
 
@@ -93,7 +98,7 @@ class OllamaClient:
             resp = client.post(f"{self.host}/api/generate", json=payload)
             resp.raise_for_status()
             data = resp.json()
-        return str(data.get("response", ""))
+        return strip_thinking(str(data.get("response", "")))  # any Ollama model, reasoning ones too
 
     def migrate(
         self,

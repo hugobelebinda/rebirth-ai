@@ -79,6 +79,16 @@ def strip_prose_preamble(text: str) -> str | None:
     return m.group("code").rstrip() + "\n"
 
 
+_THINK = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
+
+
+def strip_thinking(text: str) -> str:
+    """Drop a reasoning model's ``<think>…</think>`` block (it can hold code that is not the answer).
+    An unterminated block (the token budget ran out while thinking) holds no final answer: ``""``."""
+    text = _THINK.sub("", text)
+    return "" if "<think>" in text else text
+
+
 def extract_code_block(text: str) -> str:
     """Strip optional markdown fences (and a short prose preamble) from model output."""
     pre = strip_prose_preamble(text)

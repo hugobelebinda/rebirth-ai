@@ -12,10 +12,13 @@ locked-down Docker sandbox, no cloud and no API keys.
   and is retried with the errors when it fails. A draft that fails the tests is never written.
 - **8 languages:** JavaScript / TypeScript, Python, Go, Java, C#, Rust, C++, Swift.
 - **Private:** nothing leaves your machine while it runs.
+- **Your choice of model:** it ships models fine-tuned for these jobs, and also runs any other model you have in
+  Ollama.
 
 ## Contents
 
 - [How it works](#how-it-works)
+- [Why Rebirth?](#why-rebirth)
 - [Requirements](#requirements)
 - [Install](#install)
 - [Quick start](#quick-start)
@@ -28,10 +31,14 @@ locked-down Docker sandbox, no cloud and no API keys.
   - [Read the results](#read-the-results)
 - [Languages](#languages)
 - [Configuration](#configuration)
+- [Use another model](#use-another-model)
 - [What to expect](#what-to-expect)
+- [Project status](#project-status)
 - [Privacy and security](#privacy-and-security)
 - [Troubleshooting](#troubleshooting)
+- [How it was built](#how-it-was-built)
 - [Development](#development)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## How it works
@@ -53,6 +60,32 @@ For each file, Rebirth runs a loop:
 When the 7B model passes the tests without changing anything, Rebirth asks a 14B model once more
 ([fallback](#modernize-one-file)).
 
+## Why Rebirth?
+
+A model only writes a draft. Rebirth decides whether that draft is safe to keep, and does the work around it:
+- it finds the tests;
+- it orders the files by their imports;
+- it runs the tests on every draft in a sandbox, and retries with the errors;
+- it writes only what passes.
+
+**Why not just run a bigger model?** You can, inside Rebirth: it runs any model you have in Ollama (see
+[Use another model](#use-another-model)). A bigger model writes better drafts; Rebirth is what checks them.
+Rebirth's own models exist so that one 8–16 GB GPU is enough. Its 14B translation model scores about like a
+30B model that doesn't fit in 16 GB.
+
+**Why not an AI coding agent (Claude Code, Codex, Cursor…)?** For a large refactor that needs judgment across
+many files, a frontier agent is more capable. Rebirth is built for a different case:
+- **Your code can't leave the machine.** Banks, hospitals, defense, government and code under NDA often can't
+  be sent to a cloud API. Rebirth runs offline.
+- **The test check is enforced, not requested.** An agent may run your tests. Rebirth cannot write a change that
+  fails them.
+- **Model-written code runs in a sandbox** with no network and no access to the rest of your machine, not with
+  your user's permissions.
+- **No per-token cost.** A thousand files on your own GPU cost electricity.
+- **Every run is logged** with the model that wrote each draft, and a model update can be rolled back.
+
+For framework migrations, redesigns and changes that span many files at once, use an agent or a person.
+
 ## Requirements
 
 | | Minimum | Notes |
@@ -61,7 +94,7 @@ When the 7B model passes the tests without changing anything, Rebirth asks a 14B
 | Python | 3.11+ with `venv` | `sudo apt install python3 python3-venv` |
 | Docker | Engine 24+ | Your user must be in the `docker` group. |
 | Ollama | 0.30+ | Must be running (`ollama list` works). |
-| GPU | 16 GB for both models, 8 GB for modernizing only | NVIDIA or AMD. Without a GPU, Ollama runs on the CPU, which is very slow. |
+| GPU | 16 GB for both models, 8 GB for modernizing only | Tested on AMD (RX 7800 XT). NVIDIA works through Ollama but is untested ([Project status](#project-status)). Without a GPU, Ollama runs on the CPU, which is very slow. |
 | Disk | ~35 GB free | Models ~17 GB, sandbox images ~11 GB, Python environment ~3 GB. |
 | Internet | for the install | Afterwards Rebirth works offline. The sandbox still downloads the dependencies your project declares (npm, pip, Maven, NuGet, Go, Cargo, SwiftPM) before testing. |
 
@@ -248,6 +281,7 @@ Everything has a default. These environment variables change it:
 | Variable | Default | What it does |
 |---|---|---|
 | `OLLAMA_HOST` | `http://127.0.0.1:11434` | Where Ollama runs. |
+| `OLLAMA_MODEL` | `qwen2.5-coder:14b-instruct-q6_K` | The model `--backend ollama` uses, and the fallback's first choice. |
 | `REBIRTH_FALLBACK` | `1` | `0` turns the 14B fallback off. |
 | `REBIRTH_FALLBACK_MODEL` | plain 14B, else the translation model | The Ollama model the fallback uses. |
 | `REBIRTH_FALLBACK_TRIES` | `2` | Tries the fallback model gets. |
@@ -260,6 +294,48 @@ Everything has a default. These environment variables change it:
 | `REBIRTH_MAX_FILE_BYTES` | `204800` | Larger files are skipped. |
 
 All variables, including the ones for maintainers: [`.env.example`](.env.example).
+
+## Use another model
+
+Rebirth works with any model you can run in Ollama. A run uses up to three models:
+
+| Step | Default | To use another model |
+|---|---|---|
+| Modernize: the first drafts | `rebirth-<lang>:7b` (fine-tuned) | `--backend ollama`, with `OLLAMA_MODEL=<model>` |
+| Fallback: after an unchanged result | the plain Qwen2.5-Coder 14B, else the translation model | `REBIRTH_FALLBACK_MODEL=<model>` |
+| Translate (`--to`) | `rebirth-xlang:14b` (fine-tuned) | `REBIRTH_XLANG_MODEL=<model>` |
+
+For example, on a 32 GB GPU (RTX 5090), keep the fine-tuned 7B models for the first drafts and give the rest to
+a larger model:
+
+```bash
+ollama pull qwen3-coder:30b
+export REBIRTH_FALLBACK_MODEL=qwen3-coder:30b REBIRTH_XLANG_MODEL=qwen3-coder:30b
+rebirth migrate-repo ~/code/billing
+```
+
+**Another model does not get Rebirth's fine-tuning.** The adapters were trained on the weights of
+Qwen2.5-Coder 7B and 14B and only work with them. Another model writes its drafts with its own skills and
+Rebirth's prompts. It still gets everything else: the tests, the sandbox, the retries, the file order and the
+pull request.
+
+What this means in practice:
+- **Translation:** on the same 420 program translations, all run in full precision (bf16) on the same GPU:
+
+  | Model | Verified translations |
+  |---|---:|
+  | Qwen3-Coder-30B-A3B, no fine-tuning | 282 |
+  | Rebirth's fine-tuned 14B | 274 |
+  | Plain Qwen2.5-Coder 14B | 215 |
+
+  So a 30B model translates about as well as Rebirth's 14B, but needs about 20 GB of GPU memory.
+- **Modernize:** other models were not measured. The fine-tuned 7B matches the human change 2.5 times as often
+  as its base model (107 against 42), and it is fast, so keep it for the first drafts.
+- **Reasoning models** (Qwen3, DeepSeek-R1…) work: their reasoning is dropped before the code is read. They are
+  slower.
+- **A typo in `REBIRTH_XLANG_MODEL`** is reported, and the plain 14B is used instead.
+- **To fine-tune a larger model the same way,** start from the training code and the data scripts in
+  [`training/`](training/) and [docs/DATASET.md](docs/DATASET.md).
 
 ## What to expect
 
@@ -290,6 +366,20 @@ Details: [docs/phases/PHASE_19_LAUNCH.md](docs/phases/PHASE_19_LAUNCH.md).
 - Translations only use the target language's standard library.
 - The models were trained on files of up to a few hundred lines. Very long files are slower and less reliable.
 
+## Project status
+
+1.0 is the first public release, built and maintained by one developer.
+
+- **Tested:**
+  - Ubuntu 24.04 with an AMD RX 7800 XT (16 GB) and Ollama 0.30;
+  - all 8 languages on their sample projects;
+  - 333 automated tests, run by CI on every change.
+- **Not tested yet:** NVIDIA GPUs, 8 GB GPUs, macOS and Windows (WSL2). Ollama supports them, so Rebirth should
+  work there. A report from one of these setups is the most useful contribution right now
+  ([Contributing](#contributing)).
+- **Measured on real code:** 14 files from 10 small libraries, in JavaScript, Python and Go. The other 5
+  languages have been run on sample projects only.
+
 ## Privacy and security
 
 - **Nothing leaves your machine while Rebirth runs.** It sends no telemetry.
@@ -319,6 +409,42 @@ Full details and how to report a vulnerability: [docs/SECURITY.md](docs/SECURITY
 More: [docs/INSTALL.md](docs/INSTALL.md#troubleshooting). To uninstall:
 [docs/INSTALL.md](docs/INSTALL.md#uninstall).
 
+## How it was built
+
+Rebirth started from one rule: **don't trust the model, trust the tests.** The model proposes a change, and the
+project's own tests decide whether it stays. The rest of the work was making that run offline on one consumer
+GPU.
+
+1. **Data.** 24,640 real before/after commits in the 8 languages, mined from permissively licensed repositories
+   (BigCode's CommitPackFT and CommitPack). They were filtered by size, by Tree-sitter parsing and by commit
+   quality.
+2. **Modernize models.** One LoRA adapter per language on Qwen2.5-Coder 7B, trained in 4-bit (QLoRA) on an AMD
+   RX 7800 XT. On 749 held-out commits they match the human change 107 times, against 42 for the base model.
+3. **Translation data checked by tests.**
+   - A 14B model translated CodeContests programs into the other languages.
+   - Only the translations that pass the problem's own tests were kept: 30,211 verified pairs.
+4. **Translation model.**
+   - A LoRA on Qwen2.5-Coder 14B, trained in 4 h 38 min on one cloud GPU, then merged into the weights and
+     quantized once.
+   - Verified program translations went from 551 to 667 of 931.
+   - Merging made generation 24 % faster.
+5. **The agent.**
+   - A LangGraph loop: draft, test in the sandbox, classify the error, retry.
+   - Files are done in dependency order, with a 14B fallback.
+6. **Around it:**
+   - experiment tracking and a model registry (MLflow), and versioned data (DVC);
+   - quality gates before a model is served, and rollback;
+   - drift monitoring and CI.
+
+Two decisions the measurements made:
+- **The smaller model ships for modernizing.** A 14B with the same kind of adapters only tied the 7B, per 100
+  commits (Go: 15 against 14; Python: 19 against 20). So the faster 7B is the one installed.
+- **No second cloud round.** A 30B model was the candidate teacher for a second round of translation data.
+  On its own it scored about the same as the fine-tuned 14B (282 against 274), so no more cloud spend went into
+  that round.
+
+Every measurement is in [docs/phases/](docs/phases/).
+
 ## Development
 
 ```bash
@@ -337,6 +463,17 @@ CI runs the same lint and tests on every push. The models are trained and gated 
 
 Maintainer commands (training, evaluation, model registry, serving, monitoring) are listed under their own
 headings in `rebirth --help`.
+
+## Contributing
+
+Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). The most useful right now:
+- **Hardware reports:** run Rebirth on a setup it hasn't been tested on (NVIDIA, an 8 GB GPU, macOS, WSL2)
+  and [open a hardware report](https://github.com/hugobelebinda/rebirth-ai/issues/new?template=hardware_report.md);
+- **Real projects** added to the benchmark, especially in Java, C#, Rust, C++ and Swift;
+- **A new language;**
+- **Third-party packages** mapped between languages for `--to`.
+
+Report security issues privately: [docs/SECURITY.md](docs/SECURITY.md).
 
 ## License
 

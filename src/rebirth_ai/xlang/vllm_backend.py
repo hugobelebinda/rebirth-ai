@@ -13,15 +13,13 @@ ignore it) and any ``<think>`` block that still appears is dropped before code e
 from __future__ import annotations
 
 import json
-import re
 import time
 import urllib.error
 import urllib.request
 
+from rebirth_ai.generate.prompts import strip_thinking
 from rebirth_ai.xlang.prompts import TRANSLATE_SYSTEM_PROMPT
 from rebirth_ai.xlang.translator import Completion
-
-_THINK = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
 
 
 class VllmRejected(RuntimeError):
@@ -45,12 +43,6 @@ def _post(url: str, payload: dict, *, timeout: float, retries: int = 4) -> dict:
             last = exc
         time.sleep(3 * (attempt + 1))
     raise RuntimeError(f"vLLM request failed after {retries} tries: {last}")
-
-
-def strip_thinking(text: str) -> str:
-    text = _THINK.sub("", text)
-    # an unterminated think block (hit max_tokens while thinking) holds no final answer
-    return "" if "<think>" in text else text
 
 
 class VllmTranslator:
