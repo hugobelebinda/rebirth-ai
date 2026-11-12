@@ -1,6 +1,7 @@
 ---
 license: apache-2.0
 base_model: Qwen/Qwen2.5-Coder-7B-Instruct
+base_model_relation: adapter
 library_name: gguf
 tags:
   - code
@@ -16,9 +17,6 @@ language:
 ---
 
 # Rebirth AI — modernize pack (8 LoRA adapters for Qwen2.5-Coder-7B)
-
-> Draft model card for the Hugging Face repo `belebindahugo/rebirth-modernize-7b-lora-gguf` (Phase 19). Review
-> before publishing.
 
 Eight small LoRA adapters (GGUF, f16, ~10 MB each) that turn **Qwen2.5-Coder-7B-Instruct** into a
 same-language code modernizer: given a legacy file and an objective, it rewrites the code in modern idioms
@@ -36,17 +34,28 @@ git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai
 bash scripts/bootstrap.sh --pack modernize
 ```
 
-By hand, for one language (the adapters expect the raw prompt format below, not a chat template):
+By hand, for one language: download its file, then create the model with this Modelfile (the one the
+installer writes). The adapters expect the raw prompt format below, not a chat template.
 
-```text
+````text
 FROM qwen2.5-coder:7b-instruct
 ADAPTER ./rebirth-go-7b-v1.lora.f16.gguf
 TEMPLATE """{{ .Prompt }}"""
 PARAMETER temperature 0
 PARAMETER num_ctx 4096
 PARAMETER stop "
+### Objective"
+PARAMETER stop "
+### Legacy"
+PARAMETER stop "
+### Modern"
+PARAMETER stop "
 ###"
-```
+PARAMETER stop "
+```"
+````
+
+`ollama create rebirth-go:7b -f Modelfile`.
 
 Prompt: `### Objective\n<what to change>\n### Legacy\n<code>\n### Modern\n`.
 

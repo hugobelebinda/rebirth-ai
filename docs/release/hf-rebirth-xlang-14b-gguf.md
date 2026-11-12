@@ -1,6 +1,7 @@
 ---
 license: apache-2.0
 base_model: Qwen/Qwen2.5-Coder-14B-Instruct
+base_model_relation: finetune
 library_name: gguf
 tags:
   - code
@@ -18,9 +19,6 @@ language:
 
 # Rebirth AI — migrate pack (Qwen2.5-Coder-14B for code translation, Q6_K)
 
-> Draft model card for the Hugging Face repo `belebindahugo/rebirth-xlang-14b-gguf` (Phase 19). Review
-> before publishing.
-
 **Qwen2.5-Coder-14B-Instruct** fine-tuned to translate code between 8 languages (Python, JavaScript /
 TypeScript, Go, Java, C#, Rust, C++, Swift: all 56 directions), with the LoRA merged into the weights and
 quantized once to Q6_K (one 12.1 GB GGUF). It is the "migrate" pack of
@@ -35,11 +33,12 @@ The normal way is the installer, which downloads the file, checks its sha256 and
 ```bash
 git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai
 bash scripts/bootstrap.sh --pack migrate
+source .venv/bin/activate
 rebirth migrate path/to/project --file src/app.py --to go
 ```
 
-By hand: use `configs/ollama/xlang-14b.Modelfile` from the GitHub repo with `FROM` pointing at the GGUF
-(it carries Qwen2.5-Coder's chat template, which the model was evaluated with), then
+By hand: download the GGUF and the `Modelfile` from this repo into one folder (the Modelfile carries
+Qwen2.5-Coder's chat template, which the model was evaluated with), then
 `ollama create rebirth-xlang:14b -f Modelfile`. Rebirth sends this system prompt:
 
 ```text
@@ -59,6 +58,7 @@ is `build_translation_prompt` in `src/rebirth_ai/xlang/prompts.py`).
 | File | Size | sha256 |
 |---|---:|---|
 | `rebirth-xlang-14b-v2.Q6_K.gguf` | 12,124,684,384 bytes | `bfa04408e2156a51e56b9b1c8d3a41418c9eca524498c2d97adcc21295a45883` |
+| `Modelfile` | | for `ollama create` |
 
 ## Training
 
