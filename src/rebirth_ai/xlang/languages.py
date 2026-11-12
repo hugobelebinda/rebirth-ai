@@ -172,7 +172,9 @@ def check_spec(lang: XLang, rel: str, code: str = "") -> tuple[dict[str, str], s
         files = {"go.mod": _GO_MOD}
         if re.search(r"^package\s+main\b", code, re.MULTILINE) and not re.search(r"^func\s+main\s*\(", code, re.MULTILINE):
             files[str(PurePosixPath(rel).with_name("zz_rebirth_main.go"))] = "package main\n\nfunc main() {}\n"
-        return files, "go build ./..."
+        # -o /dev/null: compile everything, keep nothing. Without it, a main package's program is
+        # written next to the project, named after its folder: a file `src` where the folder src/ is.
+        return files, "go build -o /dev/null ./..."
     if lang.id == "java":
         return {}, f"javac -d /tmp/rebirth_classes {q}"
     if lang.id == "csharp":

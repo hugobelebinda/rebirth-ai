@@ -315,3 +315,11 @@ def test_xlang_model_env_override_and_off(ollama_tags, monkeypatch) -> None:
     assert get_translator().backend == "auto"  # the default (REBIRTH_TRANSLATOR unset)
     with pytest.raises(ValueError):
         Translator("vllm")
+
+
+def test_the_go_compile_check_writes_its_program_outside_the_project() -> None:
+    """A file named after the package folder (`src`) cannot be written where that folder is."""
+    from rebirth_ai.xlang.languages import check_spec
+
+    _, cmd = check_spec(get_lang("go"), "src/invoice.go", "package main\n\nfunc main() {}\n")
+    assert cmd == "go build -o /dev/null ./..."
