@@ -11,7 +11,7 @@ from rich.table import Table
 from typer.core import TyperGroup
 
 from rebirth_ai import __version__
-from rebirth_ai.paths import CLASSIFIER_DIR, DEFAULT_DB, DEFAULT_REPORT, ERROR_LOGS
+from rebirth_ai.paths import CLASSIFIER_DIR, DEFAULT_DB, DEFAULT_REPORT, ERROR_LOGS, tilde
 
 # `rebirth --help`: commands grouped by who needs them, in this order (assigned at the end of the file).
 PANELS = {
@@ -520,7 +520,7 @@ def generate_migration(
     print(result.code)
     if out is not None:
         out.write_text(result.code, encoding="utf-8")
-        print(f"[green]wrote[/green] {out}")
+        print(f"[green]wrote[/green] {tilde(out)}")
 
 
 @app.command("mine-dataset")
@@ -753,13 +753,13 @@ def migrate_file(
         _print_diff(file, source_text, draft)
     if out is not None:
         out.write_text(draft, encoding="utf-8")
-        print(f"[green]wrote[/green] {out}")
+        print(f"[green]wrote[/green] {tilde(out)}")
     if write and status == "success":
         from rebirth_ai.textfile import write_like
 
         target = Path(final["file_path"])
         write_like(target, draft)
-        print(f"[green]wrote[/green] {target}")
+        print(f"[green]wrote[/green] {tilde(target)}")
     if status == "success":
         print("[dim]Passing tests are evidence, not proof: review the diff before you keep it.[/dim]")
 
@@ -793,9 +793,9 @@ def migrate_file(
                 wall_seconds=wall, source_code=source_text, draft=draft or None),
         },
     )
-    print(f"[dim]run log[/dim] {run_path}")
+    print(f"[dim]run log[/dim] {tilde(run_path)}")
     if status not in ("success", "unchanged"):
-        print(f"[dim]last draft and test log:[/dim] {runs_dir() / rid}")
+        print(f"[dim]last draft and test log:[/dim] {tilde(runs_dir() / rid)}")
 
     raise typer.Exit(code=0 if status in ("success", "unchanged") else 1)
 
@@ -865,15 +865,15 @@ def _translate_file(
     dest = root / (final.get("target_rel") or state["target_rel"])
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(draft, encoding="utf-8")
-    print(f"[green]wrote[/green] {dest}" + ("" if status == "success" else " [yellow](not verified — review it)[/yellow]"))
+    print(f"[green]wrote[/green] {tilde(dest)}" + ("" if status == "success" else " [yellow](not verified — review it)[/yellow]"))
     if out is not None:
         out.write_text(draft, encoding="utf-8")
-        print(f"[green]wrote[/green] {out}")
+        print(f"[green]wrote[/green] {tilde(out)}")
     if write and status == "success" and target_project is not None and target_file:
         from rebirth_ai.textfile import write_like
 
         write_like(target_project / target_file, draft)
-        print(f"[green]wrote[/green] {target_project / target_file}")
+        print(f"[green]wrote[/green] {tilde(target_project / target_file)}")
 
     from rebirth_ai.monitor import telemetry
     from rebirth_ai.monitor.flywheel import save_artifacts
@@ -909,7 +909,7 @@ def _translate_file(
                 verify_mode=final.get("verify_mode")),
         },
     )
-    print(f"[dim]run log[/dim] {run_path}")
+    print(f"[dim]run log[/dim] {tilde(run_path)}")
     raise typer.Exit(code=0 if status == "success" else 1)
 
 
@@ -1073,7 +1073,7 @@ def migrate_repo(
             if r.draft_preview:
                 print(f"[bold]diff[/bold] {r.relative_file}")
                 print(r.draft_preview.replace("[", "\\["))
-    print(f"[green]report[/green] {report}")
+    print(f"[green]report[/green] {tilde(report)}")
 
     from rebirth_ai.monitor import telemetry as _telemetry
     from rebirth_ai.runs import write_run_log
@@ -1104,7 +1104,7 @@ def migrate_repo(
             ],
         },
     )
-    print(f"[dim]run log[/dim] {run_path}")
+    print(f"[dim]run log[/dim] {tilde(run_path)}")
 
     if open_pr and not dry_run:
         try:

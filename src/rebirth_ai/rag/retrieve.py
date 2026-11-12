@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,7 +12,7 @@ from rebirth_ai.ast.chunker import CodeChunk
 from rebirth_ai.rag.embedder import Embedder, get_embedder
 from rebirth_ai.rag.store import StoredChunk, VectorStore
 
-DEFAULT_DB = Path(os.environ.get("REBIRTH_VECTOR_DB_PATH") or paths.DEFAULT_DB)
+DEFAULT_DB = paths.DEFAULT_DB  # honours REBIRTH_VECTOR_DB_PATH
 
 
 @dataclass

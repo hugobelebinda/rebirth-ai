@@ -11,7 +11,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data"
-DEFAULT_DB = DATA / "embeddings.db"
+# the code-search index; REBIRTH_VECTOR_DB_PATH moves it (read by the CLI, the graph and the retriever)
+DEFAULT_DB = Path(os.environ.get("REBIRTH_VECTOR_DB_PATH") or DATA / "embeddings.db")
 DEFAULT_REPORT = DATA / "reports" / "migrate_repo.json"
 CLASSIFIER_DIR = DATA / "models" / "error_classifier"
 ERROR_LOGS = DATA / "datasets" / "error_logs.jsonl"
@@ -20,3 +21,11 @@ ERROR_LOGS = DATA / "datasets" / "error_logs.jsonl"
 def runs_dir_default() -> Path:
     """``REBIRTH_RUNS_DIR``, else ``<Rebirth>/data/runs``."""
     return Path(os.environ.get("REBIRTH_RUNS_DIR") or DATA / "runs")
+
+
+def tilde(path: os.PathLike | str) -> str:
+    """``path`` as printed: the home folder as ``~`` (shorter, and pasted output doesn't show the user name)."""
+    text, home = str(path), str(Path.home())
+    if text == home:
+        return "~"
+    return "~" + text[len(home):] if text.startswith(home + os.sep) else text
