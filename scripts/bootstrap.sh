@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# One-shot install of Rebirth AI on a new machine (Linux; Phase 19).
+# One-shot install of Rebirth AI on a new machine. Tested on Linux; macOS is untested (it warns and goes on);
+# on Windows, run it inside WSL2 (also untested).
 #
 #   git clone https://github.com/hugobelebinda/rebirth-ai && cd rebirth-ai
 #   bash scripts/bootstrap.sh                       # both packs
@@ -37,19 +38,41 @@ case "$pack" in both|modernize|migrate) ;; *) echo "--pack both|modernize|migrat
 say() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
 die() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
+REPORT="https://github.com/hugobelebinda/rebirth-ai/issues/new?template=hardware_report.md"
+os="$(uname -s)"
+case "$os" in
+  Linux) ;;
+  Darwin)
+    printf '\033[33mwarning:\033[0m macOS is not tested yet: this install may fail, or Rebirth may not work.\n'
+    printf 'If you go on, please tell us what happened (it is the most useful report right now):\n  %s\n' "$REPORT" ;;
+  MINGW*|MSYS*|CYGWIN*)
+    die "Windows is not supported directly: install WSL2 (Ubuntu) and run this script inside it (untested)" ;;
+  *) printf '\033[33mwarning:\033[0m %s is not tested: this install may fail.\n' "$os" ;;
+esac
+# install hints for missing tools
+if [ "$os" = Darwin ]; then
+  get() { echo "brew install $*"; }; start_docker="start Docker Desktop"; start_ollama="open the Ollama app"
+else
+  get() { echo "sudo apt install $*"; }
+  start_docker="start it, and add yourself to the docker group (sudo usermod -aG docker \$USER, then log in again)"
+  start_ollama="ollama serve, or sudo systemctl start ollama"
+fi
+# sha256sum is GNU coreutils; macOS has shasum (same output format, so the same image labels)
+if command -v sha256sum >/dev/null; then hash=(sha256sum); else hash=(shasum -a 256); fi
+
 say "1/6 system tools"
-command -v git >/dev/null || die "git missing (sudo apt install git)"
+command -v git >/dev/null || die "git missing ($(get git))"
 PY="${PYTHON:-python3}"
-command -v "$PY" >/dev/null || die "python3 missing (sudo apt install python3 python3-venv)"
+command -v "$PY" >/dev/null || die "python3 missing ($(get python3 python3-venv))"
 "$PY" -c 'import sys; sys.exit(sys.version_info < (3, 11))' || die "Python ≥ 3.11 needed ($("$PY" -V))"
-"$PY" -c 'import venv, ensurepip' 2>/dev/null || die "python venv module missing (sudo apt install python3-venv)"
+"$PY" -c 'import venv, ensurepip' 2>/dev/null || die "python venv module missing ($(get python3-venv))"
 if [ "$images" = 1 ]; then
   command -v docker >/dev/null || die "docker missing (https://docs.docker.com/engine/install/)"
-  docker info >/dev/null 2>&1 || die "Docker daemon not reachable: start it, and add yourself to the docker group (sudo usermod -aG docker \$USER, then log in again)"
+  docker info >/dev/null 2>&1 || die "Docker daemon not reachable: $start_docker"
 fi
 if [ "$models" = 1 ]; then
   command -v ollama >/dev/null || die "ollama missing (https://ollama.com/download)"
-  ollama list >/dev/null 2>&1 || die "Ollama server not reachable (ollama serve, or sudo systemctl start ollama)"
+  ollama list >/dev/null 2>&1 || die "Ollama server not reachable ($start_ollama)"
 fi
 echo "ok: git, $("$PY" -V)$([ "$images" = 1 ] && echo ", docker")$([ "$models" = 1 ] && echo ", ollama")"
 
@@ -58,7 +81,10 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv
   .venv/bin/pip install -q --upgrade pip
   # CPU torch: only the small embedding model runs in Python; the LLMs run in Ollama.
-  [ "${REBIRTH_TORCH:-cpu}" = cpu ] && .venv/bin/pip install -q "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
+  # (macOS: PyPI's torch wheels are already CPU / Apple GPU only.)
+  if [ "${REBIRTH_TORCH:-cpu}" = cpu ] && [ "$os" != Darwin ]; then
+    .venv/bin/pip install -q "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
+  fi
 fi
 .venv/bin/pip install -q -e .
 .venv/bin/rebirth version
@@ -86,7 +112,7 @@ if [ "$images" = 1 ]; then
   for dir in docker/*_sandbox; do
     lang="$(basename "$dir" _sandbox)"; name="rebirth-ai/${lang//_/-}-sandbox"
     # The image carries a hash of its folder: after a `git pull` that changes a Dockerfile, it is rebuilt.
-    sum="$(find "$dir" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -c1-16)"
+    sum="$(find "$dir" -type f -print0 | sort -z | xargs -0 "${hash[@]}" | "${hash[@]}" | cut -c1-16)"
     have="$(docker image inspect -f '{{index .Config.Labels "rebirth.dockerfile"}}' "$name:latest" 2>/dev/null || true)"
     if [ "$rebuild" = 0 ] && [ "$have" = "$sum" ]; then
       echo "ok: $name:latest (up to date)"
@@ -102,7 +128,7 @@ fi
 
 say "5/6 model packs ($pack)"
 if [ "$models" = 1 ]; then
-  .venv/bin/rebirth install --pack "$pack" "${from[@]}"
+  .venv/bin/rebirth install --pack "$pack" ${from[@]+"${from[@]}"}  # this form: bash 3.2 (macOS) with set -u
 else
   echo "skipped"
 fi

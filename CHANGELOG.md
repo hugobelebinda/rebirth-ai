@@ -37,6 +37,8 @@ The first release.
   you.
 - `scripts/bootstrap.sh` installs everything: the Python environment, 8 sandbox images, both model packs
   (sha256-checked) and `rebirth doctor`. Offline install: `--from <folder>`.
+  - On macOS it warns that macOS is untested, then goes on.
+  - On Windows outside WSL2 it stops and says to use WSL2.
 - `rebirth doctor` checks Docker, Ollama, the models, the sandbox images, the GPU and disk space.
 - A passing change is shown as a diff. Results are `success`, `unchanged` or `human_review`, with clear
   exit codes.
