@@ -1,6 +1,6 @@
 # Phase 19 — Packaging, UX & Official v1.0 Launch
 
-> Status: **IN PROGRESS (started 2026-11-10)** — last phase (was "Phase 11" before the 2026-11-05 renumbering). Release (step 6: Hugging Face upload, `v1.0.0` tag) waits for the owner's review.  
+> Status: **RELEASE READY (2026-11-11)** — last phase (was "Phase 11" before the 2026-11-05 renumbering). Models published on Hugging Face 2026-11-11; version 1.0.0 on `rebirth/v1.0.0`; the `v1.0.0` tag and the GitHub release wait for the owner's go.  
 > Previous: [PHASE_18_MLOPS_MONITORING.md](PHASE_18_MLOPS_MONITORING.md)  
 > Depends on: Phase 10 complete **and** LoRA specialization waves ([PHASE_11_LORA_PER_LANGUAGE.md](PHASE_11_LORA_PER_LANGUAGE.md)) — or explicit user skip of LoRA  
 > Full plan: [PRODUCTION_ROADMAP.md](../PRODUCTION_ROADMAP.md) § Phase 19  
@@ -48,7 +48,7 @@ now; step 6 (publish + tag) only after a review with the owner.
 | 3 | `scripts/bootstrap.sh` + `rebirth install` + `rebirth doctor --strict` | done, clean-copy test passed |
 | 4 | Release checks: fixtures 8/8, real-repo reports, `--open-pr`, security checklist | done (2026-11-11), plus fallback, bug hunt and the [pre-launch review](#pre-launch-review-and-fixes-2026-11-11-evening) |
 | 5 | Docs: INSTALL, README (now a user guide), SECURITY, CHANGELOG, Hugging Face model cards | done; cards are drafts until step 6 |
-| 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | **after review** |
+| 6 | Hugging Face upload, `configs/models.json` `hf_namespace`, version 1.0.0, tag | models **published 2026-11-11** (checked anonymously: sha256 of every file); 1.0.0, README, demo on `rebirth/v1.0.0`; tag + release on the owner's go |
 
 ## Built (2026-11-10)
 
@@ -345,4 +345,30 @@ review of what a new user would meet, and these fixes on `rebirth/p19-prelaunch`
 
 ## What shipped / how to run / samples
 
-_Filled at the release (step 6)._
+**Version 1.0.0** (2026-11-11).
+
+- **Models on Hugging Face** (user `belebindahugo`, published 2026-11-11 by `scripts/publish_hf.py`):
+  - [`rebirth-modernize-7b-lora-gguf`](https://huggingface.co/belebindahugo/rebirth-modernize-7b-lora-gguf): the
+    8 LoRA adapters (10 MB each) and the card;
+  - [`rebirth-xlang-14b-gguf`](https://huggingface.co/belebindahugo/rebirth-xlang-14b-gguf): the 14B Q6_K
+    (12.1 GB), a ready Ollama `Modelfile` and the card.
+  - Checked without a login: every file's size and sha256 match `configs/models.json`. The installer's own
+    download code fetched the 8 adapters (sha256 OK, 24 s), and the 14B answers a range request (`GGUF`, right
+    size, so downloads resume).
+- **How to run:** `git clone … && bash scripts/bootstrap.sh`, then `rebirth` (README § Install, Quick start).
+- **Sample:** [`examples/billing`](../../examples/billing), an old-style invoice module with 4 tests.
+  - The README demo (`docs/assets/demo.gif`, recorded by `scripts/record_demo.py`) is a real run on it.
+  - The 7B modernizes it on the first try in 12 s, with the tests passing.
+  - `--to go` compiles on the first try in 17 s (after the Go `src/` fix below).
+
+### Found while preparing the release (all fixed on `rebirth/v1.0.0`)
+
+| Finding | Fix |
+|---|---|
+| `--to go` never verified a `package main` translation in `src/` (most Python projects). `go build ./...` wrote the program to a file named `src`, where the folder is. Found when the demo's example failed 5 tries. | `go build -o /dev/null ./...`. Sandbox tests cover main packages in `src/`, the root and a subfolder. The evaluation suites use `go build -o prog .` and are not affected. |
+| On a Linux host whose user is not uid 1000, Rust and Java always failed: the sandbox user could not write the project copy. | The copy is opened to the sandbox user, and its files are handed back before the container is removed. Simulated on all 8 languages. |
+| A container Docker created but could not start was left behind as *Created*. | Unique container names; a container that fails to start is removed. |
+| `REBIRTH_VECTOR_DB_PATH` was documented, but the CLI and the graph ignored it. | One default (`paths.DEFAULT_DB`) that honours it. |
+| A reasoning model's `<think>` block reached the code reader on the Ollama path. A mistyped `REBIRTH_XLANG_MODEL` silently used the plain 14B. | `<think>` is stripped; the typo is reported. Checked end to end with a model Rebirth doesn't ship. |
+| `bootstrap.sh` would have stopped on a Mac (`sha256sum`, bash 3.2 with `set -u`). | Fixed. macOS gets an "untested" warning; Windows outside WSL2 a clear stop. |
+| Printed paths showed the full home folder (the user name in screenshots). | `~` in printed paths and in the start screen's command. |

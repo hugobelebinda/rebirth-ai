@@ -2,7 +2,7 @@
 
 All notable changes to Rebirth AI. Versions follow [Semantic Versioning](https://semver.org).
 
-## [1.0.0] — unreleased
+## [1.0.0] — 2026-11-11
 
 The first release.
 

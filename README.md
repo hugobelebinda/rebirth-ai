@@ -1,10 +1,18 @@
 # Rebirth AI
 
+[![CI](https://github.com/hugobelebinda/rebirth-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/hugobelebinda/rebirth-ai/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/hugobelebinda/rebirth-ai)](https://github.com/hugobelebinda/rebirth-ai/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Models on Hugging Face](https://img.shields.io/badge/models-Hugging%20Face-yellow)](https://huggingface.co/belebindahugo)
+
 **Modernize legacy code, or translate it to another language, and keep a change only when your own tests
 pass.** Rebirth runs entirely on your machine: local models in [Ollama](https://ollama.com), your tests in a
 locked-down Docker sandbox, no cloud and no API keys.
 
-![The Rebirth start screen](docs/assets/start-screen.png)
+![Rebirth modernizes a Python file with its tests passing, then translates it to Go](docs/assets/demo.gif)
+
+*A real run on [`examples/billing`](examples/billing): the start screen modernizes `src/invoice.py` (its tests
+pass, the diff is shown), then `--to go` translates it and the Go compiles. Waits for the model are shortened.*
 
 - **Modernize:** brings a file or a whole project up to current idioms in the same language.
 - **Translate:** rewrites a file in another language. Any of the 8 languages to any other.
@@ -128,22 +136,18 @@ Offline install from a USB stick or a mirror: [docs/INSTALL.md](docs/INSTALL.md)
 
 | Pack | Used for | Download | GPU memory |
 |---|---|---:|---:|
-| **modernize** | Modernizing in the same language. One 7B base model (Qwen2.5-Coder 7B) and 8 small language adapters. | ~4.8 GB | 8 GB |
-| **migrate** | Translating between languages (`--to`). One 14B model (Qwen2.5-Coder 14B, fine-tuned). | ~12.1 GB | 16 GB |
+| **modernize** | Modernizing in the same language. One 7B base model (Qwen2.5-Coder 7B) and 8 small language adapters ([on Hugging Face](https://huggingface.co/belebindahugo/rebirth-modernize-7b-lora-gguf)). | ~4.8 GB | 8 GB |
+| **migrate** | Translating between languages (`--to`). One 14B model (Qwen2.5-Coder 14B, fine-tuned; [on Hugging Face](https://huggingface.co/belebindahugo/rebirth-xlang-14b-gguf)). | ~12.1 GB | 16 GB |
+
+The model cards on Hugging Face describe the training data, the evaluations and the limits. The models also work
+without Rebirth, in plain Ollama.
 
 ## Quick start
 
 Run `rebirth` with no arguments for the start screen. It checks your setup, asks what you want to do, then shows
 and runs the matching command:
 
-```text
-What do you want to do [modernize]: modernize
-Project folder [.]: ~/code/billing
-File (Enter = the whole project) []: src/invoice.py
-Write the changes into your files? (y/N) [N]:
-
-→ rebirth migrate /home/you/code/billing --file src/invoice.py
-```
+![The Rebirth start screen](docs/assets/start-screen.png)
 
 Or use the commands directly:
 
@@ -151,6 +155,12 @@ Or use the commands directly:
 rebirth migrate ~/code/billing --file src/invoice.py             # modernize one file, show the result
 rebirth migrate-repo ~/code/billing --write                      # modernize every file, keep what passes
 rebirth migrate ~/code/billing --file src/invoice.py --to go     # translate a file to Go
+```
+
+To try it first on the example from the demo (nothing changes without `--write`):
+
+```bash
+rebirth migrate examples/billing --file src/invoice.py
 ```
 
 `rebirth --help` lists every command, and `rebirth <command> --help` lists its options.
@@ -462,7 +472,8 @@ CI runs the same lint and tests on every push. The models are trained and gated 
 - [`docs/phases/`](docs/phases/): one report per phase, with every measurement.
 
 Maintainer commands (training, evaluation, model registry, serving, monitoring) are listed under their own
-headings in `rebirth --help`.
+headings in `rebirth --help`. The README's images are made by scripts: `scripts/render_start_screen.py` for the
+screenshot, and `scripts/record_demo.py` for the demo, which records a real run.
 
 ## Contributing
 

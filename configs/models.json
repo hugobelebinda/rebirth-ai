@@ -1,5 +1,5 @@
 {
- "_doc": "Model packs for `rebirth install` / scripts/bootstrap.sh. Files are downloaded from Hugging Face (https://huggingface.co/<hf_namespace>/<hf_repo>/resolve/main/<file>), checked against sha256, then registered in Ollama. Until the release files are uploaded (Phase 19 step 6), install with --from <dir> or --from-local.",
+ "_doc": "Model packs for `rebirth install` / scripts/bootstrap.sh. Files are downloaded from Hugging Face (https://huggingface.co/<hf_namespace>/<hf_repo>/resolve/main/<file>), checked against sha256, then registered in Ollama. Published 2026-11-11: https://huggingface.co/belebindahugo. Offline: --from <dir>.",
  "version": 1,
  "hf_namespace": "belebindahugo",
  "packs": {

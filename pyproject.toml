@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rebirth-ai"
-version = "0.1.0"
+version = "1.0.0"
 description = "Modernize legacy code, or translate it between 8 languages, with local models; every change is checked by your own tests in a Docker sandbox."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -89,6 +89,7 @@ pythonpath = ["src", "."]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = ["examples"]  # deliberately old-style code for the demo
 
 [tool.ruff.lint]
 # Pinned rule set (CI runs exactly this). B008 = typer.Option(...) defaults — the typer idiom.

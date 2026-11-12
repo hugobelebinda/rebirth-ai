@@ -37,7 +37,7 @@ for question, default, answer in [
 ]:
     console.print(f"  [bold]{escape(question)}[/bold] {escape(f'[{default}]')}: {escape(answer)}")
 console.print()
-console.print(f"  [bold {start.ACCENT}]→[/] [bold]rebirth migrate /home/you/code/billing --file src/invoice.py[/bold]")
+console.print(f"  [bold {start.ACCENT}]→[/] [bold]rebirth migrate ~/code/billing --file src/invoice.py[/bold]")
 lines = list(Segment.split_lines(console._record_buffer))
 while lines and not "".join(s.text for s in lines[-1]).strip():
     lines.pop()
